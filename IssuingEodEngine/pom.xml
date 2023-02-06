@@ -1,0 +1,67 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <parent>
+        <artifactId>ECMS_EOD_PRODUCT</artifactId>
+        <groupId>com.epic.cms</groupId>
+        <version>0.0.1-SNAPSHOT</version>
+    </parent>
+    <modelVersion>4.0.0</modelVersion>
+    <packaging>pom</packaging>
+    <modules>
+        <module>EODEngineConsumer</module>
+        <module>InitialProcess</module>
+        <module>CardReplaceProcess</module>
+        <module>EodParameterResetProcess</module>
+        <module>EodAtmCashAdvanceUpdateProcess</module>
+        <module>PaymentReversalProcess</module>
+        <module>EODPaymentUpdateProcess</module>
+        <module>TxnMismatchPostProcess</module>
+        <module>AdjustmentProcess</module>
+        <module>CardFeeProcess</module>
+        <module>FeePostProcess</module>
+        <module>CardPermanentBlockProcess</module>
+        <module>CardTemporyBlockProcess</module>
+        <module>IncrementLimitExpireProcess</module>
+        <module>CardLimitEnhancementProcess</module>
+        <module>ClearMinAmountAndTempBlockProcess</module>
+        <module>CollectionAndRecoveryNotificationProcess</module>
+        <module>StampDutyFeeProcess</module>
+        <module>CheckPaymentForMinimumAmountProcess</module>
+        <module>CardExpireProcess</module>
+        <module>CRIBFileProcess</module>
+        <module>OverLimitFeeProcess</module>
+        <module>ChequePaymentProcess</module>
+        <module>DailySnapShotProcess</module>
+        <module>TxnDropRequestProcess</module>
+        <module>LoyaltyPointsCalculationProcess</module>
+        <module>CollectionAndRecoveryAlertProcess</module>
+        <module>CashBackAlertProcess</module>
+        <module>EODTransactionUpdateProcess</module>
+        <module>LoanOnCardProcess</module>
+        <module>ChequeReturnProcess</module>
+        <module>EODRunnableFeeProcess</module>
+        <module>InstallmentPayment</module>
+        <module>BalanceTransferProcess</module>
+        <module>EasyPaymentProcess</module>
+        <module>ManualNpProcess</module>
+        <module>OnlineToBackendTxnSyncProcess</module>
+        <module>KnockOffProcess</module>
+        <module>CashBackProcess</module>
+        <module>EOMInterestCalculationProcess</module>
+        <module>CardInterestCalculationProcess</module>
+        <module>MonthlyStatement</module>
+        <module>TransactionPostProcess</module>
+        <module>RiskCalculationProcess</module>
+        <module>CardRenewProcess</module>
+        <module>EOMSupplementaryCardResetProcess</module>
+    </modules>
+    <artifactId>IssuingEodEngine</artifactId>
+
+    <properties>
+        <maven.compiler.source>11</maven.compiler.source>
+        <maven.compiler.target>11</maven.compiler.target>
+    </properties>
+
+</project>

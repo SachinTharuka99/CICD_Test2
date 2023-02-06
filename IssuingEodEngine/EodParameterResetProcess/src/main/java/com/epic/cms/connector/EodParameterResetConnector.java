@@ -1,0 +1,17 @@
+package com.epic.cms.connector;
+
+import com.epic.cms.common.ProcessBuilder;
+import com.epic.cms.service.EodParameterResetProcessService;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
+
+@Service
+public class EodParameterResetConnector extends ProcessBuilder {
+    @Autowired
+    EodParameterResetProcessService eodParameterResetProcessService;
+
+    @Override
+    public void concreteProcess() throws Exception {
+        eodParameterResetProcessService.startEodParameterResetProcess();
+    }
+}

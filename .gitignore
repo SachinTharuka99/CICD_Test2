@@ -1,0 +1,61 @@
+### Java ###
+
+# Package Files #
+*.jar
+*.war
+*.ear
+*.db
+*.class
+
+
+.classpath
+.settings/
+.project
+.tern-project
+
+
+
+### Maven ###
+
+log/
+target/
+pom.xml.tag
+pom.xml.releaseBackup
+pom.xml.next
+release.properties
+
+
+
+### Eclipse ###
+
+.metadata
+*.tmp
+*.bak
+*.swp
+local.properties
+
+
+
+### idea ###
+
+*.ipr
+*.iws
+*.iml
+.idea/
+.idea_modules/
+.factorypath
+.idea/workspace.xml
+
+# netbeans
+
+nbproject/private/
+build/
+nbbuild/
+
+# the dist file could make some problems
+# dist/
+nbdist/
+nbactions.xml
+nb-configuration.xml
+.nb-gradle/
+/classes/artifacts/EPIC_CMS_WEB_V2_01_00_00_war_exploded/
