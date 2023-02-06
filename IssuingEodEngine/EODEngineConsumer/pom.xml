@@ -132,36 +132,6 @@
         </dependency>
         <dependency>
             <groupId>com.epic.cms</groupId>
-            <artifactId>PaymentFileValidateProcess</artifactId>
-            <version>0.0.1-SNAPSHOT</version>
-            <scope>compile</scope>
-        </dependency>
-        <dependency>
-            <groupId>com.epic.cms</groupId>
-            <artifactId>ATMFileValidateProcess</artifactId>
-            <version>0.0.1-SNAPSHOT</version>
-            <scope>compile</scope>
-        </dependency>
-        <dependency>
-            <groupId>com.epic.cms</groupId>
-            <artifactId>ATMFileReadProcess</artifactId>
-            <version>0.0.1-SNAPSHOT</version>
-            <scope>compile</scope>
-        </dependency>
-        <dependency>
-            <groupId>com.epic.cms</groupId>
-            <artifactId>PaymentFileReadProcess</artifactId>
-            <version>0.0.1-SNAPSHOT</version>
-            <scope>compile</scope>
-        </dependency>
-        <dependency>
-            <groupId>com.epic.cms</groupId>
-            <artifactId>CardAppRejectLetterProcess</artifactId>
-            <version>0.0.1-SNAPSHOT</version>
-            <scope>compile</scope>
-        </dependency>
-        <dependency>
-            <groupId>com.epic.cms</groupId>
             <artifactId>StampDutyFeeProcess</artifactId>
             <version>0.0.1-SNAPSHOT</version>
             <scope>compile</scope>
@@ -331,12 +301,6 @@
             <version>0.0.1-SNAPSHOT</version>
             <scope>compile</scope>
         </dependency>
-        <!--        <dependency>-->
-<!--            <groupId>com.epic.cms</groupId>-->
-<!--            <artifactId>EOMInterestCalculationProcess</artifactId>-->
-<!--            <version>0.0.1-SNAPSHOT</version>-->
-<!--            <scope>compile</scope>-->
-<!--        </dependency>-->
     </dependencies>
     <dependencyManagement>
         <dependencies>

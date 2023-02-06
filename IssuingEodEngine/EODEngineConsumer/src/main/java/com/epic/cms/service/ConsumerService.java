@@ -59,22 +59,6 @@ public class ConsumerService {
 
     @Autowired
     CollectionAndRecoveryConnector collectionAndRecoveryConnector;
-
-    @Autowired
-    PaymentFileValidateConnector PaymentFileValidateConnector;
-
-    @Autowired
-    ATMFileValidateConnector atmFileValidateConnector;
-
-    @Autowired
-    ATMFileReadConnector atmFileReadConnector;
-
-    @Autowired
-    PaymentFileReadConnector paymentFileReadConnector;
-
-    @Autowired
-    CardApplicationRejectLetterConnector cardApplicationRejectLetterConnector;
-
     @Autowired
     StampDutyFeeConnector stampDutyFeeConnector;
 
@@ -276,41 +260,6 @@ public class ConsumerService {
     public void collectionAndRecoveryConsumer(String msg) throws Exception {
         System.out.println("Start Collection And Recovery Notification Process");
         collectionAndRecoveryConnector.startProcess();
-        System.out.println("Complete Collection And Recovery Notification Process");
-    }
-
-    @KafkaListener(topics = "paymentFileValidate", groupId = "group_paymentFileValidate")
-    public void paymentFileValidateConsumer(String msg) throws Exception {
-        System.out.println("Start Collection And Recovery Notification Process");
-        PaymentFileValidateConnector.startProcess();
-        System.out.println("Complete Collection And Recovery Notification Process");
-    }
-
-    @KafkaListener(topics = "ATMFileValidate", groupId = "group_ATMFileValidate")
-    public void ATMFileValidateConsumer(String msg) throws Exception {
-        System.out.println("Start Collection And Recovery Notification Process");
-        atmFileValidateConnector.startProcess();
-        System.out.println("Complete Collection And Recovery Notification Process");
-    }
-
-    @KafkaListener(topics = "ATMFileRead", groupId = "group_ATMFileRead")
-    public void ATMFileReadConsumer(String msg) throws Exception {
-        System.out.println("Start Collection And Recovery Notification Process");
-        atmFileValidateConnector.startProcess();
-        System.out.println("Complete Collection And Recovery Notification Process");
-    }
-
-    @KafkaListener(topics = "paymentFileRead", groupId = "group_paymentFileRead")
-    public void paymentFileReadConsumer(String msg) throws Exception {
-        System.out.println("Start Collection And Recovery Notification Process");
-        paymentFileReadConnector.startProcess();
-        System.out.println("Complete Collection And Recovery Notification Process");
-    }
-
-    @KafkaListener(topics = "cardApplicationRejectLetter", groupId = "group_cardApplicationRejectLetter")
-    public void CardApplicationRejectLetterConsumer(String msg) throws Exception {
-        System.out.println("Start Collection And Recovery Notification Process");
-        cardApplicationRejectLetterConnector.startProcess();
         System.out.println("Complete Collection And Recovery Notification Process");
     }
 
