@@ -34,9 +34,7 @@ public class MasterFileClearingConnector extends FileProcessingProcessBuilder {
         System.out.println("Class Name:MasterFileClearingConnector,File ID:" + fileId + ",Current Thread:" + Thread.currentThread().getName());
         FileBean fileBean;
         try {
-            infoLogger.info(logManager.processHeaderStyle("Master File Clearing Process, File ID: " + fileId));
-            infoLogger.info(logManager.processStartEndStyle("Master File Clearing Process Started"));
-            //Configurations.RUNNING_PROCESS_ID = Configurations.PROCESS_ATM_FILE_READ;
+            Configurations.RUNNING_PROCESS_ID = Configurations.PROCESS_ATM_FILE_READ;
             //reset eod dashboard parameters
             CommonMethods.eodDashboardProgressParametersReset();
 
@@ -71,9 +69,6 @@ public class MasterFileClearingConnector extends FileProcessingProcessBuilder {
             } catch (Exception e) {
                 errorLogger.error("", e);
             }
-
-        } finally {
-            infoLogger.info(logManager.ProcessStartEndStyle("Master File Clearing Process Completed"));
         }
     }
 

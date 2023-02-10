@@ -17,6 +17,8 @@ import com.epic.cms.util.*;
 import org.jpos.iso.ISOUtil;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Propagation;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.io.File;
 import java.io.FileInputStream;
@@ -45,6 +47,7 @@ public class MasterFileClearingService {
      *
      * @param fileBean
      */
+    @Transactional(value="transactionManager",propagation = Propagation.REQUIRED,rollbackFor = Exception.class)
     public void processFile(FileBean fileBean) {
         MasterFieldsDataBean masterFieldsBean = new MasterFieldsDataBean();
         MasterRejectBean rejectBean = new MasterRejectBean();

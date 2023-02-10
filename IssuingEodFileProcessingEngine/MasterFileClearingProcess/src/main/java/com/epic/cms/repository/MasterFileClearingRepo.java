@@ -55,7 +55,6 @@ public class MasterFileClearingRepo implements MasterFileClearingDao {
     private JdbcTemplate onlineJdbcTemplate;
 
     @Override
-    @Transactional("backendDb")
     public boolean isFilesAvailable(String status) throws Exception {
         int recordCount = 0;
         try {
@@ -73,7 +72,6 @@ public class MasterFileClearingRepo implements MasterFileClearingDao {
     }
 
     @Override
-    @Transactional("backendDb")
     public ArrayList<FileBean> getFileDetails(String status) throws Exception {
         ArrayList<FileBean> fileNames = new ArrayList<>();
         try {
@@ -95,7 +93,6 @@ public class MasterFileClearingRepo implements MasterFileClearingDao {
     }
 
     @Override
-    @Transactional("backendDb")
     public void loadFilePaths() throws Exception {
         try {
             String query = "SELECT FILETYPE,FILEPATHWINDOWS,FILEPATHLINUX,BACKUPPATHWINDOWS,BACKUPPATHLINUX FROM EODFILEINFO WHERE FILETYPE = ?";
@@ -109,11 +106,9 @@ public class MasterFileClearingRepo implements MasterFileClearingDao {
         } catch (Exception ex) {
             throw ex;
         }
-
     }
 
     @Override
-    @Transactional("backendDb")
     public FileBean getMasterFileInfo(String fileId) throws Exception {
         FileBean fileBean = new FileBean();
         try {
@@ -140,7 +135,6 @@ public class MasterFileClearingRepo implements MasterFileClearingDao {
     }
 
     @Override
-    @Transactional(value = "backendDb", propagation = Propagation.NESTED, isolation = Isolation.SERIALIZABLE)
     public void updateFileStartTime(String fileId) throws DataAccessException {
         try {
             String query = "UPDATE EODMASTERFILE SET STARTTIME = SYSDATE WHERE FILEID = ?";
@@ -151,7 +145,6 @@ public class MasterFileClearingRepo implements MasterFileClearingDao {
     }
 
     @Override
-    @Transactional(value = "backendDb", propagation = Propagation.NESTED, isolation = Isolation.SERIALIZABLE)
     public void updateFileStatus(String fileId, String status) throws DataAccessException {
         try {
             String query = "UPDATE EODMASTERFILE SET STATUS=?,EODID=? WHERE FILEID = ?";
@@ -162,7 +155,6 @@ public class MasterFileClearingRepo implements MasterFileClearingDao {
     }
 
     @Override
-    @Transactional(value = "backendDb", propagation = Propagation.NESTED, isolation = Isolation.SERIALIZABLE)
     public void insertFileDetailsIntoEODMasterInputRowData(String fileID, String lineNumber, String content) throws DataAccessException {
         try {
             String query = "INSERT INTO EODMASTERINPUTROWDATA"
@@ -174,7 +166,6 @@ public class MasterFileClearingRepo implements MasterFileClearingDao {
     }
 
     @Override
-    @Transactional(value = "backendDb", propagation = Propagation.NESTED, isolation = Isolation.SERIALIZABLE)
     public void insertFileDetailsIntoEODMasterFieldIdentity(MasterFieldsDataBean masterBean) throws DataAccessException {
         try {
             String query = "INSERT INTO EODMASTERFIELDIDENTITY "
@@ -344,7 +335,6 @@ public class MasterFileClearingRepo implements MasterFileClearingDao {
     }
 
     @Override
-    @Transactional(value = "backendDb", propagation = Propagation.NESTED, isolation = Isolation.SERIALIZABLE)
     public void insertFileDetailsIntoEODMasterTransaction(MasterFieldsDataBean masterBean) throws Exception {
         try {
             String query = "INSERT INTO EODMASTERTRANSACTION "
@@ -425,7 +415,6 @@ public class MasterFileClearingRepo implements MasterFileClearingDao {
     }
 
     @Override
-    @Transactional(value = "backendDb", propagation = Propagation.NESTED, isolation = Isolation.SERIALIZABLE)
     public int insertExceptionalTransactionData(String fileID, String txnID, String TC, StringBuffer cardNumber, String authCode, String MID, String sourceAmount, String sourceCurrencyCode, String txnDate, String txnTime, String processingDate, String lstUpdateUser, Date lstUpdateDate, String destinationAmount, String destinationCurrencyCode, String financialStatus, String merchantName, String merchantCity, String merchantCountryCode, String MCC, String merchantZipCode, String merchantState, String rrn, String tid, String posEntryMode, String fileType) throws Exception {
         int count = 0;
         try {
@@ -472,7 +461,6 @@ public class MasterFileClearingRepo implements MasterFileClearingDao {
     }
 
     @Override
-    @Transactional(value = "backendDb", propagation = Propagation.NESTED, isolation = Isolation.SERIALIZABLE)
     public void insertRejectedMasterDetails(MasterRejectBean rejectBean, String user) throws Exception {
         try {
             String query = "INSERT INTO EODMASTERREJECT"
@@ -506,7 +494,6 @@ public class MasterFileClearingRepo implements MasterFileClearingDao {
     }
 
     @Override
-    @Transactional(value = "backendDb", propagation = Propagation.NESTED, isolation = Isolation.SERIALIZABLE)
     public void updateFileTxnCount(String fileId, String tCount) throws Exception {
         try {
             String query = "UPDATE EODMASTERFILE SET NOOFTRANSACTION = ? WHERE FILEID = ?";
@@ -529,7 +516,6 @@ public class MasterFileClearingRepo implements MasterFileClearingDao {
     }
 
     @Override
-    @Transactional(value = "backendDb", propagation = Propagation.NESTED, isolation = Isolation.SERIALIZABLE)
     public void insertMasterPDSDetailsIntoEODMASTERPDSDATA(MasterPDSBean masterPDSBean) throws Exception {
         try {
             String query = "INSERT INTO EODMASTERPDSDATA(TXNID,FILEID,MTI,FIELDID,PDS,"
