@@ -49,9 +49,8 @@ public class VisaBaseIIFileClearingConnector extends FileProcessingProcessBuilde
         int validationOutput = 0;
         int txnComposingOutput = 0;
         try {
-            infoLogger.info(logManager.processHeaderStyle("VISA BaseII File Clearing Process, File ID: " + fileId));
-            infoLogger.info(logManager.processStartEndStyle("VISA BaseII File Clearing Process Started"));
             Configurations.RUNNING_PROCESS_ID = Configurations.PROCESS_ID_VISA_BASEII_CLEARING;
+            CommonMethods.eodDashboardProgressParametersReset();
 
             if ("LINUX".equals(Configurations.SERVER_RUN_PLATFORM)) {
                 filepath = commonRepo.getLinuxFilePath(Configurations.FILE_CODE_VISA);
@@ -86,19 +85,13 @@ public class VisaBaseIIFileClearingConnector extends FileProcessingProcessBuilde
                         sessionId = System.currentTimeMillis() + "";
 
                         //file validation
-                        infoLogger.info(logManager.ProcessStartEndStyle("VISA Base II File Validation Started"));
                         validationOutput = visaBaseIIFileClearingRepo.visaFileValidate(fileBean.getFileId(), fileBean.getFileStatus(), sessionId);
-                        infoLogger.info(logManager.ProcessStartEndStyle("VISA Base II File Validation Completed"));
 
                         //transactions composing
-                        infoLogger.info(logManager.ProcessStartEndStyle("VISA Base II File Transaction Composing Started"));
                         txnComposingOutput = visaBaseIIFileClearingRepo.composeVisaFileTransactions(fileBean.getFileId(), sessionId);
-                        infoLogger.info(logManager.ProcessStartEndStyle("VISA Base II File Transaction Composing Completed"));
 
                         //T56 currency update records composing
-                        infoLogger.info(logManager.ProcessStartEndStyle("VISA Base II File TC56 Currency Update Records Composing Started"));
                         visaBaseIIFileClearingService.composeCurrencyUpdateRecords(fileId);
-                        infoLogger.info(logManager.ProcessStartEndStyle("VISA Base II File TC56 Currency Update Records Composing Completed"));
 
                         //update file status
                         if (validationOutput == 1) {
@@ -128,8 +121,6 @@ public class VisaBaseIIFileClearingConnector extends FileProcessingProcessBuilde
             } catch (Exception e) {
                 errorLogger.error("", e);
             }
-        } finally {
-            infoLogger.info(logManager.ProcessStartEndStyle("VISA Base II File Clearing Process Completed"));
         }
     }
 

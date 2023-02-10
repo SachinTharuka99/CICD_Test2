@@ -47,9 +47,10 @@ public class VisaBaseIIFileClearingRepo implements VisaBaseIIFileClearingDao {
     StatusVarList status;
     @Autowired
     private JdbcTemplate backendJdbcTemplate;
+    @Autowired
+    CommonRepo commonRepo;
 
     @Override
-    @Transactional("backendDb")
     public FileBean getVisaFileInfo(String fileId) throws Exception {
         FileBean fileDataBean = new FileBean();
         try {
@@ -78,7 +79,6 @@ public class VisaBaseIIFileClearingRepo implements VisaBaseIIFileClearingDao {
     }
 
     @Override
-    @Transactional(value = "backendDb", propagation = Propagation.NESTED, isolation = Isolation.SERIALIZABLE)
     public int updateEODVISAFILE(String fileid) throws Exception {
         int count = 0;
 
@@ -100,7 +100,6 @@ public class VisaBaseIIFileClearingRepo implements VisaBaseIIFileClearingDao {
     }
 
     @Override
-    @Transactional(value = "backendDb", propagation = Propagation.NESTED, isolation = Isolation.SERIALIZABLE)
     public int updateEODVISAILE(String fileid, String status) throws Exception {
         int count = 0;
 
@@ -124,7 +123,6 @@ public class VisaBaseIIFileClearingRepo implements VisaBaseIIFileClearingDao {
     }
 
     @Override
-    @Transactional(value = "backendDb", propagation = Propagation.NESTED, isolation = Isolation.SERIALIZABLE)
     public void updateRecVisaFileStatus(String fileId, String status) throws Exception {
         String query = "UPDATE EODVISAFILE SET STATUS = ?, EODID=? WHERE FILEID = ?";
         try {
@@ -138,7 +136,6 @@ public class VisaBaseIIFileClearingRepo implements VisaBaseIIFileClearingDao {
     }
 
     @Override
-    @Transactional(value = "backendDb", propagation = Propagation.NESTED, isolation = Isolation.SERIALIZABLE)
     public void updateVisaProcessingStartTime(String fileId) throws Exception {
         String query = "UPDATE EODVISAFILE SET STARTTIME=SYSDATE WHERE FILEID=?";
         try {
@@ -150,7 +147,6 @@ public class VisaBaseIIFileClearingRepo implements VisaBaseIIFileClearingDao {
     }
 
     @Override
-    @Transactional(value = "backendDb", propagation = Propagation.NESTED, isolation = Isolation.SERIALIZABLE)
     public void updateVisaFileLineNumbers(int noOfRecords, String fileID) throws Exception {
         String query = "UPDATE EODVISAFILE SET NOOFRECORDS=? WHERE FILEID=?";
         try {
@@ -163,7 +159,6 @@ public class VisaBaseIIFileClearingRepo implements VisaBaseIIFileClearingDao {
     }
 
     @Override
-    @Transactional(value = "backendDb", propagation = Propagation.NESTED, isolation = Isolation.SERIALIZABLE)
     public int visaFileValidate(String fileId, String fileStatus, String sessionId) throws Exception {
         int procedureOutput = 1;
         try {
@@ -195,7 +190,6 @@ public class VisaBaseIIFileClearingRepo implements VisaBaseIIFileClearingDao {
     }
 
     @Override
-    @Transactional(value = "backendDb")
     public int composeVisaFileTransactions(String fileId, String sessionId) throws Exception {
         int procedureOutput = 0;
         try {
@@ -216,7 +210,6 @@ public class VisaBaseIIFileClearingRepo implements VisaBaseIIFileClearingDao {
     }
 
     @Override
-    @Transactional("backendDb")
     public ArrayList<String> getVisaTxnIDListForTC56(String fileID) throws Exception {
         ArrayList<String> visaTxnIDList = new ArrayList<>();
         String query = "SELECT DISTINCT TXNID FROM RECVISAFIELDIDENTITY T1 WHERE T1.FILEID=? AND T1.TC='56' AND T1.STATUS=0 ORDER BY TXNID";
@@ -236,7 +229,6 @@ public class VisaBaseIIFileClearingRepo implements VisaBaseIIFileClearingDao {
     }
 
     @Override
-    @Transactional("backendDb")
     public VisaTC56ComposingDataBean getVisaComposingDataForTC56(String txnID, String tcr, String fileID) throws Exception {
         VisaTC56ComposingDataBean visaTC56ComposingDataBean = new VisaTC56ComposingDataBean();
         String query = "SELECT FIELD04,FIELD05,FIELD06,FIELD07,FIELD08,FIELD09,FIELD10 FROM RECVISAFIELDIDENTITY WHERE TXNID=? "
@@ -269,7 +261,6 @@ public class VisaBaseIIFileClearingRepo implements VisaBaseIIFileClearingDao {
     }
 
     @Override
-    @Transactional(value = "backendDb")
     public void insertVisaTC56ComposedData(List<VisaTC56CurrencyEntryBean> currencyList, String fileBaseCurrencyCode, BigDecimal eodBaseCurrencyBuyingRate, BigDecimal eodBaseCurrencySellingRate) throws Exception {
         String query = "";
         try {
@@ -278,6 +269,8 @@ public class VisaBaseIIFileClearingRepo implements VisaBaseIIFileClearingDao {
                     String calculatedBuyingRate;
                     String calculatedSellingRate;
                     String effectiveDate = "";
+
+                    //Configurations.BASE_CURRENCY = commonRepo.getBaseCurrency();
 
                     if (!fileBaseCurrencyCode.equals(Configurations.BASE_CURRENCY)) { //if file base currency not equal to eod base currency (eg: file base currency:USD, eod base currency:LKR)
                         calculatedBuyingRate = visaTC56CurrencyEntryBean.getBuyRate().divide(eodBaseCurrencyBuyingRate, MathContext.DECIMAL32).setScale(12, RoundingMode.DOWN).toString();
@@ -361,7 +354,6 @@ public class VisaBaseIIFileClearingRepo implements VisaBaseIIFileClearingDao {
     }
 
     @Override
-    @Transactional(value = "backendDb", propagation = Propagation.NESTED, isolation = Isolation.SERIALIZABLE)
     public int updateTC56RecordsAsComposed(String fileId) throws Exception {
         int count = 0;
         String sql = "UPDATE RECVISAFIELDIDENTITY SET STATUS=1 WHERE FILEID=? AND TC=56 AND STATUS=0";
@@ -375,7 +367,6 @@ public class VisaBaseIIFileClearingRepo implements VisaBaseIIFileClearingDao {
     }
 
     @Override
-    @Transactional(value = "backendDb", propagation = Propagation.NESTED, isolation = Isolation.SERIALIZABLE)
     public void updateVisaProcessingStopTime(String fileID) {
         String query = "UPDATE EODVISAFILE SET ENDTIME=SYSDATE WHERE FILEID=?";
         try {
@@ -387,7 +378,6 @@ public class VisaBaseIIFileClearingRepo implements VisaBaseIIFileClearingDao {
     }
 
     @Override
-    @Transactional(value = "backendDb", propagation = Propagation.NESTED, isolation = Isolation.SERIALIZABLE)
     public void updateVisaFileStatus(String status, String fileId) throws Exception {
         try {
             String query = "UPDATE EODVISAFILE SET STATUS=?, LASTUPDATEDUSER=?, LASTUPDATEDDATE=SYSDATE WHERE FILEID=? ";

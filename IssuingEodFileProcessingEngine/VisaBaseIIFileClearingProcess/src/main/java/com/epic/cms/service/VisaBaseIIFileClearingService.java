@@ -10,6 +10,7 @@ package com.epic.cms.service;
 import com.epic.cms.model.bean.FileBean;
 import com.epic.cms.model.bean.VisaTC56ComposingDataBean;
 import com.epic.cms.model.bean.VisaTC56CurrencyEntryBean;
+import com.epic.cms.repository.CommonRepo;
 import com.epic.cms.repository.VisaBaseIIFileClearingRepo;
 import com.epic.cms.util.Configurations;
 import com.epic.cms.util.LogManager;
@@ -19,6 +20,8 @@ import org.springframework.batch.core.launch.JobLauncher;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Propagation;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.math.BigDecimal;
 import java.util.ArrayList;
@@ -39,6 +42,8 @@ public class VisaBaseIIFileClearingService {
     @Autowired
     @Qualifier("file_read_job")
     private Job visaFileReadJob;
+    @Autowired
+    CommonRepo commonRepo;
 
     //TC 56 Currency records compose related variables
     private String fileBaseCurrency; // base currency code of currency update file
@@ -86,6 +91,7 @@ public class VisaBaseIIFileClearingService {
      * @param fileId
      * @throws Exception
      */
+    @Transactional(value="transactionManager",propagation = Propagation.REQUIRED,rollbackFor = Exception.class)
     public void composeCurrencyUpdateRecords(String fileId) throws Exception {
         String txnIDToCompose, tcr = "", firstCurrencyEntry = "", secondCurrencyEntry = "", thirdCurrencyEntry = "", fourthCurrencyEntry = "", fifthCurrencyEntry = "",
                 sixthCurrencyEntry = "", seventhCurrencyEntry = "", eighthCurrencyEntry = "", ninthCurrencyEntry = "", tenthcurrencyEntry = "", eleventhCurrencyEntry = "";
