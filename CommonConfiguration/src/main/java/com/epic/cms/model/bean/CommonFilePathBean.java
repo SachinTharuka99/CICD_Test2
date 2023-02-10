@@ -34,5 +34,4 @@ public class CommonFilePathBean {
     private String outgoingCupStatementFile;
 
 
-
 }

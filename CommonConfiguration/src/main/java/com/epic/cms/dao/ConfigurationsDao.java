@@ -7,4 +7,6 @@ public interface ConfigurationsDao {
     void loadFilePath() throws Exception;
 
     void setConfigurations();
+
+    void loadBaseCurrency() throws Exception;
 }

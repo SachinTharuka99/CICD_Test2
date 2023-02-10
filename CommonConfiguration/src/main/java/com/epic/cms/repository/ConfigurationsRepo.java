@@ -538,9 +538,19 @@ public class ConfigurationsRepo implements ConfigurationsDao {
             //acquiring
             Configurations.PROCESS_ID_COMMISSION_CALCULATION = configVarList.getCommission_calculation_process();
 
-
-
         } catch (Exception e) {
+            throw e;
+        }
+    }
+
+    @Override
+    @Transactional("backendDb")
+    public void loadBaseCurrency() throws Exception{
+        String query = "SELECT BASECURRENCY FROM COMMONPARAMETER";
+
+        try {
+            Configurations.BASE_CURRENCY = backendJdbcTemplate.queryForObject(query,String.class);
+        } catch(Exception e) {
             throw e;
         }
     }

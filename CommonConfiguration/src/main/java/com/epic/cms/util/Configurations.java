@@ -625,6 +625,26 @@ public class Configurations {
     public static String BULK_STATUS;
     public static String STATUS;
 
+    //EOD File Processing
+    public static volatile int PROCESS_ATM_FILE_CLEARING_SUCCESS_COUNT = 0;
+    public static volatile int PROCESS_ATM_FILE_CLEARING_FAILD_COUNT = 0;
+    public static volatile int PROCESS_ATM_FILE_CLEARING_TOTAL_NOOF_TRABSACTIONS = 0;
+    public static volatile int PROCESS_ATM_FILE_CLEARING_INVALID_COUNT = 0;
+
+    public static volatile int PROCESS_PAYMENT_FILE_CLEARING_SUCCESS_COUNT = 0;
+    public static volatile int PROCESS_PAYMENT_FILE_CLEARING_FAILD_COUNT = 0;
+    public static volatile int PROCESS_PAYMENT_FILE_CLEARING_TOTAL_NOOF_TRABSACTIONS = 0;
+    public static volatile int PROCESS_PAYMENT_FILE_CLEARING_INVALID_COUNT = 0;
+
+    public static volatile int PROCESS_VISA_FILE_CLEARING_SUCCESS_COUNT = 0;
+    public static volatile int PROCESS_VISA_FILE_CLEARING_FAILD_COUNT = 0;
+    public static volatile int PROCESS_VISA_FILE_CLEARING_TOTAL_NOOF_TRABSACTIONS = 0;
+    public static volatile int PROCESS_VISA_FILE_CLEARING_INVALID_COUNT = 0;
+
+    public static volatile int PROCESS_MASTER_FILE_CLEARING_SUCCESS_COUNT = 0;
+    public static volatile int PROCESS_MASTER_FILE_CLEARING_FAILD_COUNT = 0;
+    public static volatile int PROCESS_MASTER_FILE_CLEARING_TOTAL_NOOF_TRABSACTIONS = 0;
+    public static volatile int PROCESS_MASTER_FILE_CLEARING_INVALID_COUNT = 0;
 
 
     /*BASE II Clearing*/

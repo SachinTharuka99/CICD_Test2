@@ -31,4 +31,9 @@ public class ConfigurationService {
         configurationsRepo.loadFilePath();
     }
 
+    @PostConstruct
+    public void loadBaseCurrency() throws Exception {
+        configurationsRepo.loadBaseCurrency();
+    }
+
 }
