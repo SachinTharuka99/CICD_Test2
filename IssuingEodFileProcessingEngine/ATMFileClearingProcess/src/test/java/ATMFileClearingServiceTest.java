@@ -117,7 +117,7 @@ public class ATMFileClearingServiceTest {
                 any(BigDecimal.class))).thenReturn(1);
 
         // Run the test
-        atmFileClearingServiceUnderTest.validateFile(fileId, paymentFileBean, successCount, failCount, invalidCount);
+        atmFileClearingServiceUnderTest.validateFile(fileId, paymentFileBean);
 
         // Verify the results
         if (testCase.equals(testCase1)) {

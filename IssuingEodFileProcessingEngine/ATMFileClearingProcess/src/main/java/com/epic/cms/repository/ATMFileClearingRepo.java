@@ -44,7 +44,6 @@ public class ATMFileClearingRepo implements ATMFileClearingDao {
     private JdbcTemplate backendJdbcTemplate;
 
     @Override
-    @Transactional("backendDb")
     public FileBean getATMFileInfo(String fileId) throws Exception {
         FileBean fileBean = new FileBean();
         try {
@@ -71,7 +70,6 @@ public class ATMFileClearingRepo implements ATMFileClearingDao {
     }
 
     @Override
-    @Transactional(value = "backendDb", propagation = Propagation.NESTED, isolation = Isolation.SERIALIZABLE)
     public void updateATMFileStatus(String status, String fileId) throws Exception {
         try {
             String query = "UPDATE EODATMFILE SET STATUS=?, LASTUPDATEDUSER=?, LASTUPDATEDDATE=SYSDATE WHERE FILEID=? ";
@@ -86,7 +84,6 @@ public class ATMFileClearingRepo implements ATMFileClearingDao {
     }
 
     @Override
-    @Transactional("backendDb")
     public ProcessBean getProcessDetails(int processId) throws Exception {
         SimpleDateFormat sdf = null;
         String DATE_FORMAT = null;
@@ -117,12 +114,10 @@ public class ATMFileClearingRepo implements ATMFileClearingDao {
             errorLogger.error(String.valueOf(e));
             throw e;
         }
-
         return processDetails;
     }
 
     @Override
-    @Transactional("backendDb")
     public Hashtable<String, String[]> getATMFieldsValidation() throws Exception {
         Hashtable<String, String[]> paymentFieldValidationsTable = new Hashtable<String, String[]>();
 
@@ -142,12 +137,10 @@ public class ATMFileClearingRepo implements ATMFileClearingDao {
             errorLogger.error(String.valueOf(e));
             throw e;
         }
-
         return paymentFieldValidationsTable;
     }
 
     @Override
-    @Transactional("backendDb")
     public ArrayList<RecATMFileIptRowDataBean> getAtmFileContents(String fileid) throws Exception {
         ArrayList<RecATMFileIptRowDataBean> fileContentList = new ArrayList<RecATMFileIptRowDataBean>();
 
@@ -174,7 +167,6 @@ public class ATMFileClearingRepo implements ATMFileClearingDao {
     }
 
     @Override
-    @Transactional("backendDb")
     public String getErrorDesc(String validaionId) throws Exception {
         String validationDesc = null;
         String query = "SELECT VALIDATIONDESC FROM RECPAYMENTFIELDVALIDATION WHERE VALIDATIONID = ?";
@@ -188,7 +180,6 @@ public class ATMFileClearingRepo implements ATMFileClearingDao {
     }
 
     @Override
-    @Transactional("backendDb")
     public String getATMFieldDesc(String fieldId) throws Exception {
         String fieldDesc = "";
         String query = "SELECT FIELDCODE FROM RECATMFIELD WHERE FIELDID = ?";
@@ -202,7 +193,6 @@ public class ATMFileClearingRepo implements ATMFileClearingDao {
     }
 
     @Override
-    @Transactional("backendDb")
     public boolean checkForValidCard(StringBuffer cardNumber) throws Exception {
         boolean status = false;
         int recordCount = 0;
@@ -222,7 +212,6 @@ public class ATMFileClearingRepo implements ATMFileClearingDao {
     }
 
     @Override
-    @Transactional(value = "backendDb", propagation = Propagation.NESTED, isolation = Isolation.SERIALIZABLE)
     public int insertToATMTRANSACTION(String fileId, String txnId, String[] paymentFields) throws Exception {
         int count = 0;
 
@@ -258,7 +247,6 @@ public class ATMFileClearingRepo implements ATMFileClearingDao {
     }
 
     @Override
-    @Transactional(value = "backendDb", propagation = Propagation.NESTED, isolation = Isolation.READ_COMMITTED)
     public int insertExceptionalTransactionData(String fileId, String txnId, String TC, StringBuffer cardNumber, String authCode, String MID, String sourceAmount, String sourceCurrencyCode, String txnDate, String txnTime, String processingDate, String lstUpdateUser, Date lstUpdateDate, String destinationAmount, String destinationCurrencyCode, String financialStatus, String merchantName, String merchantCity, String merchantCountryCode, String MCC, String merchantZipCode, String merchantState, String rrn, String tid, String posEntryMode, String fileType, String description) throws Exception {
         int count = 0;
 
@@ -286,7 +274,6 @@ public class ATMFileClearingRepo implements ATMFileClearingDao {
     }
 
     @Override
-    @Transactional(value = "backendDb", propagation = Propagation.NESTED, isolation = Isolation.READ_COMMITTED)
     public int updateRawAtm(String fileId, BigDecimal lineNumber) throws Exception {
         int count = 0;
 
@@ -306,7 +293,6 @@ public class ATMFileClearingRepo implements ATMFileClearingDao {
     }
 
     @Override
-    @Transactional("backendDb")
     public void markAtmReversal(String fileId) throws Exception {
         List<String> lst = new ArrayList<>();
 
@@ -338,7 +324,6 @@ public class ATMFileClearingRepo implements ATMFileClearingDao {
     }
 
     @Override
-    @Transactional(value = "onlineDb", propagation = Propagation.NESTED, isolation = Isolation.SERIALIZABLE)
     public int insertToRECATMFILEINVALID(String fileId, BigDecimal linenumber, String errorMsg) throws Exception {
         int count = 0;
 

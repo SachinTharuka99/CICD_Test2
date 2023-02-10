@@ -56,14 +56,11 @@ public class ATMFileClearingConnector extends FileProcessingProcessBuilder {
         boolean fileReadStatus = false;
         //for validation part
         int totalCount = 0;
-        AtomicInteger successCount = new AtomicInteger(0);
-        AtomicInteger failCount = new AtomicInteger(0);
-        AtomicInteger invalidCount = new AtomicInteger(0);
+
         ArrayList<RecATMFileIptRowDataBean> fileContent = new ArrayList<RecATMFileIptRowDataBean>();
         try {
-            infoLogger.info(logManager.processHeaderStyle("ATM File Clearing Process, File ID: " + fileId));
-            infoLogger.info(logManager.processStartEndStyle("ATM File Clearing Process Started"));
             Configurations.RUNNING_PROCESS_ID = Configurations.PROCESS_ATM_FILE_READ;
+            CommonMethods.eodDashboardProgressParametersReset();
 
             if ("LINUX".equals(Configurations.SERVER_RUN_PLATFORM)) {
                 filepath = commonRepo.getLinuxFilePath(Configurations.FILE_CODE_ATM);
@@ -87,13 +84,12 @@ public class ATMFileClearingConnector extends FileProcessingProcessBuilder {
                         fileReadStatus = atmFileClearingService.readFile(fileBean);
                         if (fileReadStatus) {
                             // if file reading completed then start validation part
-                            infoLogger.info(logManager.ProcessStartEndStyle("ATM File Validation Started"));
 
                             Configurations.ATM_VALIDATION_HASH_TABLE = atmFileClearingRepo.getATMFieldsValidation();
                             fileContent = atmFileClearingRepo.getAtmFileContents(fileId);
-                            totalCount = fileContent.size();//no of lines of the file
+                            Configurations.PROCESS_ATM_FILE_CLEARING_TOTAL_NOOF_TRABSACTIONS = fileContent.size();//no of lines of the file
                             for (RecATMFileIptRowDataBean paymentFileBean : fileContent) {
-                                atmFileClearingService.validateFile(fileId, paymentFileBean, successCount, failCount, invalidCount);
+                                atmFileClearingService.validateFile(fileId, paymentFileBean);
                             }
 
                             //wait till all the threads are completed
@@ -105,14 +101,14 @@ public class ATMFileClearingConnector extends FileProcessingProcessBuilder {
                             //update file status to COMP
                             atmFileClearingRepo.updateATMFileStatus(status.getCOMMON_COMPLETED(), fileId);
 
+                            summery.put("Started Date ", Configurations.EOD_DATE.toString());
                             summery.put("File ID ", fileId);
-                            summery.put("Number of ATM transactions to process ", totalCount);
-                            summery.put("Number of success transactions ", successCount);
-                            summery.put("Number of invalid transactions ", invalidCount);
-                            summery.put("Number of failure transactions ", failCount);
+                            summery.put("Number of ATM transactions to process ", Configurations.PROCESS_ATM_FILE_CLEARING_TOTAL_NOOF_TRABSACTIONS);
+                            summery.put("Number of success transactions ", Configurations.PROCESS_ATM_FILE_CLEARING_SUCCESS_COUNT);
+                            summery.put("Number of invalid transactions ", Configurations.PROCESS_ATM_FILE_CLEARING_INVALID_COUNT);
+                            summery.put("Number of failure transactions ", Configurations.PROCESS_ATM_FILE_CLEARING_FAILD_COUNT);
 
                             infoLogger.info(logManager.processSummeryStyles(summery));
-                            infoLogger.info(logManager.ProcessStartEndStyle("ATM File Validation Completed"));
                         } else {
                             errorLogger.error("ATM file reading failed for file " + fileId);
                             //update file read status to FAIL
@@ -142,8 +138,6 @@ public class ATMFileClearingConnector extends FileProcessingProcessBuilder {
             } catch (Exception e) {
                 errorLogger.error("", e);
             }
-        } finally {
-            infoLogger.info(logManager.ProcessStartEndStyle("ATM File Clearing Process Completed"));
         }
     }
 

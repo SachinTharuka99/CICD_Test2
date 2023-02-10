@@ -21,6 +21,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Propagation;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.io.IOException;
 import java.math.BigDecimal;
@@ -90,12 +92,10 @@ public class ATMFileClearingService {
      *
      * @param fileId
      * @param paymentFileBean
-     * @param successCount
-     * @param failCount
-     * @param invalidCount
      */
     @Async("ThreadPool_ATMFileValidator")
-    public void validateFile(String fileId, RecATMFileIptRowDataBean paymentFileBean, AtomicInteger successCount, AtomicInteger failCount, AtomicInteger invalidCount) {
+    @Transactional(value="transactionManager",propagation = Propagation.REQUIRED,rollbackFor = Exception.class)
+    public void validateFile(String fileId, RecATMFileIptRowDataBean paymentFileBean) {
         System.out.println("Class Name:ATMFileValidateService,File ID:" + paymentFileBean.getFileid() + ",Line Number:" + paymentFileBean.getLinenumber() + ",Current Thread:" + Thread.currentThread().getName());
         LinkedHashMap details = new LinkedHashMap();
         String errorMsg = "";
@@ -130,7 +130,8 @@ public class ATMFileClearingService {
                         atmFileClearingRepo.insertToRECATMFILEINVALID(fileId, lineNumber, errorMsg);
                         errorMsg = "validation failed in line number " + lineNumber + "|" + atmField;
                         errorLogger.error(errorMsg);
-                        invalidCount.addAndGet(1);//increase invalid count by 1
+                        //invalidCount.addAndGet(1);//increase invalid count by 1
+                        Configurations.PROCESS_ATM_FILE_CLEARING_INVALID_COUNT++;
                         if (!isLineRejected) {
                             isLineRejected = true;
                         }
@@ -167,7 +168,8 @@ public class ATMFileClearingService {
             if (count > 0) {
                 //update RECATMINPUTROWDATA.STATUS to EDON
                 atmFileClearingRepo.updateRawAtm(paymentFileBean.getFileid(), paymentFileBean.getLinenumber());
-                successCount.addAndGet(1);//increase success count by 1
+                //successCount.addAndGet(1);//increase success count by 1
+                Configurations.PROCESS_ATM_FILE_CLEARING_SUCCESS_COUNT++;
             }
 
         } catch (Exception ex) {
@@ -175,7 +177,8 @@ public class ATMFileClearingService {
                     "\nFile ID : " + fileId +
                     "\nLine Number : " + lineNumber);
             errorLogger.error(ex.getMessage(), ex);
-            failCount.addAndGet(1);//increase fail count by 1
+            //failCount.addAndGet(1);//increase fail count by 1
+            Configurations.PROCESS_ATM_FILE_CLEARING_FAILD_COUNT++;
         }
         isLineRejected = false;
     }
@@ -221,7 +224,6 @@ public class ATMFileClearingService {
         } catch (ISOException e) {
             errorLogger.error("ATM FILE VALIDATION", e);
         }
-
         return referenceNo;
     }
 }
