@@ -19,6 +19,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Propagation;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.math.BigDecimal;
 import java.math.BigInteger;
@@ -87,13 +89,10 @@ public class PaymentFileClearingService {
      *
      * @param fileId
      * @param paymentFileBean
-     * @param successCount
-     * @param failCount
-     * @param invalidCount
      */
     @Async("ThreadPool_PaymentFileValidator")
-    public void validateFile(String fileId, RecPaymentFileIptRowDataBean paymentFileBean, AtomicInteger successCount, AtomicInteger failCount, AtomicInteger invalidCount) {
-        System.out.println("Class Name:PaymentFileValidateService,File ID:" + paymentFileBean.getFileid() + ",Line Number:" + paymentFileBean.getLinenumber() + ",Current Thread:" + Thread.currentThread().getName());
+    @Transactional(value="transactionManager",propagation = Propagation.REQUIRED,rollbackFor = Exception.class)
+    public void validateFile(String fileId, RecPaymentFileIptRowDataBean paymentFileBean) {
         LinkedHashMap details = new LinkedHashMap();
         String errorMsg = "";
 
@@ -134,7 +133,8 @@ public class PaymentFileClearingService {
                         paymentFileClearingRepo.insertToRECPAYMENTFILEINVALID(fileId, lineNumber, errorMsg);
                         errorMsg = "Payment file validation failed in line number " + lineNumber;
                         errorLogger.error(errorMsg);
-                        invalidCount.addAndGet(1);//increase invalid count by 1
+                        //invalidCount.addAndGet(1);//increase invalid count by 1
+                        Configurations.PROCESS_PAYMENT_FILE_CLEARING_INVALID_COUNT++;
                     }
                     validationCount++;
                 }
@@ -175,7 +175,8 @@ public class PaymentFileClearingService {
             }
             if (count > 0) {
                 paymentFileClearingRepo.updateRecPaymentRaw(fileId, lineNumber);
-                successCount.addAndGet(1);//increase success count by 1
+                //successCount.addAndGet(1);//increase success count by 1
+                Configurations.PROCESS_PAYMENT_FILE_CLEARING_SUCCESS_COUNT++;
             }
 
         } catch (Exception ex) {
@@ -183,7 +184,8 @@ public class PaymentFileClearingService {
                     "\nFile ID : " + fileId +
                     "\nLine Number : " + lineNumber);
             errorLogger.error(ex.getMessage(), ex);
-            failCount.addAndGet(1);//increase fail count by 1
+            //failCount.addAndGet(1);//increase fail count by 1
+            Configurations.PROCESS_PAYMENT_FILE_CLEARING_FAILD_COUNT++;
         } finally {
             try {
                 if (cardNumber != null) {

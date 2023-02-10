@@ -44,7 +44,6 @@ public class PaymentFileClearingRepo implements PaymentFileClearingDao {
     private JdbcTemplate backendJdbcTemplate;
 
     @Override
-    @Transactional("backendDb")
     public FileBean getPaymentFileInfo(String fileId) throws Exception {
         FileBean fileBean = new FileBean();
         try {
@@ -71,7 +70,6 @@ public class PaymentFileClearingRepo implements PaymentFileClearingDao {
     }
 
     @Override
-    @Transactional(value = "backendDb", propagation = Propagation.NESTED, isolation = Isolation.SERIALIZABLE)
     public void updatePaymentFileStatus(String status, String fileId) throws Exception {
         try {
             String query = "UPDATE EODPAYMENTFILE SET STATUS=?, LASTUPDATEDUSER=?, LASTUPDATEDDATE=SYSDATE WHERE FILEID=? ";
@@ -87,7 +85,6 @@ public class PaymentFileClearingRepo implements PaymentFileClearingDao {
 
     //validation
     @Override
-    @Transactional("backendDb")
     public Hashtable<String, String[]> getPaymentFieldsValidation() throws Exception {
         Hashtable<String, String[]> paymentFieldValidationsTable = new Hashtable<String, String[]>();
 
@@ -112,7 +109,6 @@ public class PaymentFileClearingRepo implements PaymentFileClearingDao {
     }
 
     @Override
-    @Transactional("backendDb")
     public ArrayList<RecPaymentFileIptRowDataBean> getPaymentFileContents(String fileId) throws Exception {
         ArrayList<RecPaymentFileIptRowDataBean> fileContentList = new ArrayList<RecPaymentFileIptRowDataBean>();
 
@@ -134,7 +130,6 @@ public class PaymentFileClearingRepo implements PaymentFileClearingDao {
     }
 
     @Override
-    @Transactional("backendDb")
     public String getErrorDesc(String validaionId) throws Exception {
         String validationDesc = null;
         String query = "SELECT VALIDATIONDESC FROM RECPAYMENTFIELDVALIDATION WHERE VALIDATIONID = ?";
@@ -148,7 +143,6 @@ public class PaymentFileClearingRepo implements PaymentFileClearingDao {
     }
 
     @Override
-    @Transactional("backendDb")
     public String getFieldDesc(String fieldId) throws Exception {
         String fieldDesc = null;
         String query = "SELECT FIELDCODE FROM RECPAYMENTFIELD WHERE FIELDID = ?";
@@ -162,7 +156,6 @@ public class PaymentFileClearingRepo implements PaymentFileClearingDao {
     }
 
     @Override
-    @Transactional(value = "backendDb", propagation = Propagation.NESTED, isolation = Isolation.SERIALIZABLE)
     public int insertToRECPAYMENTFILEINVALID(String fileId, BigDecimal lineNumber, String errorMsg) throws Exception {
         int count = 0;
         String query = "INSERT INTO RECPAYMENTFILEINVALID "
@@ -181,7 +174,6 @@ public class PaymentFileClearingRepo implements PaymentFileClearingDao {
     }
 
     @Override
-    @Transactional("backendDb")
     public boolean checkForValidCard(StringBuffer cardNumber) throws Exception {
         boolean status = false;
         String query = "SELECT CARDNUMBER FROM CARD WHERE CARDNUMBER=? ";
@@ -204,7 +196,6 @@ public class PaymentFileClearingRepo implements PaymentFileClearingDao {
     }
 
     @Override
-    @Transactional(value = "backendDb", propagation = Propagation.NESTED, isolation = Isolation.SERIALIZABLE)
     public int insertToPAYMENT(String[] paymentFields, String paymentType) throws Exception {
         int count = 0;
         String query = "INSERT INTO PAYMENT "
@@ -248,7 +239,6 @@ public class PaymentFileClearingRepo implements PaymentFileClearingDao {
     }
 
     @Override
-    @Transactional(value = "backendDb", propagation = Propagation.NESTED, isolation = Isolation.SERIALIZABLE)
     public int insertExceptionalTransactionData(String fileId, String txnId, String TC, String TCTCQ, String cardNumber, String authCode, String MID,
                                                 String sourceAmount, String sourceCurrencyCode, String txnDate, String txnTime, String processingDate, String lstUpdateUser,
                                                 Date lstUpdateDate, String destinationAmount, String destinationCurrencyCode, String financialStatus, String merchantName,
@@ -274,7 +264,6 @@ public class PaymentFileClearingRepo implements PaymentFileClearingDao {
     }
 
     @Override
-    @Transactional(value = "backendDb")
     public int updateRecPaymentRaw(String fileId, BigDecimal lineNumber) throws Exception {
         int count = 0;
         String query = "UPDATE RECPAYMENTINPUTROWDATA SET EODSTATUS=? WHERE FILEID=? AND LINENUMBER = ?";
@@ -292,7 +281,6 @@ public class PaymentFileClearingRepo implements PaymentFileClearingDao {
     }
 
     @Override
-    @Transactional("backendDb")
     public StringBuffer getCardNumberFromMainCardNIC(String nicWithLast4DigitCard) throws Exception {
         StringBuffer cardNumber = null;
         String query = "SELECT CARDNUMBER FROM CARD  C WHERE CONCAT((SELECT IDNUMBER FROM CARD C1 WHERE C1.CARDNUMBER = C.MAINCARDNO),SUBSTR(CARDNUMBER,-4))=?";
@@ -308,7 +296,6 @@ public class PaymentFileClearingRepo implements PaymentFileClearingDao {
     }
 
     @Override
-    @Transactional("backendDb")
     public StringBuffer getCardNumberFromNIC(String nicWithLast4DigitCard) throws Exception {
         StringBuffer cardNumber = null;
         String query = "SELECT CARDNUMBER FROM CARD WHERE CONCAT(idnumber,SUBSTR(cardnumber,-4))  = ?";
@@ -320,5 +307,4 @@ public class PaymentFileClearingRepo implements PaymentFileClearingDao {
         }
         return cardNumber;
     }
-
 }

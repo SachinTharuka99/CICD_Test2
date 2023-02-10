@@ -57,14 +57,13 @@ public class PaymentFileClearingConnector extends FileProcessingProcessBuilder {
         boolean fileReadStatus = false;
         //for validation part
         int totalCount = 0;
-        AtomicInteger successCount = new AtomicInteger(0);
-        AtomicInteger failCount = new AtomicInteger(0);
-        AtomicInteger invalidCount = new AtomicInteger(0);
+//        AtomicInteger successCount = new AtomicInteger(0);
+//        AtomicInteger failCount = new AtomicInteger(0);
+//        AtomicInteger invalidCount = new AtomicInteger(0);
         ArrayList<RecPaymentFileIptRowDataBean> fileContent = new ArrayList<RecPaymentFileIptRowDataBean>();
         try {
-            infoLogger.info(logManager.processHeaderStyle("Payment File Clearing Process, File ID: " + fileId));
-            infoLogger.info(logManager.processStartEndStyle("Payment File Clearing Process Started"));
-//            Configurations.RUNNING_PROCESS_ID = Configurations.PROCESS_PAYMENT_FILE_READ;
+            Configurations.RUNNING_PROCESS_ID = Configurations.PROCESS_PAYMENT_FILE_READ;
+            CommonMethods.eodDashboardProgressParametersReset();
 
             if ("LINUX".equals(Configurations.SERVER_RUN_PLATFORM)) {
                 filepath = commonRepo.getLinuxFilePath(Configurations.FILE_CODE_PAYMENT);
@@ -87,14 +86,13 @@ public class PaymentFileClearingConnector extends FileProcessingProcessBuilder {
                         fileReadStatus = paymentFileClearingService.readFile(fileBean);
                         if (fileReadStatus) {
                             // if file reading completed then start validation part
-                            infoLogger.info(logManager.ProcessStartEndStyle("Payment File Validation Started"));
 
                             Configurations.PAYMENT_VALIDATION_HASH_TABLE = paymentFileClearingRepo.getPaymentFieldsValidation();
                             fileContent = paymentFileClearingRepo.getPaymentFileContents(fileId);
-                            totalCount = fileContent.size();
+                            Configurations.PROCESS_PAYMENT_FILE_CLEARING_TOTAL_NOOF_TRABSACTIONS = fileContent.size();
 
                             for (RecPaymentFileIptRowDataBean paymentFileBean : fileContent) {
-                                paymentFileClearingService.validateFile(fileId, paymentFileBean, successCount, failCount, invalidCount);
+                                paymentFileClearingService.validateFile(fileId, paymentFileBean);
                             }
 
                             //wait till all the threads are completed
@@ -105,15 +103,14 @@ public class PaymentFileClearingConnector extends FileProcessingProcessBuilder {
                             //update file status to COMP
                             paymentFileClearingRepo.updatePaymentFileStatus(status.getCOMMON_COMPLETED(), fileId);
 
+                            summery.put("Started Date ", Configurations.EOD_DATE.toString());
                             summery.put("File ID ", fileId);
-                            summery.put("Number of payments to process ", totalCount);
-                            summery.put("Number of success payments ", successCount);
-                            summery.put("Number of invalid payments ", invalidCount);
-                            summery.put("Number of failure payments ", failCount);
+                            summery.put("Number of payments to process ", Configurations.PROCESS_PAYMENT_FILE_CLEARING_TOTAL_NOOF_TRABSACTIONS);
+                            summery.put("Number of success payments ", Configurations.PROCESS_PAYMENT_FILE_CLEARING_SUCCESS_COUNT);
+                            summery.put("Number of invalid payments ", Configurations.PROCESS_PAYMENT_FILE_CLEARING_INVALID_COUNT);
+                            summery.put("Number of failure payments ", Configurations.PROCESS_PAYMENT_FILE_CLEARING_FAILD_COUNT);
 
                             infoLogger.info(logManager.processSummeryStyles(summery));
-                            infoLogger.info(logManager.ProcessStartEndStyle("Payment File Validation Completed"));
-
                         } else {
                             errorLogger.error("Payment file reading failed for file " + fileId);
                             //update file read status to FAIL
@@ -143,10 +140,7 @@ public class PaymentFileClearingConnector extends FileProcessingProcessBuilder {
             } catch (Exception e) {
                 errorLogger.error("", e);
             }
-        } finally {
-            infoLogger.info(logManager.ProcessStartEndStyle("Payment File Clearing Process Completed"));
         }
-
     }
 
     private synchronized FileBean getPaymentFileInfo(String fileId) throws Exception {
