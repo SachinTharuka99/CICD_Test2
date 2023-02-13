@@ -36,8 +36,9 @@ public class EODFileGenEngineListener {
     public void eodFileGenEngineListener(String eodId) throws Exception {
         if (eodId != null) {
             System.out.println("Start the EOD File Generation Module");
-            int categoryId = 100;
-            int issuingOrAcquiring = Configurations.IssuingOrAcquiring;//ISSUING - ISS ,Acquiring - ACQ
+            int categoryId = 10;
+            Configurations.IssuingOrAcquiring =1;
+            int issuingOrAcquiring = Configurations.IssuingOrAcquiring;
             fileGenMainService.startEODFileGenEngine(categoryId, issuingOrAcquiring, Integer.parseInt(eodId));
         } else {
             throw new Exception("Invalid input from EoD Engine Status listener.");

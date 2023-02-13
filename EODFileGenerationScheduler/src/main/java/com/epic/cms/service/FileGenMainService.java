@@ -7,7 +7,8 @@
 
 package com.epic.cms.service;
 
-import com.epic.cms.connector.AutoSettlementConnector;
+import com.epic.cms.common.ProcessBuilder;
+import com.epic.cms.connector.*;
 import com.epic.cms.model.bean.ProcessBean;
 import com.epic.cms.repository.EODFileGenEngineProducerRepo;
 import com.epic.cms.util.Configurations;
@@ -74,7 +75,7 @@ public class FileGenMainService {
     private void EODScheduler(List<ProcessBean> processList) throws Exception {
         try {
             System.out.println("Start EOD File Generation Processes");
-
+            loadProcessConnectorList();
             for (ProcessBean processBean : processList) {
                 processThreadService.startProcessByProcessId(processBean.getProcessId());
             }
@@ -89,10 +90,52 @@ public class FileGenMainService {
         }
     }
 
-    public void loadProcessConnectorList() {
+    @Autowired
+    ExposureFileConnector exposureFileConnector;
+
+    @Autowired
+    CardApplicationConfirmationLetterConnector cardApplicationConfirmationLetterConnector;
+
+    @Autowired
+    AutoSettlementConnector autoSettlementConnector;
+
+    @Autowired
+    CardApplicationRejectLetterConnector cardApplicationRejectLetterConnector;
+
+    @Autowired
+    CardRenewLetterConnector cardRenewLetterConnector;
+
+    @Autowired
+    CardReplaceLetterConnector cardReplaceLetterConnector;
+
+    @Autowired
+    CashBackFileGenConnector cashBackFileGenConnector;
+
+    @Autowired
+    CollectionAndRecoveryLetterConnector collectionAndRecoveryLetterConnector;
+
+    @Autowired
+    GLSummaryFileConnector glSummaryFileConnector;
+
+    @Autowired
+    RB36FileGenerationConnector rb36FileGenerationConnector;
+
+
+
+    public void loadProcessConnectorList() throws Exception {
         try {
             HashMap<Integer, Object> connectorList =new HashMap<>();
-            connectorList.put(Configurations.AUTO_SETTLEMENT_PROCESS, new AutoSettlementConnector());
+            connectorList.put(Configurations.AUTO_SETTLEMENT_PROCESS, autoSettlementConnector);
+            connectorList.put(Configurations.PROCESS_ID_CARDAPPLICATION_LETTER_APPROVE, cardApplicationConfirmationLetterConnector);
+            connectorList.put(Configurations.PROCESS_ID_CARDAPPLICATION_LETTER_REJECT, cardApplicationRejectLetterConnector);
+            connectorList.put(Configurations.PROCESS_ID_CARDRENEW_LETTER, cardRenewLetterConnector);
+            connectorList.put(Configurations.PROCESS_ID_CARD_REPLACE, cardReplaceLetterConnector);
+            connectorList.put(Configurations.PROCESS_ID_CASHBACK_FILE_GENERATION, cashBackFileGenConnector);
+            connectorList.put(Configurations.PROCESS_ID_COLLECTION_AND_RECOVERY_LETTER_PROCESS, collectionAndRecoveryLetterConnector);
+            connectorList.put(Configurations.PROCESS_EXPOSURE_FILE, exposureFileConnector);
+            connectorList.put(Configurations.PROCESS_ID_GL_FILE_CREATION, glSummaryFileConnector);
+            connectorList.put(Configurations.PROCESS_RB36_FILE_CREATION, rb36FileGenerationConnector);
+            Configurations.processConnectorList=connectorList;
 
         }catch (Exception e){
             throw e;
