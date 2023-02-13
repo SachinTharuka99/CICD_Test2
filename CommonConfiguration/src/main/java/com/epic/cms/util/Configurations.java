@@ -1170,7 +1170,7 @@ public class Configurations {
 
     public static String RUNNING_PROCESS_DESCRIPTION;
     public static int IssuingOrAcquiring; //0 -ISSUING, 1 - ACQUIRING, 2- Both
-    public static HashMap<Integer, String> processConnectorList =new HashMap<>();
+    public static HashMap<Integer, Object> processConnectorList =new HashMap<>();
 
     //dcf file read
     public static int RECORD_COUNT = 0;

@@ -1,0 +1,25 @@
+# Spring config
+spring:
+  application:
+    name: token-service
+  cloud:
+    config:
+      enabled: true
+      username: ${CONFIG_SERVER_USERNAME:root}
+      password: ${CONFIG_SERVER_PASSWORD:s3cr3t}
+      label: master
+  config:
+    import: optional:configserver:http://${spring.cloud.config.username}:${spring.cloud.config.password}@localhost:8000
+
+# Server config
+server:
+  port: 0
+
+# Admin Config
+management:
+  endpoints:
+    web:
+      exposure:
+        include: '*'
+  security:
+    enabled: 'false'
