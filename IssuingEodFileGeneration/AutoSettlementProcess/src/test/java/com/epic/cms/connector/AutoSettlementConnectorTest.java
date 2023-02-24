@@ -75,7 +75,7 @@ class AutoSettlementConnectorTest {
                 "sequence", "fieldDelimeter")).thenReturn(new String[]{"result"});
         when(autoSettlementConnectorUnderTest.autoSettlementService.createFileHeaderForAutoSettlementFile("fileName",
                 new BigDecimal("0.00"), 0, "sequence", "fieldDelimeter")).thenReturn(new StringBuilder());
-        when(autoSettlementConnectorUnderTest.logManager.ProcessStartEndStyle(
+        when(autoSettlementConnectorUnderTest.logManager.processStartEndStyle(
                 "AutoSettlement Process Fails")).thenReturn("result");
         when(autoSettlementConnectorUnderTest.statusVarList.getSUCCES_STATUS()).thenReturn("SUCCES_STATUS");
         when(autoSettlementConnectorUnderTest.statusVarList.getERROR_STATUS()).thenReturn("result");
@@ -96,7 +96,7 @@ class AutoSettlementConnectorTest {
                 .thenReturn("result");
         when(autoSettlementConnectorUnderTest.autoSettlementRepo.updateAutoSettlementWithPayments())
                 .thenThrow(Exception.class);
-        when(autoSettlementConnectorUnderTest.logManager.ProcessStartEndStyle(
+        when(autoSettlementConnectorUnderTest.logManager.processStartEndStyle(
                 "AutoSettlement Process Fails")).thenReturn("result");
         when(autoSettlementConnectorUnderTest.statusVarList.getERROR_STATUS()).thenReturn("result");
         when(autoSettlementConnectorUnderTest.logManager.processSummeryStyles(
@@ -116,7 +116,7 @@ class AutoSettlementConnectorTest {
         when(autoSettlementConnectorUnderTest.autoSettlementRepo.updateAutoSettlementWithPayments()).thenReturn(0);
         doThrow(Exception.class).when(
                 autoSettlementConnectorUnderTest.autoSettlementRepo).getUnsuccessfullStandingInstructionFeeEligibleCards();
-        when(autoSettlementConnectorUnderTest.logManager.ProcessStartEndStyle(
+        when(autoSettlementConnectorUnderTest.logManager.processStartEndStyle(
                 "AutoSettlement Process Fails")).thenReturn("result");
         when(autoSettlementConnectorUnderTest.statusVarList.getERROR_STATUS()).thenReturn("result");
         when(autoSettlementConnectorUnderTest.logManager.processSummeryStyles(
@@ -140,7 +140,7 @@ class AutoSettlementConnectorTest {
                 "sequence", "fieldDelimeter")).thenReturn(new String[]{"result"});
         when(autoSettlementConnectorUnderTest.autoSettlementService.createFileHeaderForAutoSettlementFile("fileName",
                 new BigDecimal("0.00"), 0, "sequence", "fieldDelimeter")).thenReturn(new StringBuilder());
-        when(autoSettlementConnectorUnderTest.logManager.ProcessStartEndStyle(
+        when(autoSettlementConnectorUnderTest.logManager.processStartEndStyle(
                 "AutoSettlement Process Fails")).thenReturn("result");
         when(autoSettlementConnectorUnderTest.statusVarList.getSUCCES_STATUS()).thenReturn("SUCCES_STATUS");
         when(autoSettlementConnectorUnderTest.statusVarList.getERROR_STATUS()).thenReturn("result");
@@ -162,7 +162,7 @@ class AutoSettlementConnectorTest {
         when(autoSettlementConnectorUnderTest.autoSettlementRepo.updateAutoSettlementWithPayments()).thenReturn(0);
         when(autoSettlementConnectorUnderTest.autoSettlementRepo.generatePartialAutoSettlementFile("fileDirectory",
                 "fileName", "sequence", "fieldDelimeter")).thenThrow(Exception.class);
-        when(autoSettlementConnectorUnderTest.logManager.ProcessStartEndStyle(
+        when(autoSettlementConnectorUnderTest.logManager.processStartEndStyle(
                 "AutoSettlement Process Fails")).thenReturn("result");
         when(autoSettlementConnectorUnderTest.statusVarList.getERROR_STATUS()).thenReturn("result");
         when(autoSettlementConnectorUnderTest.logManager.processSummeryStyles(
@@ -187,7 +187,7 @@ class AutoSettlementConnectorTest {
                 "sequence", "fieldDelimeter")).thenReturn(new String[]{});
         when(autoSettlementConnectorUnderTest.autoSettlementService.createFileHeaderForAutoSettlementFile("fileName",
                 new BigDecimal("0.00"), 0, "sequence", "fieldDelimeter")).thenReturn(new StringBuilder());
-        when(autoSettlementConnectorUnderTest.logManager.ProcessStartEndStyle(
+        when(autoSettlementConnectorUnderTest.logManager.processStartEndStyle(
                 "AutoSettlement Process Fails")).thenReturn("result");
         when(autoSettlementConnectorUnderTest.statusVarList.getSUCCES_STATUS()).thenReturn("SUCCES_STATUS");
         when(autoSettlementConnectorUnderTest.statusVarList.getERROR_STATUS()).thenReturn("result");
@@ -211,7 +211,7 @@ class AutoSettlementConnectorTest {
                 "fileName", "sequence", "fieldDelimeter")).thenReturn(new String[]{"result"});
         when(autoSettlementConnectorUnderTest.autoSettlementRepo.generateAutoSettlementFile("fileDirectory", "fileName",
                 "sequence", "fieldDelimeter")).thenThrow(Exception.class);
-        when(autoSettlementConnectorUnderTest.logManager.ProcessStartEndStyle(
+        when(autoSettlementConnectorUnderTest.logManager.processStartEndStyle(
                 "AutoSettlement Process Fails")).thenReturn("result");
         when(autoSettlementConnectorUnderTest.statusVarList.getERROR_STATUS()).thenReturn("result");
         when(autoSettlementConnectorUnderTest.logManager.processSummeryStyles(
@@ -236,7 +236,7 @@ class AutoSettlementConnectorTest {
                 "sequence", "fieldDelimeter")).thenReturn(new String[]{"result"});
         when(autoSettlementConnectorUnderTest.autoSettlementService.createFileHeaderForAutoSettlementFile("fileName",
                 new BigDecimal("0.00"), 0, "sequence", "fieldDelimeter")).thenThrow(Exception.class);
-        when(autoSettlementConnectorUnderTest.logManager.ProcessStartEndStyle(
+        when(autoSettlementConnectorUnderTest.logManager.processStartEndStyle(
                 "AutoSettlement Process Fails")).thenReturn("result");
         when(autoSettlementConnectorUnderTest.statusVarList.getSUCCES_STATUS()).thenReturn("SUCCES_STATUS");
         when(autoSettlementConnectorUnderTest.statusVarList.getERROR_STATUS()).thenReturn("result");

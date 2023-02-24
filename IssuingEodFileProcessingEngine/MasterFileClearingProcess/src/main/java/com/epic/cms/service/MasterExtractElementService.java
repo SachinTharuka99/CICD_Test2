@@ -22,7 +22,7 @@ import org.springframework.util.ResourceUtils;
 import java.io.File;
 import java.util.HashMap;
 
-import static com.epic.cms.util.LogManager.errorLogger;
+import static com.epic.cms.util.LogManager.*;
 
 @Service
 public class MasterExtractElementService {
@@ -509,7 +509,7 @@ public class MasterExtractElementService {
                 masterBean.setMti(isomsg.getValue(0).toString());
             }
         } catch (Exception e) {
-            errorLogger.error("--error--", e);
+            errorLoggerEFPE.error("", e);
             throw e;
         }
     }

@@ -6,7 +6,7 @@ import org.aspectj.lang.annotation.Aspect;
 import org.aspectj.lang.annotation.Pointcut;
 import org.springframework.stereotype.Component;
 
-import static com.epic.cms.util.LogManager.infoLogger;
+import static com.epic.cms.util.LogManager.*;
 
 @Aspect
 @Component
@@ -20,6 +20,6 @@ public class ProcessTracker {
         long starTime = System.currentTimeMillis();
         joinPoint.proceed();
         long endTime = System.currentTimeMillis();
-        infoLogger.info("Class Name: {}, Method Name: {}, Process Start Time: {}, Process End Time: {}, Time taken for Execution is : {} ms", joinPoint.getSignature().getDeclaringTypeName(), joinPoint.getSignature().getName(), starTime, endTime, (endTime - starTime));
+        infoLoggerEFPE.info("Class Name: {}, Method Name: {}, Process Start Time: {}, Process End Time: {}, Time taken for Execution is : {} ms", joinPoint.getSignature().getDeclaringTypeName(), joinPoint.getSignature().getName(), starTime, endTime, (endTime - starTime));
     }
 }

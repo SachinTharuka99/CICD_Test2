@@ -15,8 +15,7 @@ import com.epic.cms.util.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import static com.epic.cms.util.LogManager.errorLogger;
-import static com.epic.cms.util.LogManager.infoLogger;
+import static com.epic.cms.util.LogManager.*;
 
 @Service
 public class MasterFileClearingConnector extends FileProcessingProcessBuilder {
@@ -34,7 +33,7 @@ public class MasterFileClearingConnector extends FileProcessingProcessBuilder {
         System.out.println("Class Name:MasterFileClearingConnector,File ID:" + fileId + ",Current Thread:" + Thread.currentThread().getName());
         FileBean fileBean;
         try {
-            Configurations.RUNNING_PROCESS_ID = Configurations.PROCESS_ATM_FILE_READ;
+            Configurations.RUNNING_PROCESS_ID = Configurations.PROCESS_ID_MASTER_CLEARING;
             //reset eod dashboard parameters
             CommonMethods.eodDashboardProgressParametersReset();
 
@@ -58,16 +57,16 @@ public class MasterFileClearingConnector extends FileProcessingProcessBuilder {
                 masterFileClearingService.processFile(fileBean);
             } else {
                 //file cannot proceed due to invalid status
-                errorLogger.error("Cannot read, Master file " + fileId + " is not in the initial status");
+                errorLoggerEFPE.error("Cannot read, Master file " + fileId + " is not in the initial status");
             }
 
         } catch (Exception ex) {
-            errorLogger.error("Master File clearing process failed for file " + fileId, ex);
+            errorLoggerEFPE.error("Master File clearing process failed for file " + fileId, ex);
             //update file status to FEROR
             try {
                 masterFileClearingDao.updateFileStatus(fileId, DatabaseStatus.STATUS_FILE_ERROR);
             } catch (Exception e) {
-                errorLogger.error("", e);
+                errorLoggerEFPE.error("", e);
             }
         }
     }

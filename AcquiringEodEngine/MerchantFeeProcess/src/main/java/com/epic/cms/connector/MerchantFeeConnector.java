@@ -90,7 +90,7 @@ public class MerchantFeeConnector extends ProcessBuilder {
                 }
             }
         } catch (Exception e) {
-            infoLogger.info(logManager.ProcessStartEndStyle("Merchant Fee Process Terminated Because of Error"));
+            infoLogger.info(logManager.processStartEndStyle("Merchant Fee Process Terminated Because of Error"));
             errorLogger.error("Merchant Fee Process Terminated Because of Error", e);
         } finally {
             addSummaries();

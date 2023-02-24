@@ -22,10 +22,8 @@ import org.springframework.stereotype.Service;
 
 import java.io.File;
 import java.util.ArrayList;
-import java.util.concurrent.atomic.AtomicInteger;
 
-import static com.epic.cms.util.LogManager.errorLogger;
-import static com.epic.cms.util.LogManager.infoLogger;
+import static com.epic.cms.util.LogManager.*;
 
 @Service
 public class PaymentFileClearingConnector extends FileProcessingProcessBuilder {
@@ -110,35 +108,35 @@ public class PaymentFileClearingConnector extends FileProcessingProcessBuilder {
                             summery.put("Number of invalid payments ", Configurations.PROCESS_PAYMENT_FILE_CLEARING_INVALID_COUNT);
                             summery.put("Number of failure payments ", Configurations.PROCESS_PAYMENT_FILE_CLEARING_FAILD_COUNT);
 
-                            infoLogger.info(logManager.processSummeryStyles(summery));
+                            infoLoggerEFPE.info(logManager.processSummeryStyles(summery));
                         } else {
-                            errorLogger.error("Payment file reading failed for file " + fileId);
+                            errorLoggerEFPE.error("Payment file reading failed for file " + fileId);
                             //update file read status to FAIL
                             paymentFileClearingRepo.updatePaymentFileStatus(Configurations.FAIL_STATUS, fileId);
                         }
                     } else {
-                        infoLogger.info("Payment file not found..."
+                        infoLoggerEFPE.info("Payment file not found..."
                                 + "\nFile Name : " + fileBean.getFileName()
                                 + "\nFile ID   : " + fileBean.getFileId());
                         //update file read status to fail
                         paymentFileClearingRepo.updatePaymentFileStatus(Configurations.FAIL_STATUS, fileId);
                     }
                 } else {
-                    errorLogger.error("Payment file clearing process failed for file " + fileId + " , " + isFileNameValid);
+                    errorLoggerEFPE.error("Payment file clearing process failed for file " + fileId + " , " + isFileNameValid);
                     //update file read status to fail
                     paymentFileClearingRepo.updatePaymentFileStatus(Configurations.FAIL_STATUS, fileId);
                 }
             } else {
                 //file cannot proceed due to invalid status
-                errorLogger.error("Cannot read, Payment file " + fileId + " is not in the initial status");
+                errorLoggerEFPE.error("Cannot read, Payment file " + fileId + " is not in the initial status");
             }
         } catch (Exception ex) {
-            errorLogger.error("Payment file clearing process failed for file " + fileId, ex);
+            errorLoggerEFPE.error("Payment file clearing process failed for file " + fileId, ex);
             //update file status to FAIL
             try {
                 paymentFileClearingRepo.updatePaymentFileStatus(Configurations.FAIL_STATUS, fileId);
             } catch (Exception e) {
-                errorLogger.error("", e);
+                errorLoggerEFPE.error("", e);
             }
         }
     }

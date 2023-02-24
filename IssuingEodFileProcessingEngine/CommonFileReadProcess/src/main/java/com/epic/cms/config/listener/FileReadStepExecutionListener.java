@@ -18,8 +18,7 @@ import org.springframework.beans.factory.annotation.Value;
 
 import java.util.LinkedHashMap;
 
-import static com.epic.cms.util.LogManager.errorLogger;
-import static com.epic.cms.util.LogManager.infoLogger;
+import static com.epic.cms.util.LogManager.*;
 
 public class FileReadStepExecutionListener implements StepExecutionListener {
     @Value("#{jobParameters[fileId]}")
@@ -37,10 +36,10 @@ public class FileReadStepExecutionListener implements StepExecutionListener {
     @Override
     public void beforeStep(StepExecution stepExecution) {
         try {
-            infoLogger.info(logManager.processStartEndStyle("ATM File Reading Started"));
+            infoLoggerEFPE.info(logManager.processStartEndStyle("ATM File Reading Started"));
             commonFileReadRepo.updateFileReadStartTime(tableName, fileId);
         } catch (Exception ex) {
-            errorLogger.error("", ex);
+            errorLoggerEFPE.error("", ex);
         }
     }
 
@@ -52,7 +51,7 @@ public class FileReadStepExecutionListener implements StepExecutionListener {
                 //update file reading end time and record count
                 commonFileReadRepo.updateFileReadSummery(tableName, stepExecution.getWriteCount(), fileId);
 
-                infoLogger.info(logManager.processStartEndStyle("ATM File Reading Completed"));
+                infoLoggerEFPE.info(logManager.processStartEndStyle("ATM File Reading Completed"));
 
                 details.put("Step Name ", stepExecution.getStepName());
                 details.put("File ID ", fileId);
@@ -66,7 +65,7 @@ public class FileReadStepExecutionListener implements StepExecutionListener {
                 details.put("Commit Count ", stepExecution.getCommitCount());
                 details.put("Rollback Count ", stepExecution.getRollbackCount());
 
-                infoLogger.info(logManager.processDetailsStyles(details));
+                infoLoggerEFPE.info(logManager.processDetailsStyles(details));
             } catch (Exception ex) {
                 ex.printStackTrace();
             }

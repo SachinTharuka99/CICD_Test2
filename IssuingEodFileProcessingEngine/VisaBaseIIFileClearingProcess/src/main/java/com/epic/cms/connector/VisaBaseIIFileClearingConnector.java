@@ -18,8 +18,7 @@ import org.springframework.stereotype.Service;
 
 import java.io.File;
 
-import static com.epic.cms.util.LogManager.errorLogger;
-import static com.epic.cms.util.LogManager.infoLogger;
+import static com.epic.cms.util.LogManager.*;
 
 @Service
 public class VisaBaseIIFileClearingConnector extends FileProcessingProcessBuilder {
@@ -72,7 +71,7 @@ public class VisaBaseIIFileClearingConnector extends FileProcessingProcessBuilde
                         print = "Visa Base II file not found..."
                                 + "\nFile Name : " + file.getName()
                                 + "\nFile ID   : " + fileBean.getFileId();
-                        infoLogger.info(print);
+                        infoLoggerEFPE.info(print);
                         //update file status to ERROR
                         visaBaseIIFileClearingRepo.updateRecVisaFileStatus(fileBean.getFileId(), DatabaseStatus.STATUS_FILE_ERROR);
                     }
@@ -104,22 +103,22 @@ public class VisaBaseIIFileClearingConnector extends FileProcessingProcessBuilde
                         throw ex;
                     }
                 } else {
-                    errorLogger.error("VISA Base II file reading failed for file " + fileId);
+                    errorLoggerEFPE.error("VISA Base II file reading failed for file " + fileId);
                     //update file read status to FAIL
                     visaBaseIIFileClearingRepo.updateRecVisaFileStatus(fileId, Configurations.FAIL_STATUS);
                 }
             } else {
                 //file cannot proceed due to invalid status
-                errorLogger.error("Cannot read, VISA Base II file " + fileId + " is not in the initial or repeat status");
+                errorLoggerEFPE.error("Cannot read, VISA Base II file " + fileId + " is not in the initial or repeat status");
             }
 
         } catch (Exception ex) {
-            errorLogger.error("VISA Base II File clearing process failed for file " + fileId, ex);
+            errorLoggerEFPE.error("VISA Base II File clearing process failed for file " + fileId, ex);
             //update file status to FAIL
             try {
                 visaBaseIIFileClearingRepo.updateRecVisaFileStatus(fileId, Configurations.FAIL_STATUS);
             } catch (Exception e) {
-                errorLogger.error("", e);
+                errorLoggerEFPE.error("", e);
             }
         }
     }

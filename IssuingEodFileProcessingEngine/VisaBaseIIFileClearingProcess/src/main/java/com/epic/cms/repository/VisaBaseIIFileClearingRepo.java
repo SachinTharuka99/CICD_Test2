@@ -36,8 +36,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
-import static com.epic.cms.util.LogManager.errorLogger;
-import static com.epic.cms.util.LogManager.infoLogger;
+import static com.epic.cms.util.LogManager.*;
 
 @Repository
 public class VisaBaseIIFileClearingRepo implements VisaBaseIIFileClearingDao {
@@ -71,7 +70,7 @@ public class VisaBaseIIFileClearingRepo implements VisaBaseIIFileClearingDao {
             );
 
         } catch (EmptyResultDataAccessException ex) {
-            infoLogger.info(ex.getMessage());
+            infoLoggerEFPE.info(ex.getMessage());
         } catch (Exception ex) {
             throw ex;
         }
@@ -131,7 +130,7 @@ public class VisaBaseIIFileClearingRepo implements VisaBaseIIFileClearingDao {
                     Configurations.EOD_ID,
                     fileId);
         } catch (Exception ex) {
-            errorLogger.error("VisaBaseIIClearing", ex);
+            errorLoggerEFPE.error("VisaBaseIIClearing", ex);
         }
     }
 
@@ -142,7 +141,7 @@ public class VisaBaseIIFileClearingRepo implements VisaBaseIIFileClearingDao {
             backendJdbcTemplate.update(query,
                     fileId);
         } catch (Exception ex) {
-            errorLogger.error("VisaBaseIIClearing", ex);
+            errorLoggerEFPE.error("VisaBaseIIClearing", ex);
         }
     }
 
@@ -154,7 +153,7 @@ public class VisaBaseIIFileClearingRepo implements VisaBaseIIFileClearingDao {
                     noOfRecords,
                     fileID);
         } catch (Exception ex) {
-            errorLogger.error("VisaBaseIIClearing", ex);
+            errorLoggerEFPE.error("VisaBaseIIClearing", ex);
         }
     }
 
@@ -253,7 +252,7 @@ public class VisaBaseIIFileClearingRepo implements VisaBaseIIFileClearingDao {
                     fileID
             );
         } catch (EmptyResultDataAccessException ex) {
-            infoLogger.info(ex.getMessage());
+            infoLoggerEFPE.info(ex.getMessage());
         } catch (Exception ex) {
             throw ex;
         }
@@ -302,11 +301,11 @@ public class VisaBaseIIFileClearingRepo implements VisaBaseIIFileClearingDao {
                                         effectiveDate,
                                         Configurations.EOD_USER);
                             } catch (Exception ee) {
-                                errorLogger.error("Currency not defined in CURRENCY table: " + visaTC56CurrencyEntryBean.getCounterCurrencyCode(), ee);
+                                errorLoggerEFPE.error("Currency not defined in CURRENCY table: " + visaTC56CurrencyEntryBean.getCounterCurrencyCode(), ee);
                             }
                         }
                     } catch (Exception ee) {
-                        errorLogger.error("Unable to update CURRENCYEXCHANGERATE table for currency: " + visaTC56CurrencyEntryBean.getCounterCurrencyCode(), ee);
+                        errorLoggerEFPE.error("Unable to update CURRENCYEXCHANGERATE table for currency: " + visaTC56CurrencyEntryBean.getCounterCurrencyCode(), ee);
                     }
                     //update in wallet schema CURRENCY table
                     try {
@@ -318,7 +317,7 @@ public class VisaBaseIIFileClearingRepo implements VisaBaseIIFileClearingDao {
                                 Configurations.EOD_USER,
                                 visaTC56CurrencyEntryBean.getCounterCurrencyCode());
                     } catch (Exception ee) {
-                        errorLogger.error("Unable to update WALLET_CURRENCY table in  " + Configurations.WALLET_SCHEMA_NAME + " for currency: " + visaTC56CurrencyEntryBean.getCounterCurrencyCode(), ee);
+                        errorLoggerEFPE.error("Unable to update WALLET_CURRENCY table in  " + Configurations.WALLET_SCHEMA_NAME + " for currency: " + visaTC56CurrencyEntryBean.getCounterCurrencyCode(), ee);
                     }
                     //add to online side ECMS_ONLINE_EXCHANGE_RATE table
                     try {
@@ -338,11 +337,11 @@ public class VisaBaseIIFileClearingRepo implements VisaBaseIIFileClearingDao {
                                         calculatedSellingRate,
                                         calculatedBuyingRate);
                             } catch (Exception ee) {
-                                errorLogger.error("Unable to insert ECMS_ONLINE_EXCHANGE_RATE table in  " + Configurations.ONLINE_DB_VIEW_NAME + " for currency: " + visaTC56CurrencyEntryBean.getCounterCurrencyCode(), ee);
+                                errorLoggerEFPE.error("Unable to insert ECMS_ONLINE_EXCHANGE_RATE table in  " + Configurations.ONLINE_DB_VIEW_NAME + " for currency: " + visaTC56CurrencyEntryBean.getCounterCurrencyCode(), ee);
                             }
                         }
                     } catch (Exception ee) {
-                        errorLogger.error("Unable to update ECMS_ONLINE_EXCHANGE_RATE table in  " + Configurations.ONLINE_DB_VIEW_NAME + " for currency: " + visaTC56CurrencyEntryBean.getCounterCurrencyCode(), ee);
+                        errorLoggerEFPE.error("Unable to update ECMS_ONLINE_EXCHANGE_RATE table in  " + Configurations.ONLINE_DB_VIEW_NAME + " for currency: " + visaTC56CurrencyEntryBean.getCounterCurrencyCode(), ee);
                     }
                 } catch (Exception ex) {
                     throw ex;
@@ -373,7 +372,7 @@ public class VisaBaseIIFileClearingRepo implements VisaBaseIIFileClearingDao {
             backendJdbcTemplate.update(query,
                     fileID);
         } catch (Exception ex) {
-            errorLogger.error("VisaBaseIIClearing", ex);
+            errorLoggerEFPE.error("VisaBaseIIClearing", ex);
         }
     }
 

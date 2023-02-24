@@ -14,33 +14,32 @@ import com.epic.cms.model.bean.RecInputRowDataBean;
 import org.springframework.batch.core.SkipListener;
 import org.springframework.beans.factory.annotation.Autowired;
 
-import static com.epic.cms.util.LogManager.errorLogger;
-import static com.epic.cms.util.LogManager.infoLogger;
+import static com.epic.cms.util.LogManager.*;
 
-public class StepSkipListener implements SkipListener<RecInputRowDataBean,RecInputRowDataBean> {
+public class StepSkipListener implements SkipListener<RecInputRowDataBean, RecInputRowDataBean> {
     @Autowired
     LogManager logManager;
 
     @Override
     public void onSkipInRead(Throwable throwable) {
-        infoLogger.info("A failure on read {}", throwable.getMessage());
+        infoLoggerEFPE.info("A failure on read {}", throwable.getMessage());
     }
 
     @Override
     public void onSkipInWrite(RecInputRowDataBean item, Throwable throwable) {
         try {
-            infoLogger.info("A failure on write {},{}", throwable.getMessage(), new ObjectMapper().writeValueAsString(item));
+            infoLoggerEFPE.info("A failure on write {},{}", throwable.getMessage(), new ObjectMapper().writeValueAsString(item));
         } catch (JsonProcessingException e) {
-            errorLogger.error(e.getMessage());
+            errorLoggerEFPE.error(e.getMessage());
         }
     }
 
     @Override
     public void onSkipInProcess(RecInputRowDataBean item, Throwable throwable) {
         try {
-            infoLogger.info("Item {} was skipped due to the exception {}", new ObjectMapper().writeValueAsString(item), throwable.getMessage());
+            infoLoggerEFPE.info("Item {} was skipped due to the exception {}", new ObjectMapper().writeValueAsString(item), throwable.getMessage());
         } catch (JsonProcessingException e) {
-            errorLogger.error(e.getMessage());
+            errorLoggerEFPE.error(e.getMessage());
         }
     }
 }

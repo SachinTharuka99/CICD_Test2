@@ -27,7 +27,7 @@ import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.List;
 
-import static com.epic.cms.util.LogManager.errorLogger;
+import static com.epic.cms.util.LogManager.*;
 
 @Service
 public class VisaBaseIIFileClearingService {
@@ -76,7 +76,7 @@ public class VisaBaseIIFileClearingService {
                 final List<Throwable> exceptions = execution
                         .getAllFailureExceptions();
                 for (final Throwable throwable : exceptions) {
-                    errorLogger.error(throwable.getMessage(), throwable);
+                    errorLoggerEFPE.error(throwable.getMessage(), throwable);
                 }
             }
         } catch (Exception ex) {
@@ -130,7 +130,7 @@ public class VisaBaseIIFileClearingService {
                             eleventhCurrencyEntry = visaComposingDataBean.getField9();
                         }
                     } catch (Exception e) {
-                        errorLogger.error(e.getMessage());
+                        errorLoggerEFPE.error(e.getMessage());
                     }
                 }
                 //store all 11 currency entries contained in TCR0 and TCR 1 records
@@ -216,7 +216,7 @@ public class VisaBaseIIFileClearingService {
                 }
             }
         } catch (Exception ex) {
-            errorLogger.error(ex.getMessage());
+            errorLoggerEFPE.error(ex.getMessage());
             return null;
         }
     }

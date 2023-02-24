@@ -63,7 +63,7 @@ class GLSummaryFileConnectorTest {
         // Setup
         when(glSummaryFileConnectorUnderTest.logManager.ProcessHeaderStyle("GL File Generation Process"))
                 .thenReturn("result");
-        when(glSummaryFileConnectorUnderTest.logManager.ProcessStartEndStyle(
+        when(glSummaryFileConnectorUnderTest.logManager.processStartEndStyle(
                 "GL File Generation Successfully Started")).thenReturn("result");
 
         Configurations.PROCESS_ID_GL_FILE_CREATION = 100;

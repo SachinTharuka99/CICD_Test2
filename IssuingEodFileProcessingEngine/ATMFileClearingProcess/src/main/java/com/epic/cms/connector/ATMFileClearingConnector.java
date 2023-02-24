@@ -106,10 +106,9 @@ public class ATMFileClearingConnector extends FileProcessingProcessBuilder {
                             summery.put("Number of invalid transactions ", Configurations.PROCESS_ATM_FILE_CLEARING_INVALID_COUNT);
                             summery.put("Number of failure transactions ", Configurations.PROCESS_ATM_FILE_CLEARING_FAILD_COUNT);
 
-                            infoLogger.info(logManager.processSummeryStyles(summery));
-                            infoLoggerEFPE.info("Inside ATM File CLearing Connector");
+                            infoLoggerEFPE.info(logManager.processSummeryStyles(summery));
                         } else {
-                            errorLogger.error("ATM file reading failed for file " + fileId);
+                            errorLoggerEFPE.error("ATM file reading failed for file " + fileId);
                             //update file read status to FAIL
                             atmFileClearingRepo.updateATMFileStatus(Configurations.FAIL_STATUS, fileId);
                         }
@@ -121,21 +120,21 @@ public class ATMFileClearingConnector extends FileProcessingProcessBuilder {
                         atmFileClearingRepo.updateATMFileStatus(Configurations.FAIL_STATUS, fileId);
                     }
                 } else {
-                    errorLogger.error("ATM file clearing process failed for file " + fileId + " , " + isFileNameValid);
+                    errorLoggerEFPE.error("ATM file clearing process failed for file " + fileId + " , " + isFileNameValid);
                     //update file read status to FAIL
                     atmFileClearingRepo.updateATMFileStatus(Configurations.FAIL_STATUS, fileId);
                 }
             } else {
                 //file cannot proceed due to invalid status
-                errorLogger.error("Cannot read, ATM file " + fileId + " is not in the initial status");
+                errorLoggerEFPE.error("Cannot read, ATM file " + fileId + " is not in the initial status");
             }
         } catch (Exception ex) {
-            errorLogger.error("ATM File clearing process failed for file " + fileId, ex);
+            errorLoggerEFPE.error("ATM File clearing process failed for file " + fileId, ex);
             //update file status to FAIL
             try {
                 atmFileClearingRepo.updateATMFileStatus(Configurations.FAIL_STATUS, fileId);
             } catch (Exception e) {
-                errorLogger.error("", e);
+                errorLoggerEFPE.error("", e);
             }
         }
     }

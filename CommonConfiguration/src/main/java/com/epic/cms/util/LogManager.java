@@ -19,21 +19,21 @@ import java.util.Map;
 @DependsOn("ConfigurationService")
 public class LogManager {
 
-    public static Logger infoLogger = null, infoLoggerEE = null, infoLoggerEFPE = null, infoLoggerEFGE = null;
-    public static Logger errorLogger = null, errorLoggerEE = null, errorLoggerEFPE = null, errorLoggerEFGE = null;
+    public static Logger infoLoggerCOM = null, infoLogger = null, infoLoggerEFPE = null, infoLoggerEFGE = null;
+    public static Logger errorLoggerCOM = null, errorLogger = null, errorLoggerEFPE = null, errorLoggerEFGE = null;
     public static String logTypeInfo = Configurations.LOG_TYPE_INFO;
     public static String logTypeError = Configurations.LOG_TYPE_ERROR;
 
     @PostConstruct
     public static void init() {
         //info loggers
-        infoLogger = getLogger(logTypeInfo, "InfoLogger1", Configurations.LOG_FILE_PREFIX_COMMON);
-        infoLoggerEE = getLogger(logTypeInfo, "InfoLogger2", Configurations.LOG_FILE_PREFIX_EOD_ENGINE);
+        infoLoggerCOM = getLogger(logTypeInfo, "InfoLogger1", Configurations.LOG_FILE_PREFIX_COMMON);
+        infoLogger = getLogger(logTypeInfo, "InfoLogger2", Configurations.LOG_FILE_PREFIX_EOD_ENGINE);
         infoLoggerEFPE = getLogger(logTypeInfo, "InfoLogger3", Configurations.LOG_FILE_PREFIX_EOD_FILE_PROCESSING_ENGINE);
         infoLoggerEFGE = getLogger(logTypeInfo, "InfoLogger4", Configurations.LOG_FILE_PREFIX_EOD_FILE_GENERATION_ENGINE);
         //error loggers
-        errorLogger = getLogger(logTypeError, "ErrorLogger1", Configurations.LOG_FILE_PREFIX_COMMON);
-        errorLoggerEE = getLogger(logTypeError, "ErrorLogger2", Configurations.LOG_FILE_PREFIX_EOD_ENGINE);
+        errorLoggerCOM = getLogger(logTypeError, "ErrorLogger1", Configurations.LOG_FILE_PREFIX_COMMON);
+        errorLogger = getLogger(logTypeError, "ErrorLogger2", Configurations.LOG_FILE_PREFIX_EOD_ENGINE);
         errorLoggerEFPE = getLogger(logTypeError, "ErrorLogger3", Configurations.LOG_FILE_PREFIX_EOD_FILE_PROCESSING_ENGINE);
         errorLoggerEFGE = getLogger(logTypeError, "ErrorLogger4", Configurations.LOG_FILE_PREFIX_EOD_FILE_GENERATION_ENGINE);
     }

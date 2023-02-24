@@ -31,8 +31,7 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.Hashtable;
 
-import static com.epic.cms.util.LogManager.errorLogger;
-import static com.epic.cms.util.LogManager.infoLogger;
+import static com.epic.cms.util.LogManager.*;
 
 @Repository
 public class PaymentFileClearingRepo implements PaymentFileClearingDao {
@@ -62,7 +61,7 @@ public class PaymentFileClearingRepo implements PaymentFileClearingDao {
             );
 
         } catch (EmptyResultDataAccessException ex) {
-            infoLogger.info(ex.getMessage());
+            infoLoggerEFPE.info(ex.getMessage());
         } catch (Exception ex) {
             throw ex;
         }
@@ -101,7 +100,7 @@ public class PaymentFileClearingRepo implements PaymentFileClearingDao {
                     });
 
         } catch (Exception e) {
-            errorLogger.error(String.valueOf(e));
+            errorLoggerEFPE.error(String.valueOf(e));
             throw e;
         }
 
@@ -288,7 +287,7 @@ public class PaymentFileClearingRepo implements PaymentFileClearingDao {
         try {
             cardNumber = backendJdbcTemplate.queryForObject(query, StringBuffer.class, nicWithLast4DigitCard);
         } catch (EmptyResultDataAccessException ex) {
-            infoLogger.info(ex.getMessage());
+            infoLoggerEFPE.info(ex.getMessage());
         } catch (Exception e) {
             throw e;
         }

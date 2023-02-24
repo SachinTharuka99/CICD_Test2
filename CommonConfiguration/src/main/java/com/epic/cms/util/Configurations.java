@@ -149,8 +149,8 @@ public class Configurations {
     public static volatile int PROCESS_SUCCESS_COUNT = 0;
     public static volatile int PROCESS_FAILD_COUNT = 0;
     public static String EOD_USER;
-    public static int EOD_ID = 22062600;
-    public static int ERROR_EOD_ID = 22062600;
+    public static int EOD_ID;
+    public static int ERROR_EOD_ID;
     public static String STARTING_EOD_STATUS;
     public static int RUNNING_PROCESS_ID = 0;
     public static int PROCESS_ID_INITIAL_PROCESS;

@@ -21,9 +21,6 @@ import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.core.RowMapper;
 import org.springframework.stereotype.Repository;
-import org.springframework.transaction.annotation.Isolation;
-import org.springframework.transaction.annotation.Propagation;
-import org.springframework.transaction.annotation.Transactional;
 
 import java.math.BigDecimal;
 import java.sql.ResultSet;
@@ -31,8 +28,7 @@ import java.sql.SQLException;
 import java.text.SimpleDateFormat;
 import java.util.*;
 
-import static com.epic.cms.util.LogManager.errorLogger;
-import static com.epic.cms.util.LogManager.infoLogger;
+import static com.epic.cms.util.LogManager.*;
 
 @Repository
 public class ATMFileClearingRepo implements ATMFileClearingDao {
@@ -111,7 +107,6 @@ public class ATMFileClearingRepo implements ATMFileClearingDao {
             );
 
         } catch (Exception e) {
-            errorLogger.error(String.valueOf(e));
             throw e;
         }
         return processDetails;
@@ -134,7 +129,6 @@ public class ATMFileClearingRepo implements ATMFileClearingDao {
                     });
 
         } catch (Exception e) {
-            errorLogger.error(String.valueOf(e));
             throw e;
         }
         return paymentFieldValidationsTable;
@@ -159,7 +153,6 @@ public class ATMFileClearingRepo implements ATMFileClearingDao {
             );
 
         } catch (Exception e) {
-            errorLogger.error(String.valueOf(e));
             throw e;
         }
 

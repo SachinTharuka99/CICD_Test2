@@ -145,7 +145,7 @@ public class ManualNpService {
                     manualNpRepo.updateNpStatusCardAccount(accNo, 1);
                     remark = "Account has Manual Non Performing to Auto Non Performing by the manual declassification.";
                     manualNpRepo.insertIntoDelinquentHistory(cardNo, accNo, remark);
-                    infoLogger.info(logManager.ProcessStartEndStyle(accNo + ": " + remark));
+                    infoLogger.info(logManager.processStartEndStyle(accNo + ": " + remark));
 
                 } else {
                     manualNpRepo.getNPDetailsForNpGl(accNo, delinquentAccountBean);
@@ -180,7 +180,7 @@ public class ManualNpService {
                     manualNpRepo.updateDelinquentAccountForManualNP(accNo, delinquentAccountBean);
                     remark = "Account has Manual Non Performing to Performing by the manual.";
                     manualNpRepo.insertIntoDelinquentHistory(cardNo, accNo, remark);
-                    infoLogger.info(logManager.ProcessStartEndStyle(accNo + ": " + remark));
+                    infoLogger.info(logManager.processStartEndStyle(accNo + ": " + remark));
                 }
 
                 manualNpRepo.updateManualNPtoComplete(reqID, status.getCOMMON_COMPLETED());

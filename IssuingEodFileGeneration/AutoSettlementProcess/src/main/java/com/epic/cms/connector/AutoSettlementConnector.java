@@ -116,13 +116,13 @@ public class AutoSettlementConnector extends FileGenProcessBuilder {
                 /**update auto settlement payments*/
                 int receivedPaymentCount = autoSettlementRepo.updateAutoSettlementWithPayments();
 
-                 /** apply unsuccessfullStanding instruction fee*/
+                /** apply unsuccessfullStanding instruction fee*/
                 autoSettlementRepo.getUnsuccessfullStandingInstructionFeeEligibleCards();
 
-                 /**considering received payments, genarate Partial file*/
+                /**considering received payments, genarate Partial file*/
                 partialFileContent = autoSettlementRepo.generatePartialAutoSettlementFile(fileDirectory, fileName, sequence, fieldDelimeter);
 
-                 /**Generate new Auto Settlement file, considering due date*/
+                /**Generate new Auto Settlement file, considering due date*/
                 fullFileContent = autoSettlementRepo.generateAutoSettlementFile(fileDirectory, fileName, sequence, fieldDelimeter);
 
                 summery.put("Process Name", "AutoSettlement");
@@ -171,7 +171,7 @@ public class AutoSettlementConnector extends FileGenProcessBuilder {
                 } catch (Exception e) {
 
                     Configurations.PROCESS_FAILD_COUNT++;
-                    errorLogger.error(logManager.ProcessStartEndStyle("AutoSettlement Process Fails"), e);
+                    errorLogger.error(logManager.processStartEndStyle("AutoSettlement Process Fails"), e);
                 } finally {
                     try {
                         if (toDeleteStatus) {
@@ -204,9 +204,9 @@ public class AutoSettlementConnector extends FileGenProcessBuilder {
             } catch (Exception e2) {
                 errorLogger.error("Exception ", e2);
             }
-        }finally {
+        } finally {
             infoLogger.info(logManager.processSummeryStyles(summery));
-            commonRepo.updateFileGenProcessSummery(fileName, Configurations.EOD_ID, statusVarList.getSUCCES_STATUS(), Configurations.RUNNING_PROCESS_ID, Configurations.PROCESS_SUCCESS_COUNT , Configurations.PROCESS_FAILD_COUNT, CommonMethods.eodDashboardProcessProgress(Configurations.PROCESS_SUCCESS_COUNT, Configurations.PROCESS_TOTAL_NOOF_TRABSACTIONS));
+            commonRepo.updateFileGenProcessSummery(fileName, Configurations.EOD_ID, statusVarList.getSUCCES_STATUS(), Configurations.RUNNING_PROCESS_ID, Configurations.PROCESS_SUCCESS_COUNT, Configurations.PROCESS_FAILD_COUNT, CommonMethods.eodDashboardProcessProgress(Configurations.PROCESS_SUCCESS_COUNT, Configurations.PROCESS_TOTAL_NOOF_TRABSACTIONS));
         }
     }
 }
