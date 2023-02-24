@@ -100,7 +100,6 @@ public class ConfigurationsRepo implements ConfigurationsDao {
         List<CommonFilePathBean> commonFilePathBeanList = null;
         try {
             commonFilePathBeanList = backendJdbcTemplate.query(queryParametersList.getEodMainSelectLoadFilePath(), new CommonFilePathRowMapper(), Configurations.SERVER_RUN_PLATFORM);
-
             for (CommonFilePathBean commonFilePathBean : commonFilePathBeanList) {
                 Configurations.STATEMENT_FILE_PATH = commonFilePathBean.getStatement();
                 Configurations.AUTO_SETTLEMENT_FILE_PATH = commonFilePathBean.getAutoSettlement();
@@ -133,7 +132,7 @@ public class ConfigurationsRepo implements ConfigurationsDao {
         try {
             Configurations.SERVER_RUN_PLATFORM = "WINDOWS";
             Configurations.STARTING_EOD_STATUS = "INIT";
-            Configurations.EOD_ID = 22100700; // Current EOD Id
+            //Configurations.EOD_ID = 22100700; // Current EOD Id
             Configurations.ERROR_EOD_ID = Configurations.EOD_ID;
             Configurations.EOD_DATE = getDateFromEODID(Configurations.EOD_ID);
 
@@ -231,43 +230,43 @@ public class ConfigurationsRepo implements ConfigurationsDao {
             Configurations.EOD_CONSIDER_STATUS = configVarList.getEod_consider_status();
 
             //CreditLimit
-            Configurations.PROCESS_ID_CARD_PERMENANT_BLOCK= configVarList.getCard_permenant_block();
-            Configurations.NO_OF_MONTHS_FOR_PERMENANT_BLOCK =configVarList.getNo_of_months_for_permanent_block();
-            Configurations.PERM_BLOCK_REASON =configVarList.getPerm_block_reason();
-            Configurations.ACTIVE_STATUS =configVarList.getActive_status();
-            Configurations.ONLINE_ACTIVE_STATUS =configVarList.getOnline_active_status();
-            Configurations.PROCESS_ID_CARD_TEMPORARY_BLOCK =configVarList.getCard_temporary_block();
-            Configurations.NO_OF_MONTHS_FOR_TEMPORARY_BLOCK =configVarList.getNo_of_months_for_temporary_block();
-            Configurations.TEMP_BLOCK_REASON =configVarList.getTemp_block_reason();
-            Configurations.PROCESS_ID_INCREMENT_LIMIT_EXPIRE =configVarList.getProcess_id_increment_limit_expire();
-            Configurations.CREDIT_INCREMENT =configVarList.getCredit_increment();
-            Configurations.CARD_CATEGORY_MAIN =configVarList.getCard_category_main();
-            Configurations.CARD_CATEGORY_ESTABLISHMENT =configVarList.getCard_category_establishment();
-            Configurations.CARD_CATEGORY_FD =configVarList.getCard_category_fd();
-            Configurations.CARD_CATEGORY_AFFINITY =configVarList.getCard_category_affinity();
-            Configurations.CARD_CATEGORY_CO_BRANDED =configVarList.getCard_category_co_branded();
-            Configurations.CASH_INCREMENT =configVarList.getCash_increment();
+            Configurations.PROCESS_ID_CARD_PERMENANT_BLOCK = configVarList.getCard_permenant_block();
+            Configurations.NO_OF_MONTHS_FOR_PERMENANT_BLOCK = configVarList.getNo_of_months_for_permanent_block();
+            Configurations.PERM_BLOCK_REASON = configVarList.getPerm_block_reason();
+            Configurations.ACTIVE_STATUS = configVarList.getActive_status();
+            Configurations.ONLINE_ACTIVE_STATUS = configVarList.getOnline_active_status();
+            Configurations.PROCESS_ID_CARD_TEMPORARY_BLOCK = configVarList.getCard_temporary_block();
+            Configurations.NO_OF_MONTHS_FOR_TEMPORARY_BLOCK = configVarList.getNo_of_months_for_temporary_block();
+            Configurations.TEMP_BLOCK_REASON = configVarList.getTemp_block_reason();
+            Configurations.PROCESS_ID_INCREMENT_LIMIT_EXPIRE = configVarList.getProcess_id_increment_limit_expire();
+            Configurations.CREDIT_INCREMENT = configVarList.getCredit_increment();
+            Configurations.CARD_CATEGORY_MAIN = configVarList.getCard_category_main();
+            Configurations.CARD_CATEGORY_ESTABLISHMENT = configVarList.getCard_category_establishment();
+            Configurations.CARD_CATEGORY_FD = configVarList.getCard_category_fd();
+            Configurations.CARD_CATEGORY_AFFINITY = configVarList.getCard_category_affinity();
+            Configurations.CARD_CATEGORY_CO_BRANDED = configVarList.getCard_category_co_branded();
+            Configurations.CASH_INCREMENT = configVarList.getCash_increment();
 
-            Configurations.PROCESS_LIMIT_ENHANCEMENT =configVarList.getProcess_limit_enhancement();
-            Configurations.LIMIT_INCREMENT =configVarList.getLimit_increment();
-            Configurations.LIMIT_DECREMENT =configVarList.getLimit_decrement();
-            Configurations.PROCESS_CLEAR_MINPAYMENTS_AND_TEMPBLOCK =configVarList.getProcess_clear_minpayment_and_tempblock();
-            Configurations.ONLINE_LOG_LEVEL =configVarList.getONLINE_LOG_LEVEL();
-            Configurations.COLLECTION_AND_RECOVERY_NOTIFICATION =configVarList.getProcess_collection_and_recovery();
+            Configurations.PROCESS_LIMIT_ENHANCEMENT = configVarList.getProcess_limit_enhancement();
+            Configurations.LIMIT_INCREMENT = configVarList.getLimit_increment();
+            Configurations.LIMIT_DECREMENT = configVarList.getLimit_decrement();
+            Configurations.PROCESS_CLEAR_MINPAYMENTS_AND_TEMPBLOCK = configVarList.getProcess_clear_minpayment_and_tempblock();
+            Configurations.ONLINE_LOG_LEVEL = configVarList.getONLINE_LOG_LEVEL();
+            Configurations.COLLECTION_AND_RECOVERY_NOTIFICATION = configVarList.getProcess_collection_and_recovery();
 
-            Configurations.TP_X_DATES_BEFORE_FIRST_DUE_DATE =configVarList.getTp_x_dates_before_first_due_date();
-            Configurations.TP_X_DATES_AFTER_FIRST_DUE_DATE =configVarList.getTp_x_dates_after_first_due_date();
-            Configurations.TP_X_DAYS_AFTER_THE_2ND_STATEMENT_DATE =configVarList.getTp_x_days_after_the_2nd_statement_date();
-            Configurations.TP_ON_THE_2ND_STATEMENT_DATE =configVarList.getTp_On_the_2nd_statement_date();
-            Configurations.TP_IMMEDIATELY_AFTER_THE_2ND_DUE_DATE =configVarList.getTp_immediately_after_the_2nd_due_date();
-            Configurations.TP_ON_THE_3RD_STATEMENT_DATE =configVarList.getTp_on_the_3rd_statement_date();
-            Configurations.TP_IMMEDIATELY_AFTER_THE_3RD_DUE_DATE =configVarList.getTp_immediately_after_the_3rd_due_date();
-            Configurations.TP_ON_THE_4TH_STATEMENT_DATE =configVarList.getTp_on_the_4th_statement_date();
-            Configurations.TP_X_DAYS_AFTER_THE_4TH_STATEMENT_DATE =configVarList.getTp_x_days_after_the_4th_statement_date();
-            Configurations.TP_WITHIN_X_DAYS_OF_THE_CRIB_INFO_LETTER_REMINDER =configVarList.getTp_within_x_days_of_the_crib_info_letter_reminder();
-            Configurations.TP_IMMEDIATELY_AFTER_THE_4TH_DUE_DATE =configVarList.getTp_immediately_after_the_4th_due_date();
+            Configurations.TP_X_DATES_BEFORE_FIRST_DUE_DATE = configVarList.getTp_x_dates_before_first_due_date();
+            Configurations.TP_X_DATES_AFTER_FIRST_DUE_DATE = configVarList.getTp_x_dates_after_first_due_date();
+            Configurations.TP_X_DAYS_AFTER_THE_2ND_STATEMENT_DATE = configVarList.getTp_x_days_after_the_2nd_statement_date();
+            Configurations.TP_ON_THE_2ND_STATEMENT_DATE = configVarList.getTp_On_the_2nd_statement_date();
+            Configurations.TP_IMMEDIATELY_AFTER_THE_2ND_DUE_DATE = configVarList.getTp_immediately_after_the_2nd_due_date();
+            Configurations.TP_ON_THE_3RD_STATEMENT_DATE = configVarList.getTp_on_the_3rd_statement_date();
+            Configurations.TP_IMMEDIATELY_AFTER_THE_3RD_DUE_DATE = configVarList.getTp_immediately_after_the_3rd_due_date();
+            Configurations.TP_ON_THE_4TH_STATEMENT_DATE = configVarList.getTp_on_the_4th_statement_date();
+            Configurations.TP_X_DAYS_AFTER_THE_4TH_STATEMENT_DATE = configVarList.getTp_x_days_after_the_4th_statement_date();
+            Configurations.TP_WITHIN_X_DAYS_OF_THE_CRIB_INFO_LETTER_REMINDER = configVarList.getTp_within_x_days_of_the_crib_info_letter_reminder();
+            Configurations.TP_IMMEDIATELY_AFTER_THE_4TH_DUE_DATE = configVarList.getTp_immediately_after_the_4th_due_date();
 
-            Configurations.NO_STATUS =configVarList.getNo_status();
+            Configurations.NO_STATUS = configVarList.getNo_status();
 
             //paymentFile Validate
             Configurations.PROCESS_PAYMENT_FILE_VALIDATE = configVarList.getProcess_payment_file_validate();
@@ -545,12 +544,12 @@ public class ConfigurationsRepo implements ConfigurationsDao {
 
     @Override
     @Transactional("backendDb")
-    public void loadBaseCurrency() throws Exception{
+    public void loadBaseCurrency() throws Exception {
         String query = "SELECT BASECURRENCY FROM COMMONPARAMETER";
 
         try {
-            Configurations.BASE_CURRENCY = backendJdbcTemplate.queryForObject(query,String.class);
-        } catch(Exception e) {
+            Configurations.BASE_CURRENCY = backendJdbcTemplate.queryForObject(query, String.class);
+        } catch (Exception e) {
             throw e;
         }
     }

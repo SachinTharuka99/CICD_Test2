@@ -8,94 +8,97 @@ import ch.qos.logback.classic.spi.ILoggingEvent;
 import ch.qos.logback.core.ConsoleAppender;
 import ch.qos.logback.core.FileAppender;
 import org.slf4j.LoggerFactory;
+import org.springframework.context.annotation.DependsOn;
 import org.springframework.stereotype.Component;
 
+import javax.annotation.PostConstruct;
 import java.text.SimpleDateFormat;
-import java.util.Date;
 import java.util.Map;
 
 @Component
+@DependsOn("ConfigurationService")
 public class LogManager {
 
-    public static Logger infoLogger = getInfoLogger();
-    public static Logger errorLogger = getErrorLogger();
+    public static Logger infoLogger = null, infoLoggerEE = null, infoLoggerEFPE = null, infoLoggerEFGE = null;
+    public static Logger errorLogger = null, errorLoggerEE = null, errorLoggerEFPE = null, errorLoggerEFGE = null;
+    public static String logTypeInfo = Configurations.LOG_TYPE_INFO;
+    public static String logTypeError = Configurations.LOG_TYPE_ERROR;
 
-    public static Logger getInfoLogger() {
+    @PostConstruct
+    public static void init() {
+        //info loggers
+        infoLogger = getLogger(logTypeInfo, "InfoLogger1", Configurations.LOG_FILE_PREFIX_COMMON);
+        infoLoggerEE = getLogger(logTypeInfo, "InfoLogger2", Configurations.LOG_FILE_PREFIX_EOD_ENGINE);
+        infoLoggerEFPE = getLogger(logTypeInfo, "InfoLogger3", Configurations.LOG_FILE_PREFIX_EOD_FILE_PROCESSING_ENGINE);
+        infoLoggerEFGE = getLogger(logTypeInfo, "InfoLogger4", Configurations.LOG_FILE_PREFIX_EOD_FILE_GENERATION_ENGINE);
+        //error loggers
+        errorLogger = getLogger(logTypeError, "ErrorLogger1", Configurations.LOG_FILE_PREFIX_COMMON);
+        errorLoggerEE = getLogger(logTypeError, "ErrorLogger2", Configurations.LOG_FILE_PREFIX_EOD_ENGINE);
+        errorLoggerEFPE = getLogger(logTypeError, "ErrorLogger3", Configurations.LOG_FILE_PREFIX_EOD_FILE_PROCESSING_ENGINE);
+        errorLoggerEFGE = getLogger(logTypeError, "ErrorLogger4", Configurations.LOG_FILE_PREFIX_EOD_FILE_GENERATION_ENGINE);
+    }
+
+    /**
+     * Config Logger Instances
+     *
+     * @param logType
+     * @param loggerName
+     * @param fileNamePrefix
+     * @return
+     */
+    public static Logger getLogger(String logType, String loggerName, String fileNamePrefix) {
+        String fileNamePostfix = null;
+        String logPattern = null;
+        Level logLevel = null;
+        if (logType.equals(Configurations.LOG_TYPE_INFO)) {
+            fileNamePostfix = "_info.log";
+            logPattern = Configurations.INFO_LOG_PATTERN;
+            logLevel = Level.INFO;
+        } else {
+            fileNamePostfix = "_error.log";
+            logPattern = Configurations.ERROR_LOG_PATTERN;
+            logLevel = Level.ERROR;
+        }
+
         LoggerContext lc = (LoggerContext) LoggerFactory.getILoggerFactory();
-//        String path = Configurations.EOD_LOGS_FILE_PATH;
-//        String subDirectory = new SimpleDateFormat("dd-MMM-yy").format(Configurations.EOD_DATE);
+        String path = Configurations.EOD_LOGS_FILE_PATH;
+        String subDirectory = new SimpleDateFormat("dd-MMM-yy").format(Configurations.EOD_DATE);
 
         PatternLayoutEncoder ple = new PatternLayoutEncoder();
-
-        //define log pattern
-        ple.setPattern(" %d{yyyy-MM-dd HH:mm:ss} [%thread] %-5level %logger{36} - %msg%n");
+        ple.setPattern(logPattern);
         ple.setContext(lc);
         ple.start();
 
         //console appender
         ConsoleAppender infoConsoleAppender = new ConsoleAppender();
-        infoConsoleAppender.setContext(lc);
-        infoConsoleAppender.setName("console");
         infoConsoleAppender.setEncoder(ple);
+        infoConsoleAppender.setContext(lc);
         infoConsoleAppender.start();
 
         //file appender
-        FileAppender<ILoggingEvent> infoFileAppender = new FileAppender<ILoggingEvent>();
-//        infoFileAppender.setFile(path + subDirectory + "/eod_info.log");
-        infoFileAppender.setFile("C:/eod_logs/" + getFormattedEodDate1() + "/eod_info.log");
+        FileAppender<ILoggingEvent> infoFileAppender = new FileAppender<>();
+        infoFileAppender.setFile(path + subDirectory + "/" + fileNamePrefix + fileNamePostfix);
         infoFileAppender.setEncoder(ple);
         infoFileAppender.setContext(lc);
         infoFileAppender.start();
 
-        Logger logger = (Logger) LoggerFactory.getLogger("InfoLog");
+        Logger logger = (Logger) LoggerFactory.getLogger(loggerName);
+        logger.detachAndStopAllAppenders();
         logger.addAppender(infoConsoleAppender);
         logger.addAppender(infoFileAppender);
-        logger.setLevel(Level.INFO);
+        logger.setLevel(logLevel);
         logger.setAdditive(false); /* set to true if root should log too */
 
         return logger;
     }
 
-    public static Logger getErrorLogger() {
-        LoggerContext lc = (LoggerContext) LoggerFactory.getILoggerFactory();
-//        String path = Configurations.EOD_LOGS_FILE_PATH;
-//        String subDirectory = new SimpleDateFormat("dd-MMM-yy").format(Configurations.EOD_DATE);
-
-        PatternLayoutEncoder ple = new PatternLayoutEncoder();
-
-        //define log pattern
-        ple.setPattern("%d [%thread] %-5level %-5logger{40} - %msg%n");
-        ple.setContext(lc);
-        ple.start();
-
-        //console appender
-        ConsoleAppender errorConsoleAppender = new ConsoleAppender();
-        errorConsoleAppender.setContext(lc);
-        errorConsoleAppender.setName("console");
-        errorConsoleAppender.setEncoder(ple);
-        errorConsoleAppender.start();
-
-        //file appender
-        FileAppender<ILoggingEvent> errorFileAppender = new FileAppender<ILoggingEvent>();
-//        errorFileAppender.setFile(path + subDirectory + "/eod_info.log");
-        errorFileAppender.setFile("C:/eod_logs/" + getFormattedEodDate1() + "/eod_error.log");
-        errorFileAppender.setEncoder(ple);
-        errorFileAppender.setContext(lc);
-        errorFileAppender.start();
-
-        Logger logger = (Logger) LoggerFactory.getLogger("ErrorLog");
-        logger.addAppender(errorConsoleAppender);
-        logger.addAppender(errorFileAppender);
-        logger.setLevel(Level.INFO);
-        logger.setAdditive(false); /* set to true if root should log too */
-
-        return logger;
-    }
-
-    //header style
+    /**
+     * header style
+     *
+     * @param name
+     * @return
+     */
     public String processHeaderStyle(String name) {
-//        String eodDate = Configurations.EOD_DATE.toString();
-        String eodDate = "22081600";
         String symbol = "~";
         int fixed_length = 100;
         int processName_lenght = name.length();
@@ -118,21 +121,30 @@ public class LogManager {
                 }
             }
         }
-        style = eodDate + style + System.lineSeparator();
+        style = Configurations.EOD_DATE_String + style + System.lineSeparator();
 
         return style;
     }
 
-    //start and end style
+    /**
+     * start and end style
+     *
+     * @param name
+     * @return
+     */
     public static String processStartEndStyle(String name) {
-//        String curDate = new SimpleDateFormat("dd-MMM-yy HH:mm:ss").format(Configurations.EOD_DATE);
-        String curDate = getFormattedEodDate2();
+        String curDate = new SimpleDateFormat("dd-MMM-yy HH:mm:ss").format(Configurations.EOD_DATE);
 
         String temp = "[" + curDate + "]" + "  " + name + System.lineSeparator();
         return temp;
     }
 
-    //detail style
+    /**
+     * detail style
+     *
+     * @param detailsMap
+     * @return
+     */
     public static synchronized String processDetailsStyles(Map<String, Object> detailsMap) {
         String description = null;
         if (detailsMap.size() > 0) {
@@ -165,7 +177,12 @@ public class LogManager {
         return description;
     }
 
-    //summery style
+    /**
+     * summery style
+     *
+     * @param detailsMap
+     * @return
+     */
     public String processSummeryStyles(Map<String, Object> detailsMap) {
         int maxLengthKey = 0;
         int maxLengthValue = 0;
@@ -228,42 +245,13 @@ public class LogManager {
         return description;
     }
 
-    private static String getFormattedEodDate2() {
-        String curDate = null;
-        try {
-            SimpleDateFormat sdf = new SimpleDateFormat("yyMMdd");
-            Date eodDate = sdf.parse("220820");
-            curDate = new SimpleDateFormat("dd-MMM-yy HH:mm:ss").format(eodDate);
-        } catch (Exception ex) {
-
-        }
-        return curDate;
-    }
-
-    private static String getFormattedEodDate1() {
-        String curDate = null;
-        try {
-            SimpleDateFormat sdf = new SimpleDateFormat("yyMMdd");
-            Date eodDate = sdf.parse("220820");
-            curDate = new SimpleDateFormat("dd-MMM-yy").format(eodDate);
-        } catch (Exception ex) {
-
-        }
-        return curDate;
-    }
-
-
-    public String ProcessStartEndStyle(String atm_file_validate_process_failed) {
-        String curDate = new SimpleDateFormat("dd-MMM-yy HH:mm:ss").format(Configurations.EOD_DATE);
-
-        String temp = "[" + curDate + "]" + "  " + atm_file_validate_process_failed + System.lineSeparator();
-        return temp;
-    }
-
-    //format of headline
-    // EOD_LOGS_FILE_PATH_WINDOWS
+    /**
+     * format of headline
+     *
+     * @param name
+     * @return
+     */
     public String ProcessHeaderStyle(String name) {
-        String eoddate = Configurations.EOD_DATE.toString();
         String symbol = "~";
         int fixed_length = 100;
         int processName_lenght = name.length();
@@ -286,7 +274,7 @@ public class LogManager {
                 }
             }
         }
-        style = eoddate + style + System.lineSeparator();
+        style = Configurations.EOD_DATE_String + style + System.lineSeparator();
 
         return style;
     }

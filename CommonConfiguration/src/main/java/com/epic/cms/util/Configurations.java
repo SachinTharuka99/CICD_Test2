@@ -149,8 +149,8 @@ public class Configurations {
     public static volatile int PROCESS_SUCCESS_COUNT = 0;
     public static volatile int PROCESS_FAILD_COUNT = 0;
     public static String EOD_USER;
-    public static int EOD_ID;
-    public static int ERROR_EOD_ID;
+    public static int EOD_ID = 22062600;
+    public static int ERROR_EOD_ID = 22062600;
     public static String STARTING_EOD_STATUS;
     public static int RUNNING_PROCESS_ID = 0;
     public static int PROCESS_ID_INITIAL_PROCESS;
@@ -219,7 +219,7 @@ public class Configurations {
     public static String MASTER_ASSOCIATION;
     public static int CHANNEL_TYPE_CUP;
     public static String CUP_ASSOCIATION;
-    public static String BASE_CURRENCY ;
+    public static String BASE_CURRENCY;
     public static int PAYMENT_REVERSAL_PROCESS;
     public static int PROCESS_EODPAYMENTUPDATE;
     public static int PROCESS_ID_TXNMISMATCH_POST;
@@ -271,14 +271,14 @@ public class Configurations {
     public static int noOfCardsForCollectionAndRecoveryNotification = 0;
     public static int failedCardsForCollectionAndRecoveryNotification = 0;
     public static boolean checkErrorForCollectionAndRecoveryNotification = false;
-    public static int Failed_Count_Card_Permanent_Block = 0 ;
+    public static int Failed_Count_Card_Permanent_Block = 0;
     public static int ReversedTxnCount = 0;
     public static int failedCount_TxnMisMatchProcess = 0;
     //AcqTxnUpdate Txn Counts
-    public static int totalTxnCount_AcqTxnUpdateProcess= 0;
-    public static int failedTxnCount_AcqTxnUpdateProcess= 0;
-    public static int acqFailedMerchantCount_AcqTxnUpdateProcess= 0;
-    public static int onusTxnCount_AcqTxnUpdateProcess= 0;
+    public static int totalTxnCount_AcqTxnUpdateProcess = 0;
+    public static int failedTxnCount_AcqTxnUpdateProcess = 0;
+    public static int acqFailedMerchantCount_AcqTxnUpdateProcess = 0;
+    public static int onusTxnCount_AcqTxnUpdateProcess = 0;
 
     public static String COMPLETE_STATUS;
     public static String INITIAL_STATUS;
@@ -286,7 +286,7 @@ public class Configurations {
 
     @SuppressWarnings("unchecked")
     public static Hashtable PAYMENT_VALIDATION_HASH_TABLE;
-    public static Hashtable<String, String[]> ATM_VALIDATION_HASH_TABLE ;
+    public static Hashtable<String, String[]> ATM_VALIDATION_HASH_TABLE;
 
 
     public static String PAYMENT_FILE_CHEQUE_INITIATE_TXN_TYPES;
@@ -295,13 +295,13 @@ public class Configurations {
 
     public static int PROCESS_ID_CARDAPPLICATION_LETTER_REJECT;
     public static String APPLICATION_REJECTION_LETTER_CODE;
-    public static int PROCESS_ATM_FILE_VALIDATE ;
+    public static int PROCESS_ATM_FILE_VALIDATE;
     public static int PROCESS_ATM_FILE_READ;
     public static int PROCESS_PAYMENT_FILE_READ;
     public static String FAIL_STATUS;
 
     //File code
-    public static String FILE_CODE_PAYMENT="PAYMENT";
+    public static String FILE_CODE_PAYMENT = "PAYMENT";
     public static String FILE_CODE_ATM;
     public static String FILE_CODE_MONITOR;
     public static String FILE_CODE_WALLET;
@@ -471,23 +471,23 @@ public class Configurations {
 
     public static int ONLINE_OFUS_BIN;
     /**
-    public static String CARD_TYPE_VISA;
-    public static String CARD_TYPE_MASTER;
-    public static String CARD_TYPE_AMEX;
-    public static String CARD_TYPE_VISA_PLUS;
-    public static String CARD_TYPE_MAESTRO;
-    public static String CARD_TYPE_ATM_PR;
-    public static String CARD_TYPE_CIRRUS;
-    public static String CARD_TYPE_VISA_DEBIT;
-    public static String CARD_TYPE_LOYALTY;
-    public static String CARD_TYPE_GIFT;
-    public static String CARD_TYPE_VISA_ELECTRON;
-    public static String CARD_TYPE_DIACOVER;
-    public static String CARD_TYPE_JCB;
-    public static String CARD_TYPE_DINERS;
-    public static String CARD_TYPE_CUP;
-    public static String CARD_TYPE_CREDIT_PR;
-    */
+     * public static String CARD_TYPE_VISA;
+     * public static String CARD_TYPE_MASTER;
+     * public static String CARD_TYPE_AMEX;
+     * public static String CARD_TYPE_VISA_PLUS;
+     * public static String CARD_TYPE_MAESTRO;
+     * public static String CARD_TYPE_ATM_PR;
+     * public static String CARD_TYPE_CIRRUS;
+     * public static String CARD_TYPE_VISA_DEBIT;
+     * public static String CARD_TYPE_LOYALTY;
+     * public static String CARD_TYPE_GIFT;
+     * public static String CARD_TYPE_VISA_ELECTRON;
+     * public static String CARD_TYPE_DIACOVER;
+     * public static String CARD_TYPE_JCB;
+     * public static String CARD_TYPE_DINERS;
+     * public static String CARD_TYPE_CUP;
+     * public static String CARD_TYPE_CREDIT_PR;
+     */
 
     public static boolean SUB_EOD_STATUS;
     public static int STEP_CATEGORY_COUNT;
@@ -1093,13 +1093,13 @@ public class Configurations {
     public static String TXN_TYPE_FUEL_SURCHARGE_ON_US_CUP;
     public static String TXN_TYPE_FUEL_SURCHARGE_OFF_US_CUP;
 
-    public static  int NO_OF_EASY_PAYMENTS = 0;
-    public static  int NO_OF_BALANCE_TRANSFERS = 0;
-    public static  int NO_OF_LOAN_ON_CARDS = 0;
+    public static int NO_OF_EASY_PAYMENTS = 0;
+    public static int NO_OF_BALANCE_TRANSFERS = 0;
+    public static int NO_OF_LOAN_ON_CARDS = 0;
 
-    public static  int FAILED_EASY_PAYMENTS = 0;
-    public static  int FAILED_BALANCE_TRANSFERS = 0;
-    public static  int FAILED_LOAN_ON_CARDS = 0;
+    public static int FAILED_EASY_PAYMENTS = 0;
+    public static int FAILED_BALANCE_TRANSFERS = 0;
+    public static int FAILED_LOAN_ON_CARDS = 0;
 
     public static boolean PROCESS_COMPLETE_STATUS;
     public static boolean EOD_ENGINE_SOFT_STOP = false;
@@ -1170,7 +1170,7 @@ public class Configurations {
 
     public static String RUNNING_PROCESS_DESCRIPTION;
     public static int IssuingOrAcquiring; //0 -ISSUING, 1 - ACQUIRING, 2- Both
-    public static HashMap<Integer, Object> processConnectorList =new HashMap<>();
+    public static HashMap<Integer, Object> processConnectorList = new HashMap<>();
 
     //dcf file read
     public static int RECORD_COUNT = 0;
@@ -1182,6 +1182,16 @@ public class Configurations {
     public static volatile int PROCESS_ATM_VALIDATE_FAIL_COUNT = 0;
     public static AtomicInteger PROCESS_ATM_VALIDATE_SUCCESS_COUNT = new AtomicInteger(0);
 
-    public static String WALLET_SCHEMA_NAME="DFCCBACKENDMVISAORTEST2";
-    public static String ONLINE_DB_VIEW_NAME="ABC_DB";
+    public static String WALLET_SCHEMA_NAME = "DFCCBACKENDMVISAORTEST2";
+    public static String ONLINE_DB_VIEW_NAME = "ABC_DB";
+
+    //log file prefix
+    public static final String LOG_TYPE_INFO = "INFO";
+    public static final String LOG_TYPE_ERROR = "ERROR";
+    public static final String LOG_FILE_PREFIX_COMMON = "common";
+    public static final String LOG_FILE_PREFIX_EOD_ENGINE = "eod_engine";
+    public static final String LOG_FILE_PREFIX_EOD_FILE_PROCESSING_ENGINE = "file_pro_engine";
+    public static final String LOG_FILE_PREFIX_EOD_FILE_GENERATION_ENGINE = "file_gen_engine";
+    public static final String INFO_LOG_PATTERN = "%d{yyyy-MM-dd HH:mm:ss} [%thread] %-5level %logger{36} - %msg%n";
+    public static final String ERROR_LOG_PATTERN = "%d [%thread] %-5level %-5logger{40} - %msg%n";
 }

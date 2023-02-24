@@ -22,10 +22,8 @@ import org.springframework.stereotype.Service;
 
 import java.io.File;
 import java.util.ArrayList;
-import java.util.concurrent.atomic.AtomicInteger;
 
-import static com.epic.cms.util.LogManager.errorLogger;
-import static com.epic.cms.util.LogManager.infoLogger;
+import static com.epic.cms.util.LogManager.*;
 
 @Service
 public class ATMFileClearingConnector extends FileProcessingProcessBuilder {
@@ -109,13 +107,14 @@ public class ATMFileClearingConnector extends FileProcessingProcessBuilder {
                             summery.put("Number of failure transactions ", Configurations.PROCESS_ATM_FILE_CLEARING_FAILD_COUNT);
 
                             infoLogger.info(logManager.processSummeryStyles(summery));
+                            infoLoggerEFPE.info("Inside ATM File CLearing Connector");
                         } else {
                             errorLogger.error("ATM file reading failed for file " + fileId);
                             //update file read status to FAIL
                             atmFileClearingRepo.updateATMFileStatus(Configurations.FAIL_STATUS, fileId);
                         }
                     } else {
-                        infoLogger.info("ATM file not found..."
+                        infoLoggerEFPE.info("ATM file not found..."
                                 + "\nFile Name : " + fileBean.getFileName()
                                 + "\nFile ID   : " + fileBean.getFileId());
                         //update file read status to FAIL

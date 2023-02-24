@@ -8,6 +8,8 @@
 package com.epic.cms.common;
 
 import com.epic.cms.model.bean.ProcessBean;
+import com.epic.cms.util.LogManager;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.scheduling.annotation.Async;
 
 import java.util.LinkedHashMap;
