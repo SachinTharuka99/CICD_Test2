@@ -70,22 +70,22 @@ public class LogManager {
         ple.start();
 
         //console appender
-        ConsoleAppender infoConsoleAppender = new ConsoleAppender();
-        infoConsoleAppender.setEncoder(ple);
-        infoConsoleAppender.setContext(lc);
-        infoConsoleAppender.start();
+        ConsoleAppender consoleAppender = new ConsoleAppender();
+        consoleAppender.setEncoder(ple);
+        consoleAppender.setContext(lc);
+        consoleAppender.start();
 
         //file appender
-        FileAppender<ILoggingEvent> infoFileAppender = new FileAppender<>();
-        infoFileAppender.setFile(path + subDirectory + "/" + fileNamePrefix + fileNamePostfix);
-        infoFileAppender.setEncoder(ple);
-        infoFileAppender.setContext(lc);
-        infoFileAppender.start();
+        FileAppender<ILoggingEvent> fileAppender = new FileAppender<>();
+        fileAppender.setFile(path + subDirectory + "/" + fileNamePrefix + fileNamePostfix);
+        fileAppender.setEncoder(ple);
+        fileAppender.setContext(lc);
+        fileAppender.start();
 
         Logger logger = (Logger) LoggerFactory.getLogger(loggerName);
         logger.detachAndStopAllAppenders();
-        logger.addAppender(infoConsoleAppender);
-        logger.addAppender(infoFileAppender);
+        logger.addAppender(consoleAppender);
+        logger.addAppender(fileAppender);
         logger.setLevel(logLevel);
         logger.setAdditive(false); /* set to true if root should log too */
 
