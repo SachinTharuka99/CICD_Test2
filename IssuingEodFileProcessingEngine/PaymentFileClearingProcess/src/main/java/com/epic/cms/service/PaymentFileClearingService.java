@@ -56,7 +56,6 @@ public class PaymentFileClearingService {
      */
     public boolean readFile(FileBean fileBean) throws Exception {
         boolean fileReadStatus = false;
-        System.out.println("Class Name:PaymentFileReadService,File ID:" + fileBean.getFileId() + ",Current Thread:" + Thread.currentThread().getName());
         try {
             JobParameters jobParameters = new JobParametersBuilder()
                     .addLong("startAt", System.currentTimeMillis())
@@ -68,7 +67,7 @@ public class PaymentFileClearingService {
             JobExecution execution = jobLauncher.run(paymentFileReadJob, jobParameters);
             final ExitStatus status = execution.getExitStatus();
             if (ExitStatus.COMPLETED.getExitCode().equals(status.getExitCode())) {
-                System.out.println("Payment file reading job completed,File ID:" + fileBean.getFileId());
+                infoLoggerEFPE.info("Payment file reading job completed,File ID:" + fileBean.getFileId());
                 fileReadStatus = true;
             } else {
                 final List<Throwable> exceptions = execution

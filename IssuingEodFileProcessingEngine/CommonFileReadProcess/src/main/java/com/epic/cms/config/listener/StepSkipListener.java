@@ -30,7 +30,7 @@ public class StepSkipListener implements SkipListener<RecInputRowDataBean, RecIn
         try {
             infoLoggerEFPE.info("A failure on write {},{}", throwable.getMessage(), new ObjectMapper().writeValueAsString(item));
         } catch (JsonProcessingException e) {
-            errorLoggerEFPE.error(e.getMessage());
+            errorLoggerEFPE.error(e.getMessage(), e);
         }
     }
 

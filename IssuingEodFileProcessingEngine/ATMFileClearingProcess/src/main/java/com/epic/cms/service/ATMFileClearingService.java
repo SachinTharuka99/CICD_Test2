@@ -58,7 +58,6 @@ public class ATMFileClearingService {
      */
     public boolean readFile(FileBean fileBean) throws Exception {
         boolean fileReadStatus = false;
-        System.out.println("Class Name:ATMFileReadService,File ID:" + fileBean.getFileId() + ",Current Thread:" + Thread.currentThread().getName());
         try {
             JobParameters jobParameters = new JobParametersBuilder()
                     .addLong("startAt", System.currentTimeMillis())
@@ -70,7 +69,6 @@ public class ATMFileClearingService {
             JobExecution execution = jobLauncher.run(atmFileReadJob, jobParameters);
             final ExitStatus status = execution.getExitStatus();
             if (ExitStatus.COMPLETED.getExitCode().equals(status.getExitCode())) {
-                System.out.println("ATM file reading job completed for file " + fileBean.getFileId());
                 fileReadStatus = true;
             } else {
                 final List<Throwable> exceptions = execution

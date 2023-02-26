@@ -27,15 +27,15 @@ public class LogManager {
     @PostConstruct
     public static void init() {
         //info loggers
-        infoLoggerCOM = getLogger(logTypeInfo, "InfoLogger1", Configurations.LOG_FILE_PREFIX_COMMON);
-        infoLogger = getLogger(logTypeInfo, "InfoLogger2", Configurations.LOG_FILE_PREFIX_EOD_ENGINE);
-        infoLoggerEFPE = getLogger(logTypeInfo, "InfoLogger3", Configurations.LOG_FILE_PREFIX_EOD_FILE_PROCESSING_ENGINE);
-        infoLoggerEFGE = getLogger(logTypeInfo, "InfoLogger4", Configurations.LOG_FILE_PREFIX_EOD_FILE_GENERATION_ENGINE);
+        infoLoggerCOM = getLogger(logTypeInfo, "common_info", Configurations.LOG_FILE_PREFIX_COMMON);
+        infoLogger = getLogger(logTypeInfo, "engine_info", Configurations.LOG_FILE_PREFIX_EOD_ENGINE);
+        infoLoggerEFPE = getLogger(logTypeInfo, "file_pro_engine_info", Configurations.LOG_FILE_PREFIX_EOD_FILE_PROCESSING_ENGINE);
+        infoLoggerEFGE = getLogger(logTypeInfo, "file_gen_engine_info", Configurations.LOG_FILE_PREFIX_EOD_FILE_GENERATION_ENGINE);
         //error loggers
-        errorLoggerCOM = getLogger(logTypeError, "ErrorLogger1", Configurations.LOG_FILE_PREFIX_COMMON);
-        errorLogger = getLogger(logTypeError, "ErrorLogger2", Configurations.LOG_FILE_PREFIX_EOD_ENGINE);
-        errorLoggerEFPE = getLogger(logTypeError, "ErrorLogger3", Configurations.LOG_FILE_PREFIX_EOD_FILE_PROCESSING_ENGINE);
-        errorLoggerEFGE = getLogger(logTypeError, "ErrorLogger4", Configurations.LOG_FILE_PREFIX_EOD_FILE_GENERATION_ENGINE);
+        errorLoggerCOM = getLogger(logTypeError, "common_error", Configurations.LOG_FILE_PREFIX_COMMON);
+        errorLogger = getLogger(logTypeError, "engine_error", Configurations.LOG_FILE_PREFIX_EOD_ENGINE);
+        errorLoggerEFPE = getLogger(logTypeError, "file_pro_engine_error", Configurations.LOG_FILE_PREFIX_EOD_FILE_PROCESSING_ENGINE);
+        errorLoggerEFGE = getLogger(logTypeError, "file_gen_engine_error", Configurations.LOG_FILE_PREFIX_EOD_FILE_GENERATION_ENGINE);
     }
 
     /**
@@ -49,15 +49,12 @@ public class LogManager {
     public static Logger getLogger(String logType, String loggerName, String fileNamePrefix) {
         String fileNamePostfix = null;
         String logPattern = null;
-        Level logLevel = null;
         if (logType.equals(Configurations.LOG_TYPE_INFO)) {
             fileNamePostfix = "_info.log";
             logPattern = Configurations.INFO_LOG_PATTERN;
-            logLevel = Level.INFO;
         } else {
             fileNamePostfix = "_error.log";
             logPattern = Configurations.ERROR_LOG_PATTERN;
-            logLevel = Level.ERROR;
         }
 
         LoggerContext lc = (LoggerContext) LoggerFactory.getILoggerFactory();
@@ -86,7 +83,7 @@ public class LogManager {
         logger.detachAndStopAllAppenders();
         logger.addAppender(consoleAppender);
         logger.addAppender(fileAppender);
-        logger.setLevel(logLevel);
+        logger.setLevel(Level.INFO);
         logger.setAdditive(false); /* set to true if root should log too */
 
         return logger;

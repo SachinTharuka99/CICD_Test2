@@ -45,7 +45,6 @@ public class PaymentFileClearingConnector extends FileProcessingProcessBuilder {
 
     @Override
     public void concreteProcess(String fileId) {
-        System.out.println("Class Name:PaymentFileReadConnector,File ID:" + fileId + ",Current Thread:" + Thread.currentThread().getName());
         //initialize variables
         ArrayList<String> nameFieldList = new ArrayList<String>();
         FileBean fileBean;
@@ -53,11 +52,6 @@ public class PaymentFileClearingConnector extends FileProcessingProcessBuilder {
         String isFileNameValid = "";
         int noOfRecords = 0;
         boolean fileReadStatus = false;
-        //for validation part
-        int totalCount = 0;
-//        AtomicInteger successCount = new AtomicInteger(0);
-//        AtomicInteger failCount = new AtomicInteger(0);
-//        AtomicInteger invalidCount = new AtomicInteger(0);
         ArrayList<RecPaymentFileIptRowDataBean> fileContent = new ArrayList<RecPaymentFileIptRowDataBean>();
         try {
             Configurations.RUNNING_PROCESS_ID = Configurations.PROCESS_PAYMENT_FILE_READ;

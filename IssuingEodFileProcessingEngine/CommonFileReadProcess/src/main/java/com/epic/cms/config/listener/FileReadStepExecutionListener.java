@@ -36,10 +36,9 @@ public class FileReadStepExecutionListener implements StepExecutionListener {
     @Override
     public void beforeStep(StepExecution stepExecution) {
         try {
-            infoLoggerEFPE.info(logManager.processStartEndStyle("ATM File Reading Started"));
             commonFileReadRepo.updateFileReadStartTime(tableName, fileId);
         } catch (Exception ex) {
-            errorLoggerEFPE.error("", ex);
+            errorLoggerEFPE.error(ex.getMessage(), ex);
         }
     }
 
@@ -50,8 +49,6 @@ public class FileReadStepExecutionListener implements StepExecutionListener {
             try {
                 //update file reading end time and record count
                 commonFileReadRepo.updateFileReadSummery(tableName, stepExecution.getWriteCount(), fileId);
-
-                infoLoggerEFPE.info(logManager.processStartEndStyle("ATM File Reading Completed"));
 
                 details.put("Step Name ", stepExecution.getStepName());
                 details.put("File ID ", fileId);
@@ -67,7 +64,7 @@ public class FileReadStepExecutionListener implements StepExecutionListener {
 
                 infoLoggerEFPE.info(logManager.processDetailsStyles(details));
             } catch (Exception ex) {
-                ex.printStackTrace();
+                errorLoggerEFPE.error(ex.getMessage(), ex);
             }
 
         }
