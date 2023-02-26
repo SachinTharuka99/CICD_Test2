@@ -21,7 +21,7 @@ import org.springframework.web.bind.annotation.RestController;
 import java.text.SimpleDateFormat;
 
 @RestController
-@RequestMapping("eod-file-processing-engine")
+@RequestMapping("/eod-file-processing-engine")
 public class TestController {
     @Autowired
     private KafkaTemplate<String, String> kafkaTemplate;
@@ -29,7 +29,7 @@ public class TestController {
     CommonRepo commonRepo;
 
     @GetMapping("/test/{topic}/{processId}/{eodId}")
-    public String post(@PathVariable("topic") final String topic, @PathVariable("processId") final String fileId, @PathVariable("eodId") final int eodId) throws Exception {
+    public String post(@PathVariable("topic") final String topic, @PathVariable("fileId") final String fileId, @PathVariable("eodId") final int eodId) throws Exception {
         CreateEodId createDate = new CreateEodId();
         SimpleDateFormat sdf = new SimpleDateFormat("dd-MM-yyyy");
 
@@ -44,16 +44,8 @@ public class TestController {
         //config loggers
         LogManager.init();
 
-//        ProcessBean processBean = commonRepo.getProcessDetails(Integer.parseInt(processId));
-//        kafkaTemplate.send(processBean.getKafkaTopic(), processId);
-//        return "Published successfully " + processBean.getProcessDes() + (":") + processId
-//                + " to the topic:" + processBean.getKafkaTopic();
-
-        String topicName = "ATMFileClearing";
-        String processDes = "ATM File Clearing Process";
         kafkaTemplate.send(topic, fileId);
-        return "Published successfully " + processDes + "" + (":") + fileId
-                + " to the topic:" + topic;
+        return "Published successfully" + fileId + " to the topic:" + topic;
     }
 
 }
