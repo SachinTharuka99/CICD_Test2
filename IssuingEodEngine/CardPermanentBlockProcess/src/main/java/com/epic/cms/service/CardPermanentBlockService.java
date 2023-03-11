@@ -53,7 +53,7 @@ public class CardPermanentBlockService {
                     //insert the card details with old card status in card block table
                     if (status.equals(statusList.getCARD_PERMANENT_BLOCKED_STATUS())) {
                         details.put("Process Status", "Passed");
-                        infoLogger.info(LogManager.processDetailsStyles(details));
+                        infoLogger.info(logManager.processDetailsStyles(details));
                     }
                     cardPermanentBlockRepo.deactivateCardBlock(blockCardBean.getCardNo());
                     count = cardPermanentBlockRepo.insertIntoCardBlock(blockCardBean.getCardNo(), statusList.getCARD_PERMANENT_BLOCKED_STATUS(), status, Configurations.PERM_BLOCK_REASON + Configurations.NO_OF_MONTHS_FOR_PERMENANT_BLOCK + "_months");
@@ -83,7 +83,7 @@ public class CardPermanentBlockService {
                 details.put("Process Status", "Failed");
                 Configurations.PROCESS_FAILD_COUNT++;
             }
-            infoLogger.info(LogManager.processDetailsStyles(details));
+            infoLogger.info(logManager.processDetailsStyles(details));
         }
     }
 }

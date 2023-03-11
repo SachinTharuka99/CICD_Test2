@@ -15,8 +15,6 @@ import com.epic.cms.util.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import static com.epic.cms.util.LogManager.*;
-
 @Service
 public class MasterFileClearingConnector extends FileProcessingProcessBuilder {
     @Autowired
@@ -57,16 +55,16 @@ public class MasterFileClearingConnector extends FileProcessingProcessBuilder {
                 masterFileClearingService.processFile(fileBean);
             } else {
                 //file cannot proceed due to invalid status
-                errorLoggerEFPE.error("Cannot read, Master file " + fileId + " is not in the initial status");
+                errorLogger.error("Cannot read, Master file " + fileId + " is not in the initial status");
             }
 
         } catch (Exception ex) {
-            errorLoggerEFPE.error("Master File clearing process failed for file " + fileId, ex);
+            errorLogger.error("Master File clearing process failed for file " + fileId, ex);
             //update file status to FEROR
             try {
                 masterFileClearingDao.updateFileStatus(fileId, DatabaseStatus.STATUS_FILE_ERROR);
             } catch (Exception e) {
-                errorLoggerEFPE.error("", e);
+                errorLogger.error("", e);
             }
         }
     }

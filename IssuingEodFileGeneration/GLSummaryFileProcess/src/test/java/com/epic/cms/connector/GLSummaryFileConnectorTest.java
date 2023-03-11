@@ -61,7 +61,7 @@ class GLSummaryFileConnectorTest {
     @Test
     void testConcreteProcess() throws Exception {
         // Setup
-        when(glSummaryFileConnectorUnderTest.logManager.ProcessHeaderStyle("GL File Generation Process"))
+        when(glSummaryFileConnectorUnderTest.logManager.processHeaderStyle("GL File Generation Process"))
                 .thenReturn("result");
         when(glSummaryFileConnectorUnderTest.logManager.processStartEndStyle(
                 "GL File Generation Successfully Started")).thenReturn("result");

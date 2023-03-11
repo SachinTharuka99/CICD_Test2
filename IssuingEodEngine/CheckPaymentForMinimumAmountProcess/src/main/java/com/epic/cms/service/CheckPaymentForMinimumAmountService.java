@@ -71,19 +71,19 @@ public class CheckPaymentForMinimumAmountService {
                             DateUtil.getSqldate(checkDueDate), accNo, statementDayEODID, payments, paymentsBeforeDueDate);
                     details.put("card added to min pay table", CommonMethods.cardNumberMask(lastStatement.getCardno()));
                     details.put("min payment", minAmount);
-                    infoLogger.info(LogManager.processDetailsStyles(details));
+                    infoLogger.info(logManager.processDetailsStyles(details));
                     details.clear();
                     Statusts.SUMMARY_FOR_MINPAYMENT_RISK_ADDED++;
                 }
             }
             Configurations.PROCESS_SUCCESS_COUNT++;
-            infoLogger.info(LogManager.processDetailsStyles(details));
+            infoLogger.info(logManager.processDetailsStyles(details));
             details.clear();
         } catch (Exception e) {
             Configurations.errorCardList.add(new ErrorCardBean(Configurations.ERROR_EOD_ID, Configurations.EOD_DATE, new StringBuffer(lastStatement.getCardno()), e.getMessage(), Configurations.RUNNING_PROCESS_ID, Configurations.RUNNING_PROCESS_DESCRIPTION, 0, CardAccount.CARD));
             Configurations.PROCESS_FAILD_COUNT++;
             errorLogger.error("Error Occured for cardno :" + CommonMethods.cardInfo(String.valueOf(lastStatement.getCardno()), processBean), e);
         }
-        infoLogger.info(LogManager.processDetailsStyles(details));
+        infoLogger.info(logManager.processDetailsStyles(details));
     }
 }

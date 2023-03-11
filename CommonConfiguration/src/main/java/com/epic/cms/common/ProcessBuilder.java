@@ -1,11 +1,14 @@
 package com.epic.cms.common;
 
+import ch.qos.logback.classic.Logger;
 import com.epic.cms.model.bean.ErrorCardBean;
 import com.epic.cms.model.bean.ErrorMerchantBean;
 import com.epic.cms.model.bean.ProcessBean;
 import com.epic.cms.repository.CommonRepo;
 import com.epic.cms.service.KafkaMessageUpdator;
 import com.epic.cms.util.Configurations;
+
+import static com.epic.cms.util.LogManager.*;
 import org.springframework.beans.factory.annotation.Autowired;
 
 import java.util.ArrayList;
@@ -35,5 +38,6 @@ public abstract class ProcessBuilder {
         System.out.println("Send the process success status");
         commonRepo.updateEODProcessCount(Configurations.eodUniqueId);
     }
+
     public abstract void concreteProcess() throws Exception;
 }

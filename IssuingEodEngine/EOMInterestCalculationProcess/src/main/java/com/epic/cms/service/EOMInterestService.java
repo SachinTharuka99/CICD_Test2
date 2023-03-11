@@ -96,7 +96,7 @@ public class EOMInterestService {
                     errorLogger.error("EOM interest calculation Process failed for account number " + CommonMethods.cardInfo(maskedCardNumber, processBean), e);
                 }
 
-                infoLogger.info(LogManager.processDetailsStyles(cardDetails));
+                infoLogger.info(logManager.processDetailsStyles(cardDetails));
 
             } catch (Exception e) {
                 errorLogger.error("EOM interest calculation Process failed ", e);

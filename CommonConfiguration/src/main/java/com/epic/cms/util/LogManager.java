@@ -19,8 +19,8 @@ import java.util.Map;
 @DependsOn("ConfigurationService")
 public class LogManager {
 
-    public static Logger infoLoggerCOM = null, infoLogger = null, infoLoggerEFPE = null, infoLoggerEFGE = null;
-    public static Logger errorLoggerCOM = null, errorLogger = null, errorLoggerEFPE = null, errorLoggerEFGE = null;
+    public static Logger infoLogger = null, infoLoggerCOM = null, infoLoggerEFPE = null, infoLoggerEFGE = null;
+    public static Logger errorLogger = null, errorLoggerCOM = null, errorLoggerEFPE = null, errorLoggerEFGE = null;
     public static String logTypeInfo = Configurations.LOG_TYPE_INFO;
     public static String logTypeError = Configurations.LOG_TYPE_ERROR;
 
@@ -129,7 +129,7 @@ public class LogManager {
      * @param name
      * @return
      */
-    public static String processStartEndStyle(String name) {
+    public String processStartEndStyle(String name) {
         String curDate = new SimpleDateFormat("dd-MMM-yy HH:mm:ss").format(Configurations.EOD_DATE);
 
         String temp = "[" + curDate + "]" + "  " + name + System.lineSeparator();
@@ -142,7 +142,7 @@ public class LogManager {
      * @param detailsMap
      * @return
      */
-    public static synchronized String processDetailsStyles(Map<String, Object> detailsMap) {
+    public String processDetailsStyles(Map<String, Object> detailsMap) {
         String description = null;
         if (detailsMap.size() > 0) {
             int maxLength = 0;
@@ -240,39 +240,5 @@ public class LogManager {
             // remove the final new line
         }
         return description;
-    }
-
-    /**
-     * format of headline
-     *
-     * @param name
-     * @return
-     */
-    public String ProcessHeaderStyle(String name) {
-        String symbol = "~";
-        int fixed_length = 100;
-        int processName_lenght = name.length();
-        int symbolic_length = fixed_length - processName_lenght;
-        String style = "";
-        if (symbolic_length % 2 == 0) {
-            for (int i = 0; i < symbolic_length; i++) {
-                if (i == (symbolic_length / 2) + 1) {
-                    style = style + "[" + name + "]";
-                } else {
-                    style = style + symbol;
-                }
-            }
-        } else {
-            for (int i = 0; i < symbolic_length; i++) {
-                if (i == ((symbolic_length - 1) / 2) + 1) {
-                    style = style + "[" + name + "]";
-                } else {
-                    style = style + symbol;
-                }
-            }
-        }
-        style = Configurations.EOD_DATE_String + style + System.lineSeparator();
-
-        return style;
     }
 }

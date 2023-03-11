@@ -73,7 +73,7 @@ public class StampDutyFeeService {
                                 details.put("Card Number", CommonMethods.cardNumberMask(stampDutyCardBean.getCardNumber()));
                                 details.put("Total Overseas Transaction Amount", totalForeignTxns);
                                 details.put("Stamp Duty Fee", stampDutyFee);
-                                infoLogger.info(LogManager.processDetailsStyles(details));
+                                infoLogger.info(logManager.processDetailsStyles(details));
 
                                 CommonMethods.clearStringBuffer(cardFeeBean.getCardNumber());
                                 cardFeeBean = null;
@@ -105,7 +105,7 @@ public class StampDutyFeeService {
                 details.put("Process Status", "Failed");
                 Configurations.PROCESS_FAILD_COUNT++;
             }
-            infoLogger.info(LogManager.processDetailsStyles(details));
+            infoLogger.info(logManager.processDetailsStyles(details));
         }
     }
 }

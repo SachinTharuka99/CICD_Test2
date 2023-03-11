@@ -7,7 +7,11 @@
 
 package com.epic.cms.common;
 
+import ch.qos.logback.classic.Logger;
 import com.epic.cms.model.bean.ProcessBean;
+
+import static com.epic.cms.util.LogManager.*;
+
 import com.epic.cms.util.LogManager;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.scheduling.annotation.Async;

@@ -38,12 +38,15 @@ public class EODEngineHandler {
     @Autowired
     EODEngineMainService eodEngineMainService;
 
+    @Autowired
+    LogManager logManager;
+
     @GetMapping("/start/{eodid}")
     public Map<String, Object> startEODEngine(@PathVariable("eodid") final String eodId) throws Exception {
         Map<String, Object> response = new HashMap<>();
         int categoryId = 2;
         try {
-            infoLogger.info(LogManager.processStartEndStyle("EOD-Engine Start for EODID:" + eodId));
+            infoLogger.info(logManager.processStartEndStyle("EOD-Engine Start for EODID:" + eodId));
             Configurations.STARTING_EOD_STATUS = producerRepo.getEODStatusFromEODID(eodId)
                     .stream()
                     .findFirst()
