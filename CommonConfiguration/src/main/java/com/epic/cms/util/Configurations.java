@@ -296,7 +296,7 @@ public class Configurations {
     public static int PROCESS_ID_CARDAPPLICATION_LETTER_REJECT;
     public static String APPLICATION_REJECTION_LETTER_CODE;
     public static int PROCESS_ATM_FILE_VALIDATE;
-    public static int PROCESS_ATM_FILE_READ;
+    public static int PROCESS_ATM_FILE_READ = 167;
     public static int PROCESS_PAYMENT_FILE_READ;
     public static String FAIL_STATUS;
 

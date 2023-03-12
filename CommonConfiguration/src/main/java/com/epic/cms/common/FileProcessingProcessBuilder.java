@@ -7,13 +7,11 @@
 
 package com.epic.cms.common;
 
-import ch.qos.logback.classic.Logger;
 import com.epic.cms.model.bean.ProcessBean;
 
-import static com.epic.cms.util.LogManager.*;
 
-import static com.epic.cms.util.LogManager.*;
-
+import static com.epic.cms.util.LogManager.infoLoggerEFPE;
+import static com.epic.cms.util.LogManager.errorLoggerEFPE;
 import com.epic.cms.repository.CommonRepo;
 import com.epic.cms.util.Configurations;
 import com.epic.cms.util.LogManager;
@@ -25,8 +23,6 @@ import java.util.LinkedHashMap;
 public abstract class FileProcessingProcessBuilder {
     @Autowired
     CommonRepo commonRepo;
-    @Autowired
-    LogManager logManager;
 
     public LinkedHashMap details = new LinkedHashMap();
     public LinkedHashMap summery = new LinkedHashMap();
@@ -48,27 +44,29 @@ public abstract class FileProcessingProcessBuilder {
             processBean = commonRepo.getProcessDetails(Configurations.PROCESS_ATM_FILE_READ);
             this.processHeader = processBean.getProcessDes();
             setupProcessDescriptions();
-            infoLoggerEFPE.info(logManager.processHeaderStyle(processHeader));
-            infoLoggerEFPE.info(logManager.processStartEndStyle(startHeader));
+
+            LogManager.logProcessHeader(processHeader, infoLoggerEFPE);
+            LogManager.logProcessStartEnd(startHeader, infoLoggerEFPE);
+
             //3 - insert to process summery table
             //4 - Abstract method call
             concreteProcess(fileId);
             //5 - Update process summery table
         } catch (Exception e) {
             try {
-                infoLoggerEFPE.info(logManager.processStartEndStyle(failedHeader));
-                errorLoggerEFPE.error(failedHeader, e);
+                LogManager.logProcessStartEnd(failedHeader, infoLoggerEFPE);
+                LogManager.logProcessError(failedHeader, e, errorLoggerEFPE);
                 //update process summery table
             } catch (Exception e2) {
-                errorLoggerEFPE.error(e2.getMessage());
+                LogManager.logProcessError(failedHeader, e2, errorLoggerEFPE);
             }
         } finally {
             try {
                 addSummaries();
-                infoLoggerEFPE.info(logManager.processSummeryStyles(summery));
-                infoLoggerEFPE.info(logManager.processStartEndStyle(completedHeader));
+                LogManager.logProcessSummery(summery, infoLoggerEFPE);
+                LogManager.logProcessStartEnd(completedHeader, infoLoggerEFPE);
             } catch (Exception e2) {
-                errorLoggerEFPE.error(e2.getMessage());
+                LogManager.logProcessError(e2.getMessage(), e2, errorLoggerEFPE);
             }
         }
 
