@@ -23,7 +23,6 @@ public class KafkaMessageUpdator {
     @Autowired
     KafkaTemplate<String, String> kafkaTemplate;
 
-    @Async
     public Future<Boolean> producerWithReturn(Object obj, String topicName) throws InterruptedException {
         boolean isSuccess = false;
         if (true) {
@@ -34,7 +33,6 @@ public class KafkaMessageUpdator {
         return new AsyncResult<>(Boolean.valueOf(isSuccess));
     }
 
-    @Async
     public void producerWithNoReturn(Object obj, String topicName) {
         kafkaTemplate.send(topicName, String.valueOf(obj));
     }

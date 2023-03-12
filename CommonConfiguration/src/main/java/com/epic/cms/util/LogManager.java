@@ -262,7 +262,7 @@ public class LogManager {
 
     //format of headline
     // EOD_LOGS_FILE_PATH_WINDOWS
-    public String ProcessHeaderStyle(String name) {
+    public static String ProcessHeaderStyle(String name) {
         String eoddate = Configurations.EOD_DATE.toString();
         String symbol = "~";
         int fixed_length = 100;

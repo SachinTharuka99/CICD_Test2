@@ -438,7 +438,7 @@ public class Configurations {
     public static int PROCESS_INTEREST_CALCULATION;
 
     ///////////////////
-    public static boolean IS_PROCESS_COMPLETELY_FAILED;
+    public static boolean IS_PROCESS_COMPLETELY_FAILED = false;
     public static boolean EOD_SHEDULER;
     public static int BATCH_SIZE;
     public static Timestamp START_TIME;
@@ -1081,7 +1081,7 @@ public class Configurations {
     public static  int FAILED_BALANCE_TRANSFERS = 0;
     public static  int FAILED_LOAN_ON_CARDS = 0;
 
-    public static boolean PROCESS_COMPLETE_STATUS;
+    public static boolean PROCESS_COMPLETE_STATUS = false;
     public static boolean EOD_ENGINE_SOFT_STOP = false;
     public static String STATUS_FILE_COMP = "FCOMP";
     public static String STATUS_FILE_REJECT = "FREJT";
