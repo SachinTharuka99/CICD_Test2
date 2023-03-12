@@ -12,6 +12,7 @@ import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
 import java.util.List;
+import static com.epic.cms.util.LogManager.*;
 
 @Service
 public class CardReplaceConnector extends ProcessBuilder {
