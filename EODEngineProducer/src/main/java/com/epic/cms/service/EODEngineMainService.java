@@ -48,7 +48,7 @@ public class EODEngineMainService {
     public synchronized void EODEngineMain(String eodID, int categoryId) throws InterruptedException {
         System.out.println("Main Method Started");
         try {
-            infoLogger.info(logManager.processStartEndStyle("EOD-Engine main service started for EODID:" + eodID));
+            infoLogger.info(LogManager.processStartEndStyle("EOD-Engine main service started for EODID:" + eodID));
             List<ProcessBean> processList = new ArrayList<ProcessBean>();
             String uniqueId = generateUniqueId();
             Configurations.PROCESS_FLOW_STEP_COMPLETE_STATUS = true;
@@ -69,12 +69,6 @@ public class EODEngineMainService {
                     System.out.println("############# Process step completed");
                 }
                 Thread.sleep(200);
-            }
-
-            Set<Thread> threads = Thread.getAllStackTraces().keySet();
-            System.out.printf("%-15s \t %-15s \t %-15s \t %s\n", "Name", "State", "Priority", "isDaemon");
-            for (Thread t : threads) {
-                System.out.printf("%-15s \t %-15s \t %-15d \t %s\n", t.getName(), t.getState(), t.getPriority(), t.isDaemon());
             }
 
             producerRepo.clearEodProcessCountTable();
@@ -104,16 +98,16 @@ public class EODEngineMainService {
                     Configurations.PROCESS_STEP_ID = processList.get(j).getStepId();
 
                     System.out.println("------------->>>>>>>>>> EODScheduler inside for loop Thread ID: " + Thread.currentThread().getId());
-                    Future<Boolean> future = kafkaMessageUpdator.producerWithReturn(uniqueId,
+                    boolean future = kafkaMessageUpdator.producerWithReturn(uniqueId,
                             processList.get(j).getKafkaTopic());
 
                     //wait until process finished.
                     while (true) {
                         //Check whether msg push to consumer service is complete & the process complete from their end.
-                        if (future.isDone() && Configurations.PROCESS_COMPLETE_STATUS && !Configurations.IS_PROCESS_COMPLETELY_FAILED) {
-                            infoLogger.info(logManager.processStartEndStyle(processList.get(j).getProcessDes() + " completed - " + future.get()));
+                        if (future && Configurations.PROCESS_COMPLETE_STATUS && !Configurations.IS_PROCESS_COMPLETELY_FAILED) {
+                            infoLogger.info(LogManager.processStartEndStyle(processList.get(j).getProcessDes() + " completed - "));
                             break;
-                        } else if (future.isDone() && Configurations.PROCESS_COMPLETE_STATUS && Configurations.IS_PROCESS_COMPLETELY_FAILED) {
+                        } else if (future && Configurations.PROCESS_COMPLETE_STATUS && Configurations.IS_PROCESS_COMPLETELY_FAILED) {
                             throw new EODEngineCompletelyFailedException(processList.get(j).getProcessDes() + " Process completely failed.");
                         }
                         Thread.sleep(1000);
