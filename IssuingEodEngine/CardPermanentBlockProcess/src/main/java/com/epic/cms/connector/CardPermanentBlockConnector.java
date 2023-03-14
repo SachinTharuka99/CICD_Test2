@@ -24,9 +24,6 @@ import static com.epic.cms.util.LogManager.infoLogger;
 public class CardPermanentBlockConnector extends ProcessBuilder {
 
     @Autowired
-    LogManager logManager;
-
-    @Autowired
     @Qualifier("taskExecutor2")
     ThreadPoolTaskExecutor taskExecutor;
 
@@ -67,7 +64,7 @@ public class CardPermanentBlockConnector extends ProcessBuilder {
                 while (!(taskExecutor.getActiveCount() == 0)) {
                     Thread.sleep(1000);
                 }
-                infoLogger.info("Thread Name Prefix: {}, Active count: {}, Pool size: {}, Queue Size: {}", taskExecutor.getThreadNamePrefix(), taskExecutor.getActiveCount(), taskExecutor.getPoolSize(), taskExecutor.getThreadPoolExecutor().getQueue().size());
+                //infoLogger.info("Thread Name Prefix: {}, Active count: {}, Pool size: {}, Queue Size: {}", taskExecutor.getThreadNamePrefix(), taskExecutor.getActiveCount(), taskExecutor.getPoolSize(), taskExecutor.getThreadPoolExecutor().getQueue().size());
 
                 failedCount = Configurations.PROCESS_FAILD_COUNT;
                 Configurations.PROCESS_TOTAL_NOOF_TRABSACTIONS = cardList.size();
@@ -75,12 +72,12 @@ public class CardPermanentBlockConnector extends ProcessBuilder {
                 Configurations.PROCESS_FAILD_COUNT = failedCount;
 
             }
-        } catch (Exception e) {
+        } catch (Exception ex) {
             Configurations.IS_PROCESS_COMPLETELY_FAILED = true;
-            errorLogger.error("Card Permanent Block process Error", e);
+            throw ex;
         } finally {
-            addSummaries();
-            infoLogger.info(logManager.processSummeryStyles(summery));
+            //addSummaries();
+            //infoLogger.info(logManager.processSummeryStyles(summery));
             try {
                 /* PADSS Change -
                 variables handling card data should be nullified by replacing the value of variable with zero and call NULL function */
@@ -91,21 +88,17 @@ public class CardPermanentBlockConnector extends ProcessBuilder {
                     cardList = null;
                 }
             } catch (Exception e2) {
-                errorLogger.error("Card Permanent Block process Error ", e2);
+                //errorLogger.error("Card Permanent Block process Error ", e2);
+                LogManager.logError("Card Permanent Block process Error ", e2, errorLogger);
             }
         }
     }
 
+    @Override
     public void addSummaries() {
-        if (cardList != null) {
-            summery.put("Started Date", Configurations.EOD_DATE.toString());
-            summery.put("Number of transaction to sync", cardList.size());
-            summery.put("Number of success transaction", cardList.size() - failedCount);
-            summery.put("Number of failure transaction", failedCount);
-        } else {
-            summery.put("Number of transaction to sync", 0);
-            summery.put("Number of success transaction", 0);
-            summery.put("Number of failure transaction", 0);
-        }
+        summery.put("Started Date", Configurations.EOD_DATE.toString());
+        summery.put("No of Card effected", Configurations.PROCESS_TOTAL_NOOF_TRABSACTIONS);
+        summery.put("No of Success Card ", Configurations.PROCESS_SUCCESS_COUNT);
+        summery.put("No of fail Card ", Configurations.PROCESS_FAILD_COUNT);
     }
 }

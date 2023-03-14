@@ -13,23 +13,16 @@ import com.epic.cms.model.bean.AdjustmentBean;
 import com.epic.cms.service.AdjustmentService;
 import com.epic.cms.util.CommonMethods;
 import com.epic.cms.util.Configurations;
-import com.epic.cms.util.LogManager;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.scheduling.concurrent.ThreadPoolTaskExecutor;
 import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
-import java.util.LinkedHashMap;
 import java.util.List;
-
-import static com.epic.cms.util.LogManager.errorLogger;
 
 @Service
 public class AdjustmentConnector extends ProcessBuilder {
-
-    @Autowired
-    LogManager logManager;
 
     @Autowired
     @Qualifier("ThreadPool_100")
@@ -43,7 +36,6 @@ public class AdjustmentConnector extends ProcessBuilder {
 
     @Override
     public void concreteProcess() throws Exception {
-        LinkedHashMap summery = new LinkedHashMap();
         Configurations.ADJUSTMENT_SEQUENCE_NO = 1;
 
         List<AdjustmentBean> adjustmentList = new ArrayList<>();
@@ -64,22 +56,26 @@ public class AdjustmentConnector extends ProcessBuilder {
                 Thread.sleep(1000);
             }
 
-            summery.put("Started Date", Configurations.EOD_DATE.toString());
-            summery.put("No of Card effected", Integer.toString(Configurations.PROCESS_TOTAL_NOOF_TRABSACTIONS));
-            summery.put("No of Success Card ", Integer.toString(Configurations.PROCESS_SUCCESS_COUNT));
-            summery.put("No of fail Card ", Integer.toString(Configurations.PROCESS_FAILD_COUNT));
         } catch (Exception ex) {
             Configurations.IS_PROCESS_COMPLETELY_FAILED = true;
-            errorLogger.error("Failed Adjustment Process", ex);
+            throw ex;
         } finally {
-             /* PADSS Change -
-               variables handling card data should be nullified
-               by replacing the value of variable with zero and call NULL function */
+            /** PADSS Change -
+             variables handling card data should be nullified
+             by replacing the value of variable with zero and call NULL function */
             for (AdjustmentBean adjustBean : adjustmentList) {
                 CommonMethods.clearStringBuffer(adjustBean.getCardNumber());
             }
             adjustmentList = null;
         }
 
+    }
+
+    @Override
+    public void addSummaries() {
+        summery.put("Started Date", Configurations.EOD_DATE.toString());
+        summery.put("No of Card effected", Integer.toString(Configurations.PROCESS_TOTAL_NOOF_TRABSACTIONS));
+        summery.put("No of Success Card ", Integer.toString(Configurations.PROCESS_SUCCESS_COUNT));
+        summery.put("No of fail Card ", Integer.toString(Configurations.PROCESS_FAILD_COUNT));
     }
 }

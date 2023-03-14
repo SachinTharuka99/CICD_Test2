@@ -129,7 +129,7 @@ public class LogManager {
      * @param name
      * @return
      */
-    public String processStartEndStyle(String name) {
+    public static String processStartEndStyle(String name) {
         String curDate = new SimpleDateFormat("dd-MMM-yy HH:mm:ss").format(Configurations.EOD_DATE);
 
         String temp = "[" + curDate + "]" + "  " + name + System.lineSeparator();
@@ -242,7 +242,7 @@ public class LogManager {
         return description;
     }
 
-    public static void logProcessHeader(String msg, Logger logger) {
+    public static void logHeader(String msg, Logger logger) {
         String symbol = "~";
         int fixed_length = 100;
         int processName_lenght = msg.length();
@@ -270,9 +270,10 @@ public class LogManager {
         //write into a log
         logger.info(formattedMsg);
         //pass into a kafka topic
+
     }
 
-    public static void logProcessStartEnd(String msg, Logger logger) {
+    public static void logStartEnd(String msg, Logger logger) {
         String curDate = new SimpleDateFormat("dd-MMM-yy HH:mm:ss").format(Configurations.EOD_DATE);
 
         String formattedMsg = "[" + curDate + "]" + "  " + msg + System.lineSeparator();
@@ -281,7 +282,7 @@ public class LogManager {
         //pass into a kafka topic
     }
 
-    public static void logProcessDetails(Map<String, Object> detailsMap, Logger logger) {
+    public static void logDetails(Map<String, Object> detailsMap, Logger logger) {
         String description = null;
         if (detailsMap.size() > 0) {
             int maxLength = 0;
@@ -309,13 +310,14 @@ public class LogManager {
             }
             description = description + "-------------------------------------" + System.lineSeparator();
 
+            //write into a log
+            logger.info(description);
+            //pass into a kafka topic
         }
-        //write into a log
-        logger.info(description);
-        //pass into a kafka topic
+
     }
 
-    public static void logProcessSummery(Map<String, Object> detailsMap, Logger logger) {
+    public static void logSummery(Map<String, Object> detailsMap, Logger logger) {
         int maxLengthKey = 0;
         int maxLengthValue = 0;
         int maxLength = 0;
@@ -372,14 +374,34 @@ public class LogManager {
             } else {
                 description = "--No Summery Data To View--" + System.lineSeparator();
             }
-            // remove the final new line
+            //write into a log
+            logger.info(description);
+            //pass into a kafka topic
         }
+
+    }
+
+    public static void logInfo(String msg, Logger logger) {
         //write into a log
-        logger.info(description);
+        logger.info(msg);
         //pass into a kafka topic
     }
 
-    public static void logProcessError(String msg, Throwable e, Logger logger) {
+    public static void logError(String msg, Throwable e, Logger logger) {
+        //write into a log
         logger.error(msg, e);
+        //pass into a kafka topic
+    }
+
+    public static void logError(Throwable e, Logger logger) {
+        //write into a log
+        logger.error(e.getMessage(), e);
+        //pass into a kafka topic
+    }
+
+    public static void logError(String msg, Logger logger) {
+        //write into a log
+        logger.error(msg);
+        //pass into a kafka topic
     }
 }

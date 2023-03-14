@@ -21,9 +21,6 @@ import static com.epic.cms.util.LogManager.infoLogger;
 public class CardFeeService {
 
     @Autowired
-    public LogManager logManager;
-
-    @Autowired
     public StatusVarList status;
 
     @Autowired
@@ -90,19 +87,21 @@ public class CardFeeService {
                         }
                         //Statusts.SUMMARY_FOR_FEE_UPDATE++;
                     }
-                    infoLogger.info(logManager.processDetailsStyles(detail));
+                    //infoLogger.info(logManager.processDetailsStyles(detail));
                     Configurations.PROCESS_SUCCESS_COUNT++;
                 } catch (Exception ex) {
-                    ex.printStackTrace();
-                    errorLogger.error("Exceptions occurred for: " + CommonMethods.cardNumberMask(cardBean.getCardNumber()), ex);
+                    //errorLogger.error("Exceptions occurred for: " + CommonMethods.cardNumberMask(cardBean.getCardNumber()), ex);
+                    LogManager.logError("Exceptions occurred for: " + CommonMethods.cardNumberMask(cardBean.getCardNumber()), ex, errorLogger);
                     Configurations.errorCardList.add(new ErrorCardBean(Configurations.ERROR_EOD_ID, Configurations.EOD_DATE, cardFeeBean.getCardNumber(), ex.getMessage(), Configurations.RUNNING_PROCESS_ID, Configurations.RUNNING_PROCESS_DESCRIPTION, 0, CardAccount.CARD));
                     Configurations.PROCESS_FAILD_COUNT++;
                 }
 
             } catch (Exception ex) {
-                ex.printStackTrace();
-                errorLogger.error("Error occurred while processing card number: " + CommonMethods.cardNumberMask(cardBean.getCardNumber()) + " | " + ex);
+                //errorLogger.error("Error occurred while processing card number: " + CommonMethods.cardNumberMask(cardBean.getCardNumber()) + " | " + ex);
+                LogManager.logError("Error occurred while processing card number: " + CommonMethods.cardNumberMask(cardBean.getCardNumber()), ex, errorLogger);
                 Configurations.PROCESS_FAILD_COUNT++;
+            } finally {
+                LogManager.logDetails(detail, infoLogger);
             }
         }
     }

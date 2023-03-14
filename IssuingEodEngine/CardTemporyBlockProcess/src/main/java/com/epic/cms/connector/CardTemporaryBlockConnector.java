@@ -24,9 +24,6 @@ import static com.epic.cms.util.LogManager.infoLogger;
 public class CardTemporaryBlockConnector extends ProcessBuilder {
 
     @Autowired
-    LogManager logManager;
-
-    @Autowired
     @Qualifier("taskExecutor2")
     ThreadPoolTaskExecutor taskExecutor;
 
@@ -66,22 +63,22 @@ public class CardTemporaryBlockConnector extends ProcessBuilder {
                     Thread.sleep(1000);
                 }
 
-                infoLogger.info("Thread Name Prefix: {}, Active count: {}, Pool size: {}, Queue Size: {}", taskExecutor.getThreadNamePrefix(), taskExecutor.getActiveCount(), taskExecutor.getPoolSize(), taskExecutor.getThreadPoolExecutor().getQueue().size());
+                //infoLogger.info("Thread Name Prefix: {}, Active count: {}, Pool size: {}, Queue Size: {}", taskExecutor.getThreadNamePrefix(), taskExecutor.getActiveCount(), taskExecutor.getPoolSize(), taskExecutor.getThreadPoolExecutor().getQueue().size());
 
                 failedCount = Configurations.PROCESS_FAILD_COUNT;
                 Configurations.PROCESS_TOTAL_NOOF_TRABSACTIONS = cardList.size();
                 Configurations.PROCESS_SUCCESS_COUNT = (cardList.size() - failedCount);
                 Configurations.PROCESS_FAILD_COUNT = failedCount;
             }
-        } catch (Exception e) {
+        } catch (Exception ex) {
             Configurations.IS_PROCESS_COMPLETELY_FAILED = true;
-            errorLogger.error("Card Temporary Block process Error", e);
+            throw ex;
         } finally {
-            addSummaries();
-            infoLogger.info(logManager.processSummeryStyles(summery));
+            //addSummaries();
+            //infoLogger.info(logManager.processSummeryStyles(summery));
             try {
-               /* PADSS Change -
-                variables handling card data should be nullified by replacing the value of variable with zero and call NULL function */
+                /** PADSS Change -
+                 variables handling card data should be nullified by replacing the value of variable with zero and call NULL function */
                 if (cardList != null && cardList.size() != 0) {
                     for (BlockCardBean temporyBlockCardBean : cardList) {
                         CommonMethods.clearStringBuffer(temporyBlockCardBean.getCardNo());
@@ -89,7 +86,8 @@ public class CardTemporaryBlockConnector extends ProcessBuilder {
                     cardList = null;
                 }
             } catch (Exception e2) {
-                errorLogger.error("Card Temporary Block process Error ", e2);
+                //errorLogger.error("Card Temporary Block process Error ", e2);
+                LogManager.logError(e2, errorLogger);
             }
         }
     }

@@ -24,16 +24,13 @@ public class CardPermanentBlockService {
     StatusVarList statusList;
 
     @Autowired
-    LogManager logManager;
-
-    @Autowired
     CardBlockRepo cardPermanentBlockRepo;
 
     @Autowired
     CommonRepo commonRepo;
 
     @Async("taskExecutor2")
-    @Transactional(value = "transactionManager", propagation = Propagation.REQUIRED,rollbackFor = Exception.class)
+    @Transactional(value = "transactionManager", propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
     public void processCardPermanentBlock(BlockCardBean blockCardBean, ProcessBean processBean) throws Exception {
         if (!Configurations.isInterrupted) {
             LinkedHashMap details = new LinkedHashMap();
@@ -53,7 +50,7 @@ public class CardPermanentBlockService {
                     //insert the card details with old card status in card block table
                     if (status.equals(statusList.getCARD_PERMANENT_BLOCKED_STATUS())) {
                         details.put("Process Status", "Passed");
-                        infoLogger.info(logManager.processDetailsStyles(details));
+                        //infoLogger.info(logManager.processDetailsStyles(details));
                     }
                     cardPermanentBlockRepo.deactivateCardBlock(blockCardBean.getCardNo());
                     count = cardPermanentBlockRepo.insertIntoCardBlock(blockCardBean.getCardNo(), statusList.getCARD_PERMANENT_BLOCKED_STATUS(), status, Configurations.PERM_BLOCK_REASON + Configurations.NO_OF_MONTHS_FOR_PERMENANT_BLOCK + "_months");
@@ -78,12 +75,16 @@ public class CardPermanentBlockService {
                 Configurations.PROCESS_SUCCESS_COUNT++;
             } catch (Exception ex) {
                 Configurations.errorCardList.add(new ErrorCardBean(Configurations.ERROR_EOD_ID, Configurations.EOD_DATE, new StringBuffer(blockCardBean.getCardNo()), ex.getMessage(), Configurations.RUNNING_PROCESS_ID, Configurations.RUNNING_PROCESS_DESCRIPTION, 0, CardAccount.CARD));
-                infoLogger.info("Card Permanent block process failed for cardnumber " + CommonMethods.cardInfo(maskedCardNumber, processBean));
-                errorLogger.error("Card Permanent block process failed for cardnumber " + CommonMethods.cardInfo(maskedCardNumber, processBean), ex);
+                //infoLogger.info("Card Permanent block process failed for cardnumber " + CommonMethods.cardInfo(maskedCardNumber, processBean));
+                LogManager.logInfo("Card Permanent block process failed for cardnumber " + CommonMethods.cardInfo(maskedCardNumber, processBean), infoLogger);
+                //errorLogger.error("Card Permanent block process failed for cardnumber " + CommonMethods.cardInfo(maskedCardNumber, processBean), ex);
+                LogManager.logError("Card Permanent block process failed for cardnumber " + CommonMethods.cardInfo(maskedCardNumber, processBean), ex, errorLogger);
                 details.put("Process Status", "Failed");
                 Configurations.PROCESS_FAILD_COUNT++;
+            } finally {
+                LogManager.logDetails(details, infoLogger);
             }
-            infoLogger.info(logManager.processDetailsStyles(details));
+            //infoLogger.info(logManager.processDetailsStyles(details));
         }
     }
 }

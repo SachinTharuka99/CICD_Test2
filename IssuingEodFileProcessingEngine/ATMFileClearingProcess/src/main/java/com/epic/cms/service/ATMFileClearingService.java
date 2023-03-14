@@ -124,7 +124,8 @@ public class ATMFileClearingService {
                         errorMsg = fieldDesc + " validation failed in " + validationDesc + "|" + atmField;
                         atmFileClearingRepo.insertToRECATMFILEINVALID(fileId, lineNumber, errorMsg);
                         errorMsg = "validation failed in line number " + lineNumber + "|" + atmField;
-                        errorLoggerEFPE.error(errorMsg);
+                        //errorLoggerEFPE.error(errorMsg);
+                        LogManager.processErrorLog(errorMsg, errorLoggerEFPE);
                         //invalidCount.addAndGet(1);//increase invalid count by 1
                         Configurations.PROCESS_ATM_FILE_CLEARING_INVALID_COUNT++;
                         if (!isLineRejected) {

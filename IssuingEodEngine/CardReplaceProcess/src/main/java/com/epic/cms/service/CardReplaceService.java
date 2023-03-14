@@ -12,14 +12,10 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.util.LinkedHashMap;
 
-import static com.epic.cms.util.LogManager.infoLogger;
-import static com.epic.cms.util.LogManager.errorLogger;
+import static com.epic.cms.util.LogManager.*;
 
 @Service
 public class CardReplaceService {
-
-    @Autowired
-    LogManager logManager;
 
     @Autowired
     CardReplaceRepo cardReplaceRepo;
@@ -47,13 +43,16 @@ public class CardReplaceService {
 
                 Statusts.SUMMARY_FOR_CARDREPLACE_PROCESSED++;
                 Configurations.PROCESS_SUCCESS_COUNT++;
-                infoLogger.info(logManager.processDetailsStyles(details));
-                details.clear();
+//                infoLogger.info(logManager.processDetailsStyles(details));
+//                details.clear();
 
             } catch (Exception e) {
-                errorLogger.error("Card Replace Process Error for Card - " + CommonMethods.cardNumberMask(cardReplaceBean.getOldCardNo()), e);
+                //errorLogger.error("Card Replace Process Error for Card - " + CommonMethods.cardNumberMask(cardReplaceBean.getOldCardNo()), e);
+                LogManager.logError("Card Replace Process Error for Card - " + CommonMethods.cardNumberMask(cardReplaceBean.getOldCardNo()), e, errorLogger);
                 Configurations.errorCardList.add(new ErrorCardBean(Configurations.ERROR_EOD_ID, Configurations.EOD_DATE, new StringBuffer(cardReplaceBean.getOldCardNo()), e.getMessage(), Configurations.PROCESS_ID_CARD_REPLACE, "Card Replace", 0, CardAccount.CARD));
                 Configurations.PROCESS_FAILD_COUNT++;
+            } finally {
+                LogManager.logDetails(details, infoLogger);
             }
         }
     }

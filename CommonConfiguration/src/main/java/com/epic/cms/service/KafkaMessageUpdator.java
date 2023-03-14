@@ -33,7 +33,7 @@ public class KafkaMessageUpdator {
         return new AsyncResult<>(Boolean.valueOf(isSuccess));
     }
 
-    public void producerWithNoReturn(Object obj, String topicName) {
-        kafkaTemplate.send(topicName, String.valueOf(obj));
-    }
+public void producerWithNoReturn(Object obj, String topicName) {
+    kafkaTemplate.send(topicName, String.valueOf(obj));
+}
 }

@@ -10,7 +10,6 @@ import com.epic.cms.service.KafkaMessageUpdator;
 import com.epic.cms.util.Configurations;
 import com.epic.cms.util.LogManager;
 import com.epic.cms.util.StatusVarList;
-import com.epic.cms.util.Statusts;
 import org.springframework.beans.factory.annotation.Autowired;
 
 import java.util.ArrayList;
@@ -19,6 +18,7 @@ import java.util.LinkedHashMap;
 import java.util.List;
 
 import static com.epic.cms.util.LogManager.infoLogger;
+import static com.epic.cms.util.LogManager.errorLogger;
 
 public abstract class ProcessBuilder {
 
@@ -49,9 +49,8 @@ public abstract class ProcessBuilder {
     @Autowired
     StatusVarList statusVarList;
 
-    public void startProcess(int processId, String uniqueid) throws Exception {
+    public void startProcess(int processId, String uniqueId) throws Exception {
         try {
-            System.out.println("This the startProcess from parent class");
             ProcessBean processBean = processBuilderRepo.getProcessDetails(processId);
             StartEodStatus = Configurations.STARTING_EOD_STATUS;
             boolean isErrorProcess = processBuilderRepo.isErrorProcess(processId);
@@ -77,13 +76,12 @@ public abstract class ProcessBuilder {
             }
 
             if (hasErrorEODandProcess == 1 && processBean != null || hasErrorEODandProcess == 0 && processBean != null) {
-                infoLogger.info(LogManager.ProcessHeaderStyle(processHeader));
-                infoLogger.info(LogManager.processStartEndStyle(startHeader));
+                LogManager.logHeader(processHeader, infoLogger);
+                LogManager.logStartEnd(startHeader, infoLogger);
                 commonRepo.insertToEodProcessSumery(processId);
                 /**
                  * Abstract method call.
                  */
-
                 concreteProcess();
 
                 if (Configurations.IS_PROCESS_COMPLETELY_FAILED) {
@@ -96,21 +94,23 @@ public abstract class ProcessBuilder {
                 commonRepo.updateEodProcessSummery(Configurations.ERROR_EOD_ID, statusVarList.SUCCES_STATUS, processId, Configurations.PROCESS_SUCCESS_COUNT, Configurations.PROCESS_FAILD_COUNT, eodDashboardProcessProgress(Configurations.PROCESS_SUCCESS_COUNT, Configurations.PROCESS_TOTAL_NOOF_TRABSACTIONS));
             } else if (hasErrorEODandProcess == 2 && processBean != null) {
                 System.out.println("Skipping this process since Process not under error: " + processBean.getProcessDes());
-                commonRepo.updateEODProcessCount(uniqueid);
+                commonRepo.updateEODProcessCount(uniqueId);
                 return;
             }
 
-
         } catch (Exception ex) {
-            infoLogger.info(LogManager.processStartEndStyle(failedHeader));
+            LogManager.logStartEnd(failedHeader, infoLogger);
+            LogManager.logError(failedHeader, ex, errorLogger);
             if (ex instanceof FailedCardException) {
 
             }
         } finally {
+            addSummaries();
+            LogManager.logSummery(summery, infoLogger);
             kafkaMessageUpdator.producerWithNoReturn("true", "processStatus");
             kafkaMessageUpdator.producerWithNoReturn(!Configurations.IS_PROCESS_COMPLETELY_FAILED, "eodEngineConsumerStatus");
             System.out.println("Send the process success status");
-            infoLogger.info(LogManager.processStartEndStyle(completedHeader));
+            LogManager.logStartEnd(completedHeader, infoLogger);
             commonRepo.updateEODProcessCount(Configurations.eodUniqueId);
         }
     }
@@ -148,4 +148,6 @@ public abstract class ProcessBuilder {
     }
 
     public abstract void concreteProcess() throws Exception;
+
+    public abstract void addSummaries();
 }

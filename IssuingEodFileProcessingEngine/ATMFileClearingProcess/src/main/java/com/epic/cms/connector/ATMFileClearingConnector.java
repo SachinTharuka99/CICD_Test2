@@ -23,7 +23,8 @@ import org.springframework.stereotype.Service;
 import java.io.File;
 import java.util.ArrayList;
 
-import static com.epic.cms.util.LogManager.*;
+import static com.epic.cms.util.LogManager.infoLoggerEFPE;
+import static com.epic.cms.util.LogManager.errorLoggerEFPE;
 
 @Service
 public class ATMFileClearingConnector extends FileProcessingProcessBuilder {
@@ -33,8 +34,6 @@ public class ATMFileClearingConnector extends FileProcessingProcessBuilder {
     ATMFileClearingService atmFileClearingService;
     @Autowired
     CommonRepo commonRepo;
-    @Autowired
-    LogManager logManager;
     @Autowired
     StatusVarList status;
     @Autowired

@@ -22,7 +22,7 @@ public class ProcessThreadService {
         try{
             if(processId > 0){
                 ProcessBuilder processBuilder = (ProcessBuilder) Configurations.processConnectorList.get(processId);
-                processBuilder.startProcess();
+                //processBuilder.startProcess();
             }else {
                 errorLogger.error("Invalid Process Id ");
             }

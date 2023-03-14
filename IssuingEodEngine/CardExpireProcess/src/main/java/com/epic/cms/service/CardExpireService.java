@@ -13,13 +13,10 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.util.LinkedHashMap;
 
-import static com.epic.cms.util.LogManager.errorLogger;
-import static com.epic.cms.util.LogManager.infoLogger;
+import static com.epic.cms.util.LogManager.*;
+
 @Service
 public class CardExpireService {
-
-    @Autowired
-    LogManager logManager;
 
     @Autowired
     CardBlockRepo cardBlockRepo;
@@ -30,7 +27,7 @@ public class CardExpireService {
     CardExpireRepo cardExpireRepo;
 
     @Async("ThreadPool_100")
-    @Transactional(value="transactionManager",propagation = Propagation.REQUIRED,rollbackFor = Exception.class)
+    @Transactional(value = "transactionManager", propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
     public void processCardExpire(CardBean cardBean) {
         if (!Configurations.isInterrupted) {
             LinkedHashMap details = new LinkedHashMap();
@@ -56,12 +53,15 @@ public class CardExpireService {
                 details.put("Expire date", cardBean.getExpiryDate());
                 details.put("Old Status", cardBean.getCardStatus());
                 details.put("New Status", statusList.getCARD_EXPIRED_STATUS());
-                infoLogger.info(logManager.processDetailsStyles(details));
+//                infoLogger.info(logManager.processDetailsStyles(details));
 
             } catch (Exception e) {
                 Configurations.errorCardList.add(new ErrorCardBean(Configurations.ERROR_EOD_ID, Configurations.EOD_DATE, new StringBuffer(cardBean.getCardnumber()), e.getMessage(), Configurations.RUNNING_PROCESS_ID, Configurations.RUNNING_PROCESS_DESCRIPTION, 0, CardAccount.CARD));
-                errorLogger.error("Card expire process failed for card number " + CommonMethods.cardNumberMask(cardBean.getCardnumber()), e);
+                //errorLogger.error("Card expire process failed for card number " + CommonMethods.cardNumberMask(cardBean.getCardnumber()), e);
+                LogManager.logError("Card expire process failed for card number " + CommonMethods.cardNumberMask(cardBean.getCardnumber()), e, errorLogger);
                 Configurations.PROCESS_FAILD_COUNT++;
+            } finally {
+                LogManager.logDetails(details, infoLogger);
             }
         }
     }

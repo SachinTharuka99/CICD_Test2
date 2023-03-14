@@ -25,9 +25,6 @@ public class CardExpireConnector extends ProcessBuilder {
     ThreadPoolTaskExecutor taskExecutor;
 
     @Autowired
-    LogManager logManager;
-
-    @Autowired
     CardExpireService cardExpireService;
 
     @Autowired
@@ -63,10 +60,10 @@ public class CardExpireConnector extends ProcessBuilder {
 
         } catch (Exception ex) {
             Configurations.IS_PROCESS_COMPLETELY_FAILED = true;
-            errorLogger.error("Card expire process failed when getting list of expire card.  ", ex);
+            throw ex;
         } finally {
-            addSummaries();
-            infoLogger.info(logManager.processSummeryStyles(summery));
+            //addSummaries();
+            //infoLogger.info(logManager.processSummeryStyles(summery));
             try {
                 if (expiredCardList != null && expiredCardList.size() != 0) {
                     /** PADSS Change -
@@ -77,7 +74,8 @@ public class CardExpireConnector extends ProcessBuilder {
                     }
                 }
             } catch (Exception e) {
-                errorLogger.error("Exception ", e);
+//                errorLogger.error("Exception ", e);
+                LogManager.logError(e,errorLogger);
             }
         }
     }
