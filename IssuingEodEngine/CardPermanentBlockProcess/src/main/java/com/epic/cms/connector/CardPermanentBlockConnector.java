@@ -99,13 +99,13 @@ public class CardPermanentBlockConnector extends ProcessBuilder {
     public void addSummaries() {
         if (cardList != null) {
             summery.put("Started Date", Configurations.EOD_DATE.toString());
-            summery.put("Number of transaction to sync", cardList.size());
-            summery.put("Number of success transaction", cardList.size() - failedCount);
-            summery.put("Number of failure transaction", failedCount);
+            summery.put("No of Card effected", cardList.size());
+            summery.put("No of Success Card", cardList.size() - failedCount);
+            summery.put("No of fail Card", failedCount);
         } else {
-            summery.put("Number of transaction to sync", 0);
-            summery.put("Number of success transaction", 0);
-            summery.put("Number of failure transaction", 0);
+            summery.put("No of Card effected", 0);
+            summery.put("No of Success Card", 0);
+            summery.put("No of fail Card", 0);
         }
     }
 }

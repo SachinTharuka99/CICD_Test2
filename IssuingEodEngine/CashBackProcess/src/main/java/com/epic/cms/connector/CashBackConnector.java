@@ -106,13 +106,13 @@ public class CashBackConnector extends ProcessBuilder {
     public void addSummaries() {
         if (beanList != null) {
             summery.put("Started Date", Configurations.EOD_DATE.toString());
-            summery.put("Number of transaction to sync", beanList.size());
-            summery.put("Number of success transaction", beanList.size() - failedCount);
-            summery.put("Number of failure transaction", failedCount);
+            summery.put("Number of total Cards Count", beanList.size());
+            summery.put("Number of success Cards Count", beanList.size() - failedCount);
+            summery.put("Number of failure Cards Count", failedCount);
         } else {
-            summery.put("Number of transaction to sync", 0);
-            summery.put("Number of success transaction", 0);
-            summery.put("Number of failure transaction", 0);
+            summery.put("Number of total Cards Count", 0);
+            summery.put("Number of success Cards Count", 0);
+            summery.put("Number of failure Cards Count", 0);
         }
     }
 }

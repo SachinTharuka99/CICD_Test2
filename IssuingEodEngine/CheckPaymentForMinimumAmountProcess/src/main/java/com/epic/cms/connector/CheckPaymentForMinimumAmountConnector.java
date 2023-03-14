@@ -5,10 +5,7 @@ import com.epic.cms.model.bean.LastStatementSummeryBean;
 import com.epic.cms.repository.CheckPaymentForMinimumAmountRepo;
 import com.epic.cms.repository.CommonRepo;
 import com.epic.cms.service.CheckPaymentForMinimumAmountService;
-import com.epic.cms.util.CommonMethods;
-import com.epic.cms.util.Configurations;
-import com.epic.cms.util.LogManager;
-import com.epic.cms.util.StatusVarList;
+import com.epic.cms.util.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.scheduling.concurrent.ThreadPoolTaskExecutor;
@@ -91,14 +88,10 @@ public class CheckPaymentForMinimumAmountConnector extends ProcessBuilder {
 
     public void addSummaries() {
         if (cardList != null) {
-            summery.put("Started Date", Configurations.EOD_DATE.toString());
-            summery.put("Number of transaction to sync", cardList.size());
-            summery.put("Number of success transaction", cardList.size() - failedCount);
-            summery.put("Number of failure transaction", failedCount);
-        } else {
-            summery.put("Number of transaction to sync", 0);
-            summery.put("Number of success transaction", 0);
-            summery.put("Number of failure transaction", 0);
+            summery.put("Cards falling on Due date", Statusts.SUMMARY_FOR_CARDS_ON_DUEDATE + "");
+            summery.put("Cards which have not payed the Min Amount and Risk profile added", Statusts.SUMMARY_FOR_MINPAYMENT_RISK_ADDED + "");
+            summery.put("Cards which have payed the Min Amount", Statusts.SUMMARY_FOR_CARDS_MINAMOUNT_PAID + "");
+
         }
     }
 }

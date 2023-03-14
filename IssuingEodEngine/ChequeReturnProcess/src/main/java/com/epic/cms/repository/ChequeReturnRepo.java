@@ -12,9 +12,6 @@ import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Repository;
-import org.springframework.transaction.annotation.Isolation;
-import org.springframework.transaction.annotation.Propagation;
-import org.springframework.transaction.annotation.Transactional;
 
 import java.sql.Date;
 import java.sql.ResultSet;
@@ -47,7 +44,7 @@ public class ChequeReturnRepo implements ChequeReturnDao {
     public List<ReturnChequePaymentDetailsBean> getChequeReturns() throws Exception {
         List<ReturnChequePaymentDetailsBean> chqBeanList1 = new ArrayList<>();
         try {
-            String query = "SELECT * FROM PAYMENT WHERE TRANSACTIONTYPE=? AND STATUS=? AND EODID =? AND cardnumber = ?";
+            String query = "SELECT * FROM PAYMENT WHERE TRANSACTIONTYPE=? AND STATUS=? AND EODID =? ";
             backendJdbcTemplate.query(query,
                     (ResultSet result) -> {
                         while (result.next()) {
@@ -65,8 +62,7 @@ public class ChequeReturnRepo implements ChequeReturnDao {
                     },
                     status.getCHEQUE_RETURN_STATUS(),
                     status.getINITIAL_STATUS(),
-                    Configurations.EOD_ID,
-                    "4380439574186260");
+                    Configurations.EOD_ID);
         } catch (Exception ex) {
             errorLogger.error("Get ChequeReturns Error", ex);
             throw ex;

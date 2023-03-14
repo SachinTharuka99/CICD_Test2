@@ -85,13 +85,13 @@ public class ClearMinAmountAndTempBlockConnector extends ProcessBuilder {
     public void addSummaries() {
         if (cardList != null) {
             summery.put("Started Date", Configurations.EOD_DATE.toString());
-            summery.put("Number of transaction to sync", cardList.size());
-            summery.put("Number of success transaction", cardList.size() - failedCount);
-            summery.put("Number of failure transaction", failedCount);
+            summery.put("Number of transaction Cards Count", cardList.size());
+            summery.put("Number of success Cards Count", cardList.size() - failedCount);
+            summery.put("Number of failure Cards Count", failedCount);
         } else {
-            summery.put("Number of transaction to sync", 0);
-            summery.put("Number of success transaction", 0);
-            summery.put("Number of failure transaction", 0);
+            summery.put("Number of transaction Cards Count", 0);
+            summery.put("Number of success Cards Count", 0);
+            summery.put("Number of failure Cards Count", 0);
         }
     }
 }
