@@ -1108,6 +1108,9 @@ public class Configurations {
 
     public static String eodUniqueId;
 
+    //Kafka Log Topic Config
+    public static final String LOG_TOPIC = "logTopic";
+
     public static synchronized void countFinishedCategories() {
         STEP_CATEGORY_COUNT = STEP_CATEGORY_COUNT + 1;
     }

@@ -8,7 +8,9 @@ import ch.qos.logback.classic.spi.ILoggingEvent;
 import ch.qos.logback.core.ConsoleAppender;
 import ch.qos.logback.core.FileAppender;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.DependsOn;
+import org.springframework.kafka.core.KafkaTemplate;
 import org.springframework.stereotype.Component;
 
 import javax.annotation.PostConstruct;
@@ -19,10 +21,15 @@ import java.util.Map;
 @DependsOn("ConfigurationService")
 public class LogManager {
 
-    public static Logger infoLoggerCOM = null, infoLogger = null, infoLoggerEFPE = null, infoLoggerEFGE = null;
-    public static Logger errorLoggerCOM = null, errorLogger = null, errorLoggerEFPE = null, errorLoggerEFGE = null;
+    public static Logger infoLoggerCOM = null, dashboardInfoLogger = null, infoLogger = null, infoLoggerEFPE = null, infoLoggerEFGE = null;
+    public static Logger errorLoggerCOM = null, dashboardErrorLogger = null, errorLogger = null, errorLoggerEFPE = null, errorLoggerEFGE = null;
     public static String logTypeInfo = Configurations.LOG_TYPE_INFO;
     public static String logTypeError = Configurations.LOG_TYPE_ERROR;
+
+    final String topic = Configurations.LOG_TOPIC;
+
+    @Autowired
+    private KafkaTemplate<String, String> kafkaTemplate;
 
     @PostConstruct
     public static void init() {
@@ -31,11 +38,15 @@ public class LogManager {
         infoLogger = getLogger(logTypeInfo, "engine_info", Configurations.LOG_FILE_PREFIX_EOD_ENGINE);
         infoLoggerEFPE = getLogger(logTypeInfo, "file_pro_engine_info", Configurations.LOG_FILE_PREFIX_EOD_FILE_PROCESSING_ENGINE);
         infoLoggerEFGE = getLogger(logTypeInfo, "file_gen_engine_info", Configurations.LOG_FILE_PREFIX_EOD_FILE_GENERATION_ENGINE);
+        dashboardInfoLogger = getLogger(logTypeInfo, "dashboard_info", Configurations.LOG_FILE_PREFIX_COMMON);
+
         //error loggers
         errorLoggerCOM = getLogger(logTypeError, "common_error", Configurations.LOG_FILE_PREFIX_COMMON);
         errorLogger = getLogger(logTypeError, "engine_error", Configurations.LOG_FILE_PREFIX_EOD_ENGINE);
         errorLoggerEFPE = getLogger(logTypeError, "file_pro_engine_error", Configurations.LOG_FILE_PREFIX_EOD_FILE_PROCESSING_ENGINE);
         errorLoggerEFGE = getLogger(logTypeError, "file_gen_engine_error", Configurations.LOG_FILE_PREFIX_EOD_FILE_GENERATION_ENGINE);
+        dashboardErrorLogger = getLogger(logTypeError, "dashboard_error", Configurations.LOG_FILE_PREFIX_COMMON);
+
     }
 
     /**
@@ -119,6 +130,13 @@ public class LogManager {
             }
         }
         style = Configurations.EOD_DATE_String + style + System.lineSeparator();
+
+        try {
+            kafkaTemplate.send(topic, style);
+            System.out.println("topic :" + style);
+        } catch (Exception e) {
+            errorLogger.error("Kafka Log Topic Error", e);
+        }
 
         return style;
     }
@@ -239,6 +257,14 @@ public class LogManager {
             }
             // remove the final new line
         }
+
+        try {
+            kafkaTemplate.send(topic, description);
+            System.out.println("topic :" + description);
+        } catch (Exception e) {
+            errorLogger.error("Kafka Log Topic Error", e);
+        }
+
         return description;
     }
 
