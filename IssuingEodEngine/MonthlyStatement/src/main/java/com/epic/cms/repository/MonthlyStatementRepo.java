@@ -659,7 +659,7 @@ public class MonthlyStatementRepo implements MonthlyStatementDao {
             details.put("Total Payments", Double.toString(stBean.getPaymentAndCredit()));
             details.put("Total Sales", Double.toString(stBean.getTotalPurchases()));
             details.put("Due Date", stBean.getStatementDueDate().toString());
-            infoLogger.info(LogManager.processDetailsStyles(details));
+            infoLogger.info(logManager.processDetailsStyles(details));
 
         } catch (Exception e) {
             errorLogger.error("Exception in Insert Billing Statement ", e);

@@ -31,15 +31,15 @@ public class KafkaMessageUpdator {
 //        this.topicName = topicName;
 //    }
 
-    @Async
-    public Future<Boolean> producerWithReturn(Object obj, String topicName) throws InterruptedException {
+//    @Async
+    public boolean producerWithReturn(Object obj, String topicName) throws InterruptedException {
         boolean isSuccess = false;
         if (true) {
             kafkaTemplate.send(topicName, String.valueOf(obj));
             Thread.sleep(2000);
             isSuccess = true;
         }
-        return new AsyncResult<>(Boolean.valueOf(isSuccess));
+        return isSuccess;
     }
 
     @Async

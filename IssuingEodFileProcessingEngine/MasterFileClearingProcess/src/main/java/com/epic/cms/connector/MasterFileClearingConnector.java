@@ -14,7 +14,6 @@ import com.epic.cms.service.MasterFileClearingService;
 import com.epic.cms.util.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-
 import static com.epic.cms.util.LogManager.*;
 
 @Service
@@ -69,6 +68,11 @@ public class MasterFileClearingConnector extends FileProcessingProcessBuilder {
                 errorLoggerEFPE.error("", e);
             }
         }
+    }
+
+    @Override
+    public void addSummaries() {
+
     }
 
     private synchronized FileBean getMasterFileInfo(String fileId) throws Exception {

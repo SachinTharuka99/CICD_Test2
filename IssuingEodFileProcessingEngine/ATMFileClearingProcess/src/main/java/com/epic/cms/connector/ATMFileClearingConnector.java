@@ -23,7 +23,8 @@ import org.springframework.stereotype.Service;
 import java.io.File;
 import java.util.ArrayList;
 
-import static com.epic.cms.util.LogManager.*;
+import static com.epic.cms.util.LogManager.infoLoggerEFPE;
+import static com.epic.cms.util.LogManager.errorLoggerEFPE;
 
 @Service
 public class ATMFileClearingConnector extends FileProcessingProcessBuilder {
@@ -34,8 +35,6 @@ public class ATMFileClearingConnector extends FileProcessingProcessBuilder {
     @Autowired
     CommonRepo commonRepo;
     @Autowired
-    LogManager logManager;
-    @Autowired
     StatusVarList status;
     @Autowired
     QueryParametersList queryParametersList;
@@ -45,7 +44,6 @@ public class ATMFileClearingConnector extends FileProcessingProcessBuilder {
 
     @Override
     public void concreteProcess(String fileId) {
-        System.out.println("Class Name:ATMFileReadConnector,File ID:" + fileId + ",Current Thread:" + Thread.currentThread().getName());
         FileBean fileBean;
         //for reading part
         ArrayList<String> nameFieldList = new ArrayList<String>();
@@ -98,15 +96,6 @@ public class ATMFileClearingConnector extends FileProcessingProcessBuilder {
                             atmFileClearingRepo.markAtmReversal(fileId);
                             //update file status to COMP
                             atmFileClearingRepo.updateATMFileStatus(status.getCOMMON_COMPLETED(), fileId);
-
-                            summery.put("Started Date ", Configurations.EOD_DATE.toString());
-                            summery.put("File ID ", fileId);
-                            summery.put("Number of ATM transactions to process ", Configurations.PROCESS_ATM_FILE_CLEARING_TOTAL_NOOF_TRABSACTIONS);
-                            summery.put("Number of success transactions ", Configurations.PROCESS_ATM_FILE_CLEARING_SUCCESS_COUNT);
-                            summery.put("Number of invalid transactions ", Configurations.PROCESS_ATM_FILE_CLEARING_INVALID_COUNT);
-                            summery.put("Number of failure transactions ", Configurations.PROCESS_ATM_FILE_CLEARING_FAILD_COUNT);
-
-                            infoLoggerEFPE.info(logManager.processSummeryStyles(summery));
                         } else {
                             errorLoggerEFPE.error("ATM file reading failed for file " + fileId);
                             //update file read status to FAIL
@@ -137,6 +126,16 @@ public class ATMFileClearingConnector extends FileProcessingProcessBuilder {
                 errorLoggerEFPE.error("", e);
             }
         }
+    }
+
+    @Override
+    public void addSummaries() {
+        summery.put("Started Date ", Configurations.EOD_DATE.toString());
+        //summery.put("File ID ", fileId);
+        summery.put("Number of ATM transactions to process ", Configurations.PROCESS_ATM_FILE_CLEARING_TOTAL_NOOF_TRABSACTIONS);
+        summery.put("Number of success transactions ", Configurations.PROCESS_ATM_FILE_CLEARING_SUCCESS_COUNT);
+        summery.put("Number of invalid transactions ", Configurations.PROCESS_ATM_FILE_CLEARING_INVALID_COUNT);
+        summery.put("Number of failure transactions ", Configurations.PROCESS_ATM_FILE_CLEARING_FAILD_COUNT);
     }
 
     private synchronized FileBean getATMFileInfo(String fileId) throws Exception {

@@ -209,4 +209,9 @@ public class AutoSettlementConnector extends FileGenProcessBuilder {
             commonRepo.updateFileGenProcessSummery(fileName, Configurations.EOD_ID, statusVarList.getSUCCES_STATUS(), Configurations.RUNNING_PROCESS_ID, Configurations.PROCESS_SUCCESS_COUNT, Configurations.PROCESS_FAILD_COUNT, CommonMethods.eodDashboardProcessProgress(Configurations.PROCESS_SUCCESS_COUNT, Configurations.PROCESS_TOTAL_NOOF_TRABSACTIONS));
         }
     }
+
+    @Override
+    public void addSummaries() {
+
+    }
 }

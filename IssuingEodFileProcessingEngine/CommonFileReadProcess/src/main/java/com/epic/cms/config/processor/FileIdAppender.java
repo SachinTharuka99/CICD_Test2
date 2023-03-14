@@ -16,7 +16,7 @@ public class FileIdAppender implements ItemProcessor<RecInputRowDataBean, RecInp
     private String fileId;
 
     @Override
-    public RecInputRowDataBean process(RecInputRowDataBean recInputRowDataBean) throws Exception {
+    public RecInputRowDataBean process(RecInputRowDataBean recInputRowDataBean) {
         if (!recInputRowDataBean.getRecordContent().isEmpty() && recInputRowDataBean.getRecordContent() != null) {
             recInputRowDataBean.setFileId(fileId);
             return recInputRowDataBean;

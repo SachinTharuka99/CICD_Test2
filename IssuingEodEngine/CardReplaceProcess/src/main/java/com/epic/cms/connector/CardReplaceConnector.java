@@ -13,13 +13,10 @@ import org.springframework.stereotype.Service;
 import java.util.ArrayList;
 import java.util.List;
 
-import static com.epic.cms.util.LogManager.errorLogger;
-import static com.epic.cms.util.LogManager.infoLogger;
+import static com.epic.cms.util.LogManager.*;
 
 @Service
 public class CardReplaceConnector extends ProcessBuilder {
-    @Autowired
-    LogManager logManager;
 
     @Autowired
     @Qualifier("taskExecutor2")
@@ -41,10 +38,7 @@ public class CardReplaceConnector extends ProcessBuilder {
             cardListToReplace = cardReplaceRepo.getCardListToReplace();
 
             Statusts.SUMMARY_FOR_CARDREPLACE = cardListToReplace.size();
-            details.put("No of cards to be replaced", cardListToReplace.size() + "");
             summery.put("No of cards to be replaced", cardListToReplace.size() + "");
-            infoLogger.info(logManager.processDetailsStyles(details));
-            details.clear();
 
             if (cardListToReplace != null) {
                 CommonMethods.eodDashboardProgressParametersReset();
@@ -65,12 +59,12 @@ public class CardReplaceConnector extends ProcessBuilder {
             }
             //infoLogger.info("Thread Name Prefix: {}, Active count: {}, Pool size: {}, Queue Size: {}", taskExecutor.getThreadNamePrefix(), taskExecutor.getActiveCount(), taskExecutor.getPoolSize(), taskExecutor.getThreadPoolExecutor().getQueue().size());
 
-        } catch (Exception e) {
+        } catch (Exception ex) {
             Configurations.IS_PROCESS_COMPLETELY_FAILED = true;
-            errorLogger.error("Failed Card Replace Process", e);
+            throw ex;
         } finally {
-            addSummaries();
-            infoLogger.info(logManager.processSummeryStyles(summery));
+            //addSummaries();
+            //infoLogger.info(logManager.processSummeryStyles(summery));
             try {
                 if (cardListToReplace != null && cardListToReplace.size() != 0) {
                     /* variables handling card data should be nullified
@@ -82,7 +76,8 @@ public class CardReplaceConnector extends ProcessBuilder {
                     cardListToReplace = null;
                 }
             } catch (Exception e) {
-                errorLogger.error("Failed Card Replace Process", e);
+                //errorLogger.error("Failed Card Replace Process", e);
+                LogManager.logError(e, errorLogger);
             }
         }
     }

@@ -135,6 +135,11 @@ public class PaymentFileClearingConnector extends FileProcessingProcessBuilder {
         }
     }
 
+    @Override
+    public void addSummaries() {
+
+    }
+
     private synchronized FileBean getPaymentFileInfo(String fileId) throws Exception {
         FileBean fileBean;
         try {

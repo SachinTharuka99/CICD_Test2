@@ -27,4 +27,11 @@ public class EODEngineListener {
             Configurations.EOD_ENGINE_SOFT_STOP = true;
         }
     }
+
+    @KafkaListener(topics = "eodEngineConsumerStatus", groupId = "group_eodEngineConsumerStatus")
+    public void checkEodEngineConsumerStatusListener(String statusFlag) throws Exception {
+        if (statusFlag.equalsIgnoreCase("false")) {
+            Configurations.IS_PROCESS_COMPLETELY_FAILED = true;
+        }
+    }
 }

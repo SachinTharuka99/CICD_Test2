@@ -16,6 +16,7 @@ import com.epic.cms.repository.DailyInterestCalculationRepo;
 import com.epic.cms.util.CardAccount;
 import com.epic.cms.util.CommonMethods;
 import com.epic.cms.util.Configurations;
+import com.epic.cms.util.LogManager;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
@@ -34,7 +35,7 @@ public class DailyInterestCalculationService {
     DailyInterestCalculationRepo interestCalculationRepo;
 
     @Async("ThreadPool_100")
-    @Transactional(value="transactionManager",propagation = Propagation.REQUIRED,rollbackFor = Exception.class)
+    @Transactional(value = "transactionManager", propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
     public void startDailyInterestCalculation(StatementBean stmtBean) {
         if (!Configurations.isInterrupted) {
             try {
@@ -70,11 +71,13 @@ public class DailyInterestCalculationService {
                 interestCalculationRepo.updateEodInterest(stmtBean, accumulateInterest, interestDetailBean.getInterest()); /**insert or update a record to EODINTEREST table*/
 
                 Configurations.PROCESS_SUCCESS_COUNT++;
-                infoLogger.info("Interest calculated for card number " + CommonMethods.cardNumberMask(stmtBean.getCardNo()));
+                //infoLogger.info("Interest calculated for card number " + CommonMethods.cardNumberMask(stmtBean.getCardNo()));
+                LogManager.logInfo("Interest calculated for card number " + CommonMethods.cardNumberMask(stmtBean.getCardNo()), infoLogger);
             } catch (Exception ex) {
                 Configurations.errorCardList.add(new ErrorCardBean(Configurations.ERROR_EOD_ID, Configurations.EOD_DATE, new StringBuffer(stmtBean.getCardNo()), ex.getMessage(), Configurations.RUNNING_PROCESS_ID, Configurations.RUNNING_PROCESS_DESCRIPTION, 0, CardAccount.CARD));
                 Configurations.PROCESS_FAILD_COUNT++;
-                errorLogger.error("Interest calculation process failed for card number " + CommonMethods.cardNumberMask(stmtBean.getCardNo()), ex);
+                //errorLogger.error("Interest calculation process failed for card number " + CommonMethods.cardNumberMask(stmtBean.getCardNo()), ex);
+                LogManager.logError("Interest calculation process failed for card number " + CommonMethods.cardNumberMask(stmtBean.getCardNo()), ex, errorLogger);
             }
         }
     }
@@ -90,8 +93,6 @@ public class DailyInterestCalculationService {
                 txnInterest = (txnAmount * interestDetailBean.getInterest() * dateDiff) / (100 * interestDetailBean.getInterestperiod());
             }
         } catch (Exception e) {
-            e.printStackTrace();
-            errorLogger.error("Calculate Interest Error" +e);
             throw e;
         }
         return txnInterest;

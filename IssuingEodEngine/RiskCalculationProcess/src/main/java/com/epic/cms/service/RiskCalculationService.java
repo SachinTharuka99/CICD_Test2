@@ -323,10 +323,10 @@ public class RiskCalculationService {
                 details.clear();
             }
             if (Configurations.PROCESS_FAILD_COUNT > 0) {
-                infoLogger.info(LogManager.processStartEndStyle("RISK_CALCULATION_PROCESS Process completed for existing cards with errors"));
+                infoLogger.info(logManager.processStartEndStyle("RISK_CALCULATION_PROCESS Process completed for existing cards with errors"));
 //            WebComHandler.showOnWeb(CommonMethods.eodDashboardProcessStartEndStyle("Risk Calculation Process completed with errors"));
             } else {
-                infoLogger.info(LogManager.processStartEndStyle("RISK_CALCULATION_PROCESS Process completed for existing cards without errors"));
+                infoLogger.info(logManager.processStartEndStyle("RISK_CALCULATION_PROCESS Process completed for existing cards without errors"));
 //            WebComHandler.showOnWeb(CommonMethods.eodDashboardProcessStartEndStyle("Risk Calculation Process completed  without errors"));
             }
         }

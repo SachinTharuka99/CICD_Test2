@@ -33,9 +33,6 @@ import static com.epic.cms.util.LogManager.infoLogger;
 public class BalanceTransferConnector extends ProcessBuilder {
 
     @Autowired
-    LogManager logManager;
-
-    @Autowired
     CommonRepo commonRepo;
 
     @Autowired
@@ -79,20 +76,15 @@ public class BalanceTransferConnector extends ProcessBuilder {
                 while (!(taskExecutor.getActiveCount() == 0)) {
                     Thread.sleep(1000);
                 }
-                summery.put("Started Date", Configurations.EOD_DATE.toString());
-                summery.put("No of Card effected", Integer.toString(Configurations.NO_OF_BALANCE_TRANSFERS));
-                summery.put("No of Success Card ", Integer.toString(Configurations.NO_OF_BALANCE_TRANSFERS - Configurations.FAILED_BALANCE_TRANSFERS));
-                summery.put("No of fail Card ", Integer.toString(Configurations.FAILED_BALANCE_TRANSFERS));
-
+                
                 Configurations.PROCESS_TOTAL_NOOF_TRABSACTIONS = Configurations.NO_OF_BALANCE_TRANSFERS;
                 Configurations.PROCESS_SUCCESS_COUNT = (Configurations.NO_OF_BALANCE_TRANSFERS - Configurations.FAILED_BALANCE_TRANSFERS);
                 Configurations.PROCESS_FAILD_COUNT = Configurations.FAILED_BALANCE_TRANSFERS;
-                infoLogger.info(logManager.processSummeryStyles(summery));
 
             }
-        } catch (Exception e) {
+        } catch (Exception ex) {
             Configurations.IS_PROCESS_COMPLETELY_FAILED = true;
-            errorLogger.error("Balance Transfer process failed", e);
+            throw ex;
         } finally {
             /** PADSS Change -
              variables handling card data should be nullified by replacing the value of variable with zero and call NULL function */
@@ -103,5 +95,13 @@ public class BalanceTransferConnector extends ProcessBuilder {
                 txnList = null;
             }
         }
+    }
+
+    @Override
+    public void addSummaries() {
+        summery.put("Started Date", Configurations.EOD_DATE.toString());
+        summery.put("No of Card effected", Integer.toString(Configurations.NO_OF_BALANCE_TRANSFERS));
+        summery.put("No of Success Card ", Integer.toString(Configurations.NO_OF_BALANCE_TRANSFERS - Configurations.FAILED_BALANCE_TRANSFERS));
+        summery.put("No of fail Card ", Integer.toString(Configurations.FAILED_BALANCE_TRANSFERS));
     }
 }

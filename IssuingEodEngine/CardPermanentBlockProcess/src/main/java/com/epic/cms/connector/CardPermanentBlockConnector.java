@@ -97,6 +97,10 @@ public class CardPermanentBlockConnector extends ProcessBuilder {
     }
 
     public void addSummaries() {
+        summery.put("Started Date", Configurations.EOD_DATE.toString());
+        summery.put("No of Card effected", Configurations.PROCESS_TOTAL_NOOF_TRABSACTIONS);
+        summery.put("No of Success Card ", Configurations.PROCESS_SUCCESS_COUNT);
+        summery.put("No of fail Card ", Configurations.PROCESS_FAILD_COUNT);
         if (cardList != null) {
             summery.put("Started Date", Configurations.EOD_DATE.toString());
             summery.put("No of Card effected", cardList.size());

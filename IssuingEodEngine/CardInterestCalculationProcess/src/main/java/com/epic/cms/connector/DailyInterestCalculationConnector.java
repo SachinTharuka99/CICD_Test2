@@ -32,9 +32,6 @@ import static com.epic.cms.util.LogManager.infoLogger;
 public class DailyInterestCalculationConnector extends ProcessBuilder {
 
     @Autowired
-    LogManager logManager;
-
-    @Autowired
     CommonRepo commonRepo;
 
     @Autowired
@@ -79,24 +76,25 @@ public class DailyInterestCalculationConnector extends ProcessBuilder {
                     Thread.sleep(1000);
                 }
 
-                infoLogger.info("Thread Name Prefix: {}, Active count: {}, Pool size: {}, Queue Size: {}", taskExecutor.getThreadNamePrefix(), taskExecutor.getActiveCount(), taskExecutor.getPoolSize(), taskExecutor.getThreadPoolExecutor().getQueue().size());
+                //infoLogger.info("Thread Name Prefix: {}, Active count: {}, Pool size: {}, Queue Size: {}", taskExecutor.getThreadNamePrefix(), taskExecutor.getActiveCount(), taskExecutor.getPoolSize(), taskExecutor.getThreadPoolExecutor().getQueue().size());
 
                 failedCards = Configurations.PROCESS_FAILD_COUNT;
                 Configurations.PROCESS_TOTAL_NOOF_TRABSACTIONS = noOfCards;
                 Configurations.PROCESS_SUCCESS_COUNT = (noOfCards - failedCards);
                 Configurations.PROCESS_FAILD_COUNT = failedCards;
 
-                summery.put("Started Date ", Configurations.EOD_DATE.toString());
-                summery.put("No of Card effected ", Configurations.PROCESS_TOTAL_NOOF_TRABSACTIONS);
-                summery.put("No of Success Card ", Configurations.PROCESS_SUCCESS_COUNT);
-                summery.put("No of fail Card ", Configurations.PROCESS_FAILD_COUNT);
-
-                infoLogger.info(logManager.processSummeryStyles(summery));
+//                summery.put("Started Date ", Configurations.EOD_DATE.toString());
+//                summery.put("No of Card effected ", Configurations.PROCESS_TOTAL_NOOF_TRABSACTIONS);
+//                summery.put("No of Success Card ", Configurations.PROCESS_SUCCESS_COUNT);
+//                summery.put("No of fail Card ", Configurations.PROCESS_FAILD_COUNT);
+//
+//                infoLogger.info(logManager.processSummeryStyles(summery));
 
             }
         } catch (Exception e) {
-                errorLogger.error("Interest calculation process failed", e);
-                Configurations.IS_PROCESS_COMPLETELY_FAILED = true;
+            //errorLogger.error("Interest calculation process failed", e);
+            LogManager.logError("Interest calculation process failed", e, errorLogger);
+            Configurations.IS_PROCESS_COMPLETELY_FAILED = true;
 
         } finally {
             if (accountList != null && accountList.size() != 0) {
@@ -107,5 +105,14 @@ public class DailyInterestCalculationConnector extends ProcessBuilder {
                 accountList = null;
             }
         }
+    }
+
+    @Override
+    public void addSummaries() {
+        summery.put("Started Date ", Configurations.EOD_DATE.toString());
+        summery.put("No of Card effected ", Configurations.PROCESS_TOTAL_NOOF_TRABSACTIONS);
+        summery.put("No of Success Card ", Configurations.PROCESS_SUCCESS_COUNT);
+        summery.put("No of fail Card ", Configurations.PROCESS_FAILD_COUNT);
+
     }
 }

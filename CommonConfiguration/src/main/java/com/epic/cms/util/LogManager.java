@@ -8,9 +8,7 @@ import ch.qos.logback.classic.spi.ILoggingEvent;
 import ch.qos.logback.core.ConsoleAppender;
 import ch.qos.logback.core.FileAppender;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.DependsOn;
-import org.springframework.kafka.core.KafkaTemplate;
 import org.springframework.stereotype.Component;
 
 import javax.annotation.PostConstruct;
@@ -21,15 +19,10 @@ import java.util.Map;
 @DependsOn("ConfigurationService")
 public class LogManager {
 
-    public static Logger infoLoggerCOM = null, dashboardInfoLogger = null, infoLogger = null, infoLoggerEFPE = null, infoLoggerEFGE = null;
-    public static Logger errorLoggerCOM = null, dashboardErrorLogger = null, errorLogger = null, errorLoggerEFPE = null, errorLoggerEFGE = null;
+    public static Logger infoLogger = null, infoLoggerCOM = null, infoLoggerEFPE = null, infoLoggerEFGE = null;
+    public static Logger errorLogger = null, errorLoggerCOM = null, errorLoggerEFPE = null, errorLoggerEFGE = null;
     public static String logTypeInfo = Configurations.LOG_TYPE_INFO;
     public static String logTypeError = Configurations.LOG_TYPE_ERROR;
-
-    final String topic = Configurations.LOG_TOPIC;
-
-    @Autowired
-    private KafkaTemplate<String, String> kafkaTemplate;
 
     @PostConstruct
     public static void init() {
@@ -38,15 +31,11 @@ public class LogManager {
         infoLogger = getLogger(logTypeInfo, "engine_info", Configurations.LOG_FILE_PREFIX_EOD_ENGINE);
         infoLoggerEFPE = getLogger(logTypeInfo, "file_pro_engine_info", Configurations.LOG_FILE_PREFIX_EOD_FILE_PROCESSING_ENGINE);
         infoLoggerEFGE = getLogger(logTypeInfo, "file_gen_engine_info", Configurations.LOG_FILE_PREFIX_EOD_FILE_GENERATION_ENGINE);
-        dashboardInfoLogger = getLogger(logTypeInfo, "dashboard_info", Configurations.LOG_FILE_PREFIX_COMMON);
-
         //error loggers
         errorLoggerCOM = getLogger(logTypeError, "common_error", Configurations.LOG_FILE_PREFIX_COMMON);
         errorLogger = getLogger(logTypeError, "engine_error", Configurations.LOG_FILE_PREFIX_EOD_ENGINE);
         errorLoggerEFPE = getLogger(logTypeError, "file_pro_engine_error", Configurations.LOG_FILE_PREFIX_EOD_FILE_PROCESSING_ENGINE);
         errorLoggerEFGE = getLogger(logTypeError, "file_gen_engine_error", Configurations.LOG_FILE_PREFIX_EOD_FILE_GENERATION_ENGINE);
-        dashboardErrorLogger = getLogger(logTypeError, "dashboard_error", Configurations.LOG_FILE_PREFIX_COMMON);
-
     }
 
     /**
@@ -131,13 +120,6 @@ public class LogManager {
         }
         style = Configurations.EOD_DATE_String + style + System.lineSeparator();
 
-        try {
-            kafkaTemplate.send(topic, style);
-            System.out.println("topic :" + style);
-        } catch (Exception e) {
-            errorLogger.error("Kafka Log Topic Error", e);
-        }
-
         return style;
     }
 
@@ -160,7 +142,7 @@ public class LogManager {
      * @param detailsMap
      * @return
      */
-    public static synchronized String processDetailsStyles(Map<String, Object> detailsMap) {
+    public String processDetailsStyles(Map<String, Object> detailsMap) {
         String description = null;
         if (detailsMap.size() > 0) {
             int maxLength = 0;
@@ -257,48 +239,169 @@ public class LogManager {
             }
             // remove the final new line
         }
-
-        try {
-            kafkaTemplate.send(topic, description);
-            System.out.println("topic :" + description);
-        } catch (Exception e) {
-            errorLogger.error("Kafka Log Topic Error", e);
-        }
-
         return description;
     }
 
-    /**
-     * format of headline
-     *
-     * @param name
-     * @return
-     */
-    public String ProcessHeaderStyle(String name) {
+    public static void logHeader(String msg, Logger logger) {
         String symbol = "~";
         int fixed_length = 100;
-        int processName_lenght = name.length();
+        int processName_lenght = msg.length();
         int symbolic_length = fixed_length - processName_lenght;
-        String style = "";
+        String formattedMsg = "";
         if (symbolic_length % 2 == 0) {
             for (int i = 0; i < symbolic_length; i++) {
                 if (i == (symbolic_length / 2) + 1) {
-                    style = style + "[" + name + "]";
+                    formattedMsg = formattedMsg + "[" + msg + "]";
                 } else {
-                    style = style + symbol;
+                    formattedMsg = formattedMsg + symbol;
                 }
             }
         } else {
             for (int i = 0; i < symbolic_length; i++) {
                 if (i == ((symbolic_length - 1) / 2) + 1) {
-                    style = style + "[" + name + "]";
+                    formattedMsg = formattedMsg + "[" + msg + "]";
                 } else {
-                    style = style + symbol;
+                    formattedMsg = formattedMsg + symbol;
                 }
             }
         }
-        style = Configurations.EOD_DATE_String + style + System.lineSeparator();
+        formattedMsg = Configurations.EOD_DATE_String + formattedMsg + System.lineSeparator();
 
-        return style;
+        //write into a log
+        logger.info(formattedMsg);
+        //pass into a kafka topic
+
+    }
+
+    public static void logStartEnd(String msg, Logger logger) {
+        String curDate = new SimpleDateFormat("dd-MMM-yy HH:mm:ss").format(Configurations.EOD_DATE);
+
+        String formattedMsg = "[" + curDate + "]" + "  " + msg + System.lineSeparator();
+        //write into a log
+        logger.info(formattedMsg);
+        //pass into a kafka topic
+    }
+
+    public static void logDetails(Map<String, Object> detailsMap, Logger logger) {
+        String description = null;
+        if (detailsMap.size() > 0) {
+            int maxLength = 0;
+            description = "      ";// 6 white spaces
+            for (String key : detailsMap.keySet()) {
+                if (key.length() > maxLength) {
+                    maxLength = key.length();
+                }
+            }
+
+            for (String key : detailsMap.keySet()) {
+                Object tempvalue = detailsMap.get(key);
+                String value = null;
+                if (tempvalue == null) {
+                    value = "-";
+                } else {
+                    value = tempvalue.toString();
+                }
+
+                int space = maxLength - key.length() + 3;
+                for (int i = 0; i < space; i++) {
+                    key = key + " ";
+                }
+                description = description + key + "- " + value + System.lineSeparator() + "      ";//6 white spaces
+            }
+            description = description + "-------------------------------------" + System.lineSeparator();
+
+            //write into a log
+            logger.info(description);
+            //pass into a kafka topic
+        }
+
+    }
+
+    public static void logSummery(Map<String, Object> detailsMap, Logger logger) {
+        int maxLengthKey = 0;
+        int maxLengthValue = 0;
+        int maxLength = 0;
+        int count = 0;
+        int spacesAfterLine = 0;
+        String description = null;
+
+        if (detailsMap.size() > 0) {
+            description = "*  ";// 6 white spaces
+            for (String key : detailsMap.keySet()) {
+                if (key.length() > maxLengthKey) {
+                    maxLengthKey = key.length();
+                }
+
+                if (detailsMap.get(key).toString().length() > maxLengthValue) {
+                    maxLengthValue = detailsMap.get(key).toString().length();
+                }
+            }
+
+            for (String key : detailsMap.keySet()) {
+                count++;
+                String value = detailsMap.get(key).toString();
+
+                int space = maxLengthKey - key.length() + 2;
+                for (int i = 0; i < space; i++) {
+                    key = key + " ";
+                }
+
+                if (count == 1) {
+                    maxLength = (key + "- ").length() + maxLengthValue;// 6 is the number of white spaces in description
+
+                }
+
+                spacesAfterLine = maxLengthValue - value.length();
+                String afterLineDesgn = "";
+                for (int i = 0; i <= spacesAfterLine + 2; i++) {
+                    afterLineDesgn = afterLineDesgn + " ";
+                }
+                afterLineDesgn = afterLineDesgn + "*";
+                if (!key.equals("")) {
+                    description = description + key + "- " + value + afterLineDesgn + System.lineSeparator() + "*  ";//6 white spaces
+                } else {
+                    description = description + key + " " + value + afterLineDesgn + System.lineSeparator() + "*  ";//6 white spaces
+                }
+            }
+
+            String summeryDesign = "*******";//7 stars;
+            for (int i = 0; i < maxLength; i++) {
+                summeryDesign = summeryDesign + "*";
+            }
+            if (description.length() - 5 > 0) {
+                description = description.substring(0, description.length());
+                description = summeryDesign + System.lineSeparator() + description + System.lineSeparator() + summeryDesign;
+            } else {
+                description = "--No Summery Data To View--" + System.lineSeparator();
+            }
+            //write into a log
+            logger.info(description);
+            //pass into a kafka topic
+        }
+
+    }
+
+    public static void logInfo(String msg, Logger logger) {
+        //write into a log
+        logger.info(msg);
+        //pass into a kafka topic
+    }
+
+    public static void logError(String msg, Throwable e, Logger logger) {
+        //write into a log
+        logger.error(msg, e);
+        //pass into a kafka topic
+    }
+
+    public static void logError(Throwable e, Logger logger) {
+        //write into a log
+        logger.error(e.getMessage(), e);
+        //pass into a kafka topic
+    }
+
+    public static void logError(String msg, Logger logger) {
+        //write into a log
+        logger.error(msg);
+        //pass into a kafka topic
     }
 }

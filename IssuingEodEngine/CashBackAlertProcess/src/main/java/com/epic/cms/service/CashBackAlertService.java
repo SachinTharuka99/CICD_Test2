@@ -29,11 +29,8 @@ public class CashBackAlertService {
     @Autowired
     CashBackAlertRepo cashBackAlertRepo;
 
-    @Autowired
-    LogManager logManager;
-
     @Async("ThreadPool_100")
-    @Transactional(value="transactionManager",propagation = Propagation.REQUIRED,rollbackFor = Exception.class)
+    @Transactional(value = "transactionManager", propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
     public void processCashBackAlertService(String accountNumber, ArrayList<CashBackAlertBean> cashBackList, ProcessBean processBean) {
 
         if (!Configurations.isInterrupted) {
@@ -73,10 +70,13 @@ public class CashBackAlertService {
                         Configurations.errorCardList.add(new ErrorCardBean(Configurations.ERROR_EOD_ID, Configurations.EOD_DATE, new StringBuffer(cashBackBean.getMainCardNo()), ex.getMessage(), Configurations.RUNNING_PROCESS_ID, Configurations.RUNNING_PROCESS_DESCRIPTION, 0, CardAccount.ACCOUNT));
 
                     }
-                    infoLogger.info(logManager.processDetailsStyles(adjustDetails));
+                    //infoLogger.info(logManager.processDetailsStyles(adjustDetails));
                 }
             } catch (Exception e) {
-                errorLogger.error("Error Occurs, when running Cash Back alert process for Acc No " + accountNumber + " ", e);
+                //errorLogger.error("Error Occurs, when running Cash Back alert process for Acc No " + accountNumber + " ", e);
+                LogManager.processErrorLog("Error Occurs, when running Cash Back alert process for Acc No " + accountNumber, e, errorLogger);
+            } finally {
+                LogManager.processDetailsLog(adjustDetails, infoLogger);
             }
         }
     }

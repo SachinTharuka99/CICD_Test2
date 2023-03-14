@@ -155,7 +155,7 @@ public class AcquiringAdjustmentService {
                 }
                 details.put("Adjustment Amount :", acqAdjustmentBean.getAdjustAmount());
                 details.put("CRDR  :", acqAdjustmentBean.getCrDr());
-                infoLogger.info(LogManager.processDetailsStyles(details));
+                infoLogger.info(logManager.processDetailsStyles(details));
                 details.clear();
                 //Update acq adjustment to EDON
                 acquiringAdjustmentDao.updateAdjustmentToEdon(acqAdjustmentBean.getId(), txnID);

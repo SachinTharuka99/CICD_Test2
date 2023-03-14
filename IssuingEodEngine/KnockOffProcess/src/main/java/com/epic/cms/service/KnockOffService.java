@@ -258,7 +258,7 @@ public class KnockOffService {
                         details.put("Knocked Off EOD Cash Advance", supCashAdvances);
                         details.put("Knocked Off EOD Sales", supTransactions);
                         details.put("Forward Amount", paymentBean.getPayment());
-                        infoLogger.info(LogManager.processDetailsStyles(details));
+                        infoLogger.info(logManager.processDetailsStyles(details));
                     }
 
                     if (eomBean != null) {
@@ -289,7 +289,7 @@ public class KnockOffService {
                     Configurations.PROCESS_FAILD_COUNT++;
                     break card;
                 }
-                infoLogger.info(LogManager.processDetailsStyles(details));
+                infoLogger.info(logManager.processDetailsStyles(details));
             }
         }
     }

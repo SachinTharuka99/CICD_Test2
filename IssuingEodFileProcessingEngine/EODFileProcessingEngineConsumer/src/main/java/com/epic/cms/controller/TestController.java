@@ -28,7 +28,7 @@ public class TestController {
     @Autowired
     CommonRepo commonRepo;
 
-    @GetMapping("/test/{topic}/{processId}/{eodId}")
+    @GetMapping("/test/{topic}/{fileId}/{eodId}")
     public String post(@PathVariable("topic") final String topic, @PathVariable("fileId") final String fileId, @PathVariable("eodId") final int eodId) throws Exception {
         CreateEodId createDate = new CreateEodId();
         SimpleDateFormat sdf = new SimpleDateFormat("dd-MM-yyyy");

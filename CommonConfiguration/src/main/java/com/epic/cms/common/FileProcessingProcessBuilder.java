@@ -8,6 +8,13 @@
 package com.epic.cms.common;
 
 import com.epic.cms.model.bean.ProcessBean;
+
+
+import static com.epic.cms.util.LogManager.infoLoggerEFPE;
+import static com.epic.cms.util.LogManager.errorLoggerEFPE;
+
+import com.epic.cms.repository.CommonRepo;
+import com.epic.cms.util.Configurations;
 import com.epic.cms.util.LogManager;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.scheduling.annotation.Async;
@@ -15,16 +22,59 @@ import org.springframework.scheduling.annotation.Async;
 import java.util.LinkedHashMap;
 
 public abstract class FileProcessingProcessBuilder {
+
     public LinkedHashMap details = new LinkedHashMap();
     public LinkedHashMap summery = new LinkedHashMap();
     public ProcessBean processBean = null;
 
+    public String processHeader = "Define Process";
+    String startHeader = null, endHeader = null, failedHeader = null, completedHeader = null;
+
+    @Autowired
+    CommonRepo commonRepo;
+
     @Async("ThreadPool_FileHandler")
-    public void startProcess(String fileId) throws Exception {
-        System.out.println("This the startProcess from parent class");
-        System.out.println("Class Name:FileProcessingProcessBuilder,File ID:" + fileId + ",Current Thread:" + Thread.currentThread().getName());
-        concreteProcess(fileId);
+    public void startProcess(String fileId) {
+        try {
+            processBean = commonRepo.getProcessDetails(Configurations.PROCESS_ATM_FILE_READ);
+            this.processHeader = processBean.getProcessDes();
+            setupProcessDescriptions();
+
+            LogManager.logHeader(processHeader, infoLoggerEFPE);
+            LogManager.logStartEnd(startHeader, infoLoggerEFPE);
+
+            //3 - insert to process summery table
+            //4 - Abstract method call
+            concreteProcess(fileId);
+            //5 - Update process summery table
+        } catch (Exception e) {
+            try {
+                LogManager.logStartEnd(failedHeader, infoLoggerEFPE);
+                LogManager.logError(failedHeader, e, errorLoggerEFPE);
+                //update process summery table
+            } catch (Exception e2) {
+                LogManager.logError(e2, errorLoggerEFPE);
+            }
+        } finally {
+            try {
+                addSummaries();
+                LogManager.logSummery(summery, infoLoggerEFPE);
+                LogManager.logStartEnd(completedHeader, infoLoggerEFPE);
+            } catch (Exception e2) {
+                LogManager.logError(e2, errorLoggerEFPE);
+            }
+        }
+
+    }
+
+    private void setupProcessDescriptions() {
+        this.startHeader = processHeader + " started";
+        this.endHeader = processHeader + " finished";
+        this.failedHeader = processHeader + " failed";
+        this.completedHeader = processHeader + " completed";
     }
 
     public abstract void concreteProcess(String fileId) throws Exception;
+
+    public abstract void addSummaries();
 }

@@ -17,8 +17,8 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.util.LinkedHashMap;
 
-import static com.epic.cms.util.LogManager.errorLogger;
 import static com.epic.cms.util.LogManager.infoLogger;
+import static com.epic.cms.util.LogManager.errorLogger;
 
 @Service
 public class AdjustmentService {
@@ -52,6 +52,7 @@ public class AdjustmentService {
 
                 seqNo = CommonMethods.validate(Integer.toString(Configurations.ADJUSTMENT_SEQUENCE_NO), 8, '0');
 
+                //If a CR it is considered as a credit payment
                 if (adjustmentBean.getCrDr().equalsIgnoreCase("CR")) {
                     adjustmentBean.setSequenceNo(seqNo);
                     adjustmentBean.setAdjustTxnType(Configurations.TXN_TYPE_ADJUSTMENT_CREDIT);
@@ -101,10 +102,13 @@ public class AdjustmentService {
                 Configurations.PROCESS_FAILD_COUNT++;
                 Configurations.errorCardList.add(new ErrorCardBean(Configurations.ERROR_EOD_ID, Configurations.EOD_DATE, new StringBuffer(adjustmentBean.getCardNumber()), ex.getMessage(), Configurations.RUNNING_PROCESS_ID, Configurations.RUNNING_PROCESS_DESCRIPTION, 0, CardAccount.CARD));
                 details.put("Adjustment Sync Status", "Failed");
-                infoLogger.info("ADJUSTMENT_PROCESS failed for card number " + maskedCardNumber);
-                errorLogger.error("ADJUSTMENT_PROCESS failed for card number " + maskedCardNumber, ex);
+                //infoLogger.info("ADJUSTMENT_PROCESS failed for card number " + maskedCardNumber);
+                LogManager.logInfo("ADJUSTMENT_PROCESS failed for card number " + maskedCardNumber, infoLogger);
+                //errorLogger.error("ADJUSTMENT_PROCESS failed for card number " + maskedCardNumber, ex);
+                LogManager.logError("ADJUSTMENT_PROCESS failed for card number " + maskedCardNumber, ex, errorLogger);
             } finally {
-                infoLogger.info(logManager.processDetailsStyles(details));
+//                infoLogger.info(logManager.processDetailsStyles(details));
+                LogManager.logDetails(details, infoLogger);
                 /** PADSS Change -variables handling card data should be nullified
                  by replacing the value of variable with zero and call NULL function */
                 CommonMethods.clearStringBuffer(pb.getCardnumber());

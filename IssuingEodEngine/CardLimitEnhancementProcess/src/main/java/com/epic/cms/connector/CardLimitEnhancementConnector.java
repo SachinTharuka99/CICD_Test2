@@ -19,11 +19,9 @@ import java.util.ArrayList;
 
 import static com.epic.cms.util.LogManager.infoLogger;
 import static com.epic.cms.util.LogManager.errorLogger;
+
 @Service
 public class CardLimitEnhancementConnector extends ProcessBuilder {
-
-    @Autowired
-    LogManager logManager;
 
     @Autowired
     @Qualifier("taskExecutor2")
@@ -77,15 +75,15 @@ public class CardLimitEnhancementConnector extends ProcessBuilder {
                 Configurations.PROCESS_TOTAL_NOOF_TRABSACTIONS = enhancementList.size();
                 Configurations.PROCESS_SUCCESS_COUNT = (enhancementList.size() - failedCount);
                 Configurations.PROCESS_FAILD_COUNT = failedCount;
-            }else {
+            } else {
                 summery.put("Accounts eligible for fee posting process ", 0 + "");
             }
-        }catch (Exception e){
+        } catch (Exception ex) {
             Configurations.IS_PROCESS_COMPLETELY_FAILED = true;
-            errorLogger.error("Failed Card Limit Enhancement ", e);
+            throw ex;
         } finally {
-            addSummaries();
-            infoLogger.info(logManager.processSummeryStyles(summery));
+            //addSummaries();
+            //infoLogger.info(logManager.processSummeryStyles(summery));
             try {
                 if (custAccList != null && custAccList.size() != 0) {
                     for (OtbBean bean : custAccList) {
@@ -102,11 +100,14 @@ public class CardLimitEnhancementConnector extends ProcessBuilder {
                     enhancementList = null;
                 }
             } catch (Exception e) {
-                errorLogger.error("Exception Occurred for Card Limit Enhancement ",e);
+                //errorLogger.error("Exception Occurred for Card Limit Enhancement ", e);
+                LogManager.logError("Exception Occurred for Card Limit Enhancement ", e, errorLogger);
             }
 
         }
     }
+
+    @Override
     public void addSummaries() {
         if (enhancementList != null) {
             summery.put("Number of transaction to sync", enhancementList.size());

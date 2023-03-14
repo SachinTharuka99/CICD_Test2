@@ -89,6 +89,7 @@ public class FileReadJobConfig extends DefaultBatchConfigurer {
                 .faultTolerant()
                 .listener(stepSkipListener())
                 .skipPolicy(stepSkipPolicy())
+//                .taskExecutor(taskExecutor)
                 .build();
     }
 

@@ -123,6 +123,11 @@ public class VisaBaseIIFileClearingConnector extends FileProcessingProcessBuilde
         }
     }
 
+    @Override
+    public void addSummaries() {
+
+    }
+
     private synchronized FileBean getVisaFileInfo(String fileId) throws Exception {
         FileBean fileBean;
         try {

@@ -92,7 +92,6 @@ public class ATMFileClearingService {
     @Async("ThreadPool_ATMFileValidator")
     @Transactional(value = "transactionManager", propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
     public void validateFile(String fileId, RecATMFileIptRowDataBean paymentFileBean) {
-        System.out.println("Class Name:ATMFileValidateService,File ID:" + paymentFileBean.getFileid() + ",Line Number:" + paymentFileBean.getLinenumber() + ",Current Thread:" + Thread.currentThread().getName());
         LinkedHashMap details = new LinkedHashMap();
         String errorMsg = "";
 
@@ -125,7 +124,8 @@ public class ATMFileClearingService {
                         errorMsg = fieldDesc + " validation failed in " + validationDesc + "|" + atmField;
                         atmFileClearingRepo.insertToRECATMFILEINVALID(fileId, lineNumber, errorMsg);
                         errorMsg = "validation failed in line number " + lineNumber + "|" + atmField;
-                        errorLoggerEFPE.error(errorMsg);
+                        //errorLoggerEFPE.error(errorMsg);
+                        LogManager.processErrorLog(errorMsg, errorLoggerEFPE);
                         //invalidCount.addAndGet(1);//increase invalid count by 1
                         Configurations.PROCESS_ATM_FILE_CLEARING_INVALID_COUNT++;
                         if (!isLineRejected) {
@@ -159,7 +159,7 @@ public class ATMFileClearingService {
             } else {
                 // if off us card, then insert to EODEXCEPTIONALTRANSACTION table
                 count = atmFileClearingRepo.insertExceptionalTransactionData(fileId, txnId, "", new StringBuffer(atmFields[8]), "", "", "", "", atmFields[4], "", "", Configurations.USER, new java.sql.Date(System.currentTimeMillis()), atmFields[10], atmFields[11], "YES", "", "", "", "", "", "", atmFields[6], "", "", "ATM", "Card No Invalid");
-                errorLoggerEFPE.error("Invalid card number found while ATM file validation:" + CommonMethods.cardNumberMask(new StringBuffer(atmFields[8])));
+                infoLoggerEFPE.error("Invalid card number found while ATM file validation:" + CommonMethods.cardNumberMask(new StringBuffer(atmFields[8])));
             }
             if (count > 0) {
                 //update RECATMINPUTROWDATA.STATUS to EDON

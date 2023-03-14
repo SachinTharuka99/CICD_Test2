@@ -105,9 +105,9 @@ public class ManualNpService {
 
                 int q = manualNpRepo.updateManualNPtoComplete(reqID, status.getCOMMON_COMPLETED());
                 if (q > 0) {
-                    infoLogger.info(logManager.ProcessHeaderStyle("Successfully updated id:" + reqID + " RQAC -> COMP"));
+                    infoLogger.info(logManager.processHeaderStyle("Successfully updated id:" + reqID + " RQAC -> COMP"));
                 } else {
-                    infoLogger.info(logManager.ProcessHeaderStyle("Failed to update id:" + reqID + " RQAC -> COMP"));
+                    infoLogger.info(logManager.processHeaderStyle("Failed to update id:" + reqID + " RQAC -> COMP"));
                 }
 
                 successCounts++;

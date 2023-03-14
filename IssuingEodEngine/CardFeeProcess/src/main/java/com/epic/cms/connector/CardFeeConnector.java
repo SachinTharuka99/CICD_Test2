@@ -23,9 +23,6 @@ import static com.epic.cms.util.LogManager.errorLogger;
 public class CardFeeConnector extends ProcessBuilder {
 
     @Autowired
-    LogManager logManager;
-
-    @Autowired
     @Qualifier("ThreadPool_100")
     ThreadPoolTaskExecutor taskExecutor;
 
@@ -37,9 +34,9 @@ public class CardFeeConnector extends ProcessBuilder {
 
     @Override
     public void concreteProcess() throws Exception {
-        System.out.println("this is from Adjustment Process concreteProcess()");
+//        System.out.println("this is from Adjustment Process concreteProcess()");
 
-        LinkedHashMap summery = new LinkedHashMap();
+//        LinkedHashMap summery = new LinkedHashMap();
 
         Configurations.PROCESS_SUCCESS_COUNT = 0;
         Configurations.PROCESS_FAILD_COUNT = 0;
@@ -69,19 +66,23 @@ public class CardFeeConnector extends ProcessBuilder {
             Configurations.PROCESS_TOTAL_NOOF_TRABSACTIONS = cardRecordList.size();
         } catch (Exception ex) {
             Configurations.IS_PROCESS_COMPLETELY_FAILED = true;
-            errorLogger.error("--Error occurred--", ex);
+            throw ex;
         } finally {
-            summery.put("Number of accounts to fee post ", cardRecordList.size());
-            summery.put("Number of success fee post ", cardRecordList.size() - Configurations.PROCESS_FAILD_COUNT);
-            summery.put("Number of failure fee post ", Configurations.PROCESS_FAILD_COUNT);
-            infoLogger.info(logManager.processDetailsStyles(summery));
-             /* PADSS Change -
-            variables handling card data should be nullified by replacing the value of variable with zero and call NULL function */
+//            infoLogger.info(logManager.processDetailsStyles(summery));
+            /** PADSS Change -
+             variables handling card data should be nullified by replacing the value of variable with zero and call NULL function */
             for (CardFeeBean cardFeeBean : cardRecordList) {
                 CommonMethods.clearStringBuffer(cardFeeBean.getCardNumber());
             }
             cardRecordList = null;
         }
 
+    }
+
+    @Override
+    public void addSummaries() {
+        summery.put("Number of accounts to fee post ", Configurations.PROCESS_TOTAL_NOOF_TRABSACTIONS);
+        summery.put("Number of success fee post ", Configurations.PROCESS_TOTAL_NOOF_TRABSACTIONS - Configurations.PROCESS_FAILD_COUNT);
+        summery.put("Number of failure fee post ", Configurations.PROCESS_FAILD_COUNT);
     }
 }
