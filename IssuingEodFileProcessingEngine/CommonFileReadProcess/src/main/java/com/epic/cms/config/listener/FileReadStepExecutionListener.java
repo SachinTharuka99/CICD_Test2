@@ -38,7 +38,7 @@ public class FileReadStepExecutionListener implements StepExecutionListener {
         try {
             commonFileReadRepo.updateFileReadStartTime(tableName, fileId);
         } catch (Exception ex) {
-            errorLoggerEFPE.error(ex.getMessage(), ex);
+            logManager.logError(ex.getMessage(), ex, errorLoggerEFPE);
         }
     }
 
@@ -62,9 +62,9 @@ public class FileReadStepExecutionListener implements StepExecutionListener {
                 details.put("Commit Count ", stepExecution.getCommitCount());
                 details.put("Rollback Count ", stepExecution.getRollbackCount());
 
-                infoLoggerEFPE.info(logManager.processDetailsStyles(details));
+                logManager.logDetails(details, infoLoggerEFPE);
             } catch (Exception ex) {
-                errorLoggerEFPE.error(ex.getMessage(), ex);
+                logManager.logError(ex.getMessage(), ex, errorLoggerEFPE);
             }
 
         }

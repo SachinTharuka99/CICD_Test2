@@ -22,24 +22,24 @@ public class StepSkipListener implements SkipListener<RecInputRowDataBean, RecIn
 
     @Override
     public void onSkipInRead(Throwable throwable) {
-        infoLoggerEFPE.info("A failure on read {}", throwable.getMessage());
+        logManager.logInfo("A failure on read {}"+ throwable.getMessage(), infoLoggerEFPE);
     }
 
     @Override
     public void onSkipInWrite(RecInputRowDataBean item, Throwable throwable) {
         try {
-            infoLoggerEFPE.info("A failure on write {},{}", throwable.getMessage(), new ObjectMapper().writeValueAsString(item));
+            logManager.logInfo("A failure on write {},{}"+ throwable.getMessage()+ new ObjectMapper().writeValueAsString(item), infoLoggerEFPE);
         } catch (JsonProcessingException e) {
-            errorLoggerEFPE.error(e.getMessage(), e);
+            logManager.logError(e.getMessage(), e, errorLoggerEFPE);
         }
     }
 
     @Override
     public void onSkipInProcess(RecInputRowDataBean item, Throwable throwable) {
         try {
-            infoLoggerEFPE.info("Item {} was skipped due to the exception {}", new ObjectMapper().writeValueAsString(item), throwable.getMessage());
+            logManager.logInfo("Item {} was skipped due to the exception {}"+ new ObjectMapper().writeValueAsString(item)+ throwable.getMessage(), infoLoggerEFPE);
         } catch (JsonProcessingException e) {
-            errorLoggerEFPE.error(e.getMessage());
+            logManager.logError(e.getMessage(), errorLoggerEFPE);
         }
     }
 }
