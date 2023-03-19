@@ -15,4 +15,9 @@ public class AtmCashAdvanceUpdateConnector  extends ProcessBuilder {
     public void concreteProcess() throws Exception {
         atmCashAdvanceUpdateService.startEodAtmCashAdvanceUpdate();
     }
+
+    @Override
+    public void addSummaries() {
+
+    }
 }

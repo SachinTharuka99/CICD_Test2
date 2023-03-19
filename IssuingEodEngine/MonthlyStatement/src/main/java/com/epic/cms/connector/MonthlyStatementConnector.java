@@ -100,18 +100,21 @@ public class MonthlyStatementConnector extends ProcessBuilder {
                 }
 
                 Configurations.PROCESS_TOTAL_NOOF_TRABSACTIONS = cardAccountMap.size();
-
-                summery.put("Total No of Effected Cards ", Configurations.PROCESS_TOTAL_NOOF_TRABSACTIONS);
-                summery.put("Total Success Cards ", Configurations.PROCESS_SUCCESS_COUNT);
-                summery.put("Total Fail Cards ", Configurations.PROCESS_FAILD_COUNT);
-
-                infoLogger.info(logManager.processSummeryStyles(summery));
             }
 
         }catch (Exception e){
             Configurations.IS_PROCESS_COMPLETELY_FAILED = true;
-            errorLogger.error("Error!!! Monthly Statement Process Complete with Errors ");
+            logManager.logError("Error!!! Monthly Statement Process Complete with Errors ", e, errorLogger);
             throw e;
+        } finally {
+            logManager.logSummery(summery, infoLogger);
         }
+    }
+
+    @Override
+    public void addSummaries() {
+        summery.put("Total No of Effected Cards ", Configurations.PROCESS_TOTAL_NOOF_TRABSACTIONS);
+        summery.put("Total Success Cards ", Configurations.PROCESS_SUCCESS_COUNT);
+        summery.put("Total Fail Cards ", Configurations.PROCESS_FAILD_COUNT);
     }
 }

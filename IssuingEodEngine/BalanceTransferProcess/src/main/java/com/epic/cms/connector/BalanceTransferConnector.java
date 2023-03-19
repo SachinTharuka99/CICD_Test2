@@ -48,6 +48,9 @@ public class BalanceTransferConnector extends ProcessBuilder {
     @Autowired
     StatusVarList statusList;
 
+    @Autowired
+    LogManager logManager;
+
     @Override
     public void concreteProcess() throws Exception {
         int noOfEasyPayments = 0;
@@ -86,6 +89,7 @@ public class BalanceTransferConnector extends ProcessBuilder {
             Configurations.IS_PROCESS_COMPLETELY_FAILED = true;
             throw ex;
         } finally {
+            logManager.logSummery(summery,infoLogger);
             /** PADSS Change -
              variables handling card data should be nullified by replacing the value of variable with zero and call NULL function */
             if (txnList != null && txnList.size() != 0) {

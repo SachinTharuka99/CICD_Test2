@@ -11,12 +11,14 @@ import com.epic.cms.repository.CollectionAndRecoveryLetterRepo;
 import com.epic.cms.repository.CommonFileGenProcessRepo;
 import com.epic.cms.util.CommonMethods;
 import com.epic.cms.util.Configurations;
+import com.epic.cms.util.LogManager;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
 
 import static com.epic.cms.util.LogManager.errorLogger;
+import static com.epic.cms.util.LogManager.errorLoggerEFGE;
 
 @Service
 public class CollectionAndRecoveryLetterService {
@@ -29,6 +31,9 @@ public class CollectionAndRecoveryLetterService {
 
     @Autowired
     LetterService letterService;
+
+    @Autowired
+    LogManager logManager;
 
     public String[] startFirstReminderEligibleCardProcess(StringBuffer cardNumber, int sequenceNo, String remark) {
         String[] fileNameAndPath = null;
@@ -52,7 +57,7 @@ public class CollectionAndRecoveryLetterService {
             //TODO delinquent history table
             Configurations.PROCESS_SUCCESS_COUNT++;
         }catch(Exception e){
-            errorLogger.error("Collection & Recovery Letter Process Failed for First Reminder "+maskedCardNo, e);
+            logManager.logError("Collection & Recovery Letter Process Failed for First Reminder "+maskedCardNo, e, errorLoggerEFGE);
             Configurations.PROCESS_FAILD_COUNT++;
         }
         return fileNameAndPath;
@@ -82,7 +87,7 @@ public class CollectionAndRecoveryLetterService {
             //TODO delinquent history table
             Configurations.PROCESS_SUCCESS_COUNT++;
         }catch (Exception e){
-            errorLogger.error("Collection & Recovery Letter Process Failed for Second Reminder "+maskedCardNo, e);
+            logManager.logError("Collection & Recovery Letter Process Failed for Second Reminder "+maskedCardNo, e, errorLoggerEFGE);
             Configurations.PROCESS_FAILD_COUNT++;
         }
         return fileNameAndPath;

@@ -122,6 +122,11 @@ public class AcquiringAdjustmentConnector extends ProcessBuilder {
         }
     }
 
+    @Override
+    public void addSummaries() {
+
+    }
+
     private void setCardProduct() {
         try {
             acquiringAdjustmentDao.setCardProductToEodMerTxn();

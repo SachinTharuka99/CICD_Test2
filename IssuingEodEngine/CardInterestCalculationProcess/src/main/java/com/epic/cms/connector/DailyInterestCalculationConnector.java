@@ -47,6 +47,9 @@ public class DailyInterestCalculationConnector extends ProcessBuilder {
     @Autowired
     DailyInterestCalculationService interestCalculationService;
 
+    @Autowired
+    LogManager logManager;
+
     @Override
     public void concreteProcess() throws Exception {
         ArrayList<StatementBean> accountList = new ArrayList<>();
@@ -76,27 +79,17 @@ public class DailyInterestCalculationConnector extends ProcessBuilder {
                     Thread.sleep(1000);
                 }
 
-                //infoLogger.info("Thread Name Prefix: {}, Active count: {}, Pool size: {}, Queue Size: {}", taskExecutor.getThreadNamePrefix(), taskExecutor.getActiveCount(), taskExecutor.getPoolSize(), taskExecutor.getThreadPoolExecutor().getQueue().size());
-
                 failedCards = Configurations.PROCESS_FAILD_COUNT;
                 Configurations.PROCESS_TOTAL_NOOF_TRABSACTIONS = noOfCards;
                 Configurations.PROCESS_SUCCESS_COUNT = (noOfCards - failedCards);
                 Configurations.PROCESS_FAILD_COUNT = failedCards;
-
-//                summery.put("Started Date ", Configurations.EOD_DATE.toString());
-//                summery.put("No of Card effected ", Configurations.PROCESS_TOTAL_NOOF_TRABSACTIONS);
-//                summery.put("No of Success Card ", Configurations.PROCESS_SUCCESS_COUNT);
-//                summery.put("No of fail Card ", Configurations.PROCESS_FAILD_COUNT);
-//
-//                infoLogger.info(logManager.processSummeryStyles(summery));
-
             }
         } catch (Exception e) {
-            //errorLogger.error("Interest calculation process failed", e);
-            LogManager.logError("Interest calculation process failed", e, errorLogger);
+            logManager.logError("Interest calculation process failed", e, errorLogger);
             Configurations.IS_PROCESS_COMPLETELY_FAILED = true;
 
         } finally {
+            logManager.logSummery(summery,infoLogger);
             if (accountList != null && accountList.size() != 0) {
                 for (StatementBean accBean : accountList) {
                     CommonMethods.clearStringBuffer(accBean.getCardNo());

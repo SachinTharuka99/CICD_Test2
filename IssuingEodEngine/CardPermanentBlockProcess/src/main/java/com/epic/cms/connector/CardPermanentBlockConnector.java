@@ -17,8 +17,8 @@ import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
 
-import static com.epic.cms.util.LogManager.errorLogger;
 import static com.epic.cms.util.LogManager.infoLogger;
+import static com.epic.cms.util.LogManager.errorLogger;
 
 @Service
 public class CardPermanentBlockConnector extends ProcessBuilder {
@@ -67,7 +67,6 @@ public class CardPermanentBlockConnector extends ProcessBuilder {
                 while (!(taskExecutor.getActiveCount() == 0)) {
                     Thread.sleep(1000);
                 }
-                infoLogger.info("Thread Name Prefix: {}, Active count: {}, Pool size: {}, Queue Size: {}", taskExecutor.getThreadNamePrefix(), taskExecutor.getActiveCount(), taskExecutor.getPoolSize(), taskExecutor.getThreadPoolExecutor().getQueue().size());
 
                 failedCount = Configurations.PROCESS_FAILD_COUNT;
                 Configurations.PROCESS_TOTAL_NOOF_TRABSACTIONS = cardList.size();
@@ -77,10 +76,9 @@ public class CardPermanentBlockConnector extends ProcessBuilder {
             }
         } catch (Exception e) {
             Configurations.IS_PROCESS_COMPLETELY_FAILED = true;
-            errorLogger.error("Card Permanent Block process Error", e);
+            logManager.logError("Card Permanent Block process Error", e, errorLogger);
         } finally {
-            addSummaries();
-            infoLogger.info(logManager.processSummeryStyles(summery));
+            logManager.logSummery(summery, infoLogger);
             try {
                 /* PADSS Change -
                 variables handling card data should be nullified by replacing the value of variable with zero and call NULL function */
@@ -91,16 +89,13 @@ public class CardPermanentBlockConnector extends ProcessBuilder {
                     cardList = null;
                 }
             } catch (Exception e2) {
-                errorLogger.error("Card Permanent Block process Error ", e2);
+                logManager.logError("Card Permanent Block process Error ", e2, errorLogger);
             }
         }
     }
 
+    @Override
     public void addSummaries() {
-        summery.put("Started Date", Configurations.EOD_DATE.toString());
-        summery.put("No of Card effected", Configurations.PROCESS_TOTAL_NOOF_TRABSACTIONS);
-        summery.put("No of Success Card ", Configurations.PROCESS_SUCCESS_COUNT);
-        summery.put("No of fail Card ", Configurations.PROCESS_FAILD_COUNT);
         if (cardList != null) {
             summery.put("Started Date", Configurations.EOD_DATE.toString());
             summery.put("No of Card effected", cardList.size());

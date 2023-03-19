@@ -67,18 +67,12 @@ public class TransactionPostConnector extends ProcessBuilder {
             while (!(taskExecutor.getActiveCount() == 0)) {
                 Thread.sleep(1000);
             }
-            if (custAccList != null) {
-                Configurations.PROCESS_TOTAL_NOOF_TRABSACTIONS = (custAccList.size());
-                Configurations.PROCESS_SUCCESS_COUNT = (custAccList.size() - Configurations.PROCESS_FAILD_COUNT);
-            }
-            summery.put("Number of accounts to fee post ", custAccList.size());
-            summery.put("Number of success fee post ", custAccList.size() - Configurations.PROCESS_FAILD_COUNT);
-            summery.put("Number of failure fee post ", Configurations.PROCESS_FAILD_COUNT);
-            infoLogger.info(logManager.processSummeryStyles(summery));
+
         } catch (Exception e) {
             Configurations.IS_PROCESS_COMPLETELY_FAILED = true;
-            errorLogger.error("Failed Transaction Post Process Completely ", e);
+            logManager.logError("Failed Transaction Post Process Completely ", e, errorLogger);
         } finally {
+            logManager.logSummery(summery, infoLogger);
             try {
                /* PADSS Change -
             variables handling card data should be nullified by replacing the value of variable with zero and call NULL function */
@@ -98,9 +92,15 @@ public class TransactionPostConnector extends ProcessBuilder {
                     txnList = null;
                 }
             } catch (Exception e) {
-                errorLogger.error("Transaction Post Process Clear StringBuffer Fail" + e);
+                logManager.logError("Transaction Post Process Clear StringBuffer Fail" + e, errorLogger);
             }
         }
     }
 
+    @Override
+    public void addSummaries() {
+        summery.put("Number of accounts to fee post ", custAccList.size());
+        summery.put("Number of success fee post ", custAccList.size() - Configurations.PROCESS_FAILD_COUNT);
+        summery.put("Number of failure fee post ", Configurations.PROCESS_FAILD_COUNT);
+    }
 }

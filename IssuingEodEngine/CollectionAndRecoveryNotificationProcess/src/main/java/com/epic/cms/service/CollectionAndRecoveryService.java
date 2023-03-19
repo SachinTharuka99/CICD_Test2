@@ -33,7 +33,7 @@ public class CollectionAndRecoveryService {
     CommonRepo commonRepo;
 
     @Async("taskExecutor2")
-    @Transactional(value="transactionManager",propagation = Propagation.REQUIRED,rollbackFor = Exception.class)
+    @Transactional(value = "transactionManager", propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
     public void processX_DATES_BEFORE_FIRST_DUE_DATE(CollectionAndRecoveryBean collectionAndRecoveryBean, ProcessBean processBean) {
         if (!Configurations.isInterrupted) {
             LinkedHashMap details = new LinkedHashMap();
@@ -44,31 +44,33 @@ public class CollectionAndRecoveryService {
                 /**Check weather card is already exist in triggerCard table*/
                 status = collectionAndRecoveryRepo.CheckForTriggerPoint(collectionAndRecoveryBean.getCardNo());
 
-                    details.put("Card number", CommonMethods.cardNumberMask(collectionAndRecoveryBean.getCardNo()));
-                    details.put("Trigger task", "SMS/Email");
-                    details.put("Next trigger", "X_DATES_AFTER_FIRST_DUE_DATE");
+                details.put("Card number", CommonMethods.cardNumberMask(collectionAndRecoveryBean.getCardNo()));
+                details.put("Trigger task", "SMS/Email");
+                details.put("Next trigger", "X_DATES_AFTER_FIRST_DUE_DATE");
 
-                    /**SMS/Email record*/
-                    /**Insert the card details to TriggerCards table*/
-                    collectionAndRecoveryBean.setLastTriger(Configurations.TP_X_DATES_BEFORE_FIRST_DUE_DATE);
-                    collectionAndRecoveryRepo.addCardToTriggerCards(collectionAndRecoveryBean);
-                    Configurations.PROCESS_SUCCESS_COUNT++;
+                /**SMS/Email record*/
+                /**Insert the card details to TriggerCards table*/
+                collectionAndRecoveryBean.setLastTriger(Configurations.TP_X_DATES_BEFORE_FIRST_DUE_DATE);
+                collectionAndRecoveryRepo.addCardToTriggerCards(collectionAndRecoveryBean);
+                Configurations.PROCESS_SUCCESS_COUNT++;
 
-                    details.put("Process Status", "Passed");
+                details.put("Process Status", "Passed");
 
             } catch (Exception e) {
                 Configurations.PROCESS_FAILD_COUNT++;
                 details.put("Process Status", "Failed");
                 Configurations.failedCardsForCollectionAndRecoveryNotification++;
-                errorLogger.error("Collection and recovery process failed for card number " + CommonMethods.cardInfo(CommonMethods.cardNumberMask(collectionAndRecoveryBean.getCardNo()), processBean), e);
+                logManager.logError("Collection and recovery process failed for card number " + CommonMethods.cardInfo(CommonMethods.cardNumberMask(collectionAndRecoveryBean.getCardNo()), processBean), e, errorLogger);
                 Configurations.errorCardList.add(new ErrorCardBean(Configurations.ERROR_EOD_ID, Configurations.EOD_DATE, new StringBuffer(collectionAndRecoveryBean.getCardNo()), e.getMessage(), Configurations.RUNNING_PROCESS_ID, Configurations.RUNNING_PROCESS_DESCRIPTION, 0, CardAccount.CARD));
                 Configurations.checkErrorForCollectionAndRecoveryNotification = true;
+            } finally {
+                logManager.logDetails(details, infoLogger);
             }
-            infoLogger.info(logManager.processDetailsStyles(details));
         }
     }
+
     @Async("taskExecutor2")
-    @Transactional(value="transactionManager",propagation = Propagation.REQUIRED,rollbackFor = Exception.class)
+    @Transactional(value = "transactionManager", propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
     public void processX_DATES_AFTER_FIRST_DUE_DATE(CollectionAndRecoveryBean collectionAndRecoveryBean, ProcessBean processBean) {
         if (!Configurations.isInterrupted) {
             LinkedHashMap details = new LinkedHashMap();
@@ -90,15 +92,17 @@ public class CollectionAndRecoveryService {
                 Configurations.PROCESS_FAILD_COUNT++;
                 details.put("Process Status", "Failed");
                 Configurations.failedCardsForCollectionAndRecoveryNotification++;
-                errorLogger.error("Collection and recovery process failed for card number " + CommonMethods.cardInfo(CommonMethods.cardNumberMask(collectionAndRecoveryBean.getCardNo()), processBean), e);
+                logManager.logError("Collection and recovery process failed for card number " + CommonMethods.cardInfo(CommonMethods.cardNumberMask(collectionAndRecoveryBean.getCardNo()), processBean), e, errorLogger);
                 Configurations.errorCardList.add(new ErrorCardBean(Configurations.ERROR_EOD_ID, Configurations.EOD_DATE, new StringBuffer(collectionAndRecoveryBean.getCardNo()), e.getMessage(), Configurations.RUNNING_PROCESS_ID, Configurations.RUNNING_PROCESS_DESCRIPTION, 0, CardAccount.CARD));
                 Configurations.checkErrorForCollectionAndRecoveryNotification = true;
+            } finally {
+                logManager.logDetails(details, infoLogger);
             }
-            infoLogger.info(logManager.processDetailsStyles(details));
         }
     }
+
     @Async("taskExecutor2")
-    @Transactional(value="transactionManager",propagation = Propagation.REQUIRED,rollbackFor = Exception.class)
+    @Transactional(value = "transactionManager", propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
     public void processON_THE_2ND_STATEMENT_DATE(CollectionAndRecoveryBean collectionAndRecoveryBean, ProcessBean processBean) {
         if (!Configurations.isInterrupted) {
             LinkedHashMap details = new LinkedHashMap();
@@ -119,15 +123,17 @@ public class CollectionAndRecoveryService {
                 Configurations.PROCESS_FAILD_COUNT++;
                 details.put("Process Status", "Failed");
                 Configurations.failedCardsForCollectionAndRecoveryNotification++;
-                errorLogger.error("Collection and recovery process failed for card number " + CommonMethods.cardInfo(CommonMethods.cardNumberMask(collectionAndRecoveryBean.getCardNo()), processBean), e);
+                logManager.logError("Collection and recovery process failed for card number " + CommonMethods.cardInfo(CommonMethods.cardNumberMask(collectionAndRecoveryBean.getCardNo()), processBean), e, errorLogger);
                 Configurations.errorCardList.add(new ErrorCardBean(Configurations.ERROR_EOD_ID, Configurations.EOD_DATE, new StringBuffer(collectionAndRecoveryBean.getCardNo()), e.getMessage(), Configurations.RUNNING_PROCESS_ID, Configurations.RUNNING_PROCESS_DESCRIPTION, 0, CardAccount.CARD));
                 Configurations.checkErrorForCollectionAndRecoveryNotification = true;
+            } finally {
+                logManager.logDetails(details, infoLogger);
             }
-            infoLogger.info(logManager.processDetailsStyles(details));
         }
     }
+
     @Async("taskExecutor2")
-    @Transactional(value="transactionManager",propagation = Propagation.REQUIRED,rollbackFor = Exception.class)
+    @Transactional(value = "transactionManager", propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
     public void processX_DATES_AFTER_SECOND_STATEMENT(CollectionAndRecoveryBean collectionAndRecoveryBean, ProcessBean processBean) {
         if (!Configurations.isInterrupted) {
             LinkedHashMap details = new LinkedHashMap();
@@ -148,15 +154,17 @@ public class CollectionAndRecoveryService {
                 Configurations.PROCESS_FAILD_COUNT++;
                 details.put("Process Status", "Failed");
                 Configurations.failedCardsForCollectionAndRecoveryNotification++;
-                errorLogger.error("Collection and recovery process failed for card number " + CommonMethods.cardInfo(CommonMethods.cardNumberMask(collectionAndRecoveryBean.getCardNo()), processBean), e);
+                logManager.logError("Collection and recovery process failed for card number " + CommonMethods.cardInfo(CommonMethods.cardNumberMask(collectionAndRecoveryBean.getCardNo()), processBean), e, errorLogger);
                 Configurations.errorCardList.add(new ErrorCardBean(Configurations.ERROR_EOD_ID, Configurations.EOD_DATE, new StringBuffer(collectionAndRecoveryBean.getCardNo()), e.getMessage(), Configurations.RUNNING_PROCESS_ID, Configurations.RUNNING_PROCESS_DESCRIPTION, 0, CardAccount.CARD));
                 Configurations.checkErrorForCollectionAndRecoveryNotification = true;
+            } finally {
+                logManager.logDetails(details, infoLogger);
             }
-            infoLogger.info(logManager.processDetailsStyles(details));
         }
     }
+
     @Async("taskExecutor2")
-    @Transactional(value="transactionManager",propagation = Propagation.REQUIRED,rollbackFor = Exception.class)
+    @Transactional(value = "transactionManager", propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
     public void processIMMEDIATELY_AFTER_THE_2ND_DUE_DATE(CollectionAndRecoveryBean collectionAndRecoveryBean, ProcessBean processBean) {
         if (!Configurations.isInterrupted) {
             LinkedHashMap details = new LinkedHashMap();
@@ -185,15 +193,17 @@ public class CollectionAndRecoveryService {
                 Configurations.PROCESS_FAILD_COUNT++;
                 details.put("Process Status", "Failed");
                 Configurations.failedCardsForCollectionAndRecoveryNotification++;
-                errorLogger.error("Collection and recovery process failed for card number " + CommonMethods.cardInfo(CommonMethods.cardNumberMask(collectionAndRecoveryBean.getCardNo()), processBean), e);
+                logManager.logError("Collection and recovery process failed for card number " + CommonMethods.cardInfo(CommonMethods.cardNumberMask(collectionAndRecoveryBean.getCardNo()), processBean), e, errorLogger);
                 Configurations.errorCardList.add(new ErrorCardBean(Configurations.ERROR_EOD_ID, Configurations.EOD_DATE, new StringBuffer(collectionAndRecoveryBean.getCardNo()), e.getMessage(), Configurations.RUNNING_PROCESS_ID, Configurations.RUNNING_PROCESS_DESCRIPTION, 0, CardAccount.CARD));
                 Configurations.checkErrorForCollectionAndRecoveryNotification = true;
+            } finally {
+                logManager.logDetails(details, infoLogger);
             }
-            infoLogger.info(logManager.processDetailsStyles(details));
         }
     }
+
     @Async("taskExecutor2")
-    @Transactional(value="transactionManager",propagation = Propagation.REQUIRED,rollbackFor = Exception.class)
+    @Transactional(value = "transactionManager", propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
     public void processON_THE_3RD_STATEMENT_DATE(CollectionAndRecoveryBean collectionAndRecoveryBean, ProcessBean processBean) {
         if (!Configurations.isInterrupted) {
             LinkedHashMap details = new LinkedHashMap();
@@ -214,15 +224,17 @@ public class CollectionAndRecoveryService {
                 Configurations.PROCESS_FAILD_COUNT++;
                 details.put("Process Status", "Failed");
                 Configurations.failedCardsForCollectionAndRecoveryNotification++;
-                errorLogger.error("Collection and recovery process failed for card number " + CommonMethods.cardInfo(CommonMethods.cardNumberMask(collectionAndRecoveryBean.getCardNo()), processBean), e);
+                logManager.logError("Collection and recovery process failed for card number " + CommonMethods.cardInfo(CommonMethods.cardNumberMask(collectionAndRecoveryBean.getCardNo()), processBean), e, errorLogger);
                 Configurations.errorCardList.add(new ErrorCardBean(Configurations.ERROR_EOD_ID, Configurations.EOD_DATE, new StringBuffer(collectionAndRecoveryBean.getCardNo()), e.getMessage(), Configurations.RUNNING_PROCESS_ID, Configurations.RUNNING_PROCESS_DESCRIPTION, 0, CardAccount.CARD));
                 Configurations.checkErrorForCollectionAndRecoveryNotification = true;
+            } finally {
+                logManager.logDetails(details, infoLogger);
             }
-            infoLogger.info(logManager.processDetailsStyles(details));
         }
     }
+
     @Async("taskExecutor2")
-    @Transactional(value="transactionManager",propagation = Propagation.REQUIRED,rollbackFor = Exception.class)
+    @Transactional(value = "transactionManager", propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
     public void processIMMEDIATELY_AFTER_THE_3RD_DUE_DATE(CollectionAndRecoveryBean collectionAndRecoveryBean, ProcessBean processBean) {
         if (!Configurations.isInterrupted) {
             LinkedHashMap details = new LinkedHashMap();
@@ -244,15 +256,17 @@ public class CollectionAndRecoveryService {
                 Configurations.PROCESS_FAILD_COUNT++;
                 details.put("Process Status", "Failed");
                 Configurations.failedCardsForCollectionAndRecoveryNotification++;
-                errorLogger.error("Collection and recovery process failed for card number " + CommonMethods.cardInfo(CommonMethods.cardNumberMask(collectionAndRecoveryBean.getCardNo()), processBean), e);
+                logManager.logError("Collection and recovery process failed for card number " + CommonMethods.cardInfo(CommonMethods.cardNumberMask(collectionAndRecoveryBean.getCardNo()), processBean), e, errorLogger);
                 Configurations.errorCardList.add(new ErrorCardBean(Configurations.ERROR_EOD_ID, Configurations.EOD_DATE, new StringBuffer(collectionAndRecoveryBean.getCardNo()), e.getMessage(), Configurations.RUNNING_PROCESS_ID, Configurations.RUNNING_PROCESS_DESCRIPTION, 0, CardAccount.CARD));
                 Configurations.checkErrorForCollectionAndRecoveryNotification = true;
+            } finally {
+                logManager.logDetails(details, infoLogger);
             }
-            infoLogger.info(logManager.processDetailsStyles(details));
         }
     }
+
     @Async("taskExecutor2")
-    @Transactional(value="transactionManager",propagation = Propagation.REQUIRED,rollbackFor = Exception.class)
+    @Transactional(value = "transactionManager", propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
     public void processON_THE_4TH_STATEMENT_DATE(CollectionAndRecoveryBean collectionAndRecoveryBean, ProcessBean processBean) {
         if (!Configurations.isInterrupted) {
             LinkedHashMap details = new LinkedHashMap();
@@ -273,15 +287,17 @@ public class CollectionAndRecoveryService {
                 Configurations.PROCESS_FAILD_COUNT++;
                 details.put("Process Status", "Failed");
                 Configurations.failedCardsForCollectionAndRecoveryNotification++;
-                errorLogger.error("Collection and recovery process failed for card number " + CommonMethods.cardInfo(CommonMethods.cardNumberMask(collectionAndRecoveryBean.getCardNo()), processBean), e);
+                logManager.logError("Collection and recovery process failed for card number " + CommonMethods.cardInfo(CommonMethods.cardNumberMask(collectionAndRecoveryBean.getCardNo()), processBean), e, errorLogger);
                 Configurations.errorCardList.add(new ErrorCardBean(Configurations.ERROR_EOD_ID, Configurations.EOD_DATE, new StringBuffer(collectionAndRecoveryBean.getCardNo()), e.getMessage(), Configurations.RUNNING_PROCESS_ID, Configurations.RUNNING_PROCESS_DESCRIPTION, 0, CardAccount.CARD));
                 Configurations.checkErrorForCollectionAndRecoveryNotification = true;
+            } finally {
+                logManager.logDetails(details, infoLogger);
             }
-            infoLogger.info(logManager.processDetailsStyles(details));
         }
     }
+
     @Async("taskExecutor2")
-    @Transactional(value="transactionManager",propagation = Propagation.REQUIRED,rollbackFor = Exception.class)
+    @Transactional(value = "transactionManager", propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
     public void processX_DAYS_AFTER_THE_4TH_STATEMENT_DATE(CollectionAndRecoveryBean collectionAndRecoveryBean, ProcessBean processBean) {
         if (!Configurations.isInterrupted) {
             LinkedHashMap details = new LinkedHashMap();
@@ -310,15 +326,17 @@ public class CollectionAndRecoveryService {
                 Configurations.PROCESS_FAILD_COUNT++;
                 details.put("Process Status", "Failed");
                 Configurations.failedCardsForCollectionAndRecoveryNotification++;
-                errorLogger.error("Collection and recovery process failed for card number " + CommonMethods.cardInfo(CommonMethods.cardNumberMask(collectionAndRecoveryBean.getCardNo()), processBean), e);
+                logManager.logError("Collection and recovery process failed for card number " + CommonMethods.cardInfo(CommonMethods.cardNumberMask(collectionAndRecoveryBean.getCardNo()), processBean), e, errorLogger);
                 Configurations.errorCardList.add(new ErrorCardBean(Configurations.ERROR_EOD_ID, Configurations.EOD_DATE, new StringBuffer(collectionAndRecoveryBean.getCardNo()), e.getMessage(), Configurations.RUNNING_PROCESS_ID, Configurations.RUNNING_PROCESS_DESCRIPTION, 0, CardAccount.CARD));
                 Configurations.checkErrorForCollectionAndRecoveryNotification = true;
+            } finally {
+                logManager.logDetails(details, infoLogger);
             }
-            infoLogger.info(logManager.processDetailsStyles(details));
         }
     }
+
     @Async("taskExecutor2")
-    @Transactional(value="transactionManager",propagation = Propagation.REQUIRED,rollbackFor = Exception.class)
+    @Transactional(value = "transactionManager", propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
     public void processWITHIN_X_DAYS_OF_THE_CRIB_INFO_LETTER_REMINDER(CollectionAndRecoveryBean collectionAndRecoveryBean, ProcessBean processBean) {
         if (!Configurations.isInterrupted) {
             LinkedHashMap details = new LinkedHashMap();
@@ -339,15 +357,17 @@ public class CollectionAndRecoveryService {
                 Configurations.PROCESS_FAILD_COUNT++;
                 details.put("Process Status", "Failed");
                 Configurations.failedCardsForCollectionAndRecoveryNotification++;
-                errorLogger.error("Collection and recovery process failed for card number " + CommonMethods.cardInfo(CommonMethods.cardNumberMask(collectionAndRecoveryBean.getCardNo()), processBean), e);
+                logManager.logError("Collection and recovery process failed for card number " + CommonMethods.cardInfo(CommonMethods.cardNumberMask(collectionAndRecoveryBean.getCardNo()), processBean), e, errorLogger);
                 Configurations.errorCardList.add(new ErrorCardBean(Configurations.ERROR_EOD_ID, Configurations.EOD_DATE, new StringBuffer(collectionAndRecoveryBean.getCardNo()), e.getMessage(), Configurations.RUNNING_PROCESS_ID, Configurations.RUNNING_PROCESS_DESCRIPTION, 0, CardAccount.CARD));
                 Configurations.checkErrorForCollectionAndRecoveryNotification = true;
+            } finally {
+                logManager.logDetails(details, infoLogger);
             }
-            infoLogger.info(logManager.processDetailsStyles(details));
         }
     }
+
     @Async("taskExecutor2")
-    @Transactional(value="transactionManager",propagation = Propagation.REQUIRED,rollbackFor = Exception.class)
+    @Transactional(value = "transactionManager", propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
     public void processIMMEDIATELY_AFTER_THE_4TH_DUE_DATE(CollectionAndRecoveryBean collectionAndRecoveryBean, ProcessBean processBean) {
         if (!Configurations.isInterrupted) {
             LinkedHashMap details = new LinkedHashMap();
@@ -359,7 +379,7 @@ public class CollectionAndRecoveryService {
                 details.put("Account status", "Non performing account");
 
                 /**TODO account---> NP account
-                Permenant block*/
+                 Permenant block*/
                 collectionAndRecoveryBean.setLastTriger(Configurations.TP_IMMEDIATELY_AFTER_THE_4TH_DUE_DATE);
                 collectionAndRecoveryRepo.updateTriggerCards(collectionAndRecoveryBean);
                 Configurations.PROCESS_SUCCESS_COUNT++;
@@ -369,11 +389,12 @@ public class CollectionAndRecoveryService {
                 Configurations.PROCESS_FAILD_COUNT++;
                 details.put("Process Status", "Failed");
                 Configurations.failedCardsForCollectionAndRecoveryNotification++;
-                errorLogger.error("Collection and recovery process failed for card number " + CommonMethods.cardInfo(CommonMethods.cardNumberMask(collectionAndRecoveryBean.getCardNo()), processBean), e);
+                logManager.logError("Collection and recovery process failed for card number " + CommonMethods.cardInfo(CommonMethods.cardNumberMask(collectionAndRecoveryBean.getCardNo()), processBean), e, errorLogger);
                 Configurations.errorCardList.add(new ErrorCardBean(Configurations.ERROR_EOD_ID, Configurations.EOD_DATE, new StringBuffer(collectionAndRecoveryBean.getCardNo()), e.getMessage(), Configurations.RUNNING_PROCESS_ID, Configurations.RUNNING_PROCESS_DESCRIPTION, 0, CardAccount.CARD));
                 Configurations.checkErrorForCollectionAndRecoveryNotification = true;
+            } finally {
+                logManager.logDetails(details, infoLogger);
             }
-            infoLogger.info(logManager.processDetailsStyles(details));
         }
     }
 }

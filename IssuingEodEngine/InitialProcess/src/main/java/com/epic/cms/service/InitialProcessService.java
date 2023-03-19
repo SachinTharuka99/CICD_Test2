@@ -53,38 +53,38 @@ public class InitialProcessService  {
                         if (Configurations.STARTING_EOD_STATUS.equals(status.getINITIAL_STATUS())) {
                             initialProcessRepo.swapEodCardBalance();
                         }
-                        infoLogger.info(logManager.processStartEndStyle("Swapping EODCARDBALANCE Completed"));
+                        logManager.logStartEnd("Swapping EODCARDBALANCE Completed", infoLogger);
 
                         //Online Card TxnCount,TXN Amount resetting
                         if (Configurations.STARTING_EOD_STATUS.equals(status.getINITIAL_STATUS())) {
                             initialProcessRepo.setResetCapsLimit("ECMS_ONLINE_CARD");
                         }
-                        infoLogger.info(logManager.processStartEndStyle("CapsLimit Card Resetting Completed"));
+                        logManager.logStartEnd("CapsLimit Card Resetting Completed", infoLogger);
 
                         //Online Account TxnCount,TXN Amount resetting
                         if (Configurations.STARTING_EOD_STATUS.equals(status.getINITIAL_STATUS())) {
                             initialProcessRepo.setResetCapsLimitAccount("ECMS_ONLINE_ACCOUNT");
                         }
-                        infoLogger.info(logManager.processStartEndStyle("CapsLimit Account Resetting Completed"));
+                        logManager.logStartEnd("CapsLimit Account Resetting Completed", infoLogger);
 
                         //Online Customer TxnCount,TXN Amount resetting
                         if (Configurations.STARTING_EOD_STATUS.equals(status.getINITIAL_STATUS())) {
                             initialProcessRepo.setResetCapsLimitAccount("ECMS_ONLINE_CUSTOMER");
                         }
-                        infoLogger.info(logManager.processStartEndStyle("CapsLimit Customer Resetting Completed"));
+                        logManager.logStartEnd("CapsLimit Customer Resetting Completed", infoLogger);
 
                         //Swapping openning OTBCARDACCOUNT
                         if (Configurations.STARTING_EOD_STATUS.equals(status.getINITIAL_STATUS())) {
                             initialProcessRepo.insertIntoOpeningAccBal();
                         }
-                        infoLogger.info(logManager.processStartEndStyle("Account Starting OTB set To OPENNINGOTB Completed"));
+                        logManager.logStartEnd("Account Starting OTB set To OPENNINGOTB Completed", infoLogger);
 
                         // update eodprocesssummery table..
                         commonRepo.updateEodProcessSummery(Configurations.ERROR_EOD_ID, status.getSUCCES_STATUS(), Configurations.PROCESS_ID_INITIAL_PROCESS, Configurations.PROCESS_SUCCESS_COUNT, Configurations.PROCESS_FAILD_COUNT, CommonMethods.eodDashboardProcessProgress(Configurations.PROCESS_SUCCESS_COUNT, Configurations.PROCESS_FAILD_COUNT));
 
 
                     } catch (Exception e) {
-                        errorLogger.error("Error in Initial Process ", e);
+                        logManager.logError("Error in Initial Process ", e, errorLogger);
                         throw e;
                     }
                 }
@@ -92,10 +92,10 @@ public class InitialProcessService  {
             } catch (Exception e) {
                 try {
                     Configurations.IS_PROCESS_COMPLETELY_FAILED = true;
-                    errorLogger.error("Initial Process failed", e);
+                    logManager.logError("Initial Process failed", e, errorLogger);
                     commonRepo.updateEodProcessSummery(Configurations.ERROR_EOD_ID, status.getERROR_STATUS(), Configurations.PROCESS_ID_INITIAL_PROCESS, Configurations.PROCESS_SUCCESS_COUNT, Configurations.PROCESS_FAILD_COUNT, CommonMethods.eodDashboardProcessProgress(Configurations.PROCESS_SUCCESS_COUNT, Configurations.PROCESS_FAILD_COUNT));
                 } catch (Exception e2) {
-                    errorLogger.error("Initial Process ended with", e2);
+                    logManager.logError("Initial Process ended with", e2, errorLogger);
                 }
             }
         }

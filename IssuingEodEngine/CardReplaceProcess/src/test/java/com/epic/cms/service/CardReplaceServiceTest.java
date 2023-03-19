@@ -37,7 +37,6 @@ class CardReplaceServiceTest {
     @BeforeEach
     void setUp() {
         cardReplaceServiceUnderTest = new CardReplaceService();
-        cardReplaceServiceUnderTest.logManager = mock(LogManager.class);
         cardReplaceServiceUnderTest.cardReplaceRepo = mock(CardReplaceRepo.class);
         cardReplaceServiceUnderTest.status = mock(StatusVarList.class);
     }
@@ -61,9 +60,6 @@ class CardReplaceServiceTest {
                     .thenReturn(maskCardNo);
             assertThat(maskCardNo).isEqualTo(CommonMethods.cardNumberMask(cardReplaceBean.getOldCardNo()));
         }
-        when(cardReplaceServiceUnderTest.logManager.processDetailsStyles(
-                Map.ofEntries(Map.entry("value", "value")))).thenReturn("result");
-
         // Run the test
         cardReplaceServiceUnderTest.cardReplace(cardReplaceBean);
 

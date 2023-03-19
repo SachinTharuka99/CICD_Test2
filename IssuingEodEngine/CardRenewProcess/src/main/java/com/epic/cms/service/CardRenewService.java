@@ -40,16 +40,12 @@ public class CardRenewService {
     @Autowired
     LogManager logManager;
 
-
     @Async("taskExecutor2")
     @Transactional(value = "transactionManager", propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
-    public void cardRenewProcess(CardRenewBean CRBean) {
+    public void cardRenewProcess(CardRenewBean CRBean, int noOfNormalRenewals, int noOfEarlyRenewals, int NoOfFailCards) {
         if (!Configurations.isInterrupted) {
             if (!Configurations.isInterrupted) {
                 LinkedHashMap details = new LinkedHashMap();
-                int NoOfFailCards = 0;
-                int noOfEarlyRenewals = 0;
-                int noOfNormalRenewals = 0;
 
                 try {
                     //get current month and current year
@@ -120,14 +116,14 @@ public class CardRenewService {
                         cardRenewDao.updateOnlineCardTable(CRBean.getCardNumber(), newExpireDate);
                     }
                     Configurations.PROCESS_SUCCESS_COUNT++;
-                    // call ProcessDetailsStriles method in logger
-                    infoLogger.info(logManager.processDetailsStyles(details));
+
                 } catch (Exception ex) {
                     details.put("ReNew Status", "Fail");
-                    infoLogger.info(logManager.processDetailsStyles(details));
-                    errorLogger.error("Renew Process Fails for Card " + CommonMethods.cardNumberMask(CRBean.getCardNumber()), ex);
+                    logManager.logError("Renew Process Fails for Card " + CommonMethods.cardNumberMask(CRBean.getCardNumber()), ex, errorLogger);
                     NoOfFailCards++;
                     Configurations.PROCESS_FAILD_COUNT++;
+                } finally {
+                    logManager.logDetails(details, infoLogger);
                 }
             }
         }

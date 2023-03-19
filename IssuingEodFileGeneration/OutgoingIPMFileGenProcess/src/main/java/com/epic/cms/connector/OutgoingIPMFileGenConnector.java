@@ -9,4 +9,9 @@ public class OutgoingIPMFileGenConnector extends ProcessBuilder {
     public void concreteProcess() throws Exception {
         System.out.println("--inside MasterFileReadingConnector--");
     }
+
+    @Override
+    public void addSummaries() {
+
+    }
 }

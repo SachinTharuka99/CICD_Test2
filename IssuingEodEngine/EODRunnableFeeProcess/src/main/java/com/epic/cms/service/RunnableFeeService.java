@@ -23,7 +23,7 @@ import java.util.List;
 @Service
 public class RunnableFeeService {
     @Autowired
-    public LogManager logManager;
+    LogManager logManager;
 
     @Autowired
     public RunnableFeeDao runnableFeeDao;
@@ -44,16 +44,14 @@ public class RunnableFeeService {
             try {
                 System.out.println("Checking EOD fee for card" + CommonMethods.cardNumberMask(cardBean.getCardnumber()));
                 details.put("Checking EOD fee for card", CommonMethods.cardNumberMask(cardBean.getCardnumber()));
-                infoLogger.info(logManager.processDetailsStyles(details));
-
-                details.clear();
-                addAnniversaryFee(cardBean, format);
-                addCashAdvanceFee(cardBean);
-                addLatePaymentFee(cardBean, format);
+                addAnniversaryFee(cardBean, format, details);
+                addCashAdvanceFee(cardBean, details);
+                addLatePaymentFee(cardBean, format, details);
                 Configurations.PROCESS_SUCCESS_COUNT++;
             } catch (Exception ex) {
-                ex.printStackTrace();
                 Configurations.PROCESS_FAILD_COUNT++;
+            } finally {
+                logManager.logDetails(details, infoLogger);
             }
         }
     }
@@ -65,9 +63,9 @@ public class RunnableFeeService {
      *
      * @param cardBean
      * @param format   * throws Exception
+     * @param details
      */
-    private void addAnniversaryFee(CardBean cardBean, SimpleDateFormat format) throws Exception {
-        LinkedHashMap details = new LinkedHashMap();
+    private void addAnniversaryFee(CardBean cardBean, SimpleDateFormat format, LinkedHashMap details) throws Exception {
         Date ann_date = null;
 
         try {
@@ -82,23 +80,21 @@ public class RunnableFeeService {
                     details.put("Adding anniversary fee for card", "SUCCESS");
 
                     if (!(cardBean.getCardStatus().equalsIgnoreCase(status.getCARD_REPLACED_STATUS()) || cardBean.getCardStatus().equalsIgnoreCase(status.getCARD_PRODUCT_CHANGE_STATUS()))) {
-                        System.out.println("status.getCARD_REPLACED_STATUS()" + status.getCARD_REPLACED_STATUS());
                         //check whether annual fee wave of for np accounts
                         if (Configurations.ANNUAL_FEE_FOR_NP_ACCOUNTS == status.getNO_STATUS_0()) {
                             //if not annual fee for np accounts, check whether acc status is deactive.then not calculate annual fee
                             if (!(cardBean.getAccStatus().equalsIgnoreCase(status.getDEACTIVE_STATUS())
                                     || cardBean.getAccStatus().equalsIgnoreCase(status.getACCOUNT_NON_PERFORMING_STATUS()))) {
                                 boolean feeExist = runnableFeeDao.checkFeeExistForCard(cardBean.getCardnumber(), Configurations.ANNUAL_FEE);
-                                infoLogger.info(logManager.processStartEndStyle("Annual Fee Exist :" + feeExist));
+                                logManager.logStartEnd("Annual Fee Exist :" + feeExist, infoLogger);
 
                                 details.put("Adding anniversary fee for " + Configurations.ANNUAL_FEE_FOR_NP_ACCOUNTS + " : " + status.getNO_STATUS_0(), "SUCCESS");
 
                                 updated = runnableFeeDao.addCardFeeCount(cardBean.getCardnumber(), Configurations.ANNUAL_FEE, 0);
                             }
                         } else if (Configurations.ANNUAL_FEE_FOR_NP_ACCOUNTS == status.getYES_STATUS_1()) {
-                            System.out.println("status.getYES_STATUS_1()" + status.getYES_STATUS_1());
                             boolean feeExist = runnableFeeDao.checkFeeExistForCard(cardBean.getCardnumber(), Configurations.ANNUAL_FEE);
-                            infoLogger.info(logManager.processStartEndStyle("Annual Fee Exist :" + feeExist));
+                            logManager.logStartEnd("Annual Fee Exist :" + feeExist, infoLogger);
 
                             details.put("Adding anniversary fee for " + Configurations.ANNUAL_FEE_FOR_NP_ACCOUNTS + " : " + status.getYES_STATUS_1(), "SUCCESS");
 
@@ -111,14 +107,12 @@ public class RunnableFeeService {
                         details.put("updated the next anniversary date for card number:", CommonMethods.cardNumberMask(cardBean.getCardnumber()));
                         Configurations.SUMMARY_FOR_FEE_ANNIVERSARY_PROCESSED++;
                     }
-                    infoLogger.info(logManager.processDetailsStyles(details));
                 }
             }
         } catch (NullPointerException ex) {
-            ex.printStackTrace();
             details.put("anniversary date is not found for: ", CommonMethods.cardNumberMask(cardBean.getCardnumber()));
         } catch (Exception ex) {
-            errorLogger.error("exception in anniversary date for card: " + CommonMethods.cardNumberMask(cardBean.getCardnumber()), ex);
+            logManager.logError("exception in anniversary date for card: " + CommonMethods.cardNumberMask(cardBean.getCardnumber()), ex, errorLogger);
             details.put("exception in anniversary date for card:", CommonMethods.cardNumberMask(cardBean.getCardnumber()));
             Configurations.errorCardList.add(new ErrorCardBean(Configurations.ERROR_EOD_ID, Configurations.EOD_DATE, cardBean.getCardnumber(), ex.getMessage(), Configurations.RUNNING_PROCESS_ID, Configurations.RUNNING_PROCESS_DESCRIPTION, 0, CardAccount.CARD));
             Configurations.FAILED_CARDS++;
@@ -132,19 +126,17 @@ public class RunnableFeeService {
      * table.
      *
      * @param cardBean
+     * @param details
      * @throws Exception
      */
-    private void addCashAdvanceFee(CardBean cardBean) throws Exception {
-        LinkedHashMap details = new LinkedHashMap();
-
+    private void addCashAdvanceFee(CardBean cardBean, LinkedHashMap details) throws Exception {
         List<CashAdvanceBean> cashAdvances = null;
 
         try {
             cashAdvances = runnableFeeDao.findCashAdvances(cardBean.getCardnumber());
             if (cashAdvances != null && !cashAdvances.isEmpty()) {
                 details.put("Cash Advances found for card: " + CommonMethods.cardNumberMask(cardBean.getCardnumber()) + "", cashAdvances.size() + "");
-                infoLogger.info(logManager.processDetailsStyles(details));
-                details.clear();
+
                 double cashAmount = 0;
                 for (CashAdvanceBean bean : cashAdvances) {
                     try {
@@ -155,24 +147,19 @@ public class RunnableFeeService {
                         insertToEODCARDFee(cardBean.getCardnumber(), bean.getTxnid(), bean.getAccountNo(), Configurations.CASH_ADVANCE_FEE, cashAmount, details);
 
                         details.put("Added Cash Advance Fee", "SUCCESS");
-                        infoLogger.info(logManager.processDetailsStyles(details));
-
                         Configurations.SUMMARY_FOR_FEE_CASHADVANCES++;
                     } catch (Exception e) {
-                        e.printStackTrace();
-                        errorLogger.error("--error--" + e);
-                        Configurations.errorCardList.add(new ErrorCardBean(Configurations.ERROR_EOD_ID, Configurations.EOD_DATE, cardBean.getCardnumber(), e.getMessage(),Configurations.RUNNING_PROCESS_ID, Configurations.RUNNING_PROCESS_DESCRIPTION, 0, CardAccount.CARD));
+                        logManager.logError("--error--" + e, errorLogger);
+                        Configurations.errorCardList.add(new ErrorCardBean(Configurations.ERROR_EOD_ID, Configurations.EOD_DATE, cardBean.getCardnumber(), e.getMessage(), Configurations.RUNNING_PROCESS_ID, Configurations.RUNNING_PROCESS_DESCRIPTION, 0, CardAccount.CARD));
                         Configurations.FAILED_CARDS++;
                     }
                 }
             }
         } catch (NullPointerException ex) {
-            ex.printStackTrace();
-            errorLogger.error("cash advances not found for: " + CommonMethods.cardNumberMask(cardBean.getCardnumber()));//WebComHandler.showOnWeb(CommonMethods.eodDashboardProcessInfoStyle("cash advances not found for: " + common.cardNumberMask(cardBean.getCardnumber())));
-            errorLogger.error("Null for cash advances", ex);
+            logManager.logError("cash advances not found for: " + CommonMethods.cardNumberMask(cardBean.getCardnumber()), ex, errorLogger);//WebComHandler.showOnWeb(CommonMethods.eodDashboardProcessInfoStyle("cash advances not found for: " + common.cardNumberMask(cardBean.getCardnumber())));
+            logManager.logError("Null for cash advances", ex, errorLogger);
         } catch (Exception ex) {
-            ex.printStackTrace();
-            errorLogger.error("SQL error for cash advances", ex);
+            logManager.logError("SQL error for cash advances", ex, errorLogger);
             Configurations.errorCardList.add(new ErrorCardBean(Configurations.ERROR_EOD_ID, Configurations.EOD_DATE, cardBean.getCardnumber(), ex.getMessage(), Configurations.RUNNING_PROCESS_ID, Configurations.RUNNING_PROCESS_DESCRIPTION, 0, CardAccount.CARD));
             throw ex;
         } finally {
@@ -191,9 +178,9 @@ public class RunnableFeeService {
      *
      * @param cardBean
      * @param format
+     * @param details
      */
-    private void addLatePaymentFee(CardBean cardBean, SimpleDateFormat format) throws Exception {
-        LinkedHashMap details = new LinkedHashMap();
+    private void addLatePaymentFee(CardBean cardBean, SimpleDateFormat format, LinkedHashMap details) throws Exception {
 
         try {
             LastStmtSummeryBean lastStatement = runnableFeeDao.getLastStatementSummaryInfor(cardBean.getCardnumber());
@@ -207,7 +194,7 @@ public class RunnableFeeService {
                 System.out.println("--no laststatement found--");
             }
         } catch (Exception ex) {
-            errorLogger.error("SQL error for late payment fee", ex);
+            logManager.logError("SQL error for late payment fee", ex, errorLogger);
             throw ex;
         }
     }
@@ -263,7 +250,7 @@ public class RunnableFeeService {
             }
 
         } catch (Exception e) {
-            errorLogger.error("exceptions occurred for:" + CommonMethods.cardNumberMask(cardNumber), e);
+            logManager.logError("exceptions occurred for:" + CommonMethods.cardNumberMask(cardNumber), e, errorLogger);
             Configurations.errorCardList.add(new ErrorCardBean(Configurations.ERROR_EOD_ID, Configurations.EOD_DATE, cardFeeBean.getCardNumber(), e.getMessage(), Configurations.RUNNING_PROCESS_ID, Configurations.RUNNING_PROCESS_DESCRIPTION, 0, CardAccount.CARD));
             //FAILED_CARD_FEE++;
         } finally {
@@ -308,10 +295,9 @@ public class RunnableFeeService {
                 details.put("Added min payment fee for card", "SUCCESS");
                 Configurations.SUMMARY_FOR_FEE_LATEPAYMENTS++;
             }
-            infoLogger.info(logManager.processDetailsStyles(details));
 
         } catch (Exception ex) {
-            errorLogger.error("Exception in getting due date: ", ex);
+            logManager.logError("Exception in getting due date: ", ex, errorLogger);
             Configurations.errorCardList.add(new ErrorCardBean(Configurations.ERROR_EOD_ID, Configurations.EOD_DATE, cardNo, ex.getMessage(), Configurations.RUNNING_PROCESS_ID, Configurations.RUNNING_PROCESS_DESCRIPTION, 0, CardAccount.CARD));
             Configurations.FAILED_CARDS++;
         }

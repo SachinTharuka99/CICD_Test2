@@ -176,21 +176,22 @@ public class TransactionPostService {
                                 details.put("Reversal", card.getReversal());
                                 details.put("mVisa Refund", card.getMvisaRefund());
                                 details.put("Aft Amount", card.getAft());
-                                infoLogger.info(logManager.processDetailsStyles(details));
                             }
                         }
                         Configurations.PROCESS_SUCCESS_COUNT++;
 
                     } catch (Exception ex) {
                         Configurations.errorCardList.add(new ErrorCardBean(Configurations.ERROR_EOD_ID, Configurations.EOD_DATE, new StringBuffer(cardBean.getCardnumber()), ex.getMessage(), Configurations.RUNNING_PROCESS_ID, Configurations.RUNNING_PROCESS_DESCRIPTION, 0, CardAccount.ACCOUNT));
-                        errorLogger.error("Transaction post process failed for account " + bean.getAccountnumber(), ex);
+                        logManager.logError("Transaction post process failed for account " + bean.getAccountnumber(), ex ,errorLogger);
                         Configurations.PROCESS_FAILD_COUNT++;
                         break cards;
                     }
                     iterator++;
                 }
             } catch (Exception e) {
-                errorLogger.error("Transaction post process failed for account " + bean.getAccountnumber(), e);
+                logManager.logError("Transaction post process failed for account " + bean.getAccountnumber(), e, errorLogger);
+            } finally {
+                logManager.logDetails(details, infoLogger);
             }
         }
     }

@@ -44,17 +44,17 @@ public class EodParameterResetProcessService {
                         if (Configurations.STARTING_EOD_STATUS.equals(status.getINITIAL_STATUS())) {
                             eodParameterResetProcessRepo.resetMerchantParameters();
                         }
-                        infoLogger.info(logManager.processStartEndStyle("Reset Merchant Parameters Completed"));
+                        logManager.logStartEnd("Reset Merchant Parameters Completed", infoLogger);
                         //Online TxnCount,TXN Amount resetting
                         if (Configurations.STARTING_EOD_STATUS.equals(status.getINITIAL_STATUS())) {
                             eodParameterResetProcessRepo.resetTerminalParameters();
                         }
-                        infoLogger.info(logManager.processStartEndStyle("Reset Terminal Parameters Completed"));
+                        logManager.logStartEnd("Reset Terminal Parameters Completed", infoLogger);
 
                         commonRepo.updateEodProcessSummery(Configurations.ERROR_EOD_ID, status.getSUCCES_STATUS(), Configurations.PROCESS_ID_EOD_PARAMETER_RESET, Configurations.PROCESS_SUCCESS_COUNT, Configurations.PROCESS_FAILD_COUNT, CommonMethods.eodDashboardProcessProgress(Configurations.PROCESS_SUCCESS_COUNT, Configurations.PROCESS_TOTAL_NOOF_TRABSACTIONS));
 
                     } catch (Exception e) {
-                        errorLogger.error("Exception in EOD Parameter Reset Process ", e);
+                        logManager.logError("Exception in EOD Parameter Reset Process ", e, errorLogger);
                         throw e;
                     }
                 }
@@ -62,10 +62,10 @@ public class EodParameterResetProcessService {
             } catch (Exception e) {
                 try {
                     Configurations.IS_PROCESS_COMPLETELY_FAILED = true;
-                    errorLogger.error("EOD Parameter Reset Process failed", e);
+                    logManager.logError("EOD Parameter Reset Process failed", e, errorLogger);
                     commonRepo.updateEodProcessSummery(Configurations.ERROR_EOD_ID, status.getERROR_STATUS(), Configurations.PROCESS_ID_EOD_PARAMETER_RESET, Configurations.PROCESS_SUCCESS_COUNT, Configurations.PROCESS_FAILD_COUNT, CommonMethods.eodDashboardProcessProgress(Configurations.PROCESS_SUCCESS_COUNT, Configurations.PROCESS_TOTAL_NOOF_TRABSACTIONS));
                 } catch (Exception ex) {
-                    errorLogger.error("EOD Parameter Reset Process failed", e);
+                    logManager.logError("EOD Parameter Reset Process failed", e, errorLogger);
                 }
             }
         }

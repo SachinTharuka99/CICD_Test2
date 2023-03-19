@@ -31,7 +31,6 @@ public class CollectionAndRecoveryAlertService {
     @Autowired
     CollectionAndRecoveryAlertRepo collectionAndRecoveryAlertRepo;
 
-
     @Autowired
     AlertService alert;
 
@@ -109,9 +108,10 @@ public class CollectionAndRecoveryAlertService {
                 Configurations.PROCESS_FAILD_COUNT++;
                 Configurations.errorCardList.add(new ErrorCardBean(Configurations.ERROR_EOD_ID, Configurations.EOD_DATE, new StringBuffer(cardNumber), e.getMessage(), Configurations.RUNNING_PROCESS_ID, Configurations.RUNNING_PROCESS_DESCRIPTION, 0, CardAccount.CARD));
                 adjustDetails.put("Collection & Recovery Alert Process Status", "Failed");
-                errorLogger.error("Error Occurs, when running collection & recovery alert process for cardnumber " + CommonMethods.cardNumberMask(cardNumber) + " ", e);
+                logManager.logError("Error Occurs, when running collection & recovery alert process for cardnumber " + CommonMethods.cardNumberMask(cardNumber) + " ", e, errorLogger);
+            } finally {
+                logManager.logDetails(adjustDetails, infoLogger);
             }
-            infoLogger.info(logManager.processDetailsStyles(adjustDetails));
         }
     }
 }

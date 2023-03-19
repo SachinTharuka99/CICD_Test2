@@ -45,14 +45,13 @@ public class FeePostConnector extends ProcessBuilder {
     @Autowired
     FeePostService feePostService;
 
+    List<OtbBean> custAccList = new ArrayList<>();
+
     @Override
     public void concreteProcess() throws Exception {
-        System.out.println("this is from Fee Post Process concreteProcess()");
-
         LinkedHashMap details = new LinkedHashMap();
         LinkedHashMap summery = new LinkedHashMap();
 
-        List<OtbBean> custAccList = new ArrayList<>();
         try {
             Configurations.RUNNING_PROCESS_ID = Configurations.PROCESS_ID_FEE_POST;
             Configurations.PROCESS_STEP_ID = 50;
@@ -87,17 +86,15 @@ public class FeePostConnector extends ProcessBuilder {
                 int success = feePostRepo.expireFeePromotionProfile();
                 details.put("Fee promotion profile expire success for : " + success, "Finished");
             } catch (Exception ex) {
-                errorLogger.error("Fee post process failed when expiring the fee promotion profile ", ex);
+                logManager.logError("Fee post process failed when expiring the fee promotion profile ", ex, errorLogger);
                 details.put("Fee promotion profile expire ", "Failed");
             }
-            infoLogger.info(logManager.processDetailsStyles(details));
         } catch (Exception ex) {
             Configurations.IS_PROCESS_COMPLETELY_FAILED = true;
-            errorLogger.error("--Error occurred--", ex);
+            logManager.logError("--Error occurred--", ex, errorLogger);
         } finally {
-            summery.put("Number of success fee post ", custAccList.size() - Configurations.PROCESS_FAILD_COUNT);
-            summery.put("Number of failure fee post ", Configurations.PROCESS_FAILD_COUNT);
-            infoLogger.info(logManager.processSummeryStyles(summery));
+            logManager.logDetails(details, infoLogger);
+            logManager.logSummery(summery, infoLogger);
              /* PADSS Change -
             variables handling card data should be nullified by replacing the value of variable with zero and call NULL function */
             for (OtbBean bean : custAccList) {
@@ -105,6 +102,12 @@ public class FeePostConnector extends ProcessBuilder {
                 CommonMethods.clearStringBuffer(bean.getMaincardno());
             }
         }
+    }
 
+    @Override
+    public void addSummaries() {
+        summery.put("Number of accounts to fee post ", custAccList.size());
+        summery.put("Number of success fee post ", custAccList.size() - Configurations.PROCESS_FAILD_COUNT);
+        summery.put("Number of failure fee post ", Configurations.PROCESS_FAILD_COUNT);
     }
 }

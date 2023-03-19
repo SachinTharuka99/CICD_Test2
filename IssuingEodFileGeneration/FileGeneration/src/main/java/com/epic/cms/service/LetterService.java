@@ -4,8 +4,8 @@ import com.epic.cms.model.bean.LetterGenerationReferanceTableDetailsBean;
 import com.epic.cms.repository.LetterRepo;
 import com.epic.cms.util.CommonMethods;
 import com.epic.cms.util.Configurations;
+import com.epic.cms.util.LogManager;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Service;
 
 import java.io.File;
@@ -16,8 +16,7 @@ import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
 
-import static com.epic.cms.util.LogManager.errorLogger;
-import static com.epic.cms.util.LogManager.infoLogger;
+import static com.epic.cms.util.LogManager.*;
 
 @Service
 public class LetterService {
@@ -26,7 +25,7 @@ public class LetterService {
     LetterRepo letterRepo;
 
     @Autowired
-    private JdbcTemplate backendJdbcTemplate;
+    LogManager logManager;
 
     @Autowired
     FileGenerationService fileGenerationService;
@@ -37,7 +36,6 @@ public class LetterService {
         String[] fileNameAndPath = new String[2];
 
         try {
-
             LetterGenerationReferanceTableDetailsBean tbleBean = new LetterGenerationReferanceTableDetailsBean();
             HashMap<String, String> parameterValues = new HashMap<String, String>();
 
@@ -57,10 +55,10 @@ public class LetterService {
 
             //create directories if not exists
             String backUpFile = path + "BACKUP" + File.separator;
-            fileGenerationService.createDirectoriesForFileAndBackUpFile(path, backUpFile );
+            fileGenerationService.createDirectoriesForFileAndBackUpFile(path, backUpFile);
 
             path = path + RefID + ".pdf";
-            backUpFile =backUpFile + RefID + ".pdf";
+            backUpFile = backUpFile + RefID + ".pdf";
 
             fileNameAndPath[0] = path;
             fileNameAndPath[1] = RefID + ".pdf";
@@ -160,9 +158,9 @@ public class LetterService {
             }
             //generate pdf File
             fileGenerationService.generatePDFFile(body, path, backUpFile);
-            infoLogger.info("Generate PDF Successfully Path is " + path);
+            logManager.logInfo("Generate PDF Successfully Path is " + path, infoLoggerEFGE);
         } catch (Exception e) {
-            errorLogger.error("Exception in letter generation ", e);
+            logManager.logError("Exception in letter generation ", e, errorLoggerEFGE);
         }
         return fileNameAndPath;
     }

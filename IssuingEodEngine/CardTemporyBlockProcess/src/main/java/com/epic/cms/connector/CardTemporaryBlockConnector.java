@@ -39,6 +39,9 @@ public class CardTemporaryBlockConnector extends ProcessBuilder {
     @Autowired
     CardTemporaryBlockService cardTemporaryBlockService;
 
+    @Autowired
+    LogManager logManager;
+
     ArrayList<BlockCardBean> cardList = null;
     ProcessBean processBean = new ProcessBean();
     private int failedCount = 0;
@@ -63,8 +66,6 @@ public class CardTemporaryBlockConnector extends ProcessBuilder {
                     Thread.sleep(1000);
                 }
 
-                //infoLogger.info("Thread Name Prefix: {}, Active count: {}, Pool size: {}, Queue Size: {}", taskExecutor.getThreadNamePrefix(), taskExecutor.getActiveCount(), taskExecutor.getPoolSize(), taskExecutor.getThreadPoolExecutor().getQueue().size());
-
                 failedCount = Configurations.PROCESS_FAILD_COUNT;
                 Configurations.PROCESS_TOTAL_NOOF_TRABSACTIONS = cardList.size();
                 Configurations.PROCESS_SUCCESS_COUNT = (cardList.size() - failedCount);
@@ -74,8 +75,7 @@ public class CardTemporaryBlockConnector extends ProcessBuilder {
             Configurations.IS_PROCESS_COMPLETELY_FAILED = true;
             throw ex;
         } finally {
-            //addSummaries();
-            //infoLogger.info(logManager.processSummeryStyles(summery));
+            logManager.logSummery(summery, infoLogger);
             try {
                 /** PADSS Change -
                  variables handling card data should be nullified by replacing the value of variable with zero and call NULL function */
@@ -86,8 +86,7 @@ public class CardTemporaryBlockConnector extends ProcessBuilder {
                     cardList = null;
                 }
             } catch (Exception e2) {
-                //errorLogger.error("Card Temporary Block process Error ", e2);
-                LogManager.logError(e2, errorLogger);
+                logManager.logError("Card Temporary Block process Error ", e2, errorLogger);
             }
         }
     }

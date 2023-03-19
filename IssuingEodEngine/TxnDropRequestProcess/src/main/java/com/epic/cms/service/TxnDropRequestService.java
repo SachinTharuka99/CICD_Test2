@@ -54,15 +54,15 @@ public class TxnDropRequestService {
                 details.put("Process Status", "Passed");
 
             } catch (Exception e) {
-
                 Configurations.FailedCards_TxnDropRequest++;
                 Configurations.FailedCount_TxnDropRequest++;
                 Configurations.PROCESS_FAILD_COUNT++;
-                errorLogger.error("Transaction Drop Request process failed for card number " + CommonMethods.cardInfo(maskedCardNumber, processBean) + " txnid: " + bean.getTxnId(), e);
+                logManager.logError("Transaction Drop Request process failed for card number " + CommonMethods.cardInfo(maskedCardNumber, processBean) + " txnid: " + bean.getTxnId(), e, errorLogger);
                 details.put("Process Status", "Failed");
                 Configurations.errorCardList.add(new ErrorCardBean(Configurations.ERROR_EOD_ID, Configurations.EOD_DATE, new StringBuffer(bean.getCardNumber()), e.getMessage(), Configurations.RUNNING_PROCESS_ID, Configurations.RUNNING_PROCESS_DESCRIPTION, 0, CardAccount.CARD));
+            } finally {
+                logManager.logDetails(details, infoLogger);
             }
-            infoLogger.info(logManager.processDetailsStyles(details));
         }
     }
 }

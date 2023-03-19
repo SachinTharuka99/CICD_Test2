@@ -20,11 +20,15 @@ public class CardExpireService {
 
     @Autowired
     CardBlockRepo cardBlockRepo;
+
     @Autowired
     StatusVarList statusList;
 
     @Autowired
     CardExpireRepo cardExpireRepo;
+
+    @Autowired
+    LogManager logManager;
 
     @Async("ThreadPool_100")
     @Transactional(value = "transactionManager", propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
@@ -58,10 +62,10 @@ public class CardExpireService {
             } catch (Exception e) {
                 Configurations.errorCardList.add(new ErrorCardBean(Configurations.ERROR_EOD_ID, Configurations.EOD_DATE, new StringBuffer(cardBean.getCardnumber()), e.getMessage(), Configurations.RUNNING_PROCESS_ID, Configurations.RUNNING_PROCESS_DESCRIPTION, 0, CardAccount.CARD));
                 //errorLogger.error("Card expire process failed for card number " + CommonMethods.cardNumberMask(cardBean.getCardnumber()), e);
-                LogManager.logError("Card expire process failed for card number " + CommonMethods.cardNumberMask(cardBean.getCardnumber()), e, errorLogger);
+                logManager.logError("Card expire process failed for card number " + CommonMethods.cardNumberMask(cardBean.getCardnumber()), e, errorLogger);
                 Configurations.PROCESS_FAILD_COUNT++;
             } finally {
-                LogManager.logDetails(details, infoLogger);
+                logManager.logDetails(details, infoLogger);
             }
         }
     }

@@ -37,7 +37,6 @@ class CardExpireServiceTest {
     @BeforeEach
     void setUp() {
         cardExpireServiceUnderTest = new CardExpireService();
-        cardExpireServiceUnderTest.logManager = mock(LogManager.class);
         cardExpireServiceUnderTest.cardBlockRepo = mock(CardBlockRepo.class);
         cardExpireServiceUnderTest.statusList = mock(StatusVarList.class);
         cardExpireServiceUnderTest.cardExpireRepo = mock(CardExpireRepo.class);
@@ -83,9 +82,6 @@ class CardExpireServiceTest {
         when(cardExpireServiceUnderTest.cardBlockRepo.insertToOnlineCardBlock(any(StringBuffer.class),
                 eq(0))).thenReturn(0);
         when(cardExpireServiceUnderTest.statusList.getCARD_EXPIRED_STATUS()).thenReturn("result");
-        when(cardExpireServiceUnderTest.logManager.processDetailsStyles(
-                Map.ofEntries(Map.entry("value", "value")))).thenReturn("result");
-
         // Run the test
         cardExpireServiceUnderTest.processCardExpire(cardBean);
 

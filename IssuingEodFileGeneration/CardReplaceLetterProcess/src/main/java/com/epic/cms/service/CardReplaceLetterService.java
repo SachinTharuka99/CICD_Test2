@@ -21,8 +21,7 @@ import org.springframework.transaction.annotation.Transactional;
 import java.util.LinkedHashMap;
 import java.util.List;
 
-import static com.epic.cms.util.LogManager.errorLogger;
-import static com.epic.cms.util.LogManager.infoLogger;
+import static com.epic.cms.util.LogManager.*;
 
 @Service
 public class CardReplaceLetterService {
@@ -61,7 +60,7 @@ public class CardReplaceLetterService {
             Configurations.PROCESS_SUCCESS_COUNT++;
 
         } catch (Exception e) {
-            errorLogger.error("Failed Card Replace Letter Process " + maskedCardNo, e);
+            logManager.logError("Failed Card Replace Letter Process " + maskedCardNo, e, errorLoggerEFGE);
             Configurations.PROCESS_FAILD_COUNT++;
 
         }
@@ -90,9 +89,8 @@ public class CardReplaceLetterService {
             Configurations.PROCESS_SUCCESS_COUNT++;
 
         } catch (Exception e) {
-            errorLogger.error("Failed Card Replace Letter Process " + maskedCardNo, e);
+            logManager.logError("Failed Card Replace Letter Process " + maskedCardNo, e, errorLoggerEFGE);
             Configurations.PROCESS_FAILD_COUNT++;
-
         }
         return fileNameAndPath;
     }

@@ -32,12 +32,11 @@ public class CardFeeConnector extends ProcessBuilder {
     @Autowired
     CardFeeDao cardFeeDao;
 
+    @Autowired
+    LogManager logManager;
+
     @Override
     public void concreteProcess() throws Exception {
-//        System.out.println("this is from Adjustment Process concreteProcess()");
-
-//        LinkedHashMap summery = new LinkedHashMap();
-
         Configurations.PROCESS_SUCCESS_COUNT = 0;
         Configurations.PROCESS_FAILD_COUNT = 0;
 
@@ -68,7 +67,7 @@ public class CardFeeConnector extends ProcessBuilder {
             Configurations.IS_PROCESS_COMPLETELY_FAILED = true;
             throw ex;
         } finally {
-//            infoLogger.info(logManager.processDetailsStyles(summery));
+            logManager.logSummery(summery,infoLogger);
             /** PADSS Change -
              variables handling card data should be nullified by replacing the value of variable with zero and call NULL function */
             for (CardFeeBean cardFeeBean : cardRecordList) {

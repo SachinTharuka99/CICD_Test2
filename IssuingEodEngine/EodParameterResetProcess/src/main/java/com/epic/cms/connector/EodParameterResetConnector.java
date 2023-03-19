@@ -14,4 +14,9 @@ public class EodParameterResetConnector extends ProcessBuilder {
     public void concreteProcess() throws Exception {
         eodParameterResetProcessService.startEodParameterResetProcess();
     }
+
+    @Override
+    public void addSummaries() {
+
+    }
 }

@@ -50,7 +50,6 @@ public class ATMFileClearingServiceTest {
     void setUp() {
         atmFileClearingServiceUnderTest = new ATMFileClearingService();
         atmFileClearingServiceUnderTest.atmFileClearingRepo = mock(ATMFileClearingRepo.class);
-        atmFileClearingServiceUnderTest.logManager = mock(LogManager.class);
         atmFileClearingServiceUnderTest.status = mock(StatusVarList.class);
     }
 
@@ -97,8 +96,6 @@ public class ATMFileClearingServiceTest {
         when(atmFileClearingServiceUnderTest.atmFileClearingRepo.insertToRECATMFILEINVALID(anyString(),
                 any(BigDecimal.class), anyString())).thenReturn(1);
 
-        when(atmFileClearingServiceUnderTest.logManager.processDetailsStyles(
-                any())).thenReturn("result");
         if (!testCase.equals(testCase3)) {
             when(atmFileClearingServiceUnderTest.atmFileClearingRepo.checkForValidCard(any(StringBuffer.class)))
                     .thenReturn(true);

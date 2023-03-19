@@ -68,18 +68,11 @@ public class PaymentReversalsConnector extends ProcessBuilder {
             while (!(taskExecutor.getActiveCount() == 0)) {
                 Thread.sleep(1000);
             }
-            infoLogger.info("Thread Name Prefix: {}, Active count: {}, Pool size: {}, Queue Size: {}", taskExecutor.getThreadNamePrefix(), taskExecutor.getActiveCount(), taskExecutor.getPoolSize(), taskExecutor.getThreadPoolExecutor().getQueue().size());
-
-            summery.put("Process Name ", "Payment Reversal");
-            summery.put("No Of Payment Reversals awaiting ", Configurations.PROCESS_TOTAL_NOOF_TRABSACTIONS);
-            summery.put("No of Payments successfully reversed ", Configurations.PROCESS_SUCCESS_COUNT);
-            summery.put("No of Payments not reversed ", Configurations.PROCESS_FAILD_COUNT);
-
         }catch (Exception e){
             Configurations.IS_PROCESS_COMPLETELY_FAILED = true;
-            errorLogger.error("--Error occurred--", e);
+            logManager.logError("--Error occurred--", e, errorLogger);
         }finally {
-            infoLogger.info(logManager.processSummeryStyles(summery));
+            logManager.logSummery(summery, infoLogger);
             /** PADSS Change -
              variables handling card data should be nullified
              by replacing the value of variable with zero and call NULL function */
@@ -92,8 +85,16 @@ public class PaymentReversalsConnector extends ProcessBuilder {
                     paymentReversals = null;
                 }
             } catch (Exception e) {
-                errorLogger.error("--Error occurred--", e);
+                logManager.logError("--Error occurred--", e, errorLogger);
             }
         }
+    }
+
+    @Override
+    public void addSummaries() {
+        summery.put("Process Name ", "Payment Reversal");
+        summery.put("No Of Payment Reversals awaiting ", Configurations.PROCESS_TOTAL_NOOF_TRABSACTIONS);
+        summery.put("No of Payments successfully reversed ", Configurations.PROCESS_SUCCESS_COUNT);
+        summery.put("No of Payments not reversed ", Configurations.PROCESS_FAILD_COUNT);
     }
 }

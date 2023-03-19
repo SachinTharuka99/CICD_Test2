@@ -19,8 +19,8 @@ import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
 
-import static com.epic.cms.util.LogManager.errorLogger;
-import static com.epic.cms.util.LogManager.infoLogger;
+import static com.epic.cms.util.LogManager.*;
+
 @Service
 public class CardApplicationConfirmationLetterConnector extends FileGenProcessBuilder {
     @Autowired
@@ -31,10 +31,12 @@ public class CardApplicationConfirmationLetterConnector extends FileGenProcessBu
     CardApplicationConfirmationLetterService cardApplicationConfirmationLetterService;
     @Autowired
     CardApplicationConfirmationLetterRepo cardApplicationConfirmationLetterRepo;
+
+    String[] fileNameAndPath = null;
+
     @Override
     public void concreteProcess() throws Exception {
 
-        String[] fileNameAndPath = null;
         ArrayList<StringBuffer> confirmCardlist = cardApplicationConfirmationLetterRepo.getConfirmedCardToGenerateLetters();
         try {
 
@@ -51,18 +53,9 @@ public class CardApplicationConfirmationLetterConnector extends FileGenProcessBu
                 sequenceNo++;
             }
 
-            summery.put("Started Date ", Configurations.EOD_DATE.toString());
-            summery.put("Total No of Effected Letters ", Configurations.PROCESS_TOTAL_NOOF_TRABSACTIONS);
-            summery.put("Letter Success Count ", Configurations.PROCESS_SUCCESS_COUNT);
-            summery.put("Letter Failed Count ", Configurations.PROCESS_FAILD_COUNT);
-            summery.put("File Name and Path ", fileNameAndPath);
-
-            infoLogger.info(logManager.processSummeryStyles(summery));
-
         }catch (Exception e){
-
             Configurations.IS_PROCESS_COMPLETELY_FAILED = true;
-            errorLogger.error("Card Application Confirmation Letter Process Failed", e);
+            logManager.logError("Card Application Confirmation Letter Process Failed", e, errorLoggerEFGE);
 
             if(fileNameAndPath!= null){
                 fileGenerationService.deleteExistFile(fileNameAndPath[0]);
@@ -70,6 +63,7 @@ public class CardApplicationConfirmationLetterConnector extends FileGenProcessBu
             throw e;
 
         }finally {
+            logManager.logSummery(summery, infoLoggerEFGE);
             try {
                 if (!confirmCardlist.isEmpty()) {
                     for (int i = 0; i < confirmCardlist.size(); i++) {
@@ -77,9 +71,18 @@ public class CardApplicationConfirmationLetterConnector extends FileGenProcessBu
                     }
                 }
             } catch (Exception e) {
-                errorLogger.error("Exception in Card Number Clearing ",e);
+                logManager.logError("Exception in Card Number Clearing ",e, errorLoggerEFGE);
                 throw e;
             }
         }
+    }
+
+    @Override
+    public void addSummaries() {
+        summery.put("Started Date ", Configurations.EOD_DATE.toString());
+        summery.put("Total No of Effected Letters ", Configurations.PROCESS_TOTAL_NOOF_TRABSACTIONS);
+        summery.put("Letter Success Count ", Configurations.PROCESS_SUCCESS_COUNT);
+        summery.put("Letter Failed Count ", Configurations.PROCESS_FAILD_COUNT);
+        summery.put("File Name and Path ", fileNameAndPath);
     }
 }

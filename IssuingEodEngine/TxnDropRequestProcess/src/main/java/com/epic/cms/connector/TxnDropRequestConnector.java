@@ -81,18 +81,11 @@ public class TxnDropRequestConnector extends ProcessBuilder {
                 Configurations.PROCESS_TOTAL_NOOF_TRABSACTIONS = (failedTxn + successTxn);
                 Configurations.PROCESS_SUCCESS_COUNT = successTxn;
                 Configurations.PROCESS_FAILD_COUNT = failedTxn;
-
-                summery.put("Started Date ", Configurations.EOD_DATE.toString());
-                summery.put("No of Drop Requests ", Configurations.PROCESS_SUCCESS_COUNT);
-                summery.put("No of Fail Requests ", Configurations.PROCESS_FAILD_COUNT);
-                summery.put("No of Fail Cards ", Configurations.FailedCards_TxnDropRequest);
-
-                infoLogger.info(logManager.processSummeryStyles(summery));
             }
         } catch (Exception e) {
             Configurations.IS_PROCESS_COMPLETELY_FAILED = true;
             try {
-                errorLogger.error("Transaction Drop Request process failed", e);
+                logManager.logError("Transaction Drop Request process failed", e, errorLogger);
                 if (processBean.getCriticalStatus() == 1) {
                     Configurations.COMMIT_STATUS = false;
                     Configurations.FLOW_STEP_COMPLETE_STATUS = false;
@@ -100,9 +93,10 @@ public class TxnDropRequestConnector extends ProcessBuilder {
                     Configurations.MAIN_EOD_STATUS = false;
                 }
             } catch (Exception e2) {
-                errorLogger.error("Exception in Transaction Drop Request", e2);
+                logManager.logError("Exception in Transaction Drop Request", e2, errorLogger);
             }
         } finally {
+            logManager.logSummery(summery, infoLogger);
             try {
                 /** PADSS Change -
                  variables handling card data should be nullified by replacing the value of variable with zero and call NULL function */
@@ -115,8 +109,16 @@ public class TxnDropRequestConnector extends ProcessBuilder {
                 failedCardList = null;
 
             } catch (Exception e3) {
-                errorLogger.error("Exception in Transaction Drop Request", e3);
+                logManager.logError("Exception in Transaction Drop Request", e3, errorLogger);
             }
         }
+    }
+
+    @Override
+    public void addSummaries() {
+        summery.put("Started Date ", Configurations.EOD_DATE.toString());
+        summery.put("No of Drop Requests ", Configurations.PROCESS_SUCCESS_COUNT);
+        summery.put("No of Fail Requests ", Configurations.PROCESS_FAILD_COUNT);
+        summery.put("No of Fail Cards ", Configurations.FailedCards_TxnDropRequest);
     }
 }

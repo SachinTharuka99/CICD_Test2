@@ -73,7 +73,6 @@ public class StampDutyFeeService {
                                 details.put("Card Number", CommonMethods.cardNumberMask(stampDutyCardBean.getCardNumber()));
                                 details.put("Total Overseas Transaction Amount", totalForeignTxns);
                                 details.put("Stamp Duty Fee", stampDutyFee);
-                                infoLogger.info(logManager.processDetailsStyles(details));
 
                                 CommonMethods.clearStringBuffer(cardFeeBean.getCardNumber());
                                 cardFeeBean = null;
@@ -81,8 +80,7 @@ public class StampDutyFeeService {
                             details.put("Process Status", "Passed");
                             Configurations.PROCESS_SUCCESS_COUNT++;
                         } catch (Exception e) {
-                            e.printStackTrace();
-                            errorLogger.error("Stampduty Fee process failed for account " + stampDutyAcoountBean.getAccountNumber(), e);
+                            logManager.logError("Stampduty Fee process failed for account " + stampDutyAcoountBean.getAccountNumber(), e, errorLogger);
                             details.put("Process Status", "Failed");
                             Configurations.PROCESS_FAILD_COUNT++;
                             break cards;
@@ -94,18 +92,17 @@ public class StampDutyFeeService {
                         }
                     }
                 } catch (Exception e) {
-                    e.printStackTrace();
-                    errorLogger.error("Stampduty Fee process failed for account " + stampDutyAcoountBean.getAccountNumber(), e);
+                    logManager.logError("Stampduty Fee process failed for account " + stampDutyAcoountBean.getAccountNumber(), e, errorLogger);
                     details.put("Process Status", "Failed");
                     Configurations.PROCESS_FAILD_COUNT++;
                 }
             } catch (Exception ex) {
-                ex.printStackTrace();
-                errorLogger.error("Stampduty Fee process thread: exception in connection borrowing" + ex);
+                logManager.logError("Stampduty Fee process thread: exception in connection borrowing" + ex, errorLogger);
                 details.put("Process Status", "Failed");
                 Configurations.PROCESS_FAILD_COUNT++;
+            } finally {
+                logManager.logDetails(details, infoLogger);
             }
-            infoLogger.info(logManager.processDetailsStyles(details));
         }
     }
 }

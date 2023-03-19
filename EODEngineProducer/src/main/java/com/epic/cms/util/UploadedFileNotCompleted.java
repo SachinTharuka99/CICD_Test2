@@ -5,7 +5,7 @@
  * Project Name : eod-engine
  */
 
-package com.epic.cms.util.exception;
+package com.epic.cms.util;
 
 public class UploadedFileNotCompleted extends Exception {
     public UploadedFileNotCompleted(String message) {

@@ -35,7 +35,6 @@ class CardFeeServiceTest {
     void setUp() {
         System.out.println("--before each--");
         cardFeeServiceUnderTest = new CardFeeService();
-        cardFeeServiceUnderTest.logManager = mock(LogManager.class);
         cardFeeServiceUnderTest.status = mock(StatusVarList.class);
         cardFeeServiceUnderTest.cardFeeDao = mock(CardFeeDao.class);
     }

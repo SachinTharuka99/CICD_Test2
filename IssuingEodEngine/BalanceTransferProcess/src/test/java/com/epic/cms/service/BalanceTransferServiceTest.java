@@ -45,7 +45,6 @@ class BalanceTransferServiceTest {
     @BeforeEach
     void setUp() {
         balanceTransferServiceUnderTest = new BalanceTransferService();
-        balanceTransferServiceUnderTest.logManager = mock(LogManager.class);
         balanceTransferServiceUnderTest.commonRepo = mock(CommonRepo.class);
         balanceTransferServiceUnderTest.statusList = mock(StatusVarList.class);
         balanceTransferServiceUnderTest.installmentPaymentRepo = mock(InstallmentPaymentRepo.class);

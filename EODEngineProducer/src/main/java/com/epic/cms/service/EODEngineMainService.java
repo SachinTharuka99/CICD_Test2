@@ -7,13 +7,12 @@
 
 package com.epic.cms.service;
 
-import com.epic.cms.dao.EODEngineProducerDao;
 import com.epic.cms.model.bean.ProcessBean;
 import com.epic.cms.repository.EODEngineProducerRepo;
 import com.epic.cms.util.Configurations;
 import com.epic.cms.util.LogManager;
-import com.epic.cms.util.exception.EODEngineCompletelyFailedException;
-import com.epic.cms.util.exception.EODEngineHoldException;
+import com.epic.cms.util.EODEngineCompletelyFailedException;
+import com.epic.cms.util.EODEngineHoldException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.context.annotation.ComponentScan;
@@ -22,9 +21,7 @@ import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Set;
 import java.util.concurrent.ExecutionException;
-import java.util.concurrent.Future;
 
 import static com.epic.cms.util.LogManager.errorLogger;
 import static com.epic.cms.util.LogManager.infoLogger;

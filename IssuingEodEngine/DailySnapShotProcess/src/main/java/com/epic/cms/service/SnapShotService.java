@@ -39,8 +39,7 @@ public class SnapShotService {
 
             if (status > 0) {
                 details.put("EOD processes are not completed", "FAILED");
-                infoLogger.info(logManager.processDetailsStyles(details));
-                details.clear();
+                logManager.logDetails(details, infoLogger);
 
             } else {
                 try {
@@ -54,7 +53,7 @@ public class SnapShotService {
                     Configurations.PROCESS_SUCCESS_COUNT++;
                 } catch (Exception e) {
                     Configurations.PROCESS_FAILD_COUNT++;
-                    errorLogger.error("Exception ",e);
+                    logManager.logError("Exception ",e, errorLogger);
                 }
                 try {
                     /**
@@ -67,7 +66,7 @@ public class SnapShotService {
                     Configurations.PROCESS_SUCCESS_COUNT++;
                 } catch (Exception e) {
                     Configurations.PROCESS_FAILD_COUNT++;
-                    errorLogger.error("Exception ",e);
+                    logManager.logError("Exception ",e, errorLogger);
                 }
                 try {
                     /**
@@ -80,7 +79,7 @@ public class SnapShotService {
                     Configurations.PROCESS_SUCCESS_COUNT++;
                 } catch (Exception e) {
                     Configurations.PROCESS_FAILD_COUNT++;
-                    errorLogger.error("Exception ",e);
+                    logManager.logError("Exception ",e, errorLogger);
                 }
                 try {
                     /**
@@ -93,14 +92,13 @@ public class SnapShotService {
                     Configurations.PROCESS_SUCCESS_COUNT++;
                 } catch (Exception e) {
                     Configurations.PROCESS_FAILD_COUNT++;
-                    errorLogger.error("Exception ",e);
+                    logManager.logError("Exception ",e, errorLogger);
                 }
             }
-            infoLogger.info(logManager.processDetailsStyles(details));
-            details.clear();
+            logManager.logDetails(details,infoLogger);
 
         }catch (Exception e){
-            errorLogger.error("Exception ",e);
+            logManager.logError("Exception ",e,infoLogger);
         }
     }
 }

@@ -49,18 +49,21 @@ public class TransactionUpdateConnector extends ProcessBuilder {
             Configurations.PROCESS_SUCCESS_COUNT = (((Configurations.PROCESS_TOTAL_NOOF_TRABSACTIONS) - (Configurations.FAILED_VISA_TXN_COUNT + Configurations.FAILED_MASTER_TXN_COUNT)));
             Configurations.PROCESS_FAILD_COUNT = (Configurations.FAILED_VISA_TXN_COUNT + Configurations.FAILED_MASTER_TXN_COUNT);
 
-            summery.put("Posted Visa Transactions Count", Configurations.VISA_TXN_UPDATE_COUNT);
-            summery.put("Failed Visa Txn Count", Configurations.FAILED_VISA_TXN_COUNT);
-            summery.put("Posted MasterCard Transactions Count", Configurations.MASTER_TXN_UPDATE_COUNT);
-            summery.put("Failed MasterCard Txn Count", Configurations.FAILED_MASTER_TXN_COUNT);
-            summery.put("Total Transaction Count ", Configurations.PROCESS_TOTAL_NOOF_TRABSACTIONS);
-            summery.put("Total Success Count ", Configurations.PROCESS_SUCCESS_COUNT);
-            summery.put("Total Failed Count ", Configurations.PROCESS_FAILD_COUNT);
-
         } catch (Exception ex) {
-            errorLogger.error("Transaction Update Process Error", ex);
+            logManager.logError("Transaction Update Process Error", ex, errorLogger);
         } finally {
-            infoLogger.info(logManager.processSummeryStyles(summery));
+            logManager.logSummery(summery, infoLogger);
         }
+    }
+
+    @Override
+    public void addSummaries() {
+        summery.put("Posted Visa Transactions Count", Configurations.VISA_TXN_UPDATE_COUNT);
+        summery.put("Failed Visa Txn Count", Configurations.FAILED_VISA_TXN_COUNT);
+        summery.put("Posted MasterCard Transactions Count", Configurations.MASTER_TXN_UPDATE_COUNT);
+        summery.put("Failed MasterCard Txn Count", Configurations.FAILED_MASTER_TXN_COUNT);
+        summery.put("Total Transaction Count ", Configurations.PROCESS_TOTAL_NOOF_TRABSACTIONS);
+        summery.put("Total Success Count ", Configurations.PROCESS_SUCCESS_COUNT);
+        summery.put("Total Failed Count ", Configurations.PROCESS_FAILD_COUNT);
     }
 }

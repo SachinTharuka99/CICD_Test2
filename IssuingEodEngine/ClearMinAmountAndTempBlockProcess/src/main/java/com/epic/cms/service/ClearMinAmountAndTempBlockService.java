@@ -13,7 +13,10 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.HashMap;
+import java.util.LinkedHashMap;
 
 import static com.epic.cms.util.LogManager.errorLogger;
 import static com.epic.cms.util.LogManager.infoLogger;
@@ -37,7 +40,7 @@ public class ClearMinAmountAndTempBlockService {
     ClearMinAmountAndTempBlockRepo clearMinAmountAndTempBlockRepo;
 
     @Async("taskExecutor2")
-    @Transactional(value="transactionManager",propagation = Propagation.REQUIRED,rollbackFor = Exception.class)
+    @Transactional(value = "transactionManager", propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
     public void processClearMinAmountAndTempBlock(LastStatementSummeryBean lastStatement) {
         if (!Configurations.isInterrupted) {
             ArrayList<StringBuffer[]> allCardList = new ArrayList<>();
@@ -127,17 +130,15 @@ public class ClearMinAmountAndTempBlockService {
                         details.put("payments made", payments);
 
                         Statusts.SUMMARY_FOR_MINPAYMENT_RISK_REMOVED++;
-                        infoLogger.info(logManager.processDetailsStyles(details));
-                        details.clear();
                     }
                 }
-                infoLogger.info(logManager.processDetailsStyles(details));
-                details.clear();
                 Configurations.PROCESS_SUCCESS_COUNT++;
             } catch (Exception e) {
                 Configurations.errorCardList.add(new ErrorCardBean(Configurations.ERROR_EOD_ID, Configurations.EOD_DATE, new StringBuffer(lastStatement.getCardno()), e.getMessage(), Configurations.RUNNING_PROCESS_ID, Configurations.RUNNING_PROCESS_DESCRIPTION, 0, CardAccount.CARD));
-                errorLogger.error("Failed Clear Min Amount And Temp Block Process " + CommonMethods.cardNumberMask(cardNo), e);
+                logManager.logError("Failed Clear Min Amount And Temp Block Process " + CommonMethods.cardNumberMask(cardNo), e, errorLogger);
                 Configurations.PROCESS_FAILD_COUNT++;
+            } finally {
+                logManager.logDetails(details, infoLogger);
             }
         }
     }

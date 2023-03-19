@@ -37,7 +37,7 @@ public class ChequePaymentService {
                 }
                 Configurations.PROCESS_SUCCESS_COUNT++;
             } catch (Exception e) {
-                errorLogger.error("Failed Cheque Payment Process for Card" + CommonMethods.cardNumberMask(bean.getCardnumber()), e);
+                logManager.logError("Failed Cheque Payment Process for Card" + CommonMethods.cardNumberMask(bean.getCardnumber()), e, errorLogger);
                 Configurations.PROCESS_FAILD_COUNT++;
                 Configurations.errorCardList.add(new ErrorCardBean(Configurations.ERROR_EOD_ID, Configurations.EOD_DATE, new StringBuffer(bean.getCardnumber()), e.getMessage(), Configurations.RUNNING_PROCESS_ID, Configurations.RUNNING_PROCESS_DESCRIPTION, 0, CardAccount.CARD));
             }

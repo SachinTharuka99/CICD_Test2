@@ -69,20 +69,16 @@ public class LoanOnCardConnector extends ProcessBuilder {
                 while (!(taskExecutor.getActiveCount() == 0)) {
                     Thread.sleep(1000);
                 }
-                //insert to process summery
+
                 Configurations.PROCESS_TOTAL_NOOF_TRABSACTIONS = Configurations.NO_OF_LOAN_ON_CARDS;
                 Configurations.PROCESS_SUCCESS_COUNT = (Configurations.NO_OF_LOAN_ON_CARDS - Configurations.FAILED_LOAN_ON_CARDS);
                 Configurations.PROCESS_FAILD_COUNT = Configurations.FAILED_LOAN_ON_CARDS;
-                summery.put("Started Date", Configurations.EOD_DATE.toString());
-                summery.put("No of Card effected", Integer.toString(Configurations.NO_OF_LOAN_ON_CARDS));
-                summery.put("No of Success Card ", Integer.toString(Configurations.NO_OF_LOAN_ON_CARDS - Configurations.FAILED_LOAN_ON_CARDS));
-                summery.put("No of fail Card ", Integer.toString(Configurations.FAILED_LOAN_ON_CARDS));
-                infoLogger.info(logManager.processSummeryStyles(summery));
             }
         } catch (Exception e) {
             Configurations.IS_PROCESS_COMPLETELY_FAILED = true;
-            errorLogger.error("Loan On Card process failed", e);
+            logManager.logError("Loan On Card process failed", e, errorLogger);
         } finally {
+            logManager.logSummery(summery, infoLogger);
             /** PADSS Change -
              variables handling card data should be nullified by replacing the value of variable with zero and call NULL function */
             if (txnList != null && txnList.size() != 0) {
@@ -92,5 +88,14 @@ public class LoanOnCardConnector extends ProcessBuilder {
                 txnList = null;
             }
         }
+    }
+
+    @Override
+    public void addSummaries() {
+        summery.put("Started Date", Configurations.EOD_DATE.toString());
+        summery.put("No of Card effected", Integer.toString(Configurations.NO_OF_LOAN_ON_CARDS));
+        summery.put("No of Success Card ", Integer.toString(Configurations.NO_OF_LOAN_ON_CARDS - Configurations.FAILED_LOAN_ON_CARDS));
+        summery.put("No of fail Card ", Integer.toString(Configurations.FAILED_LOAN_ON_CARDS));
+
     }
 }

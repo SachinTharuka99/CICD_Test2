@@ -52,7 +52,6 @@ public class RiskCalculationService {
         if (!Configurations.isInterrupted) {
             String maskedCardNumber = CommonMethods.cardNumberMask(delinquentAccountBean.getCardNumber());
             String riskClass = delinquentAccountBean.getRiskClass();
-//        noOfExistingCards++;
 
             LinkedHashMap details = new LinkedHashMap();
             LinkedHashMap detailsProvision = new LinkedHashMap();
@@ -281,8 +280,7 @@ public class RiskCalculationService {
                         if (provisionGLAmount > 0) {
                             riskCalculationDao.insertIntoEodGLAccount(Configurations.EOD_ID, Configurations.EOD_DATE, delinquentAccountBean.getCardNumber(),
                                     Configurations.PROVISION_GL, provisionGLAmount, Configurations.DEBIT, null);
-                            infoLogger.info("Inserted GL entries for provision amount for acc no : " + delinquentAccountBean.getAccNo());
-//                        WebComHandler.showOnWeb(CommonMethods.eodDashboardProcessInfoStyle("Inserted GL entries for provision amount for acc no : " + delinquentAccountBean.getAccNo()));
+                            logManager.logInfo("Inserted GL entries for provision amount for acc no : " + delinquentAccountBean.getAccNo(), infoLogger);
                         }
                         isTrue = true;
                     }
@@ -294,8 +292,7 @@ public class RiskCalculationService {
                     detailsProvision.put("NP Capital", npCapital);
                     detailsProvision.put("Provision GL Amount", provisionGLAmount);
                     detailsProvision.put("New Provision Amount", calculateProvision);
-                    infoLogger.info(logManager.processDetailsStyles(detailsProvision));
-//                WebComHandler.showOnWeb(CommonMethods.eodDashboardDetailsStyle(detailsProvision));
+                    logManager.logDetails(detailsProvision, infoLogger);
                     detailsProvision.clear();
                 }
                 Configurations.PROCESS_SUCCESS_COUNT++;
@@ -307,27 +304,21 @@ public class RiskCalculationService {
                 details.put("Due Amount", logDetails.get(4));
                 details.put("Account Status", logDetails.get(5));
                 details.put("Process Status", "Passed");
-
-
             } catch (Exception e) {
 
                 details.put("Process Status", "Failed");
                 Configurations.errorCardList.add(new ErrorCardBean(Configurations.ERROR_EOD_ID, Configurations.EOD_DATE, new StringBuffer(delinquentAccountBean.getCardNumber()), e.getMessage(), Configurations.RUNNING_PROCESS_ID, Configurations.RUNNING_PROCESS_DESCRIPTION, 0, CardAccount.CARD));
-                infoLogger.info("RISK_CALCULATION_PROCESS Process for existing cards failed for cardnumber " + CommonMethods.cardInfo(maskedCardNumber, processBean));
-                errorLogger.error("RISK_CALCULATION_PROCESS Process for existing cards failed for cardnumber " + CommonMethods.cardInfo(maskedCardNumber, processBean), e);
-//            WebComHandler.showOnWeb(CommonMethods.eodDashboardProcessInfoStyle("Risk Calculation Process failed for cardnumber " + CommonMethods.cardInfo(maskedCardNumber, processBean)));
+                logManager.logInfo("RISK_CALCULATION_PROCESS Process for existing cards failed for cardnumber " + CommonMethods.cardInfo(maskedCardNumber, processBean), infoLogger);
+                logManager.logError("RISK_CALCULATION_PROCESS Process for existing cards failed for cardnumber " + CommonMethods.cardInfo(maskedCardNumber, processBean), e, errorLogger);
                 Configurations.PROCESS_FAILD_COUNT++;
             } finally {
-                infoLogger.info(logManager.processDetailsStyles(details));
-//            WebComHandler.showOnWeb(CommonMethods.eodDashboardDetailsStyle(details));
+                logManager.logDetails(details, infoLogger);
                 details.clear();
             }
             if (Configurations.PROCESS_FAILD_COUNT > 0) {
-                infoLogger.info(logManager.processStartEndStyle("RISK_CALCULATION_PROCESS Process completed for existing cards with errors"));
-//            WebComHandler.showOnWeb(CommonMethods.eodDashboardProcessStartEndStyle("Risk Calculation Process completed with errors"));
+                logManager.logStartEnd("RISK_CALCULATION_PROCESS Process completed for existing cards with errors", infoLogger);
             } else {
-                infoLogger.info(logManager.processStartEndStyle("RISK_CALCULATION_PROCESS Process completed for existing cards without errors"));
-//            WebComHandler.showOnWeb(CommonMethods.eodDashboardProcessStartEndStyle("Risk Calculation Process completed  without errors"));
+                logManager.logStartEnd("RISK_CALCULATION_PROCESS Process completed for existing cards without errors", infoLogger);
             }
         }
     }
@@ -581,10 +572,8 @@ public class RiskCalculationService {
                 delinquentAccountBean.setNpOutstanding(0.0);
 
                 details2.put("Knock Off Status", "Passed");
-                infoLogger.info("Successfully updated remaining balance of NP Details after payment of " + paymentAmount + " for accNo : " + accNo);
-                infoLogger.info(logManager.processDetailsStyles(details2));
-//                WebComHandler.showOnWeb(CommonMethods.eodDashboardProcessInfoStyle("Successfully updated remaining balance of NP Details after payment of " + paymentAmount + " for accNo : " + accNo));
-//                WebComHandler.showOnWeb(CommonMethods.eodDashboardDetailsStyle(details2));
+                logManager.logInfo("Successfully updated remaining balance of NP Details after payment of " + paymentAmount + " for accNo : " + accNo, infoLogger);
+                logManager.logDetails(details2, infoLogger);
                 details2.clear();
 
                 //Generate gl when receiving payment for np accounts. (NP CR 2019/09/25)
@@ -630,10 +619,8 @@ public class RiskCalculationService {
                         remainingAccruedLatePayBig, remainingAccruedOtherFeesBig, accNo);
 
                 details2.put("Knock Off Status", "Passed");
-                infoLogger.info("Successfully updated remaining balance of NP Details after payment of " + paymentAmount + " for accNo : " + accNo);
-//                WebComHandler.showOnWeb(CommonMethods.eodDashboardProcessInfoStyle("Successfully updated remaining balance of NP Details after payment of " + paymentAmount + " for accNo : " + accNo));
-                infoLogger.info(logManager.processDetailsStyles(details2));
-//                WebComHandler.showOnWeb(CommonMethods.eodDashboardDetailsStyle(details2));
+                logManager.logInfo("Successfully updated remaining balance of NP Details after payment of " + paymentAmount + " for accNo : " + accNo, infoLogger);
+                logManager.logDetails(details2, infoLogger);
                 details2.clear();
 
                 //Generate gl when receiving payment for np accounts. (NP CR 2019/09/25)
@@ -660,8 +647,7 @@ public class RiskCalculationService {
 
             }
 
-            infoLogger.info("Inserted GL entries for payment knock off for accNo : " + accNo);
-//            WebComHandler.showOnWeb(CommonMethods.eodDashboardProcessInfoStyle("Inserted GL entries for payment knock off for accNo : " + accNo));
+            logManager.logInfo("Inserted GL entries for payment knock off for accNo : " + accNo, infoLogger);
         } catch (Exception ex) {
             throw ex;
         }
@@ -717,8 +703,7 @@ public class RiskCalculationService {
                     if (provisionGLAmount > 0) {
                         riskCalculationDao.insertIntoEodGLAccount(Configurations.EOD_ID, Configurations.EOD_DATE, delinquentAccountBean.getCardNumber(),
                                 Configurations.PROVISION_KNOCK_OFF_GL, provisionGLAmount, Configurations.DEBIT, null);
-                        infoLogger.info("Inserted GL entries for provision after payment knock off for accNo : " + accNo);
-//                        WebComHandler.showOnWeb(CommonMethods.eodDashboardProcessInfoStyle("Inserted GL entries for provision after payment knock off for accNo : " + accNo));
+                        logManager.logInfo("Inserted GL entries for provision after payment knock off for accNo : " + accNo, infoLogger);
                     }
                     isTrue = true;
                 } else {
@@ -735,8 +720,7 @@ public class RiskCalculationService {
                     if (provisionGLAmount > 0) {
                         riskCalculationDao.insertIntoEodGLAccount(Configurations.EOD_ID, Configurations.EOD_DATE, delinquentAccountBean.getCardNumber(),
                                 Configurations.PROVISION_KNOCK_OFF_GL, provisionGLAmount, Configurations.DEBIT, null);
-                        infoLogger.info("Inserted GL entries for provision after payment knock off for accNo : " + accNo);
-//                        WebComHandler.showOnWeb(CommonMethods.eodDashboardProcessInfoStyle("Inserted GL entries for provision after payment knock off for accNo : " + accNo));
+                        logManager.logInfo("Inserted GL entries for provision after payment knock off for accNo : " + accNo, infoLogger);
                     }
                     isTrue = true;
                 }
@@ -745,12 +729,9 @@ public class RiskCalculationService {
                 details3.put("Old Provision Amount", oldProvisionAmount);
                 details3.put("Provision GL Amount", provisionGLAmount);
                 details3.put("New Provision Amoun", calculateProvision);
-
                 details3.put("Knock Off Status for Provision", "Passed");
-                infoLogger.info("Successfully updated remaining balance of Provision Amount after payment of " + paymentAmount + " for accNo : " + accNo);
-//                WebComHandler.showOnWeb(CommonMethods.eodDashboardProcessInfoStyle("Successfully updated remaining balance of Provision Amount after payment of " + paymentAmount + " for accNo : " + accNo));
-                infoLogger.info(logManager.processDetailsStyles(details3));
-//                WebComHandler.showOnWeb(CommonMethods.eodDashboardDetailsStyle(details3));
+                logManager.logInfo("Successfully updated remaining balance of Provision Amount after payment of " + paymentAmount + " for accNo : " + accNo, infoLogger);
+                logManager.logDetails(details3, infoLogger);
                 details3.clear();
             }
 
@@ -903,7 +884,6 @@ public class RiskCalculationService {
                 newDueAmount = Double.parseDouble(delinquentAccountBean.getDueAmount()) - totalPayments;
                 delinquentAccountBean.setRemainDue(newDueAmount);
 
-
                 //update min amounts of minpayment according to payments
                 riskCalculationDao.addDetailsToDelinquentAccountTable(delinquentAccountBean);
 
@@ -931,7 +911,6 @@ public class RiskCalculationService {
                 delinquentAccountBean.setRemainDue(newDueAmount);
                 riskCalculationDao.addDetailsToDelinquentAccountTable(delinquentAccountBean);
                 commonRepo.insertIntoDelinquentHistory(delinquentAccountBean.getCardNumber(), delinquentAccountBean.getAccNo(), remark);
-
             }
         }
         return logDetails;
@@ -1006,7 +985,6 @@ public class RiskCalculationService {
                             isEmpty = false;
                         }
                         if (isEmpty) {
-//                            System.out.println("Month -> M" + newMonthNo);
                             if (dueAmountList.get("M" + newMonthNo) > 0) {
                                 dueCount++;
                             }
@@ -1022,7 +1000,6 @@ public class RiskCalculationService {
                 }
                 int count = riskCalculationDao.updateMinimumPayment(cardNo, newDueAmountList, newDueDateList, dueCount);
             }
-
         } catch (Exception ex) {
             throw ex;
         }
@@ -1112,9 +1089,10 @@ public class RiskCalculationService {
                 Configurations.PROCESS_FAILD_COUNT++;
                 Configurations.errorCardList.add(new ErrorCardBean(Configurations.ERROR_EOD_ID, Configurations.EOD_DATE, new StringBuffer(riskCalculationBean.getCardNo()), e.getMessage(), Configurations.RUNNING_PROCESS_ID, Configurations.RUNNING_PROCESS_DESCRIPTION, 0, CardAccount.CARD));
                 details.put("Process Status", "Failed");
-                infoLogger.info("RISK_CALCULATION_PROCESS Process for new cards failed for cardnumber " + CommonMethods.cardInfo(maskedCardNumber, processBean));
-                errorLogger.error("RISK_CALCULATION_PROCESS Process for new cards failed for cardnumber " + CommonMethods.cardInfo(maskedCardNumber, processBean), e);
-//            WebComHandler.showOnWeb(CommonMethods.eodDashboardProcessInfoStyle("Risk Calculation Process Process for new cards failed for cardnumber : " + CommonMethods.cardInfo(maskedCardNumber, processBean)));
+                logManager.logInfo("RISK_CALCULATION_PROCESS Process for new cards failed for cardnumber " + CommonMethods.cardInfo(maskedCardNumber, processBean), infoLogger);
+                logManager.logError("RISK_CALCULATION_PROCESS Process for new cards failed for cardnumber " + CommonMethods.cardInfo(maskedCardNumber, processBean), e, errorLogger);
+            } finally {
+                logManager.logDetails(details, infoLogger);
             }
         }
     }

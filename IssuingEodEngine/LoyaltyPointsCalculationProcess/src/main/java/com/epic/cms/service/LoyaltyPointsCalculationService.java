@@ -107,8 +107,7 @@ public class LoyaltyPointsCalculationService {
                // infoLogger.info("LOYALTY_PROCESS failed for card number " + CommonMethods.cardInfo(maskedCardNumber, processBean));
                 //errorLogger.error("LOYALTY_PROCESS failed for card number " + CommonMethods.cardInfo(maskedCardNumber, processBean), e);
             }
-            infoLogger.info(logManager.processDetailsStyles(cardDetails));
-
+            logManager.logDetails(cardDetails, infoLogger);
         }catch (Exception e){
             throw e;
         }

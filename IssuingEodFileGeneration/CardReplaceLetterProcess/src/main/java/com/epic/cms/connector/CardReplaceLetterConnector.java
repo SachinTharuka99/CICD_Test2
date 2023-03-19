@@ -19,8 +19,7 @@ import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
 
-import static com.epic.cms.util.LogManager.errorLogger;
-import static com.epic.cms.util.LogManager.infoLogger;
+import static com.epic.cms.util.LogManager.*;
 
 @Service
 public class CardReplaceLetterConnector extends FileGenProcessBuilder {
@@ -36,6 +35,8 @@ public class CardReplaceLetterConnector extends FileGenProcessBuilder {
     @Autowired
     CardReplaceLetterService cardReplaceLetterService;
 
+    String[] fileNameAndPath = null;
+
     @Override
     public void concreteProcess() throws Exception {
 
@@ -44,8 +45,6 @@ public class CardReplaceLetterConnector extends FileGenProcessBuilder {
 
         try {
             replaceCardList = cardReplaceLetterRepo.getReplacedToGenerateLetters();
-            String[] fileNameAndPath = null;
-
             try {
                 Configurations.RUNNING_PROCESS_ID = Configurations.PROCESS_ID_CARDREPLACE_LETTER;
                 CommonMethods.eodDashboardProgressParametersReset();
@@ -66,18 +65,9 @@ public class CardReplaceLetterConnector extends FileGenProcessBuilder {
                     sequenceNo2++;
                 }
 
-                summery.put("Started Date ", Configurations.EOD_DATE.toString());
-                summery.put("Total No of Effected Letters ", Configurations.PROCESS_TOTAL_NOOF_TRABSACTIONS);
-                summery.put("Letter Success Count ", Configurations.PROCESS_SUCCESS_COUNT);
-                summery.put("Letter Failed Count ", Configurations.PROCESS_FAILD_COUNT);
-                summery.put("File Name and Path ", fileNameAndPath);
-
-                infoLogger.info(logManager.processSummeryStyles(summery));
-
             } catch (Exception e) {
-
                 Configurations.IS_PROCESS_COMPLETELY_FAILED = true;
-                errorLogger.error("Error in Card Replace Letter Process ", e);
+                logManager.logError("Error in Card Replace Letter Process ", e, errorLoggerEFGE);
                 if (fileNameAndPath != null) {
                     fileGenerationService.deleteExistFile(fileNameAndPath[0]);
                 }
@@ -85,6 +75,7 @@ public class CardReplaceLetterConnector extends FileGenProcessBuilder {
             }
 
         } finally {
+            logManager.logSummery(summery, infoLoggerEFGE);
             try {
                 if (productChangeCardList != null && productChangeCardList.size() != 0) {
                     for (StringBuffer sb : productChangeCardList) {
@@ -99,9 +90,18 @@ public class CardReplaceLetterConnector extends FileGenProcessBuilder {
                     replaceCardList = null;
                 }
             } catch (Exception e) {
-                errorLogger.error("Exception in Card Number Clearing ", e);
+                logManager.logError("Exception in Card Number Clearing ", e, errorLoggerEFGE);
                 throw e;
             }
         }
+    }
+
+    @Override
+    public void addSummaries() {
+        summery.put("Started Date ", Configurations.EOD_DATE.toString());
+        summery.put("Total No of Effected Letters ", Configurations.PROCESS_TOTAL_NOOF_TRABSACTIONS);
+        summery.put("Letter Success Count ", Configurations.PROCESS_SUCCESS_COUNT);
+        summery.put("Letter Failed Count ", Configurations.PROCESS_FAILD_COUNT);
+        summery.put("File Name and Path ", fileNameAndPath);
     }
 }

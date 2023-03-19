@@ -7,11 +7,13 @@
 
 package com.epic.cms.service;
 
+import com.epic.cms.util.LogManager;
 import com.itextpdf.text.Document;
 import com.itextpdf.text.PageSize;
 import com.itextpdf.text.pdf.PdfWriter;
 
 import com.itextpdf.tool.xml.XMLWorkerHelper;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.io.FileOutputStream;
@@ -19,9 +21,13 @@ import java.io.StringReader;
 import java.nio.file.*;
 
 import static com.epic.cms.util.LogManager.errorLogger;
+import static com.epic.cms.util.LogManager.errorLoggerEFGE;
 
 @Service
 public class EODFileGenerationServiceImpl implements FileGenerationService {
+
+    @Autowired
+    LogManager logManager;
 
     @Override
     public void generateFile(String content, String filePath, String backUpFilePath) throws Exception {
@@ -54,7 +60,7 @@ public class EODFileGenerationServiceImpl implements FileGenerationService {
             copyAndBackUpFile(filePath, backUpFilePath);
 
         } catch (Exception e) {
-            errorLogger.error("File Writing Failed  ", e);
+            logManager.logError("File Writing Failed  ", e, errorLoggerEFGE);
             throw e;
         }
     }
@@ -68,7 +74,7 @@ public class EODFileGenerationServiceImpl implements FileGenerationService {
             //if backupFile exist, replace it.
             Files.copy(Path.of(filePath), Path.of(backUpFilePath), StandardCopyOption.REPLACE_EXISTING);
         } catch (Exception e) {
-            errorLogger.error("Exception Copy File ", e);
+            logManager.logError("Exception Copy File ", e, errorLoggerEFGE);
         }
     }
 
@@ -82,7 +88,7 @@ public class EODFileGenerationServiceImpl implements FileGenerationService {
             Files.createDirectories(path2);
 
         } catch (Exception e) {
-            errorLogger.error("Exception in File Directory Creating ", e);
+            logManager.logError("Exception in File Directory Creating ", e, errorLoggerEFGE);
         }
     }
 
@@ -109,7 +115,7 @@ public class EODFileGenerationServiceImpl implements FileGenerationService {
             document.close();
             document1.close();
         } catch (Exception e) {
-            errorLogger.error("Exception in PDF File Generation ", e);
+            logManager.logError("Exception in PDF File Generation ", e, errorLoggerEFGE);
             throw e;
         }
     }
@@ -127,7 +133,7 @@ public class EODFileGenerationServiceImpl implements FileGenerationService {
                 Files.delete(path);
             }
         }catch (Exception e){
-            errorLogger.error("Exception in delete exist File ", e);
+            logManager.logError("Exception in delete exist File ", e, errorLoggerEFGE);
         }
 
     }

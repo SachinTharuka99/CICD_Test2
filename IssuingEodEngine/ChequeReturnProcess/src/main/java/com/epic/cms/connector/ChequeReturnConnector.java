@@ -65,8 +65,6 @@ public class ChequeReturnConnector extends ProcessBuilder {
                     Thread.sleep(1000);
                 }
 
-                infoLogger.info("Thread Name Prefix: {}, Active count: {}, Pool size: {}, Queue Size: {}", taskExecutor.getThreadNamePrefix(), taskExecutor.getActiveCount(), taskExecutor.getPoolSize(), taskExecutor.getThreadPoolExecutor().getQueue().size());
-
                 failedCount = Configurations.PROCESS_FAILD_COUNT;
                 Configurations.PROCESS_TOTAL_NOOF_TRABSACTIONS = totalChequeReturnsList.size();
                 Configurations.PROCESS_SUCCESS_COUNT = (totalChequeReturnsList.size() - failedCount);
@@ -77,16 +75,16 @@ public class ChequeReturnConnector extends ProcessBuilder {
             }
         } catch (Exception ex) {
             Configurations.IS_PROCESS_COMPLETELY_FAILED = true;
-            errorLogger.error("Cheque Return process Error", ex);
+            logManager.logError("Cheque Return process Error", ex, errorLogger);
         } finally {
-            addSummaries();
-            infoLogger.info(logManager.processSummeryStyles(summery));
+            logManager.logSummery(summery, infoLogger);
              /* PADSS Change -
                variables handling card data should be nullified by replacing the value of variable with zero and call NULL function */
             totalChequeReturnsList.clear();
         }
     }
 
+    @Override
     public void addSummaries() {
         if (totalChequeReturnsList != null) {
             summery.put("Started Date", Configurations.EOD_DATE.toString());

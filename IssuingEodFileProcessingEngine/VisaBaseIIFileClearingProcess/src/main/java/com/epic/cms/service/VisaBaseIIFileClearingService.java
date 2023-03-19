@@ -34,7 +34,7 @@ public class VisaBaseIIFileClearingService {
     @Autowired
     private VisaBaseIIFileClearingRepo visaBaseIIFileClearingRepo;
     @Autowired
-    private LogManager logManager;
+    LogManager logManager;
     @Autowired
     private QueryParametersList queryParametersList;
     @Autowired
@@ -76,7 +76,7 @@ public class VisaBaseIIFileClearingService {
                 final List<Throwable> exceptions = execution
                         .getAllFailureExceptions();
                 for (final Throwable throwable : exceptions) {
-                    errorLoggerEFPE.error(throwable.getMessage(), throwable);
+                    logManager.logError(throwable.getMessage(), throwable,errorLoggerEFPE);
                 }
             }
         } catch (Exception ex) {
@@ -130,7 +130,7 @@ public class VisaBaseIIFileClearingService {
                             eleventhCurrencyEntry = visaComposingDataBean.getField9();
                         }
                     } catch (Exception e) {
-                        errorLoggerEFPE.error(e.getMessage());
+                        logManager.logError(e.getMessage(),errorLoggerEFPE);
                     }
                 }
                 //store all 11 currency entries contained in TCR0 and TCR 1 records
@@ -216,7 +216,7 @@ public class VisaBaseIIFileClearingService {
                 }
             }
         } catch (Exception ex) {
-            errorLoggerEFPE.error(ex.getMessage());
+            logManager.logError(ex.getMessage(),errorLoggerEFPE);
             return null;
         }
     }

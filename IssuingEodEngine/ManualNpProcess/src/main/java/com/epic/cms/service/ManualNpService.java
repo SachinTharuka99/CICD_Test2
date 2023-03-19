@@ -105,18 +105,17 @@ public class ManualNpService {
 
                 int q = manualNpRepo.updateManualNPtoComplete(reqID, status.getCOMMON_COMPLETED());
                 if (q > 0) {
-                    infoLogger.info(logManager.processHeaderStyle("Successfully updated id:" + reqID + " RQAC -> COMP"));
+                    logManager.logStartEnd("Successfully updated id:" + reqID + " RQAC -> COMP", infoLogger);
                 } else {
-                    infoLogger.info(logManager.processHeaderStyle("Failed to update id:" + reqID + " RQAC -> COMP"));
+                    logManager.logStartEnd("Failed to update id:" + reqID + " RQAC -> COMP", infoLogger);
                 }
-
                 successCounts++;
                 Configurations.PROCESS_SUCCESS_COUNT++;
             } catch (Exception ex) {
                 FailedCounts++;
                 Configurations.PROCESS_FAILD_COUNT++;
                 Configurations.errorCardList.add(new ErrorCardBean(Configurations.ERROR_EOD_ID, Configurations.EOD_DATE, new StringBuffer(cardNo), ex.getMessage(), Configurations.RUNNING_PROCESS_ID, Configurations.RUNNING_PROCESS_DESCRIPTION, 0, CardAccount.CARD));
-                errorLogger.error("Manual NP process failed when going to classified NP for account: " + accNo, ex);
+                logManager.logError("Manual NP process failed when going to classified NP for account: " + accNo, ex, errorLogger);
             }
         }
     }
@@ -145,7 +144,7 @@ public class ManualNpService {
                     manualNpRepo.updateNpStatusCardAccount(accNo, 1);
                     remark = "Account has Manual Non Performing to Auto Non Performing by the manual declassification.";
                     manualNpRepo.insertIntoDelinquentHistory(cardNo, accNo, remark);
-                    infoLogger.info(logManager.processStartEndStyle(accNo + ": " + remark));
+                    logManager.logStartEnd(accNo + ": " + remark, infoLogger);
 
                 } else {
                     manualNpRepo.getNPDetailsForNpGl(accNo, delinquentAccountBean);
@@ -180,7 +179,7 @@ public class ManualNpService {
                     manualNpRepo.updateDelinquentAccountForManualNP(accNo, delinquentAccountBean);
                     remark = "Account has Manual Non Performing to Performing by the manual.";
                     manualNpRepo.insertIntoDelinquentHistory(cardNo, accNo, remark);
-                    infoLogger.info(logManager.processStartEndStyle(accNo + ": " + remark));
+                    logManager.logStartEnd(accNo + ": " + remark, infoLogger);
                 }
 
                 manualNpRepo.updateManualNPtoComplete(reqID, status.getCOMMON_COMPLETED());
@@ -191,7 +190,7 @@ public class ManualNpService {
                 FailedCounts++;
                 Configurations.PROCESS_FAILD_COUNT++;
                 Configurations.errorCardList.add(new ErrorCardBean(Configurations.ERROR_EOD_ID, Configurations.EOD_DATE, new StringBuffer(cardNo), ex.getMessage(), Configurations.RUNNING_PROCESS_ID, Configurations.RUNNING_PROCESS_DESCRIPTION, 0, CardAccount.CARD));
-                errorLogger.error("Manual NP process failed when going to De-classified NP for account: " + accNo, ex);
+                logManager.logError("Manual NP process failed when going to De-classified NP for account: " + accNo, ex, errorLogger);
             }
         }
     }

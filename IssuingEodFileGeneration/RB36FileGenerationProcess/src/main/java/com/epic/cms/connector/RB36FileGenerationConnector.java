@@ -27,8 +27,7 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
 
-import static com.epic.cms.util.LogManager.errorLogger;
-import static com.epic.cms.util.LogManager.infoLogger;
+import static com.epic.cms.util.LogManager.*;
 
 @Service
 public class RB36FileGenerationConnector extends FileGenProcessBuilder {
@@ -45,13 +44,14 @@ public class RB36FileGenerationConnector extends FileGenProcessBuilder {
     @Autowired
     StatusVarList statusVarList;
 
+    int noofRecords = 0;
+
     @Override
     public void concreteProcess() throws Exception {
         fileGenerationModel = new FileGenerationModel();
         HashMap<String, ArrayList<GlAccountBean>> hmap;
         ArrayList<StringBuffer> npCards;
         HashMap<String, GlBean> glAccountsDetail;
-        int noofRecords = 0;
 
         fileExtension = ".txt";
         fileDirectory = Configurations.RB36_FILE_PATH;
@@ -81,10 +81,10 @@ public class RB36FileGenerationConnector extends FileGenProcessBuilder {
 
             if (processBean != null) {
                 try {
-                    infoLogger.info(logManager.processHeaderStyle("RB36 File Generation Process"));
+                    logManager.logStartEnd("RB36 File Generation Process", infoLoggerEFGE);
                     Configurations.RUNNING_PROCESS_ID = Configurations.PROCESS_RB36_FILE_CREATION;
                     CommonMethods.eodDashboardProgressParametersReset();
-                    infoLogger.info(logManager.processStartEndStyle("RB36 File Generation Successfully Started"));
+                    logManager.logStartEnd("RB36 File Generation Successfully Started", infoLoggerEFGE);
                     commonRepo.insertToEodProcessSumery(Configurations.PROCESS_RB36_FILE_CREATION);
 
                     //Get NP card set
@@ -125,24 +125,15 @@ public class RB36FileGenerationConnector extends FileGenProcessBuilder {
                         toDeleteStatus = false;
 
                     } else {
-                        infoLogger.info("Empty line in body. Hence No header section in RB36");
-                        errorLogger.info("Empty line in body. Hence No header section in RB36");
+                        logManager.logInfo("Empty line in body. Hence No header section in RB36", infoLoggerEFGE);
+                        logManager.logError("Empty line in body. Hence No header section in RB36", errorLoggerEFGE);
                     }
                     //Update picked record status to EDON
                     for (int key : fileGenerationModel.getTxnIdList()) {
                         noofRecords++;
                         rb36FileGenerationRepo.updateEodGLAccount(key);
                     }
-                    //If no records in the file delete the file. Get approve
-                    summery.put("Process Name", processBean.getProcessDes());
-                    summery.put("File Name", fileName);
-                    summery.put("No of records ", noofRecords);
-                    summery.put("Header Debit Count ", fileGenerationModel.getHeaderDebitCount());
-                    summery.put("Header Credit Count ", fileGenerationModel.getHeaderCreditCount());
-                    summery.put("Created Date ", Configurations.EOD_DATE.toString());
-                    infoLogger.info(logManager.processSummeryStyles(summery));
-
-                    infoLogger.info("RB36 File Process Successfully Completed ");
+                    logManager.logInfo("RB36 File Process Successfully Completed ", infoLoggerEFGE);
 
                     EodOuputFileBean eodoutputfilebean = new EodOuputFileBean();
                     eodoutputfilebean.setFileName(fileName + ".txt");
@@ -159,12 +150,12 @@ public class RB36FileGenerationConnector extends FileGenProcessBuilder {
                     }
 
                 } catch (Exception e) {
-                    errorLogger.error("Error while writing RB36 file.Exit from the process. Exception:---> ", e);
+                    logManager.logError("Error while writing RB36 file.Exit from the process. Exception:---> ", e, errorLoggerEFGE);
                     throw e;
                 }
             }
         } catch (Exception e) {
-            infoLogger.error("RB36FileGeneration Process Failed", e);
+            logManager.logError("RB36FileGeneration Process Failed", e, errorLoggerEFGE);
             commonRepo.updateEodProcessSummery(Configurations.ERROR_EOD_ID, statusVarList.getERROR_STATUS(), Configurations.PROCESS_RB36_FILE_CREATION,Configurations.PROCESS_SUCCESS_COUNT,Configurations.PROCESS_FAILD_COUNT,CommonMethods.eodDashboardProcessProgress(Configurations.PROCESS_SUCCESS_COUNT, Configurations.PROCESS_TOTAL_NOOF_TRABSACTIONS));
             if (processBean.getCriticalStatus() == 1) {
                 Configurations.COMMIT_STATUS = false;
@@ -172,7 +163,18 @@ public class RB36FileGenerationConnector extends FileGenProcessBuilder {
                 Configurations.PROCESS_FLOW_STEP_COMPLETE_STATUS = false;
                 Configurations.MAIN_EOD_STATUS = false;
             }
+        } finally {
+            logManager.logSummery(summery, infoLoggerEFGE);
         }
+    }
 
+    @Override
+    public void addSummaries() {
+        summery.put("Process Name", processBean.getProcessDes());
+        summery.put("File Name", fileName);
+        summery.put("No of records ", noofRecords);
+        summery.put("Header Debit Count ", fileGenerationModel.getHeaderDebitCount());
+        summery.put("Header Credit Count ", fileGenerationModel.getHeaderCreditCount());
+        summery.put("Created Date ", Configurations.EOD_DATE.toString());
     }
 }

@@ -102,35 +102,35 @@ public class PaymentFileClearingConnector extends FileProcessingProcessBuilder {
                             summery.put("Number of invalid payments ", Configurations.PROCESS_PAYMENT_FILE_CLEARING_INVALID_COUNT);
                             summery.put("Number of failure payments ", Configurations.PROCESS_PAYMENT_FILE_CLEARING_FAILD_COUNT);
 
-                            infoLoggerEFPE.info(logManager.processSummeryStyles(summery));
+                            logManager.logSummery(summery, infoLoggerEFPE);
                         } else {
-                            errorLoggerEFPE.error("Payment file reading failed for file " + fileId);
+                            logManager.logError("Payment file reading failed for file " + fileId,errorLoggerEFPE);
                             //update file read status to FAIL
                             paymentFileClearingRepo.updatePaymentFileStatus(Configurations.FAIL_STATUS, fileId);
                         }
                     } else {
-                        infoLoggerEFPE.info("Payment file not found..."
+                        logManager.logInfo("Payment file not found..."
                                 + "\nFile Name : " + fileBean.getFileName()
-                                + "\nFile ID   : " + fileBean.getFileId());
+                                + "\nFile ID   : " + fileBean.getFileId(), infoLoggerEFPE);
                         //update file read status to fail
                         paymentFileClearingRepo.updatePaymentFileStatus(Configurations.FAIL_STATUS, fileId);
                     }
                 } else {
-                    errorLoggerEFPE.error("Payment file clearing process failed for file " + fileId + " , " + isFileNameValid);
+                    logManager.logError("Payment file clearing process failed for file " + fileId + " , " + isFileNameValid, errorLoggerEFPE);
                     //update file read status to fail
                     paymentFileClearingRepo.updatePaymentFileStatus(Configurations.FAIL_STATUS, fileId);
                 }
             } else {
                 //file cannot proceed due to invalid status
-                errorLoggerEFPE.error("Cannot read, Payment file " + fileId + " is not in the initial status");
+                logManager.logError("Cannot read, Payment file " + fileId + " is not in the initial status", errorLoggerEFPE);
             }
         } catch (Exception ex) {
-            errorLoggerEFPE.error("Payment file clearing process failed for file " + fileId, ex);
+            logManager.logError("Payment file clearing process failed for file " + fileId, ex, errorLoggerEFPE);
             //update file status to FAIL
             try {
                 paymentFileClearingRepo.updatePaymentFileStatus(Configurations.FAIL_STATUS, fileId);
             } catch (Exception e) {
-                errorLoggerEFPE.error("", e);
+                logManager.logError("", e, errorLoggerEFPE);
             }
         }
     }

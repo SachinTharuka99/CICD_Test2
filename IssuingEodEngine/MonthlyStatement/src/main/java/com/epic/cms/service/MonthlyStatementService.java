@@ -49,10 +49,9 @@ public class MonthlyStatementService {
                 Configurations.PROCESS_SUCCESS_COUNT++;
 
             } catch (Exception ex) {
-
                 Configurations.errorCardList.add(new ErrorCardBean(Configurations.ERROR_EOD_ID, Configurations.EOD_DATE, new StringBuffer(accNo), ex.getMessage(), Configurations.RUNNING_PROCESS_ID, Configurations.RUNNING_PROCESS_DESCRIPTION, 0, CardAccount.ACCOUNT));
                 Configurations.PROCESS_FAILD_COUNT++;
-                errorLogger.error("Error Occurs, when running monthly statement process for account " + accNo + " ", ex);
+                logManager.logError("Error Occurs, when running monthly statement process for account " + accNo + " ", ex, errorLogger);
             }
         }
     }

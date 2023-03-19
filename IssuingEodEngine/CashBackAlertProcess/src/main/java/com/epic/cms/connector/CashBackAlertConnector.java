@@ -39,6 +39,9 @@ public class CashBackAlertConnector extends ProcessBuilder {
     @Autowired
     CommonRepo commonRepo;
 
+    @Autowired
+    LogManager logManager;
+
     @Override
     public void concreteProcess() throws Exception {
 
@@ -61,6 +64,7 @@ public class CashBackAlertConnector extends ProcessBuilder {
                 while (!(taskExecutor.getActiveCount() == 0)) {
                     Thread.sleep(1000);
                 }
+
                 Configurations.PROCESS_TOTAL_NOOF_TRABSACTIONS = (Configurations.successCardNoCount_CashBackAlert + Configurations.failedCardNoCount_CashBackAlert);
                 Configurations.PROCESS_SUCCESS_COUNT = (Configurations.successCardNoCount_CashBackAlert);
                 Configurations.PROCESS_FAILD_COUNT = (Configurations.failedCardNoCount_CashBackAlert);
@@ -69,6 +73,8 @@ public class CashBackAlertConnector extends ProcessBuilder {
         } catch (Exception ex) {
             Configurations.IS_PROCESS_COMPLETELY_FAILED = true;
             throw ex;
+        } finally {
+            logManager.logSummery(summery, infoLogger);
         }
     }
 

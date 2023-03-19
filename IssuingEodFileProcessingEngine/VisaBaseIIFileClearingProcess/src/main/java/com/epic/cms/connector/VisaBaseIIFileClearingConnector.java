@@ -71,7 +71,7 @@ public class VisaBaseIIFileClearingConnector extends FileProcessingProcessBuilde
                         print = "Visa Base II file not found..."
                                 + "\nFile Name : " + file.getName()
                                 + "\nFile ID   : " + fileBean.getFileId();
-                        infoLoggerEFPE.info(print);
+                        logManager.logInfo(print, infoLoggerEFPE);
                         //update file status to ERROR
                         visaBaseIIFileClearingRepo.updateRecVisaFileStatus(fileBean.getFileId(), DatabaseStatus.STATUS_FILE_ERROR);
                     }
@@ -103,22 +103,22 @@ public class VisaBaseIIFileClearingConnector extends FileProcessingProcessBuilde
                         throw ex;
                     }
                 } else {
-                    errorLoggerEFPE.error("VISA Base II file reading failed for file " + fileId);
+                    logManager.logError("VISA Base II file reading failed for file " + fileId,errorLoggerEFPE);
                     //update file read status to FAIL
                     visaBaseIIFileClearingRepo.updateRecVisaFileStatus(fileId, Configurations.FAIL_STATUS);
                 }
             } else {
                 //file cannot proceed due to invalid status
-                errorLoggerEFPE.error("Cannot read, VISA Base II file " + fileId + " is not in the initial or repeat status");
+                logManager.logError("Cannot read, VISA Base II file " + fileId + " is not in the initial or repeat status",errorLoggerEFPE);
             }
 
         } catch (Exception ex) {
-            errorLoggerEFPE.error("VISA Base II File clearing process failed for file " + fileId, ex);
+            logManager.logError("VISA Base II File clearing process failed for file " + fileId, ex,errorLoggerEFPE);
             //update file status to FAIL
             try {
                 visaBaseIIFileClearingRepo.updateRecVisaFileStatus(fileId, Configurations.FAIL_STATUS);
             } catch (Exception e) {
-                errorLoggerEFPE.error("", e);
+                logManager.logError("", e,errorLoggerEFPE);
             }
         }
     }

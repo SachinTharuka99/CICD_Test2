@@ -48,8 +48,7 @@ public class LoyaltyPointsCalculationConnector extends ProcessBuilder {
         int failedAccounts = 0;
 
         try {
-            infoLogger.info(logManager.processHeaderStyle("Loyalty Points Calculation Process"));
-            infoLogger.info(logManager.processHeaderStyle("Loyalty Points Calculation Process Started"));
+            logManager.logStartEnd("Loyalty Points Calculation Process Started", infoLogger);
 
             Configurations.RUNNING_PROCESS_ID = Configurations.PROCESS_ID_LOYALTY_POINT_CALCULATION_PROCESS;
             CommonMethods.eodDashboardProgressParametersReset();
@@ -87,8 +86,13 @@ public class LoyaltyPointsCalculationConnector extends ProcessBuilder {
                     cardList = null;
                 }
             } catch (Exception e) {
-                errorLogger.error(String.valueOf(e));
+                logManager.logError(String.valueOf(e), errorLogger);
             }
         }
+    }
+
+    @Override
+    public void addSummaries() {
+
     }
 }

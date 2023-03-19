@@ -42,6 +42,7 @@ public class CollectionAndRecoveryAlertConnector extends ProcessBuilder {
     CollectionAndRecoveryAlertService collectionAndRecoveryAlertService;
 
     HashMap<StringBuffer, String> confirmCardList = new HashMap<>();
+
     @Override
     public void concreteProcess() throws Exception {
 
@@ -55,7 +56,7 @@ public class CollectionAndRecoveryAlertConnector extends ProcessBuilder {
             Configurations.PROCESS_TOTAL_NOOF_TRABSACTIONS = confirmCardList.size();
 
             for (Map.Entry<StringBuffer, String> entry : confirmCardList.entrySet()) {
-                collectionAndRecoveryAlertService.processCollectionAndRecoveryAlertService(entry.getKey(),entry.getValue(), processBean);
+                collectionAndRecoveryAlertService.processCollectionAndRecoveryAlertService(entry.getKey(), entry.getValue(), processBean);
             }
 
             while (!(taskExecutor.getActiveCount() == 0)) {
@@ -65,20 +66,17 @@ public class CollectionAndRecoveryAlertConnector extends ProcessBuilder {
             Configurations.PROCESS_SUCCESS_COUNT = (Configurations.successCardNoCount_CollectionAndRecoveryAlert);
             Configurations.PROCESS_FAILD_COUNT = (Configurations.failedCardNoCount_CollectionAndRecoveryAlert);
 
-        }catch (Exception e){
+        } catch (Exception e) {
             Configurations.IS_PROCESS_COMPLETELY_FAILED = true;
-            errorLogger.error("Collection and Recovery Alert process failed", e);
+            logManager.logError("Collection and Recovery Alert process failed", e, errorLogger);
             throw e;
-        }finally {
-            addSummaries();
-            try {
-                confirmCardList.clear();
-            } catch (Exception e) {
-                errorLogger.error("Exception ",e);
-            }
+        } finally {
+            logManager.logSummery(summery, infoLogger);
+            confirmCardList.clear();
         }
     }
 
+    @Override
     public void addSummaries() {
         if (confirmCardList != null) {
             summery.put("Number of transaction to sync ", Configurations.PROCESS_TOTAL_NOOF_TRABSACTIONS);

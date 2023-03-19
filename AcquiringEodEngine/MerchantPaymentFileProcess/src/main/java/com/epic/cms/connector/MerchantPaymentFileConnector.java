@@ -176,6 +176,10 @@ public class MerchantPaymentFileConnector extends ProcessBuilder {
 
     }
 
+    @Override
+    public void addSummaries() {
+
+    }
 
 
 }

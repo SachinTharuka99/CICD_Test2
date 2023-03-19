@@ -25,7 +25,7 @@ import java.util.UUID;
 public class LoanOnCardService {
 
     @Autowired
-    public LogManager logManager;
+    LogManager logManager;
 
     @Autowired
     public InstallmentPaymentRepo installmentPaymentRepo;
@@ -35,13 +35,14 @@ public class LoanOnCardService {
 
     @Autowired
     public StatusVarList status;
+
     @Transactional(value = "transactionManager", propagation = Propagation.REQUIRES_NEW, rollbackFor = Exception.class)
     public void accelerateLOCRequestForNpAccount() throws Exception {
         try {
             /**
              * manual NP accounts
              */
-            infoLogger.info(logManager.processStartEndStyle("Loan On Card Process Manual NP Acceleration Started"));
+            logManager.logStartEnd("Loan On Card Process Manual NP Acceleration Started", infoLogger);
             List<ManualNpRequestBean> manualNpList = installmentPaymentRepo.getManualNpRequestDetails(status.getYES_STATUS_1(), status.getCOMMON_REQUEST_ACCEPTED());
             Configurations.PROCESS_TOTAL_NOOF_TRABSACTIONS += manualNpList.size();
             for (ManualNpRequestBean manualNpRequestBean : manualNpList) {
@@ -50,23 +51,23 @@ public class LoanOnCardService {
                     //update Loan On Card requests for corresponding accNo to Accelerate status.
                     installmentPaymentRepo.updateEasyPaymentRequestToAccelerate(accNo, "LOANONCARDREQUEST");
                     Configurations.PROCESS_SUCCESS_COUNT++;
-                    infoLogger.info("Loan On Card process success for accNo " + accNo + " when Accelerate Loan On Card for manual NP. ");
+                    logManager.logInfo("Loan On Card process success for accNo " + accNo + " when Accelerate Loan On Card for manual NP. ", infoLogger);
                 } catch (Exception e) {
                     //con.rollback();
                     Configurations.PROCESS_FAILD_COUNT++;
-                    infoLogger.info("Loan On Card process failed for accNo " + accNo + " when Accelerate Loan On Card for manual NP. ");
-                    errorLogger.error("Loan On Card process failed for accNo " + accNo + " when Accelerate Loan On Card for manual NP. ", e);
+                    logManager.logInfo("Loan On Card process failed for accNo " + accNo + " when Accelerate Loan On Card for manual NP. ", infoLogger);
+                    logManager.logError("Loan On Card process failed for accNo " + accNo + " when Accelerate Loan On Card for manual NP. ", e, errorLogger);
                 }
             }
             /* PADSS Change -
                variables handling card data should be nullified by replacing the value of variable with zero and call NULL function */
             manualNpList.clear();
 
-            infoLogger.info(logManager.processStartEndStyle("Loan On Card Process Manual NP Acceleration Finished"));
+            logManager.logStartEnd("Loan On Card Process Manual NP Acceleration Finished", infoLogger);
             /**
              * automatic NP accounts
              */
-            infoLogger.info(logManager.processStartEndStyle("Loan On Card Process Automatic NP Acceleration Started"));
+            logManager.logStartEnd("Loan On Card Process Automatic NP Acceleration Started", infoLogger);
             List<DelinquentAccountBean> delinquentAccountList = installmentPaymentRepo.getDelinquentAccounts();
             Configurations.PROCESS_TOTAL_NOOF_TRABSACTIONS += delinquentAccountList.size();
             for (DelinquentAccountBean delinquentAccountBean : delinquentAccountList) {
@@ -92,7 +93,7 @@ public class LoanOnCardService {
                                 //update Loan On Card requests for corresponding accno to Accelerate status.
                                 installmentPaymentRepo.updateEasyPaymentRequestToAccelerate(accNo, "LOANONCARDREQUEST");
                                 Configurations.PROCESS_SUCCESS_COUNT++;
-                                infoLogger.info("Loan On Card process success for accNo " + accNo + " when Accelerate Loan On Card for Automatic NP. ");
+                                logManager.logInfo("Loan On Card process success for accNo " + accNo + " when Accelerate Loan On Card for Automatic NP. ", infoLogger);
                             } catch (Exception e) {
                                 throw e;
                             }
@@ -106,7 +107,7 @@ public class LoanOnCardService {
                                     //update Loan On Card requests for corresponding accno to Accelerate status.
                                     installmentPaymentRepo.updateEasyPaymentRequestToAccelerate(accNo, "LOANONCARDREQUEST");
                                     Configurations.PROCESS_SUCCESS_COUNT++;
-                                    infoLogger.info("Loan On Card process success for accNo " + accNo + " when Accelerate Loan On Card for Automatic NP. ");
+                                    logManager.logInfo("Loan On Card process success for accNo " + accNo + " when Accelerate Loan On Card for Automatic NP. ", infoLogger);
                                 } catch (Exception e) {
                                     throw e;
                                 }
@@ -115,19 +116,19 @@ public class LoanOnCardService {
                     }
                 } catch (Exception e) {
                     Configurations.PROCESS_FAILD_COUNT++;
-                    infoLogger.info("Loan On Card process failed for accNo " + accNo + " when Accelerate Loan On Card for Automatic NP. ");
-                    errorLogger.error("Loan On Card process failed for accNo " + accNo + " when Accelerate Loan On Card for Automatic NP. ", e);
+                    logManager.logInfo("Loan On Card process failed for accNo " + accNo + " when Accelerate Loan On Card for Automatic NP. ", infoLogger);
+                    logManager.logError("Loan On Card process failed for accNo " + accNo + " when Accelerate Loan On Card for Automatic NP. ", e, errorLogger);
                 }
             }
-            infoLogger.info(logManager.processStartEndStyle("Loan On Card Process Automatic NP Acceleration Finished"));
+            logManager.logStartEnd("Loan On Card Process Automatic NP Acceleration Finished", infoLogger);
         } catch (Exception e) {
-            errorLogger.error("Exception in Loan on NP Accounts",e);
+            logManager.logError("Exception in Loan on NP Accounts", e, errorLogger);
         }
     }
 
     @Async("ThreadPool_100")
     @Transactional(value = "transactionManager", propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
-    public void startLOCProcess(InstallmentBean installmentBean, ProcessBean processBean) throws Exception{
+    public void startLOCProcess(InstallmentBean installmentBean, ProcessBean processBean) throws Exception {
         if (!Configurations.isInterrupted) {
             LinkedHashMap details = new LinkedHashMap();
             try {
@@ -265,13 +266,14 @@ public class LoanOnCardService {
                     Configurations.FAILED_LOAN_ON_CARDS++;
                     Configurations.PROCESS_FAILD_COUNT++;
                     Configurations.errorCardList.add(new ErrorCardBean(Configurations.ERROR_EOD_ID, Configurations.EOD_DATE, installmentBean.getCardNumber(), e.getMessage(), Configurations.RUNNING_PROCESS_ID, Configurations.RUNNING_PROCESS_DESCRIPTION, 0, CardAccount.CARD));
-                    infoLogger.info("Loan On Card process failed for cardnumber " + CommonMethods.cardInfo(maskedCardNumber, processBean));
-                    errorLogger.error("Loan On Card process failed for cardnumber " + CommonMethods.cardInfo(maskedCardNumber, processBean), e);
+                    logManager.logInfo("Loan On Card process failed for cardnumber " + CommonMethods.cardInfo(maskedCardNumber, processBean), infoLogger);
+                    logManager.logError("Loan On Card process failed for cardnumber " + CommonMethods.cardInfo(maskedCardNumber, processBean), e, errorLogger);
                     details.put("Process Status", "Failed");
                 }
-                infoLogger.info(logManager.processDetailsStyles(details));
             } catch (Exception e) {
-                errorLogger.error("Loan on Card process failed ", e);
+                logManager.logError("Loan on Card process failed ", e, errorLogger);
+            } finally {
+                logManager.logDetails(details, infoLogger);
             }
         }
     }
@@ -374,6 +376,5 @@ public class LoanOnCardService {
         } else {
             return roundOff;
         }
-
     }
 }

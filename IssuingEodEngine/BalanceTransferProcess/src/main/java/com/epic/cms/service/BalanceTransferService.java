@@ -37,6 +37,9 @@ public class BalanceTransferService {
     @Autowired
     InstallmentPaymentRepo installmentPaymentRepo;
 
+    @Autowired
+    LogManager logManager;
+
     @Transactional(value = "transactionManager", propagation = Propagation.REQUIRES_NEW, rollbackFor = Exception.class)
     public void accelerateBalanceTransferRequestForNpAccount() throws Exception {
         try {
@@ -44,7 +47,7 @@ public class BalanceTransferService {
              * manual NP accounts
              */
             //infoLogger.info(logManager.processStartEndStyle("Balance Transfer Process Manual NP Acceleration Started"));
-            LogManager.logStartEnd("Balance Transfer Process Manual NP Acceleration Started", infoLogger);
+            logManager.logStartEnd("Balance Transfer Process Manual NP Acceleration Started", infoLogger);
             List<ManualNpRequestBean> manualNpList = installmentPaymentRepo.getManualNpRequestDetails(statusList.getYES_STATUS_1(), statusList.getCOMMON_REQUEST_ACCEPTED());
             Configurations.PROCESS_TOTAL_NOOF_TRABSACTIONS += manualNpList.size();
 
@@ -55,22 +58,22 @@ public class BalanceTransferService {
                     installmentPaymentRepo.updateEasyPaymentRequestToAccelerate(accNo, "BALANCETRASFERREQUEST");
                     Configurations.PROCESS_SUCCESS_COUNT++;
                     //infoLogger.info("Balance Transfer process success for accNo " + accNo + " when Accelerate Balance Transfer for manual NP. ");
-                    LogManager.logInfo("Balance Transfer process success for accNo " + accNo + " when Accelerate Balance Transfer for manual NP. ", infoLogger);
+                    logManager.logInfo("Balance Transfer process success for accNo " + accNo + " when Accelerate Balance Transfer for manual NP. ", infoLogger);
                 } catch (Exception ex) {
                     Configurations.PROCESS_FAILD_COUNT++;
                     //infoLogger.info("Balance Transfer process failed for accno " + accNo + " when Accelerate Balance Transfer for manual NP. ");
-                    LogManager.logInfo("Balance Transfer process failed for accno " + accNo + " when Accelerate Balance Transfer for manual NP. ", infoLogger);
+                    logManager.logInfo("Balance Transfer process failed for accno " + accNo + " when Accelerate Balance Transfer for manual NP. ", infoLogger);
                     //errorLogger.error("Balance Transfer process failed for accno " + accNo + " when Accelerate Balance Transfer for manual NP. ", ex);
-                    LogManager.logError("Balance Transfer process failed for accno " + accNo + " when Accelerate Balance Transfer for manual NP. ", ex, errorLogger);
+                    logManager.logError("Balance Transfer process failed for accno " + accNo + " when Accelerate Balance Transfer for manual NP. ", ex, errorLogger);
                 }
             }
             //infoLogger.info(logManager.processStartEndStyle("Balance Transfer Process Manual NP Acceleration Finished"));
-            LogManager.logInfo("Balance Transfer Process Manual NP Acceleration Finished", infoLogger);
+            logManager.logInfo("Balance Transfer Process Manual NP Acceleration Finished", infoLogger);
             /**
              * automatic NP accounts
              */
             //infoLogger.info(logManager.processStartEndStyle("Balance Transfer Process Automatic NP Acceleration Started"));
-            LogManager.logInfo("Balance Transfer Process Automatic NP Acceleration Started", infoLogger);
+            logManager.logInfo("Balance Transfer Process Automatic NP Acceleration Started", infoLogger);
             List<DelinquentAccountBean> delinquentAccountList = installmentPaymentRepo.getDelinquentAccounts();
             Configurations.PROCESS_TOTAL_NOOF_TRABSACTIONS += delinquentAccountList.size();
             for (DelinquentAccountBean delinquentAccountBean : delinquentAccountList) {
@@ -98,13 +101,13 @@ public class BalanceTransferService {
                                 installmentPaymentRepo.updateEasyPaymentRequestToAccelerate(accNo, "BALANCETRASFERREQUEST");
                                 Configurations.PROCESS_SUCCESS_COUNT++;
                                 //infoLogger.info("Balance Transfer process success for accNo " + accNo + " when Accelerate Balance Transfer for Automatic NP. ");
-                                LogManager.logInfo("Balance Transfer process success for accNo " + accNo + " when Accelerate Balance Transfer for Automatic NP. ", infoLogger);
+                                logManager.logInfo("Balance Transfer process success for accNo " + accNo + " when Accelerate Balance Transfer for Automatic NP. ", infoLogger);
                             } catch (Exception ex) {
                                 Configurations.PROCESS_FAILD_COUNT++;
                                 //infoLogger.info("Balance Transfer process failed for accno " + accNo + " when Accelerate Balance Transfer for Automatic NP. ");
-                                LogManager.logInfo("Balance Transfer process failed for accno " + accNo + " when Accelerate Balance Transfer for Automatic NP. ", infoLogger);
+                                logManager.logInfo("Balance Transfer process failed for accno " + accNo + " when Accelerate Balance Transfer for Automatic NP. ", infoLogger);
                                 //errorLogger.error("Balance Transfer process failed for accno " + accNo + " when Accelerate Balance Transfer for Automatic NP. ", ex);
-                                LogManager.logError("Balance Transfer process failed for accno " + accNo + " when Accelerate Balance Transfer for Automatic NP. ", ex, errorLogger);
+                                logManager.logError("Balance Transfer process failed for accno " + accNo + " when Accelerate Balance Transfer for Automatic NP. ", ex, errorLogger);
                             }
                         }
                     } else {
@@ -117,13 +120,13 @@ public class BalanceTransferService {
                                     installmentPaymentRepo.updateEasyPaymentRequestToAccelerate(accNo, "BALANCETRASFERREQUEST");
                                     Configurations.PROCESS_SUCCESS_COUNT++;
                                     //infoLogger.info("Balance Transfer process success for accNo " + accNo + " when Accelerate Balance Transfer for Automatic NP. ");
-                                    LogManager.logInfo("Balance Transfer process success for accNo " + accNo + " when Accelerate Balance Transfer for Automatic NP. ", infoLogger);
+                                    logManager.logInfo("Balance Transfer process success for accNo " + accNo + " when Accelerate Balance Transfer for Automatic NP. ", infoLogger);
                                 } catch (Exception ex) {
                                     Configurations.PROCESS_FAILD_COUNT++;
                                     //infoLogger.info("Balance Transfer process failed for accno " + accNo + " when Accelerate Balance Transfer for Automatic NP. ");
-                                    LogManager.logInfo("Balance Transfer process failed for accno " + accNo + " when Accelerate Balance Transfer for Automatic NP. ", infoLogger);
+                                    logManager.logInfo("Balance Transfer process failed for accno " + accNo + " when Accelerate Balance Transfer for Automatic NP. ", infoLogger);
                                     //errorLogger.error("Balance Transfer process failed for accno " + accNo + " when Accelerate Balance Transfer for Automatic NP. ", ex);
-                                    LogManager.logError("Balance Transfer process failed for accno " + accNo + " when Accelerate Balance Transfer for Automatic NP.", ex, errorLogger);
+                                    logManager.logError("Balance Transfer process failed for accno " + accNo + " when Accelerate Balance Transfer for Automatic NP.", ex, errorLogger);
                                 }
                             }
                         }
@@ -131,16 +134,16 @@ public class BalanceTransferService {
                 } catch (Exception e) {
                     Configurations.PROCESS_FAILD_COUNT++;
                     //infoLogger.info("Balance Transfer Process failed for accno " + accNo + " when Accelerate Loan On Card for Automatic NP. ");
-                    LogManager.logInfo("Balance Transfer Process failed for accno " + accNo + " when Accelerate Loan On Card for Automatic NP. ", infoLogger);
+                    logManager.logInfo("Balance Transfer Process failed for accno " + accNo + " when Accelerate Loan On Card for Automatic NP. ", infoLogger);
                     //errorLogger.error("Balance Transfer Process failed for accno " + accNo + " when Accelerate Loan On Card for Automatic NP. ", e);
-                    LogManager.logError("Balance Transfer Process failed for accno " + accNo + " when Accelerate Loan On Card for Automatic NP. ", e, errorLogger);
+                    logManager.logError("Balance Transfer Process failed for accno " + accNo + " when Accelerate Loan On Card for Automatic NP. ", e, errorLogger);
                 }
             }
             //infoLogger.info(logManager.processStartEndStyle("Balance Transfer Process Automatic NP Acceleration Finished"));
-            LogManager.logInfo("Balance Transfer Process Automatic NP Acceleration Finished", infoLogger);
+            logManager.logInfo("Balance Transfer Process Automatic NP Acceleration Finished", infoLogger);
         } catch (Exception e) {
             //errorLogger.error("Exception in Balance Transfer NP Accounts", e);
-            LogManager.logError("Exception in Balance Transfer NP Accounts", e, errorLogger);
+            logManager.logError("Exception in Balance Transfer NP Accounts", e, errorLogger);
         }
     }
 
@@ -318,9 +321,9 @@ public class BalanceTransferService {
                     Configurations.errorCardList.add(new ErrorCardBean(Configurations.ERROR_EOD_ID, Configurations.EOD_DATE, new StringBuffer(installmentBean.getCardNumber()), e.getMessage(), Configurations.PROCESS_ID_BALANCE_TRANSFER, "Balance Transfer Process", 0, CardAccount.CARD));
 
                     //infoLogger.info("Balance Transfer process failed for cardnumber " + CommonMethods.cardInfo(maskedCardNumber, processBean));
-                    LogManager.logInfo("Balance Transfer process failed for cardnumber " + CommonMethods.cardInfo(maskedCardNumber, processBean), infoLogger);
+                    logManager.logInfo("Balance Transfer process failed for cardnumber " + CommonMethods.cardInfo(maskedCardNumber, processBean), infoLogger);
                     //errorLogger.error("Balance Transfer process failed for cardnumber " + CommonMethods.cardInfo(maskedCardNumber, processBean), e);
-                    LogManager.logError("Balance Transfer process failed for cardnumber " + CommonMethods.cardInfo(maskedCardNumber, processBean), e, errorLogger);
+                    logManager.logError("Balance Transfer process failed for cardnumber " + CommonMethods.cardInfo(maskedCardNumber, processBean), e, errorLogger);
 
                     details.put("Process Status", "Failed");
 
@@ -328,9 +331,9 @@ public class BalanceTransferService {
                 //infoLogger.info(logManager.processDetailsStyles(details));
             } catch (Exception e) {
                 //errorLogger.error("Balance Transfer process failed ", e);
-                LogManager.logError("Balance Transfer process failed ", e, errorLogger);
+                logManager.logError("Balance Transfer process failed ", e, errorLogger);
             } finally {
-                LogManager.logDetails(details, infoLogger);
+                logManager.logDetails(details, infoLogger);
             }
         }
     }

@@ -21,7 +21,7 @@ import static com.epic.cms.util.LogManager.infoLogger;
 public class ChequeReturnService {
 
     @Autowired
-    public LogManager logManager;
+    LogManager logManager;
 
     @Autowired
     public ChequeReturnDao chequeReturnDao;
@@ -32,7 +32,7 @@ public class ChequeReturnService {
     @Autowired
     public StatusVarList status;
 
-    @Transactional(value = "transactionManager", propagation = Propagation.REQUIRED,rollbackFor = Exception.class)
+    @Transactional(value = "transactionManager", propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
     public void updateChequeReturns() throws Exception {
         List<ReturnChequePaymentDetailsBean> chqList = null;
         try {
@@ -62,17 +62,17 @@ public class ChequeReturnService {
     }
 
     @Async("taskExecutor2")
-    @Transactional(value = "transactionManager", propagation = Propagation.REQUIRED,rollbackFor = Exception.class)
+    @Transactional(value = "transactionManager", propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
     public void proceedChequeReturn(Map.Entry pair) {
         if (!Configurations.isInterrupted) {
             LinkedHashMap details = new LinkedHashMap();
             List<ReturnChequePaymentDetailsBean> chequeReturnList = new ArrayList<>();
             ReturnChequePaymentDetailsBean chqBean = new ReturnChequePaymentDetailsBean();
             StringBuffer cardNo = null;
-            Date paidDate = null,dueDate = null,statementEndDate = null,chequeReturnDate = null;
-            int statementEndEODID = 0,statementStartEODID = 0,ndia = 0;
-            String returnFeeCode = "",oldCardStatus = "",riskclass = "";
-            double totalChequeReturns = 0,calculatedInterests = 0;
+            Date paidDate = null, dueDate = null, statementEndDate = null, chequeReturnDate = null;
+            int statementEndEODID = 0, statementStartEODID = 0, ndia = 0;
+            String returnFeeCode = "", oldCardStatus = "", riskclass = "";
+            double totalChequeReturns = 0, calculatedInterests = 0;
             boolean datesNotNull = false;
 
             try {
@@ -439,14 +439,13 @@ public class ChequeReturnService {
                     //cash payments are enough to cover the min amount
                 }
                 calculatedInterests = 0;
-
-                infoLogger.info(logManager.processDetailsStyles(details));
                 Configurations.PROCESS_SUCCESS_COUNT++;
             } catch (Exception ex) {
                 Configurations.errorCardList.add(new ErrorCardBean(Configurations.ERROR_EOD_ID, Configurations.EOD_DATE, new StringBuffer(chqBean.getCardnumber()), ex.getMessage(), Configurations.RUNNING_PROCESS_ID, Configurations.RUNNING_PROCESS_DESCRIPTION, 0, CardAccount.CARD));
                 Configurations.PROCESS_FAILD_COUNT++;
-                errorLogger.error("proceedChequeReturn Process Error", ex);
+                logManager.logError("proceedChequeReturn Process Error", ex, errorLogger);
             } finally {
+                logManager.logDetails(details, infoLogger);
             /* PADSS Change -
                variables handling card data should be nullified by replacing the value of variable with zero and call NULL function */
                 for (ReturnChequePaymentDetailsBean returnChequePaymentDetailBean : chequeReturnList) {
@@ -471,7 +470,7 @@ public class ChequeReturnService {
             chequeReturnDao.updateOnlineAccountOtb(otbBean);
             chequeReturnDao.updateOnlineCardOtb(otbBean);
         } catch (Exception e) {
-            errorLogger.error("Update Card Customer Account Balances Error", e);
+            logManager.logError("Update Card Customer Account Balances Error", e, errorLogger);
             throw e;
         }
     }
@@ -481,7 +480,7 @@ public class ChequeReturnService {
             chequeReturnDao.updateEODCARDBalanceKnockOn(otbBean);
             updateCardCustomerAccountBalances(otbBean);
         } catch (Exception e) {
-            errorLogger.error("Update Card Balance By Card Category Error", e);
+            logManager.logError("Update Card Balance By Card Category Error", e, errorLogger);
             throw e;
         }
     }
@@ -495,7 +494,7 @@ public class ChequeReturnService {
             details.put("min payment", minAmount);
             Statusts.SUMMARY_FOR_MINPAYMENT_RISK_ADDED++;
         } catch (Exception e) {
-            errorLogger.error("Add To Min Payment Error", e);
+            logManager.logError("Add To Min Payment Error", e, errorLogger);
             throw e;
         }
     }

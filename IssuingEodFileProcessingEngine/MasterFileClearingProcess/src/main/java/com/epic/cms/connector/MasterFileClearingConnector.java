@@ -56,16 +56,16 @@ public class MasterFileClearingConnector extends FileProcessingProcessBuilder {
                 masterFileClearingService.processFile(fileBean);
             } else {
                 //file cannot proceed due to invalid status
-                errorLoggerEFPE.error("Cannot read, Master file " + fileId + " is not in the initial status");
+                logManager.logError("Cannot read, Master file " + fileId + " is not in the initial status", errorLoggerEFPE);
             }
 
         } catch (Exception ex) {
-            errorLoggerEFPE.error("Master File clearing process failed for file " + fileId, ex);
+            logManager.logError("Master File clearing process failed for file " + fileId, ex, errorLoggerEFPE);
             //update file status to FEROR
             try {
                 masterFileClearingDao.updateFileStatus(fileId, DatabaseStatus.STATUS_FILE_ERROR);
             } catch (Exception e) {
-                errorLoggerEFPE.error("", e);
+                logManager.logError("", e, errorLoggerEFPE);
             }
         }
     }

@@ -30,6 +30,9 @@ public class CardExpireConnector extends ProcessBuilder {
     @Autowired
     CardExpireRepo cardExpireRepo;
 
+    @Autowired
+    LogManager logManager;
+
     private ArrayList<CardBean> expiredCardList = new ArrayList<>();
 
 
@@ -62,8 +65,7 @@ public class CardExpireConnector extends ProcessBuilder {
             Configurations.IS_PROCESS_COMPLETELY_FAILED = true;
             throw ex;
         } finally {
-            //addSummaries();
-            //infoLogger.info(logManager.processSummeryStyles(summery));
+            logManager.logSummery(summery,infoLogger);
             try {
                 if (expiredCardList != null && expiredCardList.size() != 0) {
                     /** PADSS Change -
@@ -74,12 +76,12 @@ public class CardExpireConnector extends ProcessBuilder {
                     }
                 }
             } catch (Exception e) {
-//                errorLogger.error("Exception ", e);
-                LogManager.logError(e,errorLogger);
+                logManager.logError(e,errorLogger);
             }
         }
     }
 
+    @Override
     public void addSummaries() {
         summery.put("Number of cards to expired ", Configurations.PROCESS_TOTAL_NOOF_TRABSACTIONS);
         summery.put("Number of success expired ", Configurations.PROCESS_SUCCESS_COUNT);

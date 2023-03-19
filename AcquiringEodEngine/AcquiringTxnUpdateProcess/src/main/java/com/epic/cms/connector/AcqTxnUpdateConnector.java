@@ -165,6 +165,11 @@ public class AcqTxnUpdateConnector extends ProcessBuilder {
 
     }
 
+    @Override
+    public void addSummaries() {
+
+    }
+
 
     private void setCardProduct() {
         try {

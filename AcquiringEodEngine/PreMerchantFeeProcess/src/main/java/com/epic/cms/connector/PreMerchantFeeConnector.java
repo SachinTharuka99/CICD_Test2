@@ -115,4 +115,9 @@ public class PreMerchantFeeConnector extends ProcessBuilder {
             infoLogger.info(logManager.processSummeryStyles(summery));
         }
     }
+
+    @Override
+    public void addSummaries() {
+
+    }
 }

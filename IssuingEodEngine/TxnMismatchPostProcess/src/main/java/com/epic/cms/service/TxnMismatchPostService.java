@@ -85,21 +85,20 @@ public class TxnMismatchPostService {
                                 details.put("Transaction Type Code", card.getTxntype());
                                 details.put("Transaction Description", card.getTxntypedesc());
                                 details.put("Transaction Mismatch Amount", card.getTxnAmount());
-                                infoLogger.info(logManager.processDetailsStyles(details));
                             }
                         }
                         Configurations.PROCESS_SUCCESS_COUNT++;
                     } catch (Exception ex) {
                         Configurations.errorCardList.add(new ErrorCardBean(Configurations.ERROR_EOD_ID, Configurations.EOD_DATE, cardBean.getCardnumber(), ex.getMessage(), Configurations.RUNNING_PROCESS_ID, Configurations.RUNNING_PROCESS_DESCRIPTION, 0, CardAccount.CARD));
-                        errorLogger.error("Transaction mismatch post process failed for account " + bean.getAccountnumber(), ex);
+                        logManager.logError("Transaction mismatch post process failed for account " + bean.getAccountnumber(), ex, errorLogger);
                         failedCount++;
                         Configurations.PROCESS_FAILD_COUNT++;
                     }
                 }
-
-
             } catch (Exception e) {
-                errorLogger.error("Transaction mismatch post process failed", e);
+                logManager.logError("Transaction mismatch post process failed", e, errorLogger);
+            } finally {
+                logManager.logDetails(details, infoLogger);
             }
             Configurations.failedCount_TxnMisMatchProcess = failedCount;
         }

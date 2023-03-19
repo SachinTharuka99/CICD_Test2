@@ -50,7 +50,6 @@ public class EOMSupplementaryCardResetConnector extends ProcessBuilder {
 
     @Override
     public void concreteProcess() throws Exception {
-        String processHeader = "SUPPLEMENTARY CARD RESETTING PROCESS";
         Configurations.RUNNING_PROCESS_ID = Configurations.PROCESS_EOM_SUP_CARD_RESET;
         CommonMethods.eodDashboardProgressParametersReset();
         processBean = new ProcessBean();
@@ -58,17 +57,16 @@ public class EOMSupplementaryCardResetConnector extends ProcessBuilder {
         int configProcess = Configurations.PROCESS_EOM_SUP_CARD_RESET;
 
         try {
-//            infoLogger.info(logManager.ProcessHeaderStyle("Supplementary Reset Process"));
+            logManager.logHeader("Supplementary Reset Process", infoLogger);
             processBean = new ProcessBean();
             processBean = commonRepo.getProcessDetails(Configurations.PROCESS_EOM_SUP_CARD_RESET);
 
             if (processBean != null) {
-                infoLogger.info(logManager.processStartEndStyle("Supplementary Reset Process started"));
+                logManager.logStartEnd("Supplementary Reset Process started", infoLogger);
                 commonRepo.insertToEodProcessSumery(Configurations.PROCESS_EOM_SUP_CARD_RESET);
 
                 ArrayList accList = eomSupplementaryCardResetDao.getEligibleAccounts();
                 Configurations.PROCESS_TOTAL_NOOF_TRABSACTIONS = accList.size();
-
 
                 for (int i = 0; i < accList.size(); i++) {
                     eomSupplementaryCardResetService.SupplementryResetThread(accList.get(i));
@@ -78,14 +76,10 @@ public class EOMSupplementaryCardResetConnector extends ProcessBuilder {
                     Thread.sleep(1000);
                 }
             }
-            summery.put("Number of accounts to supplementry card reset ", Configurations.PROCESS_TOTAL_NOOF_TRABSACTIONS);
-            summery.put("Number of success card reset ", Configurations.PROCESS_TOTAL_NOOF_TRABSACTIONS - Configurations.PROCESS_FAILD_COUNT);
-            summery.put("Number of failure supplementry card ", Configurations.PROCESS_FAILD_COUNT);
-            infoLogger.info(logManager.processSummeryStyles(summery));
         } catch (Exception e) {
             try {
                 Configurations.IS_PROCESS_COMPLETELY_FAILED = true;
-                errorLogger.error("Supplementary Reset Process", e);
+                logManager.logError("Supplementary Reset Process", e, errorLogger);
 
                 if (processBean.getCriticalStatus() == 1) {
                     Configurations.COMMIT_STATUS = false;
@@ -94,9 +88,17 @@ public class EOMSupplementaryCardResetConnector extends ProcessBuilder {
                     Configurations.MAIN_EOD_STATUS = false;
                 }
             } catch (Exception e2) {
-                errorLogger.error("Supplementary Reset Process", e2);
+                logManager.logError("Supplementary Reset Process", e2, errorLogger);
             }
+        } finally {
+            logManager.logSummery(summery, infoLogger);
         }
+    }
 
+    @Override
+    public void addSummaries() {
+        summery.put("Number of accounts to supplementry card reset ", Configurations.PROCESS_TOTAL_NOOF_TRABSACTIONS);
+        summery.put("Number of success card reset ", Configurations.PROCESS_TOTAL_NOOF_TRABSACTIONS - Configurations.PROCESS_FAILD_COUNT);
+        summery.put("Number of failure supplementry card ", Configurations.PROCESS_FAILD_COUNT);
     }
 }

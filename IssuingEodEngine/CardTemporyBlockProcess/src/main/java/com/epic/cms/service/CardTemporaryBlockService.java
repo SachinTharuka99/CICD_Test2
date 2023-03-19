@@ -74,12 +74,13 @@ public class CardTemporaryBlockService {
 
             } catch (Exception ex) {
                 Configurations.errorCardList.add(new ErrorCardBean(Configurations.ERROR_EOD_ID, Configurations.EOD_DATE, new StringBuffer(blockCardBean.getCardNo()), ex.getMessage(), Configurations.RUNNING_PROCESS_ID, Configurations.RUNNING_PROCESS_DESCRIPTION, 0, CardAccount.CARD));
-                infoLogger.info("Card Temporary block process failed for cardnumber " + CommonMethods.cardInfo(maskedCardNumber, processBean));
-                errorLogger.error("Card Temporary block process failed for cardnumber " + CommonMethods.cardInfo(maskedCardNumber, processBean), ex);
+                logManager.logInfo("Card Temporary block process failed for cardnumber " + CommonMethods.cardInfo(maskedCardNumber, processBean), infoLogger);
+                logManager.logError("Card Temporary block process failed for cardnumber " + CommonMethods.cardInfo(maskedCardNumber, processBean), ex, errorLogger);
                 details.put("Process Status", "Failed");
                 Configurations.PROCESS_FAILD_COUNT++;
+            } finally {
+                logManager.logDetails(details, infoLogger);
             }
-            infoLogger.info(logManager.processDetailsStyles(details));
         }
     }
 }

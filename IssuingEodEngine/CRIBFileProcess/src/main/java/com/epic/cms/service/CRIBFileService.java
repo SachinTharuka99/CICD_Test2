@@ -54,7 +54,7 @@ public class CRIBFileService {
                     try {
                         cardCount = cribFileRepo.callStoredProcedureCribFileGeneration();
                     } catch (Exception ex) {
-                        errorLogger.error("CRIB file process exception for stored procedure", ex);
+                        logManager.logError("CRIB file process exception for stored procedure", ex, errorLogger);
                         throw ex;
                     }
                 } else {
@@ -63,10 +63,10 @@ public class CRIBFileService {
 
             } catch (Exception e) {
                 Configurations.IS_PROCESS_COMPLETELY_FAILED = true;
-                errorLogger.error("Failed crib file process:", e);
+                logManager.logError("Failed crib file process:", e, errorLogger);
             } finally {
                 addSummaries();
-                infoLogger.info(logManager.processSummeryStyles(summery));
+                logManager.logSummery(summery, infoLogger);
             }
         }
     }

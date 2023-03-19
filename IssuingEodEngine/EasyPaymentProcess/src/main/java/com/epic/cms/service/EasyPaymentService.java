@@ -48,7 +48,7 @@ public class EasyPaymentService {
             /**
              * manual NP accounts
              */
-            infoLogger.info(logManager.processStartEndStyle("Easy Payment process Manual NP Acceleration Started"));
+            logManager.logStartEnd("Easy Payment process Manual NP Acceleration Started", infoLogger);
             List<ManualNpRequestBean> manualNpList = installmentPaymentRepo.getManualNpRequestDetails(statusList.getYES_STATUS_1(), statusList.getCOMMON_REQUEST_ACCEPTED());
             Configurations.PROCESS_TOTAL_NOOF_TRABSACTIONS += manualNpList.size();
 
@@ -58,19 +58,18 @@ public class EasyPaymentService {
                     //update easy payement requests for corresponding accno to Accelerate status.
                     installmentPaymentRepo.updateEasyPaymentRequestToAccelerate(accNo, "EASYPAYMENTREQUEST");
                     Configurations.PROCESS_SUCCESS_COUNT++;
-                    infoLogger.info("Easy Payment process success for accNo " + accNo + " when Accelerate easy payment for manual NP. ");
+                    logManager.logInfo("Easy Payment process success for accNo " + accNo + " when Accelerate easy payment for manual NP. ", infoLogger);
                 } catch (Exception ex) {
                     Configurations.PROCESS_FAILD_COUNT++;
-                    infoLogger.info("Easy Payment process failed for accno " + accNo + " when Accelerate easy payment for manual NP. ");
-                    errorLogger.error("Easy Payment process failed for accno " + accNo + " when Accelerate easy payment for manual NP. ", ex);
+                    logManager.logInfo("Easy Payment process failed for accno " + accNo + " when Accelerate easy payment for manual NP. ", infoLogger);
+                    logManager.logError("Easy Payment process failed for accno " + accNo + " when Accelerate easy payment for manual NP. ", ex, errorLogger);
                 }
             }
-            infoLogger.info(logManager.processStartEndStyle("Easy Payment process Manual NP Acceleration Finished"));
-
+            logManager.logStartEnd("Easy Payment process Manual NP Acceleration Finished", infoLogger);
             /**
              * automatic NP accounts
              */
-            infoLogger.info(logManager.processStartEndStyle("Easy Payment process Automatic NP Acceleration Started"));
+            logManager.logStartEnd("Easy Payment process Automatic NP Acceleration Started", infoLogger);
             List<DelinquentAccountBean> delinquentAccountList = installmentPaymentRepo.getDelinquentAccounts();
             Configurations.PROCESS_TOTAL_NOOF_TRABSACTIONS += delinquentAccountList.size();
             for (DelinquentAccountBean delinquentAccountBean : delinquentAccountList) {
@@ -97,11 +96,11 @@ public class EasyPaymentService {
                                 //update Balance Transfer requests for corresponding accno to Accelerate status.
                                 installmentPaymentRepo.updateEasyPaymentRequestToAccelerate(accNo, "EASYPAYMENTREQUEST");
                                 Configurations.PROCESS_SUCCESS_COUNT++;
-                                infoLogger.info("Easy Payment process success for accNo " + accNo + " when Accelerate easy payment for Automatic NP. ");
+                                logManager.logInfo("Easy Payment process success for accNo " + accNo + " when Accelerate easy payment for Automatic NP. ", infoLogger);
                             } catch (Exception ex) {
                                 Configurations.PROCESS_FAILD_COUNT++;
-                                infoLogger.info("Easy Payment process failed for accno " + accNo + " when Accelerate easy payment for Automatic NP. ");
-                                errorLogger.error("Easy Payment process failed for accno " + accNo + " when Accelerate easy payment for Automatic NP. ", ex);
+                                logManager.logInfo("Easy Payment process failed for accno " + accNo + " when Accelerate easy payment for Automatic NP. ", infoLogger);
+                                logManager.logError("Easy Payment process failed for accno " + accNo + " when Accelerate easy payment for Automatic NP. ", ex, errorLogger);
                             }
                         }
                     } else {
@@ -113,25 +112,25 @@ public class EasyPaymentService {
                                     //update Balance Transfer requests for corresponding accno to Accelerate status.
                                     installmentPaymentRepo.updateEasyPaymentRequestToAccelerate(accNo, "EASYPAYMENTREQUEST");
                                     Configurations.PROCESS_SUCCESS_COUNT++;
-                                    infoLogger.info("Easy Payment process success for accNo " + accNo + " when Accelerate easy payment for Automatic NP. ");
+                                    logManager.logInfo("Easy Payment process success for accNo " + accNo + " when Accelerate easy payment for Automatic NP. ", infoLogger);
                                 } catch (Exception ex) {
                                     Configurations.PROCESS_FAILD_COUNT++;
-                                    infoLogger.info("Easy Payment process failed for accno " + accNo + " when Accelerate easy payment for Automatic NP. ");
-                                    errorLogger.error("Easy Payment process failed for accno " + accNo + " when Accelerate easy payment for Automatic NP. ", ex);
+                                    logManager.logInfo("Easy Payment process failed for accno " + accNo + " when Accelerate easy payment for Automatic NP. ", infoLogger);
+                                    logManager.logError("Easy Payment process failed for accno " + accNo + " when Accelerate easy payment for Automatic NP. ", ex, errorLogger);
                                 }
                             }
                         }
                     }
                 } catch (Exception e) {
                     Configurations.PROCESS_FAILD_COUNT++;
-                    infoLogger.info("Easy Payment process failed for accno " + accNo + " when Accelerate easy payment for Automatic NP. ");
-                    errorLogger.error("Easy Payment process failed for accno " + accNo + " when Accelerate easy payment for Automatic NP. ", e);
+                    logManager.logInfo("Easy Payment process failed for accno " + accNo + " when Accelerate easy payment for Automatic NP. ", infoLogger);
+                    logManager.logError("Easy Payment process failed for accno " + accNo + " when Accelerate easy payment for Automatic NP. ", e, errorLogger);
                 }
             }
-            infoLogger.info(logManager.processStartEndStyle("Easy Payment process Automatic NP Acceleration Finished"));
+            logManager.logStartEnd("Easy Payment process Automatic NP Acceleration Finished", infoLogger);
 
         } catch (Exception e) {
-            errorLogger.error("Easy Payment process failed for accelerate EasyPayment Request For NpAccount");
+            logManager.logError("Easy Payment process failed for accelerate EasyPayment Request For NpAccount", e, errorLogger);
         }
     }
 
@@ -389,16 +388,16 @@ public class EasyPaymentService {
                     Configurations.PROCESS_FAILD_COUNT++;
                     Configurations.errorCardList.add(new ErrorCardBean(Configurations.ERROR_EOD_ID, Configurations.EOD_DATE, new StringBuffer(easyPaymentBean.getCardNumber()), e.getMessage(), Configurations.RUNNING_PROCESS_ID, Configurations.RUNNING_PROCESS_DESCRIPTION, 0, CardAccount.CARD));
 
-                    infoLogger.info("Easy Payment process failed for cardnumber " + CommonMethods.cardInfo(maskedCardNumber, processBean));
-                    errorLogger.error("Easy Payment  process failed for cardnumber " + CommonMethods.cardInfo(maskedCardNumber, processBean), e);
+                    logManager.logInfo("Easy Payment process failed for cardnumber " + CommonMethods.cardInfo(maskedCardNumber, processBean), infoLogger);
+                    logManager.logError("Easy Payment  process failed for cardnumber " + CommonMethods.cardInfo(maskedCardNumber, processBean), e, errorLogger);
                     details.put("Process Status", "Failed");
                     throw e;
                 }
 
             } catch (Exception e) {
-                errorLogger.error("Easy Payment process failed ", e);
+                logManager.logError("Easy Payment process failed ", e, errorLogger);
             } finally {
-                infoLogger.info(logManager.processDetailsStyles(details));
+                logManager.logDetails(details,infoLogger);
             }
         }
     }

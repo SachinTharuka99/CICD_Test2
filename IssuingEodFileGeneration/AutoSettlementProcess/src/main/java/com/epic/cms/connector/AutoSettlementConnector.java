@@ -24,8 +24,7 @@ import java.math.BigDecimal;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 
-import static com.epic.cms.util.LogManager.errorLogger;
-import static com.epic.cms.util.LogManager.infoLogger;
+import static com.epic.cms.util.LogManager.*;
 
 /**
  * *******************************************************************************
@@ -165,13 +164,11 @@ public class AutoSettlementConnector extends FileGenProcessBuilder {
                         toDeleteStatus = false;
 
                     }
-
                     Configurations.PROCESS_SUCCESS_COUNT++;
 
                 } catch (Exception e) {
-
                     Configurations.PROCESS_FAILD_COUNT++;
-                    errorLogger.error(logManager.processStartEndStyle("AutoSettlement Process Fails"), e);
+                    logManager.logStartEnd("AutoSettlement Process Fails", infoLoggerEFGE);
                 } finally {
                     try {
                         if (toDeleteStatus) {
@@ -181,19 +178,13 @@ public class AutoSettlementConnector extends FileGenProcessBuilder {
                         System.out.println("Error " + ee);
                     }
                 }
-
-                summery.put("Started Date ", Configurations.EOD_DATE.toString());
-                summery.put("Process Success Count ", Configurations.PROCESS_SUCCESS_COUNT);
-                summery.put("Process Failed Count ", Configurations.PROCESS_FAILD_COUNT);
-
                 summery.put("Process Status", "Success");
             }
 
         } catch (Exception ex) {
-
             Configurations.IS_PROCESS_COMPLETELY_FAILED = true;
             summery.put("Process Status", "Error");
-            errorLogger.error("Auto Settlement Letter Process Failed", ex);
+            logManager.logError("Auto Settlement Letter Process Failed", ex, errorLoggerEFGE);
             try {
                 if (processBean.getCriticalStatus() == 1) {
                     Configurations.COMMIT_STATUS = false;
@@ -202,16 +193,18 @@ public class AutoSettlementConnector extends FileGenProcessBuilder {
                     Configurations.MAIN_EOD_STATUS = false;
                 }
             } catch (Exception e2) {
-                errorLogger.error("Exception ", e2);
+                logManager.logError("Exception ", e2, errorLoggerEFGE);
             }
         } finally {
-            infoLogger.info(logManager.processSummeryStyles(summery));
+            logManager.logSummery(summery, infoLoggerEFGE);
             commonRepo.updateFileGenProcessSummery(fileName, Configurations.EOD_ID, statusVarList.getSUCCES_STATUS(), Configurations.RUNNING_PROCESS_ID, Configurations.PROCESS_SUCCESS_COUNT, Configurations.PROCESS_FAILD_COUNT, CommonMethods.eodDashboardProcessProgress(Configurations.PROCESS_SUCCESS_COUNT, Configurations.PROCESS_TOTAL_NOOF_TRABSACTIONS));
         }
     }
 
     @Override
     public void addSummaries() {
-
+        summery.put("Started Date ", Configurations.EOD_DATE.toString());
+        summery.put("Process Success Count ", Configurations.PROCESS_SUCCESS_COUNT);
+        summery.put("Process Failed Count ", Configurations.PROCESS_FAILD_COUNT);
     }
 }

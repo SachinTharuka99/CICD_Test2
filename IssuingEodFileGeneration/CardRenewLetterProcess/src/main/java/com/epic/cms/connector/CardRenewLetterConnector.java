@@ -18,8 +18,8 @@ import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
 
-import static com.epic.cms.util.LogManager.errorLogger;
-import static com.epic.cms.util.LogManager.infoLogger;
+import static com.epic.cms.util.LogManager.*;
+
 @Service
 public class CardRenewLetterConnector extends FileGenProcessBuilder {
 
@@ -32,14 +32,13 @@ public class CardRenewLetterConnector extends FileGenProcessBuilder {
     @Autowired
     CardRenewLetterService cardRenewLetterService;
 
+    String[] fileNameAndPath = null;
+
     @Override
     public void concreteProcess() throws Exception {
 
         ArrayList<StringBuffer> renewalCardList = new ArrayList<>();
-        String[] fileNameAndPath = null;
-
         try {
-
             Configurations.RUNNING_PROCESS_ID = Configurations.PROCESS_ID_CARDRENEW_LETTER;
             CommonMethods.eodDashboardProgressParametersReset();
 
@@ -51,23 +50,14 @@ public class CardRenewLetterConnector extends FileGenProcessBuilder {
                 fileNameAndPath = cardRenewLetterService.startCardRenewLetterProcess(renewalCardList.get(i), sequenceNo);
                 sequenceNo++;
             }
-
-            summery.put("Started Date ", Configurations.EOD_DATE.toString());
-            summery.put("Total No of Effected Files ", Configurations.PROCESS_TOTAL_NOOF_TRABSACTIONS);
-            summery.put("Process Success Count ", Configurations.PROCESS_SUCCESS_COUNT);
-            summery.put("Process Failed Count ", Configurations.PROCESS_FAILD_COUNT);
-            summery.put("File Name and Path ", fileNameAndPath);
-
-            infoLogger.info(logManager.processSummeryStyles(summery));
-
         }catch (Exception e){
-
             Configurations.IS_PROCESS_COMPLETELY_FAILED = true;
-            errorLogger.error("CardRenewLetterProcess Failed" , e);
+            logManager.logError("CardRenewLetterProcess Failed" , e, errorLoggerEFGE);
             if(fileNameAndPath!= null){
                 fileGenerationService.deleteExistFile(fileNameAndPath[0]);
             }
         } finally {
+            logManager.logSummery(summery, infoLoggerEFGE);
             try {
                 if (!renewalCardList.isEmpty()) {
                     for (int i = 0; i < renewalCardList.size(); i++) {
@@ -75,9 +65,17 @@ public class CardRenewLetterConnector extends FileGenProcessBuilder {
                     }
                 }
             } catch (Exception e) {
-                errorLogger.error("Exception in Card Number Clearing ",e);
+                logManager.logError("Exception in Card Number Clearing ",e, errorLoggerEFGE);
             }
-
         }
+    }
+
+    @Override
+    public void addSummaries() {
+        summery.put("Started Date ", Configurations.EOD_DATE.toString());
+        summery.put("Total No of Effected Files ", Configurations.PROCESS_TOTAL_NOOF_TRABSACTIONS);
+        summery.put("Process Success Count ", Configurations.PROCESS_SUCCESS_COUNT);
+        summery.put("Process Failed Count ", Configurations.PROCESS_FAILD_COUNT);
+        summery.put("File Name and Path ", fileNameAndPath);
     }
 }

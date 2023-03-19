@@ -89,7 +89,7 @@ public class RiskCalculationConnector extends ProcessBuilder {
 //----------------------------------Insert fresh cards to delinquent table-----------------------------------------------------//
 
                 //                if (day == 01) {//Cards will be absorb for risk process in a month beginning after a mdue date
-                infoLogger.info(logManager.processStartEndStyle("RISK_CALCULATION_PROCESS Process Started for new cards"));
+                logManager.logStartEnd("RISK_CALCULATION_PROCESS Process Started for new cards", infoLogger);
                 cardList = riskCalculationDao.getRiskCalculationCardList();
                 Configurations.PROCESS_TOTAL_NOOF_TRABSACTIONS += cardList.size();
                 if (cardList.size() > 0) {
@@ -101,22 +101,27 @@ public class RiskCalculationConnector extends ProcessBuilder {
                         Thread.sleep(1000);
                     }
                 } else {
-                    infoLogger.info("No new cards for add to risk class");
+                    logManager.logInfo("No new cards for add to risk class", infoLogger);
                 }
 
                 Configurations.PROCESS_TOTAL_NOOF_TRABSACTIONS = (noOfExistingCards + noOfNewCards);
                 Configurations.PROCESS_SUCCESS_COUNT = (noOfExistingCards + noOfNewCards) - (failedExistingCards + failedNewCards);
                 Configurations.PROCESS_FAILD_COUNT = (failedExistingCards + failedNewCards);
-                summery.put("Started Date", Configurations.EOD_DATE.toString());
-                summery.put("No of Card effected", Integer.toString(noOfExistingCards + noOfNewCards));
-                summery.put("No of Success Card ", Integer.toString((noOfExistingCards + noOfNewCards) - (failedExistingCards + failedNewCards)));
-                summery.put("No of fail Card ", Integer.toString(failedExistingCards + failedNewCards));
-                infoLogger.info(logManager.processSummeryStyles(summery));
             }
 
         } catch (Exception e) {
             Configurations.IS_PROCESS_COMPLETELY_FAILED = true;
-            errorLogger.error("RISK_CALCULATION_PROCESS ended with", e);
+            logManager.logError("RISK_CALCULATION_PROCESS ended with", e, errorLogger);
+        } finally {
+            logManager.logSummery(summery, infoLogger);
         }
+    }
+
+    @Override
+    public void addSummaries() {
+        summery.put("Started Date", Configurations.EOD_DATE.toString());
+        summery.put("No of Card effected", Integer.toString(Configurations.PROCESS_TOTAL_NOOF_TRABSACTIONS));
+        summery.put("No of Success Card ", Integer.toString(Configurations.PROCESS_SUCCESS_COUNT));
+        summery.put("No of fail Card ", Integer.toString(Configurations.PROCESS_FAILD_COUNT));
     }
 }

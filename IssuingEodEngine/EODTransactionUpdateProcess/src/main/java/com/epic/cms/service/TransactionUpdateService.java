@@ -16,7 +16,7 @@ import static com.epic.cms.util.LogManager.infoLogger;
 @Service
 public class TransactionUpdateService {
     @Autowired
-    public LogManager logManager;
+    LogManager logManager;
 
     @Autowired
     public StatusVarList status;
@@ -36,7 +36,7 @@ public class TransactionUpdateService {
                     Configurations.VISA_TXN_UPDATE_COUNT = txnCounts[2];
                     Configurations.FAILED_VISA_TXN_COUNT = txnCounts[1];
                 } catch (Exception ex) {
-                    errorLogger.error("EOD Visa Transaction Update Process process failed ", ex);
+                    logManager.logError("EOD Visa Transaction Update Process process failed ", ex, errorLogger);
                 }
                 break;
             // update master transactions
@@ -47,7 +47,7 @@ public class TransactionUpdateService {
                     Configurations.MASTER_TXN_UPDATE_COUNT = txnCounts[2];
                     Configurations.FAILED_MASTER_TXN_COUNT = txnCounts[1];
                 } catch (Exception ex) {
-                    errorLogger.error("EOD Master Transaction Update Process process failed ", ex);
+                    logManager.logError("EOD Master Transaction Update Process process failed ", ex, errorLogger);
                 }
                 break;
         }

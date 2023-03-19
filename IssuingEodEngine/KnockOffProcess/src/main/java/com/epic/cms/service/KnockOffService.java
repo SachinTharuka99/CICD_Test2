@@ -258,7 +258,6 @@ public class KnockOffService {
                         details.put("Knocked Off EOD Cash Advance", supCashAdvances);
                         details.put("Knocked Off EOD Sales", supTransactions);
                         details.put("Forward Amount", paymentBean.getPayment());
-                        infoLogger.info(logManager.processDetailsStyles(details));
                     }
 
                     if (eomBean != null) {
@@ -285,11 +284,12 @@ public class KnockOffService {
 
                 } catch (Exception e) {
                     Configurations.errorCardList.add(new ErrorCardBean(Configurations.ERROR_EOD_ID, Configurations.EOD_DATE, new StringBuffer(custAccBean.getCardnumber()), e.getMessage(), Configurations.RUNNING_PROCESS_ID, Configurations.RUNNING_PROCESS_DESCRIPTION, 0, CardAccount.ACCOUNT));
-                    errorLogger.error("Knock off process failed for account " + custAccBean.getAccountnumber(), e);
+                    logManager.logError("Knock off process failed for account " + custAccBean.getAccountnumber(), e, errorLogger);
                     Configurations.PROCESS_FAILD_COUNT++;
                     break card;
+                } finally {
+                    logManager.logDetails(details, infoLogger);
                 }
-                infoLogger.info(logManager.processDetailsStyles(details));
             }
         }
     }

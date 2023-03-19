@@ -63,16 +63,6 @@ public class StampDutyFeeConnector extends ProcessBuilder {
                 Thread.sleep(1000);
             }
 
-            infoLogger.info("Thread Name Prefix: {}, Active count: {}, Pool size: {}, Queue Size: {}", taskExecutor.getThreadNamePrefix(), taskExecutor.getActiveCount(), taskExecutor.getPoolSize(), taskExecutor.getThreadPoolExecutor().getQueue().size());
-
-            totalFailedCount = Configurations.PROCESS_FAILD_COUNT;
-            summery.put("Started Date", Configurations.EOD_DATE.toString());
-            summery.put("No of Card effected", Integer.toString(noOfCards));
-            summery.put("No of Success Card ", Integer.toString(noOfCards - totalFailedCount));
-            summery.put("No of fail Card ", Integer.toString(totalFailedCount));
-
-            infoLogger.info(logManager.processSummeryStyles(summery));
-
             totalFailedCount = Configurations.PROCESS_FAILD_COUNT;
             Configurations.PROCESS_TOTAL_NOOF_TRABSACTIONS = (statementAccountList.size());
             Configurations.PROCESS_SUCCESS_COUNT = (statementAccountList.size() - totalFailedCount);
@@ -80,8 +70,9 @@ public class StampDutyFeeConnector extends ProcessBuilder {
 
         } catch (Exception e) {
             Configurations.IS_PROCESS_COMPLETELY_FAILED = true;
-            errorLogger.error("Stan Duty Fee Process Fail" , e);
+            logManager.logError("Stan Duty Fee Process Fail" , e, errorLogger);
         } finally {
+            logManager.logSummery(summery, infoLogger);
             try {
                 /* PADSS Change -variables handling card data should be nullified by replacing
                  the value of variable with zero and call NULL function */
@@ -92,9 +83,16 @@ public class StampDutyFeeConnector extends ProcessBuilder {
                     statementAccountList = null;
                 }
             } catch (Exception e) {
-                e.printStackTrace();
-                errorLogger.error(String.valueOf(e));
+                logManager.logError(String.valueOf(e), errorLogger);
             }
         }
+    }
+
+    @Override
+    public void addSummaries() {
+        summery.put("Started Date", Configurations.EOD_DATE.toString());
+        summery.put("No of Card effected", Integer.toString(Configurations.PROCESS_TOTAL_NOOF_TRABSACTIONS));
+        summery.put("No of Success Card ", Integer.toString(Configurations.PROCESS_SUCCESS_COUNT));
+        summery.put("No of fail Card ", Integer.toString(Configurations.PROCESS_FAILD_COUNT));
     }
 }

@@ -72,8 +72,6 @@ public class CashBackConnector extends ProcessBuilder {
                         Thread.sleep(1000);
                     }
 
-                    infoLogger.info("Thread Name Prefix: {}, Active count: {}, Pool size: {}, Queue Size: {}", taskExecutor.getThreadNamePrefix(), taskExecutor.getActiveCount(), taskExecutor.getPoolSize(), taskExecutor.getThreadPoolExecutor().getQueue().size());
-
                     failedCount = Configurations.PROCESS_FAILD_COUNT;
                     Configurations.PROCESS_TOTAL_NOOF_TRABSACTIONS = beanList.size();
                     Configurations.PROCESS_SUCCESS_COUNT = (beanList.size() - failedCount);
@@ -85,10 +83,9 @@ public class CashBackConnector extends ProcessBuilder {
 
         } catch (Exception e) {
             Configurations.IS_PROCESS_COMPLETELY_FAILED = true;
-            errorLogger.error("Exception in cashback process", e);
+            logManager.logError("Exception in cashback process", e, errorLogger);
         } finally {
-            addSummaries();
-            infoLogger.info(logManager.processSummeryStyles(summery));
+            logManager.logSummery(summery, infoLogger);
             try {
                 if (beanList != null && beanList.size() != 0) {
                     //nullify beanList
@@ -98,11 +95,12 @@ public class CashBackConnector extends ProcessBuilder {
                     beanList = null;
                 }
             } catch (Exception e3) {
-                errorLogger.error("Exception in cashback process", e3);
+                logManager.logError("Exception in cashback process", e3, errorLogger);
             }
         }
     }
 
+    @Override
     public void addSummaries() {
         if (beanList != null) {
             summery.put("Started Date", Configurations.EOD_DATE.toString());

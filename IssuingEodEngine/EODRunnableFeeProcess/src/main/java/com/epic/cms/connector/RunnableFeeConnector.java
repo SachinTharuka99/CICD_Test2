@@ -71,19 +71,11 @@ public class RunnableFeeConnector extends ProcessBuilder {
             Configurations.PROCESS_SUCCESS_COUNT = ((Configurations.SUMMARY_FOR_FEE_ANNIVERSARY_PROCESSED + Configurations.SUMMARY_FOR_FEE_CASHADVANCES + Configurations.SUMMARY_FOR_FEE_LATEPAYMENTS) - (Configurations.FAILED_CARDS));
             Configurations.PROCESS_FAILD_COUNT = (Configurations.FAILED_CARDS);
 
-            //add summery
-            summery.put("Anniversary Date Fee Checked for cards", Configurations.SUMMARY_FOR_FEE_ANNIVERSARY + "");
-            summery.put("Anniversary Date Fee processed", Configurations.SUMMARY_FOR_FEE_ANNIVERSARY_PROCESSED + "");
-            summery.put("Cash Advance fee processed", Configurations.SUMMARY_FOR_FEE_CASHADVANCES + "");
-            summery.put("Late Payment fee processed", Configurations.SUMMARY_FOR_FEE_LATEPAYMENTS + "");
-            summery.put("Failed No of cards", FAILED_CARDS + "");
-
-            infoLogger.info(logManager.processSummeryStyles(summery));
-
         } catch (Exception ex) {
             Configurations.IS_PROCESS_COMPLETELY_FAILED = true;
-            errorLogger.error("Errors occurred while checking fee", ex);
+            logManager.logError("Errors occurred while checking fee", ex, errorLogger);
         } finally {
+            logManager.logSummery(summery, infoLogger);
             /* PADSS Change -
                variables handling card data should be nullified
                by replacing the value of variable with zero and call NULL function */
@@ -94,5 +86,14 @@ public class RunnableFeeConnector extends ProcessBuilder {
             cardList = null;
         }
 
+    }
+
+    @Override
+    public void addSummaries() {
+        summery.put("Anniversary Date Fee Checked for cards", Configurations.SUMMARY_FOR_FEE_ANNIVERSARY + "");
+        summery.put("Anniversary Date Fee processed", Configurations.SUMMARY_FOR_FEE_ANNIVERSARY_PROCESSED + "");
+        summery.put("Cash Advance fee processed", Configurations.SUMMARY_FOR_FEE_CASHADVANCES + "");
+        summery.put("Late Payment fee processed", Configurations.SUMMARY_FOR_FEE_LATEPAYMENTS + "");
+        summery.put("Failed No of cards", FAILED_CARDS + "");
     }
 }

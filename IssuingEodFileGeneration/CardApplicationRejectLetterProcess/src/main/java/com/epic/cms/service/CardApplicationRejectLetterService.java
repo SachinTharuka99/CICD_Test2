@@ -15,16 +15,14 @@ import com.epic.cms.repository.CommonRepo;
 import com.epic.cms.util.Configurations;
 import com.epic.cms.util.LogManager;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.util.LinkedHashMap;
 import java.util.List;
 
 import static com.epic.cms.util.LogManager.errorLogger;
-import static com.epic.cms.util.LogManager.infoLogger;
+import static com.epic.cms.util.LogManager.errorLoggerEFGE;
 
 @Service
 public class CardApplicationRejectLetterService {
@@ -74,7 +72,7 @@ public class CardApplicationRejectLetterService {
             errorBean.setIsProcessFails(0);
 
             Configurations.PROCESS_FAILD_COUNT++;
-            errorLogger.error("Card Application Rejected Letter Process Failed " +  e);
+            logManager.logError("Card Application Rejected Letter Process Failed " +  e, errorLoggerEFGE);
 
         }
         return fileNameAndPath;

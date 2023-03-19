@@ -23,12 +23,13 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.math.BigDecimal;
 import java.math.RoundingMode;
-import java.text.SimpleDateFormat;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.LinkedHashMap;
+import java.util.Map;
 
 import static com.epic.cms.util.CommonMethods.*;
-import static com.epic.cms.util.LogManager.errorLogger;
-import static com.epic.cms.util.LogManager.infoLogger;
+import static com.epic.cms.util.LogManager.*;
 
 @Service
 public class GLSummaryFileService {
@@ -50,7 +51,7 @@ public class GLSummaryFileService {
 
     ArrayList<Integer> txnId = new ArrayList<>();
 
-    @Transactional(value="transactionManager",propagation = Propagation.REQUIRED,rollbackFor = Exception.class)
+    @Transactional(value = "transactionManager", propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
     public FileGenerationModel createGLFile(String fileName, String filePath, String backUpFilePath, ProcessBean processBean) throws Exception {
         LinkedHashMap summery = new LinkedHashMap();
         boolean toDeleteStatus = true;
@@ -70,9 +71,9 @@ public class GLSummaryFileService {
             hmap = glSummaryFileRepo.getDataFromEODGl();
             /**get active gl account details from GLACCOUNT table*/
             glAccntsDetail = commonFileGenProcessRepo.getGLAccData();
-             /**get credit acc and debit acc from GLTRANSACTION according to gltxn type*/
+            /**get credit acc and debit acc from GLTRANSACTION according to gltxn type*/
             gltypes = glSummaryFileRepo.getGLTypesData();
-             /**get gltxn type*/
+            /**get gltxn type*/
             gltxnTypes = commonFileGenProcessRepo.getGLTxnTypes();
 
             StringBuilder sbHeader = new StringBuilder();
@@ -113,7 +114,7 @@ public class GLSummaryFileService {
                                 drAmountBig = drAmountBig.add(glAmountBig);
 
                             } else {
-                                infoLogger.info("Error in CRDR type in EODGLACCOUNT table");
+                                logManager.logInfo("Error in CRDR type in EODGLACCOUNT table", infoLoggerEFGE);
                             }
                             glIdList.add(glAccountBean.getId());
                         }
@@ -126,7 +127,7 @@ public class GLSummaryFileService {
                             crStatus = false;
                         }
 
-                        String seqNo = "99" + Integer.toString(Configurations.EOD_ID) + validate(Integer.toString(noofBatches), 6, '0');
+                        String seqNo = "99" + Configurations.EOD_ID + validate(Integer.toString(noofBatches), 6, '0');
 
                         if (crStatus) {
                             count = 0;
@@ -147,7 +148,7 @@ public class GLSummaryFileService {
                             headerCreditCount++;
 
                             sbContent.append(fieldDelimeter);
-                            sbContent.append(validateLength(bean.getCurrencyCode().toString(), 3)); //CURRENCY
+                            sbContent.append(validateLength(bean.getCurrencyCode(), 3)); //CURRENCY
                             sbContent.append(fieldDelimeter);
                             sbContent.append(validateCurrencyLength(amountBig.toString(), 19)); //AMOUNT
                             sbContent.append(fieldDelimeter);
@@ -185,7 +186,7 @@ public class GLSummaryFileService {
                             headerDebitCount++;
 
                             sbContent.append(fieldDelimeter);
-                            sbContent.append(validateLength(bean.getCurrencyCode().toString(), 3)); //CURRENCY
+                            sbContent.append(validateLength(bean.getCurrencyCode(), 3)); //CURRENCY
                             sbContent.append(fieldDelimeter);
                             sbContent.append(validateCurrencyLength(amountBig.toString(), 19)); //AMOUNT
                             sbContent.append(fieldDelimeter);
@@ -227,7 +228,7 @@ public class GLSummaryFileService {
                             headerCreditCount++;
 
                             sbContent.append(fieldDelimeter);
-                            sbContent.append(validateLength(bean.getCurrencyCode().toString(), 3)); //CURRENCY
+                            sbContent.append(validateLength(bean.getCurrencyCode(), 3)); //CURRENCY
                             sbContent.append(fieldDelimeter);
                             sbContent.append(validateCurrencyLength(amountBig.toString(), 19)); //AMOUNT
                             sbContent.append(fieldDelimeter);
@@ -265,7 +266,7 @@ public class GLSummaryFileService {
                             headerDebitCount++;
 
                             sbContent.append(fieldDelimeter);
-                            sbContent.append(validateLength(bean.getCurrencyCode().toString(), 3)); //CURRENCY
+                            sbContent.append(validateLength(bean.getCurrencyCode(), 3)); //CURRENCY
                             sbContent.append(fieldDelimeter);
                             sbContent.append(validateCurrencyLength(amountBig.toString(), 19)); //AMOUNT
                             sbContent.append(fieldDelimeter);
@@ -306,7 +307,7 @@ public class GLSummaryFileService {
                                 drAmountBig = drAmountBig.add(glAmountBig);
 
                             } else {
-                                infoLogger.info("Error in CRDR type in EODGLACCOUNT table");
+                                logManager.logInfo("Error in CRDR type in EODGLACCOUNT table", infoLoggerEFGE);
                             }
                             glIdList.add(glAccountBean.getId());
                         }
@@ -319,7 +320,7 @@ public class GLSummaryFileService {
                             crStatus = false;
                         }
 
-                        String seqNo = "99" + Integer.toString(Configurations.EOD_ID) + validate(Integer.toString(noofBatches), 6, '0');
+                        String seqNo = "99" + Configurations.EOD_ID + validate(Integer.toString(noofBatches), 6, '0');
 
                         if (!crStatus) {
                             count = 0;
@@ -340,7 +341,7 @@ public class GLSummaryFileService {
                             headerCreditCount++;
 
                             sbContent.append(fieldDelimeter);
-                            sbContent.append(validateLength(bean.getCurrencyCode().toString(), 3)); //CURRENCY
+                            sbContent.append(validateLength(bean.getCurrencyCode(), 3)); //CURRENCY
                             sbContent.append(fieldDelimeter);
                             sbContent.append(validateCurrencyLength(amountBig.toString(), 19)); //AMOUNT
                             sbContent.append(fieldDelimeter);
@@ -378,7 +379,7 @@ public class GLSummaryFileService {
                             headerDebitCount++;
 
                             sbContent.append(fieldDelimeter);
-                            sbContent.append(validateLength(bean.getCurrencyCode().toString(), 3)); //CURRENCY
+                            sbContent.append(validateLength(bean.getCurrencyCode(), 3)); //CURRENCY
                             sbContent.append(fieldDelimeter);
                             sbContent.append(validateCurrencyLength(amountBig.toString(), 19)); //AMOUNT
                             sbContent.append(fieldDelimeter);
@@ -418,7 +419,7 @@ public class GLSummaryFileService {
                             headerCreditCount++;
 
                             sbContent.append(fieldDelimeter);
-                            sbContent.append(validateLength(bean.getCurrencyCode().toString(), 3)); //CURRENCY
+                            sbContent.append(validateLength(bean.getCurrencyCode(), 3)); //CURRENCY
                             sbContent.append(fieldDelimeter);
                             sbContent.append(validateCurrencyLength(amountBig.toString(), 19)); //AMOUNT
                             sbContent.append(fieldDelimeter);
@@ -456,7 +457,7 @@ public class GLSummaryFileService {
                             headerDebitCount++;
 
                             sbContent.append(fieldDelimeter);
-                            sbContent.append(validateLength(bean.getCurrencyCode().toString(), 3)); //CURRENCY
+                            sbContent.append(validateLength(bean.getCurrencyCode(), 3)); //CURRENCY
                             sbContent.append(fieldDelimeter);
                             sbContent.append(validateCurrencyLength(amountBig.toString(), 19)); //AMOUNT
                             sbContent.append(fieldDelimeter);
@@ -498,7 +499,7 @@ public class GLSummaryFileService {
                             headerCreditCount++;
 
                             sbContent.append(fieldDelimeter);
-                            sbContent.append(validateLength(bean.getCurrencyCode().toString(), 3)); //CURRENCY
+                            sbContent.append(validateLength(bean.getCurrencyCode(), 3)); //CURRENCY
                             sbContent.append(fieldDelimeter);
                             sbContent.append(validateCurrencyLength(amountBig.toString(), 19)); //AMOUNT
                             sbContent.append(fieldDelimeter);
@@ -536,7 +537,7 @@ public class GLSummaryFileService {
                             headerDebitCount++;
 
                             sbContent.append(fieldDelimeter);
-                            sbContent.append(validateLength(bean.getCurrencyCode().toString(), 3)); //CURRENCY
+                            sbContent.append(validateLength(bean.getCurrencyCode(), 3)); //CURRENCY
                             sbContent.append(fieldDelimeter);
                             sbContent.append(validateCurrencyLength(amountBig.toString(), 19)); //AMOUNT
                             sbContent.append(fieldDelimeter);
@@ -576,7 +577,7 @@ public class GLSummaryFileService {
                             headerCreditCount++;
 
                             sbContent.append(fieldDelimeter);
-                            sbContent.append(validateLength(bean.getCurrencyCode().toString(), 3)); //CURRENCY
+                            sbContent.append(validateLength(bean.getCurrencyCode(), 3)); //CURRENCY
                             sbContent.append(fieldDelimeter);
                             sbContent.append(validateCurrencyLength(amountBig.toString(), 19)); //AMOUNT
                             sbContent.append(fieldDelimeter);
@@ -614,7 +615,7 @@ public class GLSummaryFileService {
                             headerDebitCount++;
 
                             sbContent.append(fieldDelimeter);
-                            sbContent.append(validateLength(bean.getCurrencyCode().toString(), 3)); //CURRENCY
+                            sbContent.append(validateLength(bean.getCurrencyCode(), 3)); //CURRENCY
                             sbContent.append(fieldDelimeter);
                             sbContent.append(validateCurrencyLength(amountBig.toString(), 19)); //AMOUNT
                             sbContent.append(fieldDelimeter);
@@ -656,7 +657,7 @@ public class GLSummaryFileService {
                                     drAmountBig = drAmountBig.add(glAmountBig);
 
                                 } else {
-                                    infoLogger.info("Error in CRDR type in EODGLACCOUNT table");
+                                    logManager.logInfo("Error in CRDR type in EODGLACCOUNT table", infoLoggerEFGE);
                                 }
                                 glIdList.add(glAccountBean.getId());
                             }
@@ -669,7 +670,7 @@ public class GLSummaryFileService {
                                 crStatus = false;
                             }
 
-                            String seqNo = "99" + Integer.toString(Configurations.EOD_ID) + validate(Integer.toString(noofBatches), 6, '0');
+                            String seqNo = "99" + Configurations.EOD_ID + validate(Integer.toString(noofBatches), 6, '0');
 
                             if (crStatus) {
                                 count = 0;
@@ -690,7 +691,7 @@ public class GLSummaryFileService {
                                     headerCreditCount++;
 
                                     sbContent.append(fieldDelimeter);
-                                    sbContent.append(validateLength(bean.getCurrencyCode().toString(), 3)); //CURRENCY
+                                    sbContent.append(validateLength(bean.getCurrencyCode(), 3)); //CURRENCY
                                     sbContent.append(fieldDelimeter);
                                     sbContent.append(validateCurrencyLength(amountBig.toString(), 19)); //AMOUNT
                                     sbContent.append(fieldDelimeter);
@@ -728,7 +729,7 @@ public class GLSummaryFileService {
                                     headerDebitCount++;
 
                                     sbContent.append(fieldDelimeter);
-                                    sbContent.append(validateLength(bean.getCurrencyCode().toString(), 3)); //CURRENCY
+                                    sbContent.append(validateLength(bean.getCurrencyCode(), 3)); //CURRENCY
                                     sbContent.append(fieldDelimeter);
                                     sbContent.append(validateCurrencyLength(amountBig.toString(), 19)); //AMOUNT
                                     sbContent.append(fieldDelimeter);
@@ -767,7 +768,7 @@ public class GLSummaryFileService {
                                     headerCreditCount++;
 
                                     sbContent.append(fieldDelimeter);
-                                    sbContent.append(validateLength(bean.getCurrencyCode().toString(), 3)); //CURRENCY
+                                    sbContent.append(validateLength(bean.getCurrencyCode(), 3)); //CURRENCY
                                     sbContent.append(fieldDelimeter);
                                     sbContent.append(validateCurrencyLength(amountBig.toString(), 19)); //AMOUNT
                                     sbContent.append(fieldDelimeter);
@@ -805,7 +806,7 @@ public class GLSummaryFileService {
                                     headerDebitCount++;
 
                                     sbContent.append(fieldDelimeter);
-                                    sbContent.append(validateLength(bean.getCurrencyCode().toString(), 3)); //CURRENCY
+                                    sbContent.append(validateLength(bean.getCurrencyCode(), 3)); //CURRENCY
                                     sbContent.append(fieldDelimeter);
                                     sbContent.append(validateCurrencyLength(amountBig.toString(), 19)); //AMOUNT
                                     sbContent.append(fieldDelimeter);
@@ -848,7 +849,7 @@ public class GLSummaryFileService {
                                     headerCreditCount++;
 
                                     sbContent.append(fieldDelimeter);
-                                    sbContent.append(validateLength(bean.getCurrencyCode().toString(), 3)); //CURRENCY
+                                    sbContent.append(validateLength(bean.getCurrencyCode(), 3)); //CURRENCY
                                     sbContent.append(fieldDelimeter);
                                     sbContent.append(validateCurrencyLength(amountBig.toString(), 19)); //AMOUNT
                                     sbContent.append(fieldDelimeter);
@@ -886,7 +887,7 @@ public class GLSummaryFileService {
                                     headerDebitCount++;
 
                                     sbContent.append(fieldDelimeter);
-                                    sbContent.append(validateLength(bean.getCurrencyCode().toString(), 3)); //CURRENCY
+                                    sbContent.append(validateLength(bean.getCurrencyCode(), 3)); //CURRENCY
                                     sbContent.append(fieldDelimeter);
                                     sbContent.append(validateCurrencyLength(amountBig.toString(), 19)); //AMOUNT
                                     sbContent.append(fieldDelimeter);
@@ -925,7 +926,7 @@ public class GLSummaryFileService {
                                     headerCreditCount++;
 
                                     sbContent.append(fieldDelimeter);
-                                    sbContent.append(validateLength(bean.getCurrencyCode().toString(), 3)); //CURRENCY
+                                    sbContent.append(validateLength(bean.getCurrencyCode(), 3)); //CURRENCY
                                     sbContent.append(fieldDelimeter);
                                     sbContent.append(validateCurrencyLength(amountBig.toString(), 19)); //AMOUNT
                                     sbContent.append(fieldDelimeter);
@@ -963,7 +964,7 @@ public class GLSummaryFileService {
                                     headerDebitCount++;
 
                                     sbContent.append(fieldDelimeter);
-                                    sbContent.append(validateLength(bean.getCurrencyCode().toString(), 3)); //CURRENCY
+                                    sbContent.append(validateLength(bean.getCurrencyCode(), 3)); //CURRENCY
                                     sbContent.append(fieldDelimeter);
                                     sbContent.append(validateCurrencyLength(amountBig.toString(), 19)); //AMOUNT
                                     sbContent.append(fieldDelimeter);
@@ -988,7 +989,7 @@ public class GLSummaryFileService {
                                 }
                             }
                         } else {
-                            infoLogger.info("GLtype Data Not Configured in the system for Transaction type " + key);
+                            logManager.logInfo("GLtype Data Not Configured in the system for Transaction type " + key, infoLogger);
                             for (GlAccountBean glAccountBean : value) {
                                 glIdList.add(glAccountBean.getId());
                             }
@@ -1000,11 +1001,11 @@ public class GLSummaryFileService {
                     detailsGlSummary.put("CRDR", crStatus);
                     detailsGlSummary.put("GLTXN CRDR", crDROnBank);
                     detailsGlSummary.put("GL Amount", amountBig.toString());
-                    infoLogger.info(logManager.processDetailsStyles(detailsGlSummary));
+                    logManager.logDetails(detailsGlSummary, infoLoggerEFGE);
 
                 } catch (Exception e) {
                     status = false;
-                    errorLogger.error("Error while writing gl file.Exit from the process. Exception in GL txn Type " + entrySet.getKey() + "--->" + e);
+                    logManager.logError("Error while writing gl file.Exit from the process. Exception in GL txn Type " + entrySet.getKey() + "--->" + e, errorLoggerEFGE);
                     throw e;
                 }
                 status = true;
@@ -1038,8 +1039,8 @@ public class GLSummaryFileService {
                 fileGenerationService.generateFile(model.getFinalFile().toString(), filePath, backUpFilePath);
                 toDeleteStatus = false;
             } else {
-                infoLogger.info("Empty line in body. Hence No header section.");
-                errorLogger.info("Empty line in body. Hence No header section.");
+                logManager.logInfo("Empty line in body. Hence No header section.", infoLoggerEFGE);
+                logManager.logError("Empty line in body. Hence No header section.", errorLoggerEFGE);
             }
 
             summery.put("Process Name", processBean.getProcessDes());
@@ -1050,10 +1051,10 @@ public class GLSummaryFileService {
             summery.put("Header CR Count", Integer.toString(headerCreditCount));
             summery.put("Created Date ", Configurations.EOD_DATE.toString());
 
-            infoLogger.info(logManager.processSummeryStyles(summery));
+            logManager.logSummery(summery, infoLoggerEFGE);
 
         } catch (Exception e) {
-            errorLogger.error("GL File Process Failed. ", e);
+            logManager.logError("GL File Process Failed. ", e, errorLoggerEFGE);
             throw e;
         } finally {
             try {

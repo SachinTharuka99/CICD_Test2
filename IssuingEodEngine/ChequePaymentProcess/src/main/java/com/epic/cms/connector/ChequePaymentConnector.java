@@ -66,16 +66,14 @@ public class ChequePaymentConnector extends ProcessBuilder {
                     }
                 }
             } catch (Exception e) {
-                errorLogger.error("Failed Cheque Payment Process ", e);
+                logManager.logError("Failed Cheque Payment Process ", e, errorLogger);
                 throw e;
             }
         } catch (Exception e) {
             Configurations.IS_PROCESS_COMPLETELY_FAILED = true;
-            errorLogger.error("Failed Cheque Payment Process Exception ", e);
+            logManager.logError("Failed Cheque Payment Process Exception ", e, errorLogger);
         } finally {
-            summery.put("Cheque Payments Processed", Statusts.SUMMARY_FOR_CHEQUE_PAYMENTS + "");
-            summery.put("No of fail Cheque Payments ", Configurations.PROCESS_FAILD_COUNT);
-            infoLogger.info(logManager.processSummeryStyles(summery));
+            logManager.logSummery(summery, infoLogger);
             try {
                 if (chqList != null && chqList.size() != 0) {
                     /** PADSS Change -
@@ -88,8 +86,14 @@ public class ChequePaymentConnector extends ProcessBuilder {
                     chqList = null;
                 }
             } catch (Exception e) {
-                errorLogger.error("Cheque Payment Process Exception ", e);
+                logManager.logError("Cheque Payment Process Exception ", e, errorLogger);
             }
         }
+    }
+
+    @Override
+    public void addSummaries() {
+        summery.put("Cheque Payments Processed", Statusts.SUMMARY_FOR_CHEQUE_PAYMENTS + "");
+        summery.put("No of fail Cheque Payments ", Configurations.PROCESS_FAILD_COUNT);
     }
 }

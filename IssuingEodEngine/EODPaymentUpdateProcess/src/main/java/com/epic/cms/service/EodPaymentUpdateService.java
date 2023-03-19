@@ -63,9 +63,9 @@ public class EodPaymentUpdateService {
             summery.put("No of Success Card ", Integer.toString(Configurations.PROCESS_SUCCESS_COUNT));
             summery.put("No of fail Card ", Configurations.PROCESS_FAILD_COUNT);
 
-            infoLogger.info(logManager.processSummeryStyles(summery));
+            logManager.logSummery(summery, infoLogger);
         } catch (Exception e) {
-            errorLogger.error("EOD Payment Update Process process failed ", e);
+            logManager.logError("EOD Payment Update Process process failed ", e, errorLogger);
         }
     }
 }

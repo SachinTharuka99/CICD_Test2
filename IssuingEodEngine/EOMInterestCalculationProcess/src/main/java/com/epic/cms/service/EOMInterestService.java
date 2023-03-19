@@ -84,7 +84,6 @@ public class EOMInterestService {
                             cardDetails.put("Temp table Clearing Status", "Passed");
                         }
                     }
-
                     cardDetails.put("Process Status", "Passed");
                     Configurations.PROCESS_SUCCESS_COUNT++;
 
@@ -93,14 +92,13 @@ public class EOMInterestService {
                     cardDetails.put("Process Status", "Failed");
                     Configurations.PROCESS_FAILD_COUNT++;
                     Configurations.errorCardList.add(new ErrorCardBean(Configurations.ERROR_EOD_ID, Configurations.EOD_DATE, new StringBuffer(eomCardBean.getAccNo()), e.getMessage(), Configurations.RUNNING_PROCESS_ID, Configurations.RUNNING_PROCESS_DESCRIPTION, 0, CardAccount.ACCOUNT));
-                    errorLogger.error("EOM interest calculation Process failed for account number " + CommonMethods.cardInfo(maskedCardNumber, processBean), e);
+                    logManager.logError("EOM interest calculation Process failed for account number " + CommonMethods.cardInfo(maskedCardNumber, processBean), e, errorLogger);
                 }
-
-                infoLogger.info(logManager.processDetailsStyles(cardDetails));
-
             } catch (Exception e) {
-                errorLogger.error("EOM interest calculation Process failed ", e);
+                logManager.logError("EOM interest calculation Process failed ", e,errorLogger);
                 failedAccounts++;
+            } finally {
+                logManager.logDetails(cardDetails, infoLogger);
             }
             Configurations.PROCESS_FAILD_COUNT += failedAccounts;
         }

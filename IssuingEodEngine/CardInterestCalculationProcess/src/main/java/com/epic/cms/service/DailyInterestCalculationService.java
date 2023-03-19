@@ -34,6 +34,9 @@ public class DailyInterestCalculationService {
     @Autowired
     DailyInterestCalculationRepo interestCalculationRepo;
 
+    @Autowired
+    LogManager logManager;
+
     @Async("ThreadPool_100")
     @Transactional(value = "transactionManager", propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
     public void startDailyInterestCalculation(StatementBean stmtBean) {
@@ -71,13 +74,11 @@ public class DailyInterestCalculationService {
                 interestCalculationRepo.updateEodInterest(stmtBean, accumulateInterest, interestDetailBean.getInterest()); /**insert or update a record to EODINTEREST table*/
 
                 Configurations.PROCESS_SUCCESS_COUNT++;
-                //infoLogger.info("Interest calculated for card number " + CommonMethods.cardNumberMask(stmtBean.getCardNo()));
-                LogManager.logInfo("Interest calculated for card number " + CommonMethods.cardNumberMask(stmtBean.getCardNo()), infoLogger);
+                logManager.logInfo("Interest calculated for card number " + CommonMethods.cardNumberMask(stmtBean.getCardNo()), infoLogger);
             } catch (Exception ex) {
                 Configurations.errorCardList.add(new ErrorCardBean(Configurations.ERROR_EOD_ID, Configurations.EOD_DATE, new StringBuffer(stmtBean.getCardNo()), ex.getMessage(), Configurations.RUNNING_PROCESS_ID, Configurations.RUNNING_PROCESS_DESCRIPTION, 0, CardAccount.CARD));
                 Configurations.PROCESS_FAILD_COUNT++;
-                //errorLogger.error("Interest calculation process failed for card number " + CommonMethods.cardNumberMask(stmtBean.getCardNo()), ex);
-                LogManager.logError("Interest calculation process failed for card number " + CommonMethods.cardNumberMask(stmtBean.getCardNo()), ex, errorLogger);
+                logManager.logError("Interest calculation process failed for card number " + CommonMethods.cardNumberMask(stmtBean.getCardNo()), ex, errorLogger);
             }
         }
     }

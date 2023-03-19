@@ -1,8 +1,6 @@
 package com.epic.cms.service;
 
-import com.epic.cms.model.bean.ErrorCardBean;
 import com.epic.cms.repository.OnlineToBackendTxnRepo;
-import com.epic.cms.util.CardAccount;
 import com.epic.cms.util.Configurations;
 import com.epic.cms.util.LogManager;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -42,10 +40,10 @@ public class OnlineToBackendTxnService {
             summery.put("Total Success Count ", Configurations.PROCESS_SUCCESS_COUNT);
             summery.put("Total Failed Count ", Configurations.PROCESS_FAILD_COUNT);
 
-            infoLogger.info(logManager.processSummeryStyles(summery));
+            logManager.logSummery(summery, infoLogger);
 
         } catch (Exception e) {
-            errorLogger.error("Online to backend transaction sync process failed for transaction ", e);
+            logManager.logError("Online to backend transaction sync process failed for transaction ", e, errorLogger);
         }
     }
 }

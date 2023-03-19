@@ -39,7 +39,6 @@ class CardLimitEnhancementServiceTest {
     @BeforeEach
     void setUp() {
         cardLimitEnhancementServiceUnderTest = new CardLimitEnhancementService();
-        cardLimitEnhancementServiceUnderTest.logManager = mock(LogManager.class);
         //cardLimitEnhancementServiceUnderTest.commonRepo = mock(CommonRepo.class);
         cardLimitEnhancementServiceUnderTest.cardLimitEnhancementRepo = mock(CardLimitEnhancementRepo.class);
         cardLimitEnhancementServiceUnderTest.status = mock(StatusVarList.class);

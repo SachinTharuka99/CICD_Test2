@@ -15,4 +15,9 @@ public class EODPaymentUpdateConnector extends ProcessBuilder {
     public void concreteProcess() throws Exception {
         eodPaymentUpdateService.startEODPaymentUpdate();
     }
+
+    @Override
+    public void addSummaries() {
+
+    }
 }

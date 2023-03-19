@@ -86,10 +86,9 @@ public class KnockOffConnector extends ProcessBuilder {
             }
         } catch (Exception e) {
             Configurations.IS_PROCESS_COMPLETELY_FAILED = true;
-            errorLogger.error("Knock Off process Error", e);
+            logManager.logError("Knock Off process Error", e, errorLogger);
         } finally {
-            addSummaries();
-            infoLogger.info(logManager.processSummeryStyles(summery));
+            logManager.logSummery(summery, infoLogger);
             try {
                 if (custAccList != null && custAccList.size() != 0) {
                     for (OtbBean custAccBean : custAccList) {
@@ -113,11 +112,12 @@ public class KnockOffConnector extends ProcessBuilder {
                     paymentList = null;
                 }
             } catch (Exception e) {
-                errorLogger.error("Knock Off process Error", e);
+                logManager.logError("Knock Off process Error", e, errorLogger);
             }
         }
     }
 
+    @Override
     public void addSummaries() {
         if (custAccList != null) {
             summery.put("Number of transaction to sync", custAccList.size());

@@ -13,6 +13,7 @@ import com.epic.cms.model.bean.AdjustmentBean;
 import com.epic.cms.service.AdjustmentService;
 import com.epic.cms.util.CommonMethods;
 import com.epic.cms.util.Configurations;
+import com.epic.cms.util.LogManager;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.scheduling.concurrent.ThreadPoolTaskExecutor;
@@ -20,6 +21,8 @@ import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
 import java.util.List;
+
+import static com.epic.cms.util.LogManager.infoLogger;
 
 @Service
 public class AdjustmentConnector extends ProcessBuilder {
@@ -33,6 +36,9 @@ public class AdjustmentConnector extends ProcessBuilder {
 
     @Autowired
     AdjustmentDao adjustmentDao;
+
+    @Autowired
+    LogManager logManager;
 
     @Override
     public void concreteProcess() throws Exception {
@@ -60,6 +66,7 @@ public class AdjustmentConnector extends ProcessBuilder {
             Configurations.IS_PROCESS_COMPLETELY_FAILED = true;
             throw ex;
         } finally {
+            logManager.logSummery(summery, infoLogger);
             /** PADSS Change -
              variables handling card data should be nullified
              by replacing the value of variable with zero and call NULL function */

@@ -40,7 +40,7 @@ public class PaymentFileClearingService {
     @Autowired
     private StatusVarList status;
     @Autowired
-    private LogManager logManager;
+    LogManager logManager;
     @Autowired
     JobLauncher jobLauncher;
     @Autowired
@@ -67,13 +67,13 @@ public class PaymentFileClearingService {
             JobExecution execution = jobLauncher.run(paymentFileReadJob, jobParameters);
             final ExitStatus status = execution.getExitStatus();
             if (ExitStatus.COMPLETED.getExitCode().equals(status.getExitCode())) {
-                infoLoggerEFPE.info("Payment file reading job completed,File ID:" + fileBean.getFileId());
+                logManager.logInfo("Payment file reading job completed,File ID:" + fileBean.getFileId(),infoLoggerEFPE);
                 fileReadStatus = true;
             } else {
                 final List<Throwable> exceptions = execution
                         .getAllFailureExceptions();
                 for (final Throwable throwable : exceptions) {
-                    errorLoggerEFPE.error(throwable.getMessage(), throwable);
+                    logManager.logError(throwable.getMessage(), throwable, errorLoggerEFPE);
                 }
             }
         } catch (Exception ex) {
@@ -110,7 +110,7 @@ public class PaymentFileClearingService {
                 cardNumber = findCardNumberByCardNumberType(paymentFields[34], paymentFields[25].trim());
                 paymentFields[25] = cardNumber.toString();
             } catch (Exception ex) {
-                errorLoggerEFPE.error("Card number replace failed for payment record", ex);
+                logManager.logError("Card number replace failed for payment record", ex, errorLoggerEFPE);
             }
 
             int index = 0;
@@ -130,7 +130,7 @@ public class PaymentFileClearingService {
                         errorMsg = fieldDesc + " validation failed in " + validationDesc;
                         paymentFileClearingRepo.insertToRECPAYMENTFILEINVALID(fileId, lineNumber, errorMsg);
                         errorMsg = "Payment file validation failed in line number " + lineNumber;
-                        errorLoggerEFPE.error(errorMsg);
+                        logManager.logError(errorMsg, errorLoggerEFPE);
                         //invalidCount.addAndGet(1);//increase invalid count by 1
                         Configurations.PROCESS_PAYMENT_FILE_CLEARING_INVALID_COUNT++;
                     }
@@ -147,7 +147,7 @@ public class PaymentFileClearingService {
             details.put("Transaction Amount", paymentFields[12]);
             details.put("Trace ID", paymentFields[18] + "");
 
-            infoLoggerEFPE.info(logManager.processDetailsStyles(details));
+            logManager.logDetails(details,infoLoggerEFPE);
 
             /**
              * insert appropriate cheque txn type
@@ -169,7 +169,7 @@ public class PaymentFileClearingService {
             } else {
                 // Invalid card, Insert payment details into EodExceptionalTransaction table
                 count = paymentFileClearingRepo.insertExceptionalTransactionData(fileId, paymentFields[0], "", "", paymentFields[25].trim(), "", "", "", "", paymentFields[2].trim(), "", "", Configurations.USER, new Date(System.currentTimeMillis()), paymentFields[12].trim(), Configurations.BASE_CURRENCY, "YES", "", "", "", "", "", "", "", "", "", "PAYMENT", "Card No Invalid");
-                errorLoggerEFPE.error("Invalid card number found while payment file validation:" + paymentFields[25].trim());
+               logManager.logError("Invalid card number found while payment file validation:" + paymentFields[25].trim(), errorLoggerEFPE);
             }
             if (count > 0) {
                 paymentFileClearingRepo.updateRecPaymentRaw(fileId, lineNumber);
@@ -178,10 +178,10 @@ public class PaymentFileClearingService {
             }
 
         } catch (Exception ex) {
-            infoLoggerEFPE.error("Payment file validation failed for" +
+            logManager.logError("Payment file validation failed for" +
                     "\nFile ID : " + fileId +
-                    "\nLine Number : " + lineNumber);
-            errorLoggerEFPE.error(ex.getMessage(), ex);
+                    "\nLine Number : " + lineNumber, errorLoggerEFPE);
+            logManager.logError(ex.getMessage(), ex, errorLoggerEFPE);
             //failCount.addAndGet(1);//increase fail count by 1
             Configurations.PROCESS_PAYMENT_FILE_CLEARING_FAILD_COUNT++;
         } finally {
@@ -190,7 +190,7 @@ public class PaymentFileClearingService {
                     CommonMethods.clearStringBuffer(cardNumber);
                 }
             } catch (Exception e) {
-                errorLoggerEFPE.error(String.valueOf(e));
+                logManager.logError(String.valueOf(e),errorLoggerEFPE);
             }
         }
     }

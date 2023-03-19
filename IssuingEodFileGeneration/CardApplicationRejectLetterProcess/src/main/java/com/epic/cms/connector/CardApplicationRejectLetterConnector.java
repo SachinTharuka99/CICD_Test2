@@ -23,8 +23,7 @@ import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
 
-import static com.epic.cms.util.LogManager.errorLogger;
-import static com.epic.cms.util.LogManager.infoLogger;
+import static com.epic.cms.util.LogManager.*;
 
 @Service
 public class CardApplicationRejectLetterConnector extends ProcessBuilder {
@@ -50,12 +49,11 @@ public class CardApplicationRejectLetterConnector extends ProcessBuilder {
     @Autowired
     CardApplicationRejectLetterService cardApplicationRejectLetterService;
 
+    String[] fileNameAndPath = null;
+
     @Override
     public void concreteProcess() throws Exception {
-
-        String[] fileNameAndPath = null;
         try {
-
             Configurations.RUNNING_PROCESS_ID = Configurations.PROCESS_ID_CARDAPPLICATION_LETTER_REJECT;
             CommonMethods.eodDashboardProgressParametersReset();
             ArrayList<String> applicationIdList;
@@ -64,22 +62,13 @@ public class CardApplicationRejectLetterConnector extends ProcessBuilder {
             boolean isErrorProcess = commonRepo.isErrorProcess(Configurations.PROCESS_ID_CARDAPPLICATION_LETTER_REJECT);
             boolean isProcessCompletlyFail = commonRepo.isProcessCompletlyFail(Configurations.PROCESS_ID_CARDAPPLICATION_LETTER_REJECT);
             applicationIdList = cardApplicationRejectLetterRepo.getRejectApplictionIDsToGenerateLetters(StartEodStatus, isErrorProcess, isProcessCompletlyFail);
+            Configurations.PROCESS_TOTAL_NOOF_TRABSACTIONS = applicationIdList.size();
 
             int sequenceNo = 0;
             for (int i = 0; i < applicationIdList.size(); i++) {
-                fileNameAndPath = cardApplicationRejectLetterService.processCardApplicationReject(applicationIdList.get(i),sequenceNo);
+                fileNameAndPath = cardApplicationRejectLetterService.processCardApplicationReject(applicationIdList.get(i), sequenceNo);
                 sequenceNo++;
             }
-
-            Configurations.PROCESS_TOTAL_NOOF_TRABSACTIONS = applicationIdList.size();
-
-            summery.put("Started Date ", Configurations.EOD_DATE.toString());
-            summery.put("Total No of Effected Files ", Configurations.PROCESS_TOTAL_NOOF_TRABSACTIONS);
-            summery.put("Process Success Count ", Configurations.PROCESS_SUCCESS_COUNT);
-            summery.put("Process Failed Count ", Configurations.PROCESS_FAILD_COUNT);
-            summery.put("File Name and Path ", fileNameAndPath);
-
-            infoLogger.info(logManager.processSummeryStyles(summery));
 
         } catch (Exception e) {
             Configurations.IS_PROCESS_COMPLETELY_FAILED = true;
@@ -92,11 +81,22 @@ public class CardApplicationRejectLetterConnector extends ProcessBuilder {
             errorBean.setProcessId(Configurations.PROCESS_ID_CARDAPPLICATION_LETTER_REJECT);
             errorBean.setIsProcessFails(1);
 
-            errorLogger.error("Card Application Rejected Letter Process Failed", e);
+            logManager.logError("Card Application Rejected Letter Process Failed", e, errorLoggerEFGE);
 
-            if(fileNameAndPath!= null){
+            if (fileNameAndPath != null) {
                 fileGenerationService.deleteExistFile(fileNameAndPath[0]);
             }
+        } finally {
+            logManager.logSummery(summery, infoLoggerEFGE);
         }
+    }
+
+    @Override
+    public void addSummaries() {
+        summery.put("Started Date ", Configurations.EOD_DATE.toString());
+        summery.put("Total No of Effected Files ", Configurations.PROCESS_TOTAL_NOOF_TRABSACTIONS);
+        summery.put("Process Success Count ", Configurations.PROCESS_SUCCESS_COUNT);
+        summery.put("Process Failed Count ", Configurations.PROCESS_FAILD_COUNT);
+        summery.put("File Name and Path ", fileNameAndPath);
     }
 }

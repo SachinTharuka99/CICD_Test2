@@ -12,6 +12,7 @@ import com.epic.cms.model.bean.GlAccountBean;
 import com.epic.cms.model.bean.GlBean;
 import com.epic.cms.util.CommonMethods;
 import com.epic.cms.util.Configurations;
+import com.epic.cms.util.LogManager;
 import com.epic.cms.util.StatusVarList;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -27,12 +28,16 @@ import java.util.Map;
 import static com.epic.cms.util.CommonMethods.validateCurrencyLength;
 import static com.epic.cms.util.CommonMethods.validateLength;
 import static com.epic.cms.util.LogManager.errorLogger;
+import static com.epic.cms.util.LogManager.errorLoggerEFGE;
 
 @Service
 public class RB36FileGenerationService {
 
     @Autowired
     StatusVarList statusVarList;
+
+    @Autowired
+    LogManager logManager;
 
     public FileGenerationModel getFileContent(ArrayList<StringBuffer> npCards, HashMap<String, ArrayList<GlAccountBean>> hmap, HashMap<String, GlBean> glAccountsDetail, String fieldDelimeter) throws Exception{
         FileGenerationModel file = new FileGenerationModel();
@@ -340,7 +345,7 @@ public class RB36FileGenerationService {
                 Configurations.PROCESS_SUCCESS_COUNT++;
             } catch (Exception e) {
                 Configurations.PROCESS_FAILD_COUNT++;
-                errorLogger.error("Error while writing RB36 file.Exit from the process. Exception in  txn Type " + entrySet.getKey() + "--->" + e);
+                logManager.logError("Error while writing RB36 file.Exit from the process. Exception in  txn Type " + entrySet.getKey() + "--->" + e, errorLoggerEFGE);
                 throw e;
             }
         }

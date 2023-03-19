@@ -23,4 +23,9 @@ public class CRIBFileConnector extends ProcessBuilder {
         CommonMethods.eodDashboardProgressParametersReset();
         cribFileService.startCribFileProcess();
     }
+
+    @Override
+    public void addSummaries() {
+
+    }
 }

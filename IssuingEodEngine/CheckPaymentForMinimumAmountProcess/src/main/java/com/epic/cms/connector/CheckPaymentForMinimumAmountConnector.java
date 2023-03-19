@@ -60,19 +60,16 @@ public class CheckPaymentForMinimumAmountConnector extends ProcessBuilder {
                 Thread.sleep(1000);
             }
 
-            infoLogger.info("Thread Name Prefix: {}, Active count: {}, Pool size: {}, Queue Size: {}", taskExecutor.getThreadNamePrefix(), taskExecutor.getActiveCount(), taskExecutor.getPoolSize(), taskExecutor.getThreadPoolExecutor().getQueue().size());
-
             failedCount = Configurations.PROCESS_FAILD_COUNT;
             Configurations.PROCESS_TOTAL_NOOF_TRABSACTIONS = cardList.size();
             Configurations.PROCESS_SUCCESS_COUNT = (cardList.size() - failedCount);
             Configurations.PROCESS_FAILD_COUNT = failedCount;
 
-        } catch (Exception e){
+        } catch (Exception e) {
             Configurations.IS_PROCESS_COMPLETELY_FAILED = true;
-            errorLogger.error("Check Payment For Minimum Amount process ended with", e);
-        }finally {
-            addSummaries();
-            infoLogger.info(logManager.processSummeryStyles(summery));
+            logManager.logError("Check Payment For Minimum Amount process ended with", e, errorLogger);
+        } finally {
+            logManager.logSummery(summery, infoLogger);
             try {
                 if (cardList != null && cardList.size() != 0) {
                     for (LastStatementSummeryBean lastStatementSummeryBean : cardList) {
@@ -81,17 +78,15 @@ public class CheckPaymentForMinimumAmountConnector extends ProcessBuilder {
                     cardList = null;
                 }
             } catch (Exception e) {
-                errorLogger.error("Check Payment For Minimum Amount process Error ", e);
+                logManager.logError("Check Payment For Minimum Amount process Error ", e, errorLogger);
             }
         }
     }
 
+    @Override
     public void addSummaries() {
-        if (cardList != null) {
-            summery.put("Cards falling on Due date", Statusts.SUMMARY_FOR_CARDS_ON_DUEDATE + "");
-            summery.put("Cards which have not payed the Min Amount and Risk profile added", Statusts.SUMMARY_FOR_MINPAYMENT_RISK_ADDED + "");
-            summery.put("Cards which have payed the Min Amount", Statusts.SUMMARY_FOR_CARDS_MINAMOUNT_PAID + "");
-
-        }
+        summery.put("Cards falling on Due date", Statusts.SUMMARY_FOR_CARDS_ON_DUEDATE + "");
+        summery.put("Cards which have not payed the Min Amount and Risk profile added", Statusts.SUMMARY_FOR_MINPAYMENT_RISK_ADDED + "");
+        summery.put("Cards which have payed the Min Amount", Statusts.SUMMARY_FOR_CARDS_MINAMOUNT_PAID + "");
     }
 }

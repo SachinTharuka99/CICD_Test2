@@ -45,7 +45,6 @@ class LoanOnCardServiceTest {
     @BeforeEach
     void setUp() {
         loanOnCardServiceUnderTest = new LoanOnCardService();
-        loanOnCardServiceUnderTest.logManager = mock(LogManager.class);
         loanOnCardServiceUnderTest.installmentPaymentRepo = mock(InstallmentPaymentRepo.class);
         loanOnCardServiceUnderTest.commonRepo = mock(CommonRepo.class);
         loanOnCardServiceUnderTest.status = mock(StatusVarList.class);

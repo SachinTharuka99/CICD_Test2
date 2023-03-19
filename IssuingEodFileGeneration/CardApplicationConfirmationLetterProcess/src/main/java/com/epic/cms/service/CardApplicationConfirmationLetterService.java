@@ -21,8 +21,7 @@ import org.springframework.transaction.annotation.Transactional;
 import java.util.LinkedHashMap;
 import java.util.List;
 
-import static com.epic.cms.util.LogManager.errorLogger;
-import static com.epic.cms.util.LogManager.infoLogger;
+import static com.epic.cms.util.LogManager.*;
 
 @Service
 public class CardApplicationConfirmationLetterService {
@@ -59,9 +58,8 @@ public class CardApplicationConfirmationLetterService {
             Configurations.PROCESS_SUCCESS_COUNT++;
 
         } catch (Exception e) {
-
             Configurations.PROCESS_FAILD_COUNT++;
-            errorLogger.error("Card Application Confirmation Letter Process Failed for cardnumber: " + maskedCardNo, e);
+            logManager.logError("Card Application Confirmation Letter Process Failed for cardnumber: " + maskedCardNo, e, errorLoggerEFGE);
         }
 
         return fileNameAndPath;

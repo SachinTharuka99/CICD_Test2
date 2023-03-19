@@ -20,7 +20,7 @@ import static com.epic.cms.util.LogManager.errorLogger;
 public class FeePostService {
 
     @Autowired
-    public LogManager logManager;
+    LogManager logManager;
 
     @Autowired
     public FeePostDao feePostDao;
@@ -32,7 +32,6 @@ public class FeePostService {
     @Transactional(value = "transactionManager", propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
     public void proceedFeePost(OtbBean bean) {
         if (!Configurations.isInterrupted) {
-            System.out.println("called proceedFeePost");
             LinkedHashMap detail = new LinkedHashMap();
 
             List<OtbBean> feeList;
@@ -103,16 +102,14 @@ public class FeePostService {
                                 detail.put("Account Number", bean.getAccountnumber());
                                 detail.put("Card Number", CommonMethods.cardNumberMask(otbBean.getCardnumber()));
                                 detail.put("Fee Amount", otbBean.getOtbcredit());
-                                infoLogger.info(logManager.processDetailsStyles(detail));
+                                logManager.logDetails(detail, infoLogger);
                                 detail.clear();
                             }
 
                         }
                         feeAdditionSuccess = true;
                     } catch (Exception ex) {
-                        ex.printStackTrace();
-                        ex.printStackTrace();
-                        errorLogger.error("Fee post process failed for account " + bean.getAccountnumber(), ex);
+                        logManager.logError("Fee post process failed for account " + bean.getAccountnumber(), ex, errorLogger);
                         Configurations.errorCardList.add(new ErrorCardBean(Configurations.ERROR_EOD_ID, Configurations.EOD_DATE, bean.getCardnumber(), ex.getMessage(), Configurations.RUNNING_PROCESS_ID, Configurations.RUNNING_PROCESS_DESCRIPTION, 0, CardAccount.ACCOUNT));
                         break cards;
                     }
@@ -125,10 +122,8 @@ public class FeePostService {
                 }
                 feeAdditionSuccess = false;
             } catch (Exception ex) {
-                ex.printStackTrace();
-                errorLogger.error("Error Occured: ", ex);
+                logManager.logError("Error Occured: ", ex, errorLogger);
             }
         }
     }
-
 }

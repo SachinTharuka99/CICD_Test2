@@ -15,7 +15,6 @@ class TransactionUpdateServiceTest {
     @BeforeEach
     void setUp() {
         transactionUpdateServiceUnderTest = new TransactionUpdateService();
-        transactionUpdateServiceUnderTest.logManager = mock(LogManager.class);
         transactionUpdateServiceUnderTest.status = mock(StatusVarList.class);
         transactionUpdateServiceUnderTest.transactionUpdateRepo = mock(TransactionUpdateRepo.class);
     }

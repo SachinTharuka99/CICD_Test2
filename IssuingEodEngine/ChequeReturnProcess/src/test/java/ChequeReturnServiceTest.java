@@ -41,7 +41,6 @@ class ChequeReturnServiceTest {
     @BeforeEach
     void setUp() {
         chequeReturnServiceUnderTest = new ChequeReturnService();
-        chequeReturnServiceUnderTest.logManager = mock(LogManager.class);
         chequeReturnServiceUnderTest.chequeReturnDao = mock(ChequeReturnDao.class);
         chequeReturnServiceUnderTest.commonDao = mock(CommonDao.class);
         chequeReturnServiceUnderTest.status = mock(StatusVarList.class);

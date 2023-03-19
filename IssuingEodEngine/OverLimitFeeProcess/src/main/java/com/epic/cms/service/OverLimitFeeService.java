@@ -40,18 +40,18 @@ public class OverLimitFeeService {
 
                 //add fee count
                 commonRepo.addCardFeeCount(cardNumber, Configurations.OVER_LIMIT_FEE, 0);
-
                 details.put("Process Status", "Passed");
                 Configurations.PROCESS_SUCCESS_COUNT++;
             } catch (Exception e) {
                 Configurations.PROCESS_FAILD_COUNT++;
                 Configurations.errorCardList.add(new ErrorCardBean(Configurations.ERROR_EOD_ID, Configurations.EOD_DATE, new StringBuffer(cardNumber), e.getMessage(), Configurations.RUNNING_PROCESS_ID, Configurations.RUNNING_PROCESS_DESCRIPTION, 0, CardAccount.CARD));
-                infoLogger.info("OverLimit Fee process failed for cardNumber " + CommonMethods.cardInfo(maskedCardNumber, processBean));
-                errorLogger.error("OverLimit Fee process failed for cardNumber " + CommonMethods.cardInfo(maskedCardNumber, processBean), e);
+                logManager.logInfo("OverLimit Fee process failed for cardNumber " + CommonMethods.cardInfo(maskedCardNumber, processBean), infoLogger);
+                logManager.logError("OverLimit Fee process failed for cardNumber " + CommonMethods.cardInfo(maskedCardNumber, processBean), e, errorLogger);
                 details.put("Process Status", "Failed");
 
+            } finally {
+                logManager.logDetails(details, infoLogger);
             }
-            infoLogger.info(logManager.processDetailsStyles(details));
             CommonMethods.clearStringBuffer(cardNumber);
         }
     }

@@ -33,6 +33,7 @@ public class PaymentReversalService {
     PaymentReversalRepo paymentReversalRepo;
 
     private List<PaymentBean> paymentReversals = null;
+    LinkedHashMap details = new LinkedHashMap();
 
     @Async("taskExecutor2")
     @Transactional(value="transactionManager",propagation = Propagation.REQUIRED,rollbackFor = Exception.class)
@@ -40,7 +41,6 @@ public class PaymentReversalService {
 
         if(!Configurations.isInterrupted) {
             try {
-                LinkedHashMap details = new LinkedHashMap();
                 /**
                  * UPDATE cash reversals in Payment table. *
                  */
@@ -57,14 +57,14 @@ public class PaymentReversalService {
                 details.put("Cheque Number ", bean.getChequenumber());
                 details.put("Card Main ID ", bean.getCrdrmaintind());
                 details.put("Trace ID ", bean.getTraceid());
-                infoLogger.info(logManager.processDetailsStyles(details));
-                details.clear();
 
                 Configurations.PROCESS_SUCCESS_COUNT++;
             } catch (Exception e) {
-                errorLogger.error("Exception occurred for card: " + CommonMethods.cardNumberMask(bean.getCardnumber()), e);
+                logManager.logError("Exception occurred for card: " + CommonMethods.cardNumberMask(bean.getCardnumber()), e, errorLogger);
                 Configurations.errorCardList.add(new ErrorCardBean(Configurations.ERROR_EOD_ID, Configurations.EOD_DATE, new StringBuffer(bean.getCardnumber()), e.getMessage(), Configurations.RUNNING_PROCESS_ID, Configurations.RUNNING_PROCESS_DESCRIPTION, 0, CardAccount.CARD));
                 Configurations.PROCESS_FAILD_COUNT++;
+            } finally {
+                logManager.logDetails(details, infoLogger);
             }
         }
     }

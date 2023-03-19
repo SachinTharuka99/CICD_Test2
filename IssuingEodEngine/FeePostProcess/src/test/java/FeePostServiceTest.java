@@ -36,7 +36,6 @@ class FeePostServiceTest {
     @BeforeEach
     void setUp() {
         feePostServiceUnderTest = new FeePostService();
-        feePostServiceUnderTest.logManager = mock(LogManager.class);
         feePostServiceUnderTest.feePostDao = mock(FeePostDao.class);
         feePostServiceUnderTest.status = mock(StatusVarList.class);
     }

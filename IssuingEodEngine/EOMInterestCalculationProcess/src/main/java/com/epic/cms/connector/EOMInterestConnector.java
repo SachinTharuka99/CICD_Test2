@@ -71,17 +71,20 @@ public class EOMInterestConnector extends ProcessBuilder {
             Configurations.PROCESS_SUCCESS_COUNT = (noOfAccounts - failedAccounts);
             Configurations.PROCESS_FAILD_COUNT = failedAccounts;
 
-            summery.put("Process Name ", processBean.getProcessDes());
-            summery.put("Started Date ", Configurations.EOD_DATE.toString());
-            summery.put("No of Accounts effected ", Configurations.PROCESS_TOTAL_NOOF_TRABSACTIONS);
-            summery.put("No of Success Accounts ", Configurations.PROCESS_SUCCESS_COUNT);
-            summery.put("No of fail Accounts ", Configurations.PROCESS_FAILD_COUNT);
-
-            infoLogger.info(logManager.processSummeryStyles(summery));
-
         } catch (Exception e) {
             Configurations.IS_PROCESS_COMPLETELY_FAILED = true;
-            errorLogger.error("EOM Interest Calculation Process failed", e);
+            logManager.logError("EOM Interest Calculation Process failed", e, errorLogger);
+        } finally {
+            logManager.logSummery(summery, infoLogger);
         }
+    }
+
+    @Override
+    public void addSummaries() {
+        summery.put("Process Name ", processBean.getProcessDes());
+        summery.put("Started Date ", Configurations.EOD_DATE.toString());
+        summery.put("No of Accounts effected ", Configurations.PROCESS_TOTAL_NOOF_TRABSACTIONS);
+        summery.put("No of Success Accounts ", Configurations.PROCESS_SUCCESS_COUNT);
+        summery.put("No of fail Accounts ", Configurations.PROCESS_FAILD_COUNT);
     }
 }

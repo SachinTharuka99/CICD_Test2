@@ -43,6 +43,7 @@ public class EOMSupplementaryCardResetService {
             double tempX = 0.00;
             Object accountNo = acclist;
             ArrayList<StringBuffer> cardList = null;
+            LinkedHashMap details = new LinkedHashMap();
 
             try {
                 cardList = eomSupplementaryCardResetDao.getAllTheCardsForAccount(new StringBuffer(acclist.toString()));
@@ -102,24 +103,18 @@ public class EOMSupplementaryCardResetService {
                 /**reset supplimentary from card table in online*/
                 eomSupplementaryCardResetDao.resetSuplimentryBalanceInOnlineCardTable(OTBsAfterResetting, mainCardNo);
 
-                LinkedHashMap details = new LinkedHashMap();
                 details.put("Account Number", accountNo);
                 details.put("Ststus", "Success");
-                infoLogger.info(logManager.processDetailsStyles(details));
                 Configurations.PROCESS_SUCCESS_COUNT++;
                 CommonMethods.clearStringBuffer(mainCardNo);
             } catch (Exception ex) {
                 Configurations.PROCESS_FAILD_COUNT++;
                 Configurations.errorCardList.add(new ErrorCardBean(Configurations.ERROR_EOD_ID, Configurations.EOD_DATE, new StringBuffer(accountNo.toString()), ex.toString(), Configurations.RUNNING_PROCESS_ID, Configurations.RUNNING_PROCESS_DESCRIPTION, 0, CardAccount.ACCOUNT));
-
-                errorLogger.error("Supplementary Card Reset process failed for accountnumber " + accountNo.toString(), ex);
-//                WebComHandler.showOnWeb(CommonMethods.eodDashboardProcessInfoStyle("Supplementary Card Reset process failed for accountnumber " + accountNo.toString()));
-//                errorAccList.add(accountNo.toString());
-                LinkedHashMap details = new LinkedHashMap();
+                logManager.logError("Supplementary Card Reset process failed for accountnumber " + accountNo.toString(), ex, errorLogger);
                 details.put("Account Number", accountNo);
                 details.put("Ststus", "Fails");
-                infoLogger.info(logManager.processDetailsStyles(details));
             } finally {
+                logManager.logDetails(details, infoLogger);
                 if (cardList != null && cardList.size() != 0) {
                     for (int j = 1; j < cardList.size(); j++) {
                         CommonMethods.clearStringBuffer(cardList.get(j));

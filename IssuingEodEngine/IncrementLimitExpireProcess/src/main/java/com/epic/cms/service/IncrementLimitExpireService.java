@@ -93,10 +93,10 @@ public class IncrementLimitExpireService {
                 Configurations.errorCardList.add(new ErrorCardBean(Configurations.ERROR_EOD_ID, Configurations.EOD_DATE, new StringBuffer(limitIncrementBean.getCardNumber()), e.getMessage(), Configurations.RUNNING_PROCESS_ID, Configurations.RUNNING_PROCESS_DESCRIPTION, 0, CardAccount.CARD));
                 failedCards++;
                 Configurations.PROCESS_FAILD_COUNT++;
-                infoLogger.info("Increment Limit Expire process failed for cardnumber " + CommonMethods.cardInfo(maskedCardNumber, processBean));
-                errorLogger.error("Increment Limit Expire process failed for cardnumber " + CommonMethods.cardInfo(maskedCardNumber, processBean), e);
+                logManager.logInfo("Increment Limit Expire process failed for cardnumber " + CommonMethods.cardInfo(maskedCardNumber, processBean), infoLogger);
+                logManager.logError("Increment Limit Expire process failed for cardnumber " + CommonMethods.cardInfo(maskedCardNumber, processBean), e, errorLogger);
             }
-            infoLogger.info(logManager.processDetailsStyles(details));
+            logManager.logDetails(details, infoLogger);
             Configurations.Failed_Count_IncrementLimit += failedCards;
         }
     }

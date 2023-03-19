@@ -66,25 +66,15 @@ public class TxnMismatchPostConnector extends ProcessBuilder {
             while (!(taskExecutor.getActiveCount() == 0)) {
                 Thread.sleep(1000);
             }
-            infoLogger.info("Thread Name Prefix: {}, Active count: {}, Pool size: {}, Queue Size: {}", taskExecutor.getThreadNamePrefix(), taskExecutor.getActiveCount(), taskExecutor.getPoolSize(), taskExecutor.getThreadPoolExecutor().getQueue().size());
 
             failedCount = Configurations.failedCount_TxnMisMatchProcess;
 
-            if (custAccList != null) {
-                Configurations.PROCESS_TOTAL_NOOF_TRABSACTIONS = (custAccList.size());
-                Configurations.PROCESS_SUCCESS_COUNT = (custAccList.size() - failedCount);
-                Configurations.PROCESS_FAILD_COUNT = (failedCount);
-            }
-
         } catch (Exception e) {
             Configurations.IS_PROCESS_COMPLETELY_FAILED = true;
-            errorLogger.error(String.valueOf(e));
+            logManager.logError(String.valueOf(e), errorLogger);
         } finally {
+            logManager.logSummery(summery, infoLogger);
             try {
-                summery.put("Number of accounts to fee post ", custAccList.size());
-                summery.put("Number of success fee post ", custAccList.size() - failedCount);
-                summery.put("Number of failure fee post ", failedCount);
-                infoLogger.info(logManager.processSummeryStyles(summery));
                 /* PADSS Change -
                 variables handling card data should be nullified by replacing the value of variable with zero and call NULL function */
                 if (custAccList != null && custAccList.size() != 0) {
@@ -107,5 +97,12 @@ public class TxnMismatchPostConnector extends ProcessBuilder {
             }
 
         }
+    }
+
+    @Override
+    public void addSummaries() {
+        summery.put("Number of accounts to fee post ", custAccList.size());
+        summery.put("Number of success fee post ", custAccList.size() - failedCount);
+        summery.put("Number of failure fee post ", failedCount);
     }
 }

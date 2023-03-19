@@ -82,16 +82,12 @@ public class OverLimitFeeConnector extends ProcessBuilder {
                         Thread.sleep(1000);
                     }
                 }
-                summery.put("Started Date", Configurations.EOD_DATE.toString());
-                summery.put("No of Card effected", Configurations.PROCESS_TOTAL_NOOF_TRABSACTIONS);
-                summery.put("No of Success Card ", Configurations.PROCESS_SUCCESS_COUNT);
-                summery.put("No of fail Card ", Configurations.PROCESS_FAILD_COUNT);
-                infoLogger.info(logManager.processSummeryStyles(summery));
             }
         } catch (Exception e) {
             Configurations.IS_PROCESS_COMPLETELY_FAILED = true;
-            errorLogger.error("OverLimit fee process failed", e);
+            logManager.logError("OverLimit fee process failed", e, errorLogger);
         } finally {
+            logManager.logSummery(summery, infoLogger);
             try {
                 if (accMap != null) {
                     /* PADSS Change -
@@ -99,8 +95,16 @@ public class OverLimitFeeConnector extends ProcessBuilder {
                     accMap.clear();
                 }
             } catch (Exception e3) {
-                errorLogger.error("Exception in overlimit fee", e3);
+                logManager.logError("Exception in overlimit fee", e3, errorLogger);
             }
         }
+    }
+
+    @Override
+    public void addSummaries() {
+        summery.put("Started Date", Configurations.EOD_DATE.toString());
+        summery.put("No of Card effected", Configurations.PROCESS_TOTAL_NOOF_TRABSACTIONS);
+        summery.put("No of Success Card ", Configurations.PROCESS_SUCCESS_COUNT);
+        summery.put("No of fail Card ", Configurations.PROCESS_FAILD_COUNT);
     }
 }

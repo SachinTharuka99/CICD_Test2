@@ -22,8 +22,7 @@ import org.springframework.stereotype.Service;
 import java.text.SimpleDateFormat;
 import java.util.List;
 
-import static com.epic.cms.util.LogManager.errorLogger;
-import static com.epic.cms.util.LogManager.infoLogger;
+import static com.epic.cms.util.LogManager.*;
 
 @Service
 public class ExposureFileConnector extends FileGenProcessBuilder {
@@ -45,8 +44,8 @@ public class ExposureFileConnector extends FileGenProcessBuilder {
     @Override
     public void concreteProcess() throws Exception {
         try {
-            infoLogger.info(logManager.processHeaderStyle("Exposure File Process"));
-            infoLogger.info(logManager.processHeaderStyle("Exposure File Process Started"));
+            logManager.logStartEnd("Exposure File Process", infoLoggerEFGE);
+            logManager.logStartEnd("Exposure File Process Started", infoLoggerEFGE);
 
             Configurations.RUNNING_PROCESS_ID = Configurations.PROCESS_EXPOSURE_FILE;
             CommonMethods.eodDashboardProgressParametersReset();
@@ -81,16 +80,23 @@ public class ExposureFileConnector extends FileGenProcessBuilder {
                         Configurations.PROCESS_SUCCESS_COUNT++;
                     } catch (Exception e) {
                         Configurations.PROCESS_FAILD_COUNT++;
-                        errorLogger.error("Exception in File generating ", e);
+                        logManager.logError("Exception in File generating ", e, errorLoggerEFGE);
                     }
                 }
                 fileGenerationService.generateFile( fileContent.toString(), filePath, backUpFilePath);
-                infoLogger.info(" Successfully Created Exposure File in: " + filePath);
+                logManager.logInfo(" Successfully Created Exposure File in: " + filePath, infoLogger);
             } catch (Exception e) {
-                errorLogger.error("Exposure File Gen Process Failed", e);
+                logManager.logError("Exposure File Gen Process Failed", e, errorLoggerEFGE);
             }
         } catch (Exception e) {
-            errorLogger.error("Exposure File Process Failed", e);
+            logManager.logError("Exposure File Process Failed", e, errorLoggerEFGE);
+        } finally {
+            logManager.logSummery(summery, infoLoggerEFGE);
         }
+    }
+
+    @Override
+    public void addSummaries() {
+        summery.put("Number of Exposure File Records ", exposureFileDetails.size());
     }
 }

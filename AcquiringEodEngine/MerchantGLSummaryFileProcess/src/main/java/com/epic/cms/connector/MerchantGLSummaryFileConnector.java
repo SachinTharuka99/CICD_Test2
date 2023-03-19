@@ -197,6 +197,11 @@ public class MerchantGLSummaryFileConnector extends ProcessBuilder {
         }
     }
 
+    @Override
+    public void addSummaries() {
+
+    }
+
     public Boolean createGLFile() throws Exception {
         HashMap<String, ArrayList<GlAccountBean>> hmap;
         HashMap<String, GlBean> glAccntsDetail;

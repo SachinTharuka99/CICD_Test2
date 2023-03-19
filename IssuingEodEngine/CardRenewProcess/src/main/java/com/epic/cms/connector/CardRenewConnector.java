@@ -33,6 +33,7 @@ import java.util.List;
 import static com.epic.cms.util.LogManager.errorLogger;
 import static com.epic.cms.util.LogManager.infoLogger;
 
+
 @Service
 public class CardRenewConnector extends ProcessBuilder {
     @Autowired
@@ -57,6 +58,10 @@ public class CardRenewConnector extends ProcessBuilder {
     @Qualifier("ThreadPool_100")
     ThreadPoolTaskExecutor taskExecutor;
 
+    ArrayList<CardRenewBean> approvedCardBeanList = new ArrayList<CardRenewBean>();
+    int noOfEarlyRenewals = 0;
+    int noOfNormalRenewals = 0;
+    int NoOfFailCards = 0;
     /**
  * @author  Malinda_R
  * @since   2016-10-12
@@ -93,7 +98,6 @@ public class CardRenewConnector extends ProcessBuilder {
     @Override
     public void concreteProcess() throws Exception {
 
-        ArrayList<CardRenewBean> approvedCardBeanList = new ArrayList<CardRenewBean>();
         List<String> eligibleCardList = new ArrayList<String>();
         List<ErrorCardBean> cardErrorList = new ArrayList<ErrorCardBean>();
 
@@ -138,14 +142,14 @@ public class CardRenewConnector extends ProcessBuilder {
                 if (approvedCardBeanList.size() != 0) {
                     /**iterate card list one by one*/
                     for (CardRenewBean CRBean : approvedCardBeanList) {
-                        cardRenewService.cardRenewProcess(CRBean);
+                        cardRenewService.cardRenewProcess(CRBean,noOfEarlyRenewals,noOfNormalRenewals,NoOfFailCards);
                     }
                 }
             }
         } catch (Exception e) {
             Configurations.IS_PROCESS_COMPLETELY_FAILED = true;
-            infoLogger.info(logManager.processStartEndStyle("Card Renew Process Fails"));
-            errorLogger.error(logManager.processStartEndStyle("Card Renew Process Fails"), e);
+            logManager.logStartEnd("Card Renew Process Fails", infoLogger);
+
             try {
                 if (processBean.getCriticalStatus() == 1) {
                     Configurations.COMMIT_STATUS = false;
@@ -154,24 +158,20 @@ public class CardRenewConnector extends ProcessBuilder {
                     Configurations.MAIN_EOD_STATUS = false;
                 }
             } catch (Exception e2) {
-
+                logManager.logError("", e2, errorLogger);
             }
 
         } finally {
+            logManager.logSummery(summery, infoLogger);
             try {
                 int NoOfFailCards = Configurations.PROCESS_FAILD_COUNT;
                 if (approvedCardBeanList.size() == 0) {
-                    infoLogger.info("No Cards in Aprroved List");
+                    logManager.logInfo("No Cards in Aprroved List", infoLogger);
                 }
-                summery.put("Process Name", "Card Renewal");
-                summery.put("Renewal Process Started with", Integer.toString(approvedCardBeanList.size()) + " Cards");
-//                summery.put("No of Early Renwals", Integer.toString(noOfEarlyRenewals));
-//                summery.put("No of Normal Renwals", Integer.toString(noOfNormalRenewals));
-                summery.put("Total Fails", Integer.toString(Configurations.PROCESS_FAILD_COUNT));
-                Configurations.PROCESS_TOTAL_NOOF_TRABSACTIONS = approvedCardBeanList.size();
-                Configurations.PROCESS_SUCCESS_COUNT = (approvedCardBeanList.size() - Configurations.PROCESS_FAILD_COUNT);
-                // call summeryStriles method in logger
-                infoLogger.info(logManager.processSummeryStyles(summery));
+
+                Configurations.PROCESS_TOTAL_NOOF_TRABSACTIONS=approvedCardBeanList.size();
+                Configurations.PROCESS_SUCCESS_COUNT=(approvedCardBeanList.size()-NoOfFailCards);
+                Configurations.PROCESS_FAILD_COUNT=NoOfFailCards;
 
                 if (approvedCardBeanList != null && approvedCardBeanList.size() != 0) {
                     /* PADSS Change -
@@ -182,8 +182,17 @@ public class CardRenewConnector extends ProcessBuilder {
                     approvedCardBeanList = null;
                 }
             } catch (Exception e2) {
-                errorLogger.error(String.valueOf(e2));
+                logManager.logError("", e2,errorLogger);
             }
         }
+    }
+
+    @Override
+    public void addSummaries() {
+        summery.put("Process Name", "Card Renewal");
+        summery.put("Renewal Process Started with", Configurations.PROCESS_TOTAL_NOOF_TRABSACTIONS + " Cards");
+        summery.put("No of Early Renwals", Integer.toString(noOfEarlyRenewals));
+        summery.put("No of Normal Renwals", Integer.toString(noOfNormalRenewals));
+        summery.put("Total Fails", Integer.toString(NoOfFailCards));
     }
 }

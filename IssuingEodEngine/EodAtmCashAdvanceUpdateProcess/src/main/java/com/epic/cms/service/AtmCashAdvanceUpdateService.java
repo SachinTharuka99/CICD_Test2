@@ -51,9 +51,10 @@ public class AtmCashAdvanceUpdateService{
             summery.put("No of Success Card ", Integer.toString(Configurations.PROCESS_SUCCESS_COUNT));
             summery.put("No of fail Card ", Configurations.PROCESS_FAILD_COUNT);
 
-            infoLogger.info(logManager.processSummeryStyles(summery));
+            logManager.logSummery(summery, infoLogger);
         } catch (SQLException e) {
-            errorLogger.error("ATM Cash Advance Update Process process failed ", e);
+            logManager.logError("ATM Cash Advance Update Process process failed ", e, errorLogger);
         }
     }
+
 }

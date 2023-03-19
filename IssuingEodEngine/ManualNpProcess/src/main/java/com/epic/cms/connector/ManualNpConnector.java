@@ -43,6 +43,10 @@ public class ManualNpConnector extends ProcessBuilder {
     @Qualifier("taskExecutor2")
     ThreadPoolTaskExecutor taskExecutor;
 
+    int selectedaccounts = 0;
+    int successCounts = 0;
+    int FailedCounts = 0;
+
     @Override
     public void concreteProcess() throws Exception {
 
@@ -55,9 +59,7 @@ public class ManualNpConnector extends ProcessBuilder {
 
                 /**-----------------------------------------Manual NP claissifcation Started----------------------------------------- */
                 accMap = manualNpRepo.getManualNpRequestDetails(statusList.getYES_STATUS_1(), statusList.getEOD_DONE_STATUS());
-                int selectedaccounts = 0;
-                int successCounts = 0;
-                int FailedCounts = 0;
+
                 Configurations.PROCESS_TOTAL_NOOF_TRABSACTIONS += accMap.size();
 
                 for (Map.Entry<String, String[]> acc : accMap.entrySet()) {
@@ -77,13 +79,6 @@ public class ManualNpConnector extends ProcessBuilder {
                 manualNpTotalCount = selectedaccounts;
                 manualNpSuccesssCount = successCounts;
                 manualNpFailedCount = FailedCounts;
-
-                summery.put("Selected Account for manual NP", selectedaccounts);
-                summery.put("No of Success Accounts", successCounts);
-                summery.put("No of Failed Accounts", FailedCounts);
-                summery.put("Process Status for Manual NP", "Passed");
-
-                infoLogger.info(logManager.processDetailsStyles(summery));
 
                 /**-------------------------------------------Manual NP claissifcation Ended------------------------------------------- */
                 /**->->->->->->->->->->->->->->->->->->->->->->->-->->->->->->->-><-<-<-<-<-<-<-<-<-<-<-<-<-<-<-<-<-<-<-<-<-<-<-<-<-<-<-<-<-<-<-<-<-<-<-*/
@@ -115,18 +110,11 @@ public class ManualNpConnector extends ProcessBuilder {
                 Configurations.PROCESS_SUCCESS_COUNT = (manualNpSuccesssCount + successCounts);
                 Configurations.PROCESS_FAILD_COUNT = (manualNpFailedCount + FailedCounts);
 
-                summery.put("Selected Acc for manual NP De-classified ", Configurations.PROCESS_TOTAL_NOOF_TRABSACTIONS);
-                summery.put("No of Success Accounts ", Configurations.PROCESS_SUCCESS_COUNT);
-                summery.put("No of Failed Accounts ", Configurations.PROCESS_FAILD_COUNT);
-                summery.put("Process Status for Manual NP De-classified", "Passed");
-
-                infoLogger.info(logManager.processSummeryStyles(summery));
-
             }
         } catch (Exception e) {
             Configurations.IS_PROCESS_COMPLETELY_FAILED = true;
             try {
-                errorLogger.error("Manual NP process failed", e);
+                logManager.logError("Manual NP process failed", e,errorLogger);
 
                 if (processBean.getCriticalStatus() == 1) {
                     Configurations.COMMIT_STATUS = false;
@@ -136,8 +124,23 @@ public class ManualNpConnector extends ProcessBuilder {
                 }
 
             } catch (Exception e2) {
-                errorLogger.error("Exception", e2);
+                logManager.logError("Exception", e2,errorLogger);
             }
+        } finally {
+            logManager.logSummery(summery, infoLogger);
         }
+    }
+
+    @Override
+    public void addSummaries() {
+        summery.put("Selected Account for manual NP", selectedaccounts);
+        summery.put("No of Success Accounts", successCounts);
+        summery.put("No of Failed Accounts", FailedCounts);
+        summery.put("Process Status for Manual NP", "Passed");
+
+        summery.put("Selected Acc for manual NP De-classified ", Configurations.PROCESS_TOTAL_NOOF_TRABSACTIONS);
+        summery.put("No of Success Accounts ", Configurations.PROCESS_SUCCESS_COUNT);
+        summery.put("No of Failed Accounts ", Configurations.PROCESS_FAILD_COUNT);
+        summery.put("Process Status for Manual NP De-classified", "Passed");
     }
 }

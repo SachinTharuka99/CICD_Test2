@@ -12,6 +12,7 @@ import com.epic.cms.Exception.RejectException;
 import com.epic.cms.model.bean.MasterFieldsDataBean;
 import com.epic.cms.model.bean.MasterPDSBean;
 import com.epic.cms.util.Configurations;
+import com.epic.cms.util.LogManager;
 import org.jpos.iso.ISOMsg;
 import org.jpos.iso.ISOUtil;
 import org.jpos.iso.packager.GenericValidatingPackager;
@@ -31,6 +32,9 @@ public class MasterExtractElementService {
 
     @Autowired
     public MasterFileClearingDao masterFileClearingDao;
+
+    @Autowired
+    LogManager logManager;
 
     /**
      * @return
@@ -509,7 +513,7 @@ public class MasterExtractElementService {
                 masterBean.setMti(isomsg.getValue(0).toString());
             }
         } catch (Exception e) {
-            errorLoggerEFPE.error("", e);
+            logManager.logError("", e, errorLoggerEFPE);
             throw e;
         }
     }

@@ -31,6 +31,9 @@ public class CardReplaceConnector extends ProcessBuilder {
     @Autowired
     StatusVarList status;
 
+    @Autowired
+    LogManager logManager;
+
     @Override
     public void concreteProcess() throws Exception {
         List<CardReplaceBean> cardListToReplace = new ArrayList<>();
@@ -57,14 +60,12 @@ public class CardReplaceConnector extends ProcessBuilder {
             while (!(taskExecutor.getActiveCount() == 0)) {
                 Thread.sleep(1000);
             }
-            //infoLogger.info("Thread Name Prefix: {}, Active count: {}, Pool size: {}, Queue Size: {}", taskExecutor.getThreadNamePrefix(), taskExecutor.getActiveCount(), taskExecutor.getPoolSize(), taskExecutor.getThreadPoolExecutor().getQueue().size());
 
         } catch (Exception ex) {
             Configurations.IS_PROCESS_COMPLETELY_FAILED = true;
             throw ex;
         } finally {
-            //addSummaries();
-            //infoLogger.info(logManager.processSummeryStyles(summery));
+            logManager.logSummery(summery, infoLogger);
             try {
                 if (cardListToReplace != null && cardListToReplace.size() != 0) {
                     /* variables handling card data should be nullified
@@ -76,12 +77,12 @@ public class CardReplaceConnector extends ProcessBuilder {
                     cardListToReplace = null;
                 }
             } catch (Exception e) {
-                //errorLogger.error("Failed Card Replace Process", e);
-                LogManager.logError(e, errorLogger);
+                logManager.logError("Failed Card Replace Process",e, errorLogger);
             }
         }
     }
 
+    @Override
     public void addSummaries() {
         summery.put("Total no of cards to be replaced", Statusts.SUMMARY_FOR_CARDREPLACE);
         summery.put("Cards replaced", Statusts.SUMMARY_FOR_CARDREPLACE_PROCESSED);

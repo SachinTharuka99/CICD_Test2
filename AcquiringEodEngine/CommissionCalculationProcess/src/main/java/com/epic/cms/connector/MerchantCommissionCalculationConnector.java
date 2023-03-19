@@ -79,4 +79,9 @@ public class MerchantCommissionCalculationConnector extends ProcessBuilder {
             errorLogger.error("Commission Calculation Process Terminated Because of Error", e);
         }
     }
+
+    @Override
+    public void addSummaries() {
+
+    }
 }

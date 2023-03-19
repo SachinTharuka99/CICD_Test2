@@ -18,8 +18,7 @@ import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
 
-import static com.epic.cms.util.LogManager.errorLogger;
-import static com.epic.cms.util.LogManager.infoLogger;
+import static com.epic.cms.util.LogManager.*;
 
 @Service
 public class CollectionAndRecoveryLetterConnector extends FileGenProcessBuilder {
@@ -37,7 +36,6 @@ public class CollectionAndRecoveryLetterConnector extends FileGenProcessBuilder 
     public void concreteProcess() throws Exception {
         String[] fileNameAndPath = null;
         boolean status = false;
-
         ArrayList<StringBuffer> cardList1;
         ArrayList<StringBuffer> cardList2;
 
@@ -63,7 +61,7 @@ public class CollectionAndRecoveryLetterConnector extends FileGenProcessBuilder 
                     }
                 }
             } catch (Exception e) {
-                errorLogger.error("Collection & Recovery Letter Process Failed for First Reminder", e);
+                logManager.logError("Collection & Recovery Letter Process Failed for First Reminder", e, errorLoggerEFGE);
                 if (fileNameAndPath != null) {
                     fileGenerationService.deleteExistFile(fileNameAndPath[0]);
                 }
@@ -81,20 +79,24 @@ public class CollectionAndRecoveryLetterConnector extends FileGenProcessBuilder 
                     }
                 }
             } catch (Exception e) {
-                errorLogger.error("Collection & Recovery Letter Process Failed for Second Reminder", e);
+                logManager.logError("Collection & Recovery Letter Process Failed for Second Reminder", e, errorLoggerEFGE);
                 if (fileNameAndPath != null) {
                     fileGenerationService.deleteExistFile(fileNameAndPath[0]);
                 }
             }
-            summery.put("Started Date ", Configurations.EOD_DATE.toString());
-            summery.put("Process Success Count ", Configurations.PROCESS_SUCCESS_COUNT);
-            summery.put("Process Failed Count ", Configurations.PROCESS_FAILD_COUNT);
-            summery.put("Process Status", "Success");
-            infoLogger.info(logManager.processSummeryStyles(summery));
-
         } catch (Exception e) {
             Configurations.IS_PROCESS_COMPLETELY_FAILED = true;
-            errorLogger.error("Failed Collection & Recovery Letter Process ", e);
+            logManager.logError("Failed Collection & Recovery Letter Process ", e, errorLoggerEFGE);
+        } finally {
+            logManager.logSummery(summery, infoLoggerEFGE);
         }
+    }
+
+    @Override
+    public void addSummaries() {
+        summery.put("Started Date ", Configurations.EOD_DATE.toString());
+        summery.put("Process Success Count ", Configurations.PROCESS_SUCCESS_COUNT);
+        summery.put("Process Failed Count ", Configurations.PROCESS_FAILD_COUNT);
+        summery.put("Process Status", "Success");
     }
 }

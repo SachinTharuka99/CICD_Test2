@@ -41,8 +41,8 @@ public class ClearMinAmountAndTempBlockConnector extends ProcessBuilder {
     @Override
     public void concreteProcess() throws Exception {
         StringBuffer cardNo = null;
-        try{
-            Configurations.RUNNING_PROCESS_ID=Configurations.PROCESS_CLEAR_MINPAYMENTS_AND_TEMPBLOCK;
+        try {
+            Configurations.RUNNING_PROCESS_ID = Configurations.PROCESS_CLEAR_MINPAYMENTS_AND_TEMPBLOCK;
             CommonMethods.eodDashboardProgressParametersReset();
             cardList = lastStatementSummaryRepo.getStatementCardList();
 
@@ -55,20 +55,16 @@ public class ClearMinAmountAndTempBlockConnector extends ProcessBuilder {
                 Thread.sleep(1000);
             }
 
-            infoLogger.info("Thread Name Prefix: {}, Active count: {}, Pool size: {}, Queue Size: {}", taskExecutor.getThreadNamePrefix(), taskExecutor.getActiveCount(), taskExecutor.getPoolSize(), taskExecutor.getThreadPoolExecutor().getQueue().size());
-
             failedCount = Configurations.PROCESS_FAILD_COUNT;
             Configurations.PROCESS_TOTAL_NOOF_TRABSACTIONS = cardList.size();
             Configurations.PROCESS_SUCCESS_COUNT = (cardList.size() - failedCount);
             Configurations.PROCESS_FAILD_COUNT = failedCount;
 
-            infoLogger.info(logManager.processSummeryStyles(summery));
-        }catch(Exception e){
+        } catch (Exception e) {
             Configurations.IS_PROCESS_COMPLETELY_FAILED = true;
-            errorLogger.error("Failed Clear Min Amount & Temp Block Process ", e);
-        }finally{
-            addSummaries();
-            infoLogger.info(logManager.processSummeryStyles(summery));
+            logManager.logError("Failed Clear Min Amount & Temp Block Process ", e, errorLogger);
+        } finally {
+            logManager.logSummery(summery, infoLogger);
             try {
                 if (cardList != null && cardList.size() != 0) {
                     for (LastStatementSummeryBean lastStatement : cardList) {
@@ -77,11 +73,12 @@ public class ClearMinAmountAndTempBlockConnector extends ProcessBuilder {
                     cardList = null;
                 }
             } catch (Exception e) {
-                errorLogger.error("Exception Occurred for Clear Min Amount & Temp Block Process ",e);
+                logManager.logError("Exception Occurred for Clear Min Amount & Temp Block Process ", e, errorLogger);
             }
         }
     }
 
+    @Override
     public void addSummaries() {
         if (cardList != null) {
             summery.put("Started Date", Configurations.EOD_DATE.toString());

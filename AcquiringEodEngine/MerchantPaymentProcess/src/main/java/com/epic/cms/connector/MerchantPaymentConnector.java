@@ -21,4 +21,9 @@ public class MerchantPaymentConnector extends ProcessBuilder {
     public void concreteProcess() throws Exception {
         merchantPaymentService.startMerchantPayment();
     }
+
+    @Override
+    public void addSummaries() {
+
+    }
 }

@@ -36,7 +36,6 @@ class CardPermanentBlockServiceTest {
     void setUp() {
         cardPermanentBlockServiceUnderTest = new CardPermanentBlockService();
         cardPermanentBlockServiceUnderTest.statusList = mock(StatusVarList.class);
-        cardPermanentBlockServiceUnderTest.logManager = mock(LogManager.class);
         cardPermanentBlockServiceUnderTest.cardPermanentBlockRepo = mock(CardBlockRepo.class);
         cardPermanentBlockServiceUnderTest.commonRepo = mock(CommonRepo.class);
     }

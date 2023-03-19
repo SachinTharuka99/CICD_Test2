@@ -44,7 +44,6 @@ public class IncrementLimitExpireConnector extends ProcessBuilder {
     @Autowired
     CommonRepo commonRepo;
 
-    public List<ErrorCardBean> cardErrorList = new ArrayList<ErrorCardBean>();
     public int configProcess = Configurations.PROCESS_ID_INCREMENT_LIMIT_EXPIRE;
     public String processHeader = "LIMIT INCEREMENT EXPIRE PROCESS";
 
@@ -53,8 +52,6 @@ public class IncrementLimitExpireConnector extends ProcessBuilder {
         ArrayList<LimitIncrementBean> cardList = new ArrayList<LimitIncrementBean>();
         int noOfCards = 0;
         int failedCards = 0;
-        int count = 0;
-        int[] txnCounts;
         ProcessBean processBean = null;
         try {
             Configurations.RUNNING_PROCESS_ID = Configurations.PROCESS_ID_INCREMENT_LIMIT_EXPIRE;
@@ -76,25 +73,18 @@ public class IncrementLimitExpireConnector extends ProcessBuilder {
                 while (!(taskExecutor.getActiveCount() == 0)) {
                     Thread.sleep(1000);
                 }
-                infoLogger.info("Thread Name Prefix: {}, Active count: {}, Pool size: {}, Queue Size: {}", taskExecutor.getThreadNamePrefix(), taskExecutor.getActiveCount(), taskExecutor.getPoolSize(), taskExecutor.getThreadPoolExecutor().getQueue().size());
 
                 failedCards = Configurations.Failed_Count_IncrementLimit;
 
                 Configurations.PROCESS_TOTAL_NOOF_TRABSACTIONS = noOfCards;
                 Configurations.PROCESS_SUCCESS_COUNT = (noOfCards - failedCards);
                 Configurations.PROCESS_FAILD_COUNT = failedCards;
-                summery.put("Started Date", Configurations.EOD_DATE.toString());
-                summery.put("No of Card effected", Integer.toString(noOfCards));
-                summery.put("No of Success Card ", Integer.toString(noOfCards - failedCards));
-                summery.put("No of fail Card ", Integer.toString(failedCards));
-                infoLogger.info(logManager.processSummeryStyles(summery));
-
             }
 
         }catch (Exception e){
             try {
                 Configurations.IS_PROCESS_COMPLETELY_FAILED = true;
-                errorLogger.error("Increment Limit Expire Process Completely failed", e);
+                logManager.logError("Increment Limit Expire Process Completely failed", e, errorLogger);
 
                 if (processBean.getCriticalStatus() == 1) {
                     Configurations.COMMIT_STATUS = false;
@@ -103,9 +93,10 @@ public class IncrementLimitExpireConnector extends ProcessBuilder {
                     Configurations.MAIN_EOD_STATUS = false;
                 }
             } catch (Exception e2) {
-                errorLogger.error("Increment Limit Expire process ended with", e2);
+                logManager.logError("Increment Limit Expire process ended with", e2, errorLogger);
             }
         } finally {
+            logManager.logSummery(summery, infoLogger);
             try {
                 if (cardList != null && cardList.size() != 0) {
                     /* PADSS Change -
@@ -116,8 +107,16 @@ public class IncrementLimitExpireConnector extends ProcessBuilder {
                     cardList = null;
                 }
             } catch (Exception e2) {
-                errorLogger.error("Exception", e2);
+                logManager.logError("Exception", e2, errorLogger);
             }
         }
+    }
+
+    @Override
+    public void addSummaries() {
+        summery.put("Started Date", Configurations.EOD_DATE.toString());
+        summery.put("No of Card effected", Integer.toString( Configurations.PROCESS_TOTAL_NOOF_TRABSACTIONS));
+        summery.put("No of Success Card ", Integer.toString(Configurations.PROCESS_SUCCESS_COUNT));
+        summery.put("No of fail Card ", Integer.toString( Configurations.PROCESS_FAILD_COUNT));
     }
 }

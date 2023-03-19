@@ -11,6 +11,7 @@ import com.epic.cms.repository.CardRenewLetterRepo;
 import com.epic.cms.repository.CommonFileGenProcessRepo;
 import com.epic.cms.util.CommonMethods;
 import com.epic.cms.util.Configurations;
+import com.epic.cms.util.LogManager;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Propagation;
@@ -19,6 +20,7 @@ import org.springframework.transaction.annotation.Transactional;
 import java.util.List;
 
 import static com.epic.cms.util.LogManager.errorLogger;
+import static com.epic.cms.util.LogManager.errorLoggerEFGE;
 
 @Service
 public class CardRenewLetterService {
@@ -32,7 +34,10 @@ public class CardRenewLetterService {
     @Autowired
     LetterService letterService;
 
-    @Transactional(value="transactionManager",propagation = Propagation.REQUIRED,rollbackFor = Exception.class)
+    @Autowired
+    LogManager logManager;
+
+    @Transactional(value = "transactionManager", propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
     public String[] startCardRenewLetterProcess(StringBuffer cardNo, int sequenceNo) {
 
         String[] fileNameAndPath = null;
@@ -53,8 +58,7 @@ public class CardRenewLetterService {
             Configurations.PROCESS_SUCCESS_COUNT++;
 
         } catch (Exception e) {
-
-            errorLogger.error("Failed Card Renew Letter Process " + maskedCardNo,e);
+            logManager.logError("Failed Card Renew Letter Process " + maskedCardNo, e, errorLoggerEFGE);
             Configurations.PROCESS_FAILD_COUNT++;
         }
         return fileNameAndPath;

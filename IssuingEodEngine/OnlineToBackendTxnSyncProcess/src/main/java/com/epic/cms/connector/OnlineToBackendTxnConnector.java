@@ -29,7 +29,12 @@ public class OnlineToBackendTxnConnector extends ProcessBuilder {
             onlineToBackendTxnService.OnlineToBackend();
 
         } catch (Exception e) {
-            errorLogger.error("Online to Backend Txn Sync failed", e);
+            logManager.logError("Online to Backend Txn Sync failed", e, errorLogger);
         }
+    }
+
+    @Override
+    public void addSummaries() {
+
     }
 }

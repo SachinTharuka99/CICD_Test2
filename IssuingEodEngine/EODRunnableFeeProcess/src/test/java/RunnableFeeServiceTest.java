@@ -43,7 +43,6 @@ class RunnableFeeServiceTest {
     @BeforeEach
     void setup() {
         runnableFeeServiceUnderTest = new RunnableFeeService();
-        runnableFeeServiceUnderTest.logManager = mock(LogManager.class);
         runnableFeeServiceUnderTest.runnableFeeDao = mock(RunnableFeeDao.class);
         runnableFeeServiceUnderTest.commonDao = mock(CommonDao.class);
         runnableFeeServiceUnderTest.status = mock(StatusVarList.class);

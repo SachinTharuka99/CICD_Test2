@@ -15,4 +15,9 @@ public class InitialConnector extends ProcessBuilder {
     public void concreteProcess() throws Exception {
         initialProcessService.startInitialProcess();
     }
+
+    @Override
+    public void addSummaries() {
+
+    }
 }

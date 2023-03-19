@@ -38,7 +38,7 @@ public class ATMFileClearingService {
     @Autowired
     public ATMFileClearingRepo atmFileClearingRepo;
     @Autowired
-    public LogManager logManager;
+    LogManager logManager;
     @Autowired
     public StatusVarList status;
     @Autowired
@@ -74,7 +74,7 @@ public class ATMFileClearingService {
                 final List<Throwable> exceptions = execution
                         .getAllFailureExceptions();
                 for (final Throwable throwable : exceptions) {
-                    errorLoggerEFPE.error(throwable.getMessage(), throwable);
+                    logManager.logError(throwable.getMessage(), throwable, errorLoggerEFPE);
                 }
             }
         } catch (Exception ex) {
@@ -125,7 +125,7 @@ public class ATMFileClearingService {
                         atmFileClearingRepo.insertToRECATMFILEINVALID(fileId, lineNumber, errorMsg);
                         errorMsg = "validation failed in line number " + lineNumber + "|" + atmField;
                         //errorLoggerEFPE.error(errorMsg);
-                        LogManager.processErrorLog(errorMsg, errorLoggerEFPE);
+                        //LogManager.processErrorLog(errorMsg, errorLoggerEFPE);
                         //invalidCount.addAndGet(1);//increase invalid count by 1
                         Configurations.PROCESS_ATM_FILE_CLEARING_INVALID_COUNT++;
                         if (!isLineRejected) {
@@ -147,7 +147,7 @@ public class ATMFileClearingService {
             }
             details.put("Transaction Validity", isLineRejected == true ? "invalid" : "valid");
 
-            infoLoggerEFPE.info(logManager.processDetailsStyles(details));
+            logManager.logDetails(details, infoLoggerEFPE);
 
             int count = 0;
             String txnId = getTxnId(lineNumber.intValue());//generate a txn ID
@@ -159,7 +159,7 @@ public class ATMFileClearingService {
             } else {
                 // if off us card, then insert to EODEXCEPTIONALTRANSACTION table
                 count = atmFileClearingRepo.insertExceptionalTransactionData(fileId, txnId, "", new StringBuffer(atmFields[8]), "", "", "", "", atmFields[4], "", "", Configurations.USER, new java.sql.Date(System.currentTimeMillis()), atmFields[10], atmFields[11], "YES", "", "", "", "", "", "", atmFields[6], "", "", "ATM", "Card No Invalid");
-                infoLoggerEFPE.error("Invalid card number found while ATM file validation:" + CommonMethods.cardNumberMask(new StringBuffer(atmFields[8])));
+                logManager.logError("Invalid card number found while ATM file validation:" + CommonMethods.cardNumberMask(new StringBuffer(atmFields[8])), errorLoggerEFPE);
             }
             if (count > 0) {
                 //update RECATMINPUTROWDATA.STATUS to EDON
@@ -169,10 +169,10 @@ public class ATMFileClearingService {
             }
 
         } catch (Exception ex) {
-            infoLoggerEFPE.error("ATM file validation failed for" +
+            logManager.logError("ATM file validation failed for" +
                     "\nFile ID : " + fileId +
-                    "\nLine Number : " + lineNumber);
-            errorLoggerEFPE.error(ex.getMessage(), ex);
+                    "\nLine Number : " + lineNumber, errorLoggerEFPE);
+            logManager.logError(ex.getMessage(), ex, errorLoggerEFPE);
             //failCount.addAndGet(1);//increase fail count by 1
             Configurations.PROCESS_ATM_FILE_CLEARING_FAILD_COUNT++;
         }

@@ -28,8 +28,7 @@ import java.util.ArrayList;
 import java.util.Date;
 
 import static com.epic.cms.util.CommonMethods.validate;
-import static com.epic.cms.util.LogManager.errorLogger;
-import static com.epic.cms.util.LogManager.infoLogger;
+import static com.epic.cms.util.LogManager.*;
 
 @Service
 public class CashBackFileGenConnector extends FileGenProcessBuilder {
@@ -49,11 +48,14 @@ public class CashBackFileGenConnector extends FileGenProcessBuilder {
     @Autowired
     CashBackFileGenService cashBackFileGenService;
 
+    String filePathF1 = null, filePathF2 = null;
+    int recordCount = 0;
+    BigDecimal totalAmountBig = BigDecimal.valueOf(0.0);
+
     @Override
     public void concreteProcess() throws Exception {
         String processHeader = "CASHBACK FILE GENERATION";
         String fileNameF1 = null, fileNameF2 = null;
-        String filePathF1 = null, filePathF2 = null;
         String backUpFilePathF1 = null, backUpFilePathF2 = null;
         ArrayList<GlAccountBean> cashBackList = null;
         int count;
@@ -67,11 +69,10 @@ public class CashBackFileGenConnector extends FileGenProcessBuilder {
             processBean = commonRepo.getProcessDetails(Configurations.PROCESS_ID_CASHBACK_FILE_GENERATION);
 
             if (processBean != null) {
-                infoLogger.info(logManager.processHeaderStyle(processHeader));
+                logManager.logHeader(processHeader, infoLoggerEFGE);
 
                 Configurations.RUNNING_PROCESS_ID = Configurations.PROCESS_ID_CASHBACK_FILE_GENERATION;
                 CommonMethods.eodDashboardProgressParametersReset();
-
 
                 try {
                     SimpleDateFormat sdf2 = new SimpleDateFormat("dd-MMM-yyyy");
@@ -82,8 +83,6 @@ public class CashBackFileGenConnector extends FileGenProcessBuilder {
 
                     String debitAccount;
                     int noofBatches = 0;
-                    int recordCount = 0;
-                    BigDecimal totalAmountBig = BigDecimal.valueOf(0.0);
                     Date nextWorkingDay = commonFileGenProcessRepo.getNextWorkingDay(new Date());
                     String today3 = sdf4.format(nextWorkingDay);
                     SimpleDateFormat sd = new SimpleDateFormat("yyyy");
@@ -168,13 +167,9 @@ public class CashBackFileGenConnector extends FileGenProcessBuilder {
 
                             toDeleteStatus = false;
                         } else {
-                            infoLogger.info("Empty line in body. Hence No header section.");
-                            errorLogger.info("Empty line in body. Hence No header section.");
+                            logManager.logInfo("Empty line in body. Hence No header section.", infoLoggerEFGE);
+                            logManager.logError("Empty line in body. Hence No header section.", errorLoggerEFGE);
                         }
-                        summery.put("First File name : ", filePathF1);
-                        summery.put("Second File name : ", filePathF2);
-                        summery.put("No Of Records  : ", recordCount);
-                        summery.put("Hash Total  : ", totalAmountBig.toString());
 
                         EodOuputFileBean eodoutputfilebean2 = new EodOuputFileBean();
                         eodoutputfilebean2.setFileName(fileNameF2 + ".csv");
@@ -186,11 +181,9 @@ public class CashBackFileGenConnector extends FileGenProcessBuilder {
                         for (int key : txnId) {
                             cashBackFileGenRepo.updateCashBackRedeemExp(key);
                         }
-
-                        infoLogger.info(logManager.processSummeryStyles(summery));
                     }
                 } catch (Exception e) {
-                    errorLogger.error("Error while writing Cash back file--->", e);
+                    logManager.logError("Error while writing Cash back file--->", e, errorLoggerEFGE);
                     throw e;
                 } finally {
                     if (toDeleteStatus) {
@@ -212,7 +205,7 @@ public class CashBackFileGenConnector extends FileGenProcessBuilder {
         } catch (Exception e) {
             try {
                 Configurations.IS_PROCESS_COMPLETELY_FAILED = true;
-                errorLogger.error(processHeader + " process failed", e);
+                logManager.logError(processHeader + " process failed", e, errorLoggerEFGE);
                 commonRepo.updateEodProcessSummery(Configurations.EOD_ID, statusVarList.getERROR_STATUS(), Configurations.PROCESS_ID_CASHBACK_FILE_GENERATION, Configurations.PROCESS_SUCCESS_COUNT, Configurations.PROCESS_FAILD_COUNT, CommonMethods.eodDashboardProcessProgress(Configurations.PROCESS_SUCCESS_COUNT, Configurations.PROCESS_TOTAL_NOOF_TRABSACTIONS));
 
                 if (processBean.getCriticalStatus() == 1) {
@@ -222,9 +215,10 @@ public class CashBackFileGenConnector extends FileGenProcessBuilder {
                     Configurations.MAIN_EOD_STATUS = false;
                 }
             } catch (Exception ex) {
-                errorLogger.error("Exception", ex);
+                logManager.logError("Exception", ex, errorLoggerEFGE);
             }
         } finally {
+            logManager.logSummery(summery, infoLoggerEFGE);
             if (cashBackList != null && cashBackList.size() != 0) {
                 //nullify cashBackList
                 for (GlAccountBean glAccountBean : cashBackList) {
@@ -232,5 +226,13 @@ public class CashBackFileGenConnector extends FileGenProcessBuilder {
                 }
             }
         }
+    }
+
+    @Override
+    public void addSummaries() {
+        summery.put("First File name : ", filePathF1);
+        summery.put("Second File name : ", filePathF2);
+        summery.put("No Of Records  : ", recordCount);
+        summery.put("Hash Total  : ", totalAmountBig.toString());
     }
 }

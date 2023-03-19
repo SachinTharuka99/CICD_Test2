@@ -126,15 +126,15 @@ public class CashBackService {
 
                 } catch (Exception e) {
                     Configurations.errorCardList.add(new ErrorCardBean(Configurations.ERROR_EOD_ID, Configurations.EOD_DATE, new StringBuffer(cashbackBean.getAccountNumber()), e.getMessage(), Configurations.RUNNING_PROCESS_ID, Configurations.RUNNING_PROCESS_DESCRIPTION, 0, CardAccount.ACCOUNT));
-                    infoLogger.info("Cashback process failed for accountnumber " + cashbackBean.getAccountNumber());
-                    errorLogger.error("Cashback process failed for accountnumber " + cashbackBean.getAccountNumber(), e);
+                    logManager.logInfo("Cashback process failed for accountnumber " + cashbackBean.getAccountNumber(), infoLogger);
+                    logManager.logError("Cashback process failed for accountnumber " + cashbackBean.getAccountNumber(), e, errorLogger);
                     details.put("Process Status", "Failed");
                     Configurations.PROCESS_FAILD_COUNT++;
                 }
-                infoLogger.info(logManager.processDetailsStyles(details));
-
             } catch (Exception e) {
-                errorLogger.error("Error Occured while getting db connections ", e);
+                logManager.logError("Error Occured while getting db connections ", e, errorLogger);
+            } finally {
+                logManager.logDetails(details, infoLogger);
             }
         }
     }

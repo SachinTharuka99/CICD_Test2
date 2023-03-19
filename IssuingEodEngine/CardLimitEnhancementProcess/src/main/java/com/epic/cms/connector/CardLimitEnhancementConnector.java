@@ -39,6 +39,9 @@ public class CardLimitEnhancementConnector extends ProcessBuilder {
     @Autowired
     CommonRepo commonRepo;
 
+    @Autowired
+    LogManager logManager;
+
     private ArrayList<OtbBean> custAccList = new ArrayList<OtbBean>();
     ArrayList<BalanceComponentBean> enhancementList;
     private int failedCount = 0;
@@ -69,7 +72,6 @@ public class CardLimitEnhancementConnector extends ProcessBuilder {
                 while (!(taskExecutor.getActiveCount() == 0)) {
                     Thread.sleep(1000);
                 }
-                //infoLogger.info("Thread Name Prefix: {}, Active count: {}, Pool size: {}, Queue Size: {}", taskExecutor.getThreadNamePrefix(), taskExecutor.getActiveCount(), taskExecutor.getPoolSize(), taskExecutor.getThreadPoolExecutor().getQueue().size());
 
                 failedCount = Configurations.PROCESS_FAILD_COUNT;
                 Configurations.PROCESS_TOTAL_NOOF_TRABSACTIONS = enhancementList.size();
@@ -82,8 +84,7 @@ public class CardLimitEnhancementConnector extends ProcessBuilder {
             Configurations.IS_PROCESS_COMPLETELY_FAILED = true;
             throw ex;
         } finally {
-            //addSummaries();
-            //infoLogger.info(logManager.processSummeryStyles(summery));
+            logManager.logSummery(summery, infoLogger);
             try {
                 if (custAccList != null && custAccList.size() != 0) {
                     for (OtbBean bean : custAccList) {
@@ -100,8 +101,7 @@ public class CardLimitEnhancementConnector extends ProcessBuilder {
                     enhancementList = null;
                 }
             } catch (Exception e) {
-                //errorLogger.error("Exception Occurred for Card Limit Enhancement ", e);
-                LogManager.logError("Exception Occurred for Card Limit Enhancement ", e, errorLogger);
+                logManager.logError("Exception Occurred for Card Limit Enhancement ", e, errorLogger);
             }
 
         }
