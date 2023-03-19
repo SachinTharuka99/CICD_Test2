@@ -33,6 +33,9 @@ public abstract class FileProcessingProcessBuilder {
     @Autowired
     CommonRepo commonRepo;
 
+    @Autowired
+    LogManager logManager;
+
     @Async("ThreadPool_FileHandler")
     public void startProcess(String fileId) {
         try {
@@ -40,8 +43,8 @@ public abstract class FileProcessingProcessBuilder {
             this.processHeader = processBean.getProcessDes();
             setupProcessDescriptions();
 
-            LogManager.logHeader(processHeader, infoLoggerEFPE);
-            LogManager.logStartEnd(startHeader, infoLoggerEFPE);
+            logManager.logHeader(processHeader, infoLoggerEFPE);
+            logManager.logStartEnd(startHeader, infoLoggerEFPE);
 
             //3 - insert to process summery table
             //4 - Abstract method call
@@ -49,19 +52,19 @@ public abstract class FileProcessingProcessBuilder {
             //5 - Update process summery table
         } catch (Exception e) {
             try {
-                LogManager.logStartEnd(failedHeader, infoLoggerEFPE);
-                LogManager.logError(failedHeader, e, errorLoggerEFPE);
+                logManager.logStartEnd(failedHeader, infoLoggerEFPE);
+                logManager.logError(failedHeader, e, errorLoggerEFPE);
                 //update process summery table
             } catch (Exception e2) {
-                LogManager.logError(e2, errorLoggerEFPE);
+                logManager.logError(e2, errorLoggerEFPE);
             }
         } finally {
             try {
                 addSummaries();
-                LogManager.logSummery(summery, infoLoggerEFPE);
-                LogManager.logStartEnd(completedHeader, infoLoggerEFPE);
+                logManager.logSummery(summery, infoLoggerEFPE);
+                logManager.logStartEnd(completedHeader, infoLoggerEFPE);
             } catch (Exception e2) {
-                LogManager.logError(e2, errorLoggerEFPE);
+                logManager.logError(e2, errorLoggerEFPE);
             }
         }
 

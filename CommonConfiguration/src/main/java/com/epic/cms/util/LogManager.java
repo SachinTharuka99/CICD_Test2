@@ -8,7 +8,9 @@ import ch.qos.logback.classic.spi.ILoggingEvent;
 import ch.qos.logback.core.ConsoleAppender;
 import ch.qos.logback.core.FileAppender;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.DependsOn;
+import org.springframework.kafka.core.KafkaTemplate;
 import org.springframework.stereotype.Component;
 
 import javax.annotation.PostConstruct;
@@ -19,10 +21,15 @@ import java.util.Map;
 @DependsOn("ConfigurationService")
 public class LogManager {
 
-    public static Logger infoLogger = null, infoLoggerCOM = null, infoLoggerEFPE = null, infoLoggerEFGE = null;
-    public static Logger errorLogger = null, errorLoggerCOM = null, errorLoggerEFPE = null, errorLoggerEFGE = null;
+    public static Logger infoLogger = null, dashboardInfoLogger = null, infoLoggerCOM = null, infoLoggerEFPE = null, infoLoggerEFGE = null;
+    public static Logger errorLogger = null, dashboardErrorLogger = null, errorLoggerCOM = null, errorLoggerEFPE = null, errorLoggerEFGE = null;
     public static String logTypeInfo = Configurations.LOG_TYPE_INFO;
     public static String logTypeError = Configurations.LOG_TYPE_ERROR;
+
+    @Autowired
+    public KafkaTemplate<String, String> kafkaTemplate;
+
+    final String topic = Configurations.LOG_TOPIC;
 
     @PostConstruct
     public static void init() {
@@ -31,12 +38,15 @@ public class LogManager {
         infoLogger = getLogger(logTypeInfo, "engine_info", Configurations.LOG_FILE_PREFIX_EOD_ENGINE);
         infoLoggerEFPE = getLogger(logTypeInfo, "file_pro_engine_info", Configurations.LOG_FILE_PREFIX_EOD_FILE_PROCESSING_ENGINE);
         infoLoggerEFGE = getLogger(logTypeInfo, "file_gen_engine_info", Configurations.LOG_FILE_PREFIX_EOD_FILE_GENERATION_ENGINE);
+        dashboardInfoLogger = getLogger(logTypeInfo, "dashboard_info", Configurations.LOG_FILE_PREFIX_COMMON);
         //error loggers
         errorLoggerCOM = getLogger(logTypeError, "common_error", Configurations.LOG_FILE_PREFIX_COMMON);
         errorLogger = getLogger(logTypeError, "engine_error", Configurations.LOG_FILE_PREFIX_EOD_ENGINE);
         errorLoggerEFPE = getLogger(logTypeError, "file_pro_engine_error", Configurations.LOG_FILE_PREFIX_EOD_FILE_PROCESSING_ENGINE);
         errorLoggerEFGE = getLogger(logTypeError, "file_gen_engine_error", Configurations.LOG_FILE_PREFIX_EOD_FILE_GENERATION_ENGINE);
+        dashboardErrorLogger = getLogger(logTypeError, "dashboard_error", Configurations.LOG_FILE_PREFIX_COMMON);
     }
+
 
     /**
      * Config Logger Instances
@@ -242,7 +252,7 @@ public class LogManager {
         return description;
     }
 
-    public static void logHeader(String msg, Logger logger) {
+    public void logHeader(String msg, Logger logger) {
         String symbol = "~";
         int fixed_length = 100;
         int processName_lenght = msg.length();
@@ -270,19 +280,28 @@ public class LogManager {
         //write into a log
         logger.info(formattedMsg);
         //pass into a kafka topic
-
+        try {
+            kafkaTemplate.send(topic, formattedMsg);
+        } catch (Exception e) {
+            System.out.println("Kafka log_topic error");
+        }
     }
 
-    public static void logStartEnd(String msg, Logger logger) {
+    public void logStartEnd(String msg, Logger logger) {
         String curDate = new SimpleDateFormat("dd-MMM-yy HH:mm:ss").format(Configurations.EOD_DATE);
 
         String formattedMsg = "[" + curDate + "]" + "  " + msg + System.lineSeparator();
         //write into a log
         logger.info(formattedMsg);
         //pass into a kafka topic
+        try {
+            kafkaTemplate.send(topic, formattedMsg);
+        } catch (Exception e) {
+            System.out.println("Kafka log_topic error");
+        }
     }
 
-    public static void logDetails(Map<String, Object> detailsMap, Logger logger) {
+    public void logDetails(Map<String, Object> detailsMap, Logger logger) {
         String description = null;
         if (detailsMap.size() > 0) {
             int maxLength = 0;
@@ -313,11 +332,16 @@ public class LogManager {
             //write into a log
             logger.info(description);
             //pass into a kafka topic
+            try {
+                kafkaTemplate.send(topic, description);
+            } catch (Exception e) {
+                System.out.println("Kafka log_topic error");
+            }
         }
 
     }
 
-    public static void logSummery(Map<String, Object> detailsMap, Logger logger) {
+    public void logSummery(Map<String, Object> detailsMap, Logger logger) {
         int maxLengthKey = 0;
         int maxLengthValue = 0;
         int maxLength = 0;
@@ -377,31 +401,56 @@ public class LogManager {
             //write into a log
             logger.info(description);
             //pass into a kafka topic
+            try {
+                kafkaTemplate.send(topic, description);
+            } catch (Exception e) {
+                System.out.println("Kafka log_topic error");
+            }
         }
 
     }
 
-    public static void logInfo(String msg, Logger logger) {
+    public void logInfo(String msg, Logger logger) {
         //write into a log
         logger.info(msg);
         //pass into a kafka topic
+        try {
+            kafkaTemplate.send(topic, msg);
+        } catch (Exception e) {
+            System.out.println("Kafka log_topic error");
+        }
     }
 
-    public static void logError(String msg, Throwable e, Logger logger) {
+    public void logError(String msg, Throwable e, Logger logger) {
         //write into a log
         logger.error(msg, e);
         //pass into a kafka topic
+        try {
+            kafkaTemplate.send(topic, msg);
+        } catch (Exception ex) {
+            System.out.println("Kafka log_topic error");
+        }
     }
 
-    public static void logError(Throwable e, Logger logger) {
+    public void logError(Throwable e, Logger logger) {
         //write into a log
         logger.error(e.getMessage(), e);
         //pass into a kafka topic
+        try {
+            kafkaTemplate.send(topic, e.getMessage());
+        } catch (Exception ex) {
+            System.out.println("Kafka log_topic error");
+        }
     }
 
-    public static void logError(String msg, Logger logger) {
+    public void logError(String msg, Logger logger) {
         //write into a log
         logger.error(msg);
         //pass into a kafka topic
+        try {
+            kafkaTemplate.send(topic, msg);
+        } catch (Exception e) {
+            System.out.println("Kafka log_topic error");
+        }
     }
 }
