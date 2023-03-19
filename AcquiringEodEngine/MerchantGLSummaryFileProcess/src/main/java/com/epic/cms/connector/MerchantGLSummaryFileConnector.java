@@ -179,7 +179,7 @@ public class MerchantGLSummaryFileConnector extends ProcessBuilder {
 
                     merchantGLSummaryFileDao.insertOutputFiles(eodoutputfilebean, "MERCHANTGL");
                 } else {
-                    infoLogger.info("Merchant GL File doesn't created. ");
+                    logManager.logInfo("Merchant GL File doesn't created. ", infoLogger);
                 }
             } catch (Exception e) {
                 Configurations.IS_PROCESS_COMPLETELY_FAILED = true;
@@ -191,7 +191,7 @@ public class MerchantGLSummaryFileConnector extends ProcessBuilder {
                         Configurations.MAIN_EOD_STATUS = false;
                     }
                 } catch (Exception e2) {
-                    errorLogger.error("Exception in Merchant GL File Process", e2);
+                    logManager.logError("Exception in Merchant GL File Process", e2, errorLogger);
                 }
             }
         }

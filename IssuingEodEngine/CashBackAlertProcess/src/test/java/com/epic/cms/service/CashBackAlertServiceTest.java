@@ -29,6 +29,8 @@ class CashBackAlertServiceTest {
         cashBackAlertServiceUnderTest = new CashBackAlertService();
         cashBackAlertServiceUnderTest.alert = mock(AlertService.class);
         cashBackAlertServiceUnderTest.cashBackAlertRepo = mock(CashBackAlertRepo.class);
+        cashBackAlertServiceUnderTest.logManager = mock(LogManager.class);
+
     }
 
     @Test

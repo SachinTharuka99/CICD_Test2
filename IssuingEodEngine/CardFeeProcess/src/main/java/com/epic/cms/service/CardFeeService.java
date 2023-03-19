@@ -27,7 +27,7 @@ public class CardFeeService {
     public CardFeeDao cardFeeDao;
 
     @Autowired
-    LogManager logManager;
+    public LogManager logManager;
 
     @Async("ThreadPool_100")
     @Transactional(value = "transactionManager", propagation = Propagation.REQUIRED, rollbackFor = Exception.class)

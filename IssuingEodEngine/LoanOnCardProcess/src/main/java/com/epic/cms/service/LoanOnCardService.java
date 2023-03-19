@@ -25,7 +25,7 @@ import java.util.UUID;
 public class LoanOnCardService {
 
     @Autowired
-    LogManager logManager;
+    public LogManager logManager;
 
     @Autowired
     public InstallmentPaymentRepo installmentPaymentRepo;

@@ -43,6 +43,7 @@ class AdjustmentServiceTest {
     @BeforeEach
     void setUp() {
         adjustmentServiceUnderTest = new AdjustmentService();
+        adjustmentServiceUnderTest.logManager = mock(LogManager.class);
         adjustmentServiceUnderTest.commonRepo = mock(CommonRepo.class);
         adjustmentServiceUnderTest.adjustmentDao = mock(AdjustmentDao.class);
     }

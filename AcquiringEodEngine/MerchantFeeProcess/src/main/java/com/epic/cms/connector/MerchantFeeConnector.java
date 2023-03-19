@@ -65,7 +65,7 @@ public class MerchantFeeConnector extends ProcessBuilder {
                 LinkedHashMap summery = new LinkedHashMap();
 
                 merchantFeeCountList = merchantFeeRepo.getMerchantFeeCountList();
-                infoLogger.info("  " + merchantFeeCountList.size() + " Fees Selected for Merchant Fee Process");
+                logManager.logInfo("  " + merchantFeeCountList.size() + " Fees Selected for Merchant Fee Process", infoLogger);
 
                 if (merchantFeeCountList != null && merchantFeeCountList.size() > 0) {
                     summery.put("No of fee to be processed: ", merchantFeeCountList.size() + "");
@@ -79,8 +79,6 @@ public class MerchantFeeConnector extends ProcessBuilder {
                         Thread.sleep(1000);
                     }
 
-                    infoLogger.info("Thread Name Prefix: {}, Active count: {}, Pool size: {}, Queue Size: {}", taskExecutor.getThreadNamePrefix(), taskExecutor.getActiveCount(), taskExecutor.getPoolSize(), taskExecutor.getThreadPoolExecutor().getQueue().size());
-
                     failedCount = Configurations.PROCESS_FAILD_COUNT;
                     Configurations.PROCESS_TOTAL_NOOF_TRABSACTIONS = merchantFeeCountList.size();
                     Configurations.PROCESS_SUCCESS_COUNT = (merchantFeeCountList.size() - failedCount);
@@ -90,14 +88,14 @@ public class MerchantFeeConnector extends ProcessBuilder {
                 }
             }
         } catch (Exception e) {
-            infoLogger.info(logManager.processStartEndStyle("Merchant Fee Process Terminated Because of Error"));
-            errorLogger.error("Merchant Fee Process Terminated Because of Error", e);
+            logManager.logStartEnd("Merchant Fee Process Terminated Because of Error", infoLogger);
+            logManager.logError("Merchant Fee Process Terminated Because of Error", e, errorLogger);
         } finally {
-            addSummaries();
-            infoLogger.info(logManager.processSummeryStyles(summery));
+            logManager.logSummery(summery, infoLogger);
         }
     }
 
+    @Override
     public void addSummaries() {
         if (merchantErrorList != null) {
             summery.put("Number of transaction to sync", merchantErrorList.size());

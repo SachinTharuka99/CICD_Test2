@@ -28,9 +28,9 @@ import java.math.BigDecimal;
 import java.math.RoundingMode;
 import java.text.SimpleDateFormat;
 import java.util.*;
+import java.util.logging.LogManager;
 
 import static com.epic.cms.util.CommonMethods.*;
-import static com.epic.cms.util.LogManager.errorLogger;
 
 /**
  * 1- Select list of merchant Customers & Locations according to their payment
@@ -79,6 +79,8 @@ public class MerchantPaymentFileConnector extends ProcessBuilder {
     ThreadPoolTaskExecutor taskExecutor;
     @Autowired
     MerchantPaymentFileDao merchantPaymentFileDao;
+    @Autowired
+    LogManager logManager;
     private HashMap<String, HashMap<Integer, HashMap<String, ArrayList<MerchantPaymentCycleBean>>>> totalMerchantListOnPaymod;
     private HashMap<Integer, HashMap<String, ArrayList<MerchantPaymentCycleBean>>> totalMerchantListOnPaystatus;
     private HashMap<String, ArrayList<MerchantPaymentCycleBean>> merchantList;
@@ -170,7 +172,7 @@ public class MerchantPaymentFileConnector extends ProcessBuilder {
                     Configurations.MAIN_EOD_STATUS = false;
                 }
             } catch (Exception e2) {
-                errorLogger.error("Exception in Merchant Payment File Process", e2);
+                //logManager.logError("Exception in Merchant Payment File Process", e2);
             }
         }
 

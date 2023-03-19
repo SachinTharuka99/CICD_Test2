@@ -17,6 +17,8 @@ class TransactionUpdateServiceTest {
         transactionUpdateServiceUnderTest = new TransactionUpdateService();
         transactionUpdateServiceUnderTest.status = mock(StatusVarList.class);
         transactionUpdateServiceUnderTest.transactionUpdateRepo = mock(TransactionUpdateRepo.class);
+        transactionUpdateServiceUnderTest.logManager = mock(LogManager.class);
+
     }
 
     @ParameterizedTest

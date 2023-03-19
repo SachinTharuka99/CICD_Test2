@@ -24,7 +24,7 @@ import static com.epic.cms.util.LogManager.errorLogger;
 public class AdjustmentService {
 
     @Autowired
-    LogManager logManager;
+    public LogManager logManager;
 
     @Autowired
     public CommonRepo commonRepo;

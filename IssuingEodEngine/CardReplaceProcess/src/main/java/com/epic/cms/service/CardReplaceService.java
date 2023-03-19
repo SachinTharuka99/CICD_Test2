@@ -24,7 +24,7 @@ public class CardReplaceService {
     StatusVarList status;
 
     @Autowired
-    LogManager logManager;
+    public LogManager logManager;
 
     @Async("taskExecutor2")
     @Transactional(value = "transactionManager", propagation = Propagation.REQUIRED, rollbackFor = Exception.class)

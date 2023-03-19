@@ -51,6 +51,8 @@ public class ATMFileClearingServiceTest {
         atmFileClearingServiceUnderTest = new ATMFileClearingService();
         atmFileClearingServiceUnderTest.atmFileClearingRepo = mock(ATMFileClearingRepo.class);
         atmFileClearingServiceUnderTest.status = mock(StatusVarList.class);
+        atmFileClearingServiceUnderTest.logManager = mock(LogManager.class);
+
     }
 
     @ParameterizedTest

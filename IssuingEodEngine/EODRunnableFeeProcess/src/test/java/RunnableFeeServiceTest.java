@@ -46,6 +46,8 @@ class RunnableFeeServiceTest {
         runnableFeeServiceUnderTest.runnableFeeDao = mock(RunnableFeeDao.class);
         runnableFeeServiceUnderTest.commonDao = mock(CommonDao.class);
         runnableFeeServiceUnderTest.status = mock(StatusVarList.class);
+        runnableFeeServiceUnderTest.logManager = mock(LogManager.class);
+
     }
 
     @Test

@@ -10,11 +10,11 @@ package com.epic.cms.connector;
 import com.epic.cms.common.ProcessBuilder;
 import com.epic.cms.dao.AcquiringAdjustmentDao;
 import com.epic.cms.model.bean.*;
-import com.epic.cms.util.LogManager;
 import com.epic.cms.repository.CommonRepo;
 import com.epic.cms.service.AcquiringAdjustmentService;
 import com.epic.cms.util.CommonMethods;
 import com.epic.cms.util.Configurations;
+import com.epic.cms.util.LogManager;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.scheduling.concurrent.ThreadPoolTaskExecutor;
@@ -22,7 +22,6 @@ import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.UUID;
 
 import static com.epic.cms.util.LogManager.errorLogger;
 import static com.epic.cms.util.LogManager.infoLogger;
@@ -85,16 +84,11 @@ public class AcquiringAdjustmentConnector extends ProcessBuilder {
 
                 // update card product of all adjustments
                 setCardProduct();
-
-                summery.put("Started Date", Configurations.EOD_DATE.toString());
-                summery.put("No of Adjustments", Configurations.PROCESS_TOTAL_NOOF_TRABSACTIONS);
-                summery.put("No of Success Adjustments ", Integer.toString(Configurations.PROCESS_SUCCESS_COUNT - Configurations.PROCESS_FAILD_COUNT));
-                infoLogger.info(logManager.processSummeryStyles(summery));
             }
 
         } catch (Exception e) {
             Configurations.IS_PROCESS_COMPLETELY_FAILED = true;
-            errorLogger.error(processHeader + " Terminated Due To Error", e);
+            logManager.logError(processHeader + " Terminated Due To Error", e, errorLogger);
             try {
                 if (processBean.getCriticalStatus() == 1) {
                     Configurations.COMMIT_STATUS = false;
@@ -104,9 +98,10 @@ public class AcquiringAdjustmentConnector extends ProcessBuilder {
                 }
 
             } catch (Exception e2) {
-                errorLogger.error("Exeption " ,e2);
+                logManager.logError("Exeption ", e2, errorLogger);
             }
         } finally {
+            logManager.logSummery(details, infoLogger);
             try {
                 if (adjentmentBeanList != null && adjentmentBeanList.size() != 0) {
                     for (AcqAdjustmentBean acqAdjustmentBean : adjentmentBeanList) {
@@ -116,7 +111,7 @@ public class AcquiringAdjustmentConnector extends ProcessBuilder {
                 }
             } catch (Exception e2) {
                 e2.printStackTrace();
-                errorLogger.error("exeption ",e2);
+                logManager.logError("exeption ", e2, errorLogger);
             }
 
         }
@@ -124,13 +119,16 @@ public class AcquiringAdjustmentConnector extends ProcessBuilder {
 
     @Override
     public void addSummaries() {
-
+        summery.put("Started Date", Configurations.EOD_DATE.toString());
+        summery.put("No of Adjustments", Configurations.PROCESS_TOTAL_NOOF_TRABSACTIONS);
+        summery.put("No of Success Adjustments ", Integer.toString(Configurations.PROCESS_SUCCESS_COUNT - Configurations.PROCESS_FAILD_COUNT));
     }
 
     private void setCardProduct() {
         try {
             acquiringAdjustmentDao.setCardProductToEodMerTxn();
         } catch (Exception e) {
-                errorLogger.error("exception in set all cards " ,e);
-        }}
+            logManager.logError("exception in set all cards ", e, errorLogger);
+        }
+    }
 }

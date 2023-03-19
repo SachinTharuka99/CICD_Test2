@@ -39,6 +39,7 @@ class CardReplaceServiceTest {
         cardReplaceServiceUnderTest = new CardReplaceService();
         cardReplaceServiceUnderTest.cardReplaceRepo = mock(CardReplaceRepo.class);
         cardReplaceServiceUnderTest.status = mock(StatusVarList.class);
+        cardReplaceServiceUnderTest.logManager = mock(LogManager.class);
     }
 
     @Test

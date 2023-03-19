@@ -60,7 +60,7 @@ public class MerchantEasyPaymentRequestService {
                 } else {
                     rejectedTxn++;
                     Configurations.PROCESS_FAILD_COUNT++;
-                    errorLogger.error("easypayment transaction min-max conditions failed for txnid: " + tranBean.getTxnId());
+                    logManager.logError("easypayment transaction min-max conditions failed for txnid: " + tranBean.getTxnId(), errorLogger);
                     tranBean.setFirstInstallmentAmount(getFirstInstallmentAmount(tranBean.getBackendTxnAmount(), tranBean.getDuration(), tranBean.getInterestRateOrFee(), tranBean.getProcessingFeeType(), tranBean.getFeeApplyInFirstMonth()));
                     tranBean.setNextInstallmentAmount(getNextInstallmentAmount(tranBean.getBackendTxnAmount(), tranBean.getDuration(), tranBean.getInterestRateOrFee(), tranBean.getProcessingFeeType(), tranBean.getFeeApplyInFirstMonth()));
                     merchantEasyPaymentRequestRepo.insertEasyPaymentRejectRequest(tranBean); // insert request as reject (RQRJ)
@@ -70,11 +70,11 @@ public class MerchantEasyPaymentRequestService {
                 Configurations.PROCESS_FAILD_COUNT++;
                 Configurations.merchantErrorList.add(new ErrorMerchantBean(Configurations.ERROR_EOD_ID, Configurations.EOD_DATE, tranBean.getMid(), e.getMessage(), Configurations.RUNNING_PROCESS_ID, Configurations.RUNNING_PROCESS_DESCRIPTION, 0, MerchantCustomer.MERCHANTLOCATION));
                 details.put("Process Status", "Failed");
-                infoLogger.info(Configurations.RUNNING_PROCESS_DESCRIPTION + " failed for txnid " + tranBean.getTxnId());
-                errorLogger.error(Configurations.RUNNING_PROCESS_DESCRIPTION + " failed for txnid " + tranBean.getTxnId(), e);
+                logManager.logInfo(Configurations.RUNNING_PROCESS_DESCRIPTION + " failed for txnid " + tranBean.getTxnId(), infoLogger);
+                logManager.logError(Configurations.RUNNING_PROCESS_DESCRIPTION + " failed for txnid " + tranBean.getTxnId(), e, errorLogger);
+            } finally {
+                logManager.logDetails(details, infoLogger);
             }
-            infoLogger.info(logManager.processDetailsStyles(details));
-            details.clear();
         }
     }
 

@@ -37,6 +37,7 @@ class CardFeeServiceTest {
         cardFeeServiceUnderTest = new CardFeeService();
         cardFeeServiceUnderTest.status = mock(StatusVarList.class);
         cardFeeServiceUnderTest.cardFeeDao = mock(CardFeeDao.class);
+        cardFeeServiceUnderTest.logManager = mock(LogManager.class);
     }
 
     @Test

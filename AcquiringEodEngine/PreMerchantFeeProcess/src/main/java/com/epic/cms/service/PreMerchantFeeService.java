@@ -82,17 +82,17 @@ public class PreMerchantFeeService {
                         }
                     }
                 } else { //fee code list not found
-                    errorLogger.error("No fee code list found for " + feeProfileCode);
+                    logManager.logError("No fee code list found for " + feeProfileCode,errorLogger);
                 }
 
             } else { //fee profile code is not defined for merchant
                 Configurations.PROCESS_FAILD_COUNT++;
-                errorLogger.error("No fee profile code define for merchant" + merchantBean.getMerchantId());
+                logManager.logError("No fee profile code define for merchant" + merchantBean.getMerchantId(), errorLogger);
 //                merchantErrorList.add(new ErrorMerchantBean(Configurations.ERROR_EOD_ID, Configurations.EOD_DATE, merchantBean.getMerchantId(), "No fee profile code defined", configProcess, processHeader, 0, MerchantCustomer.MERCHANTLOCATION));
             }
         } catch (Exception ex) {
             Configurations.PROCESS_FAILD_COUNT++;
-            errorLogger.error("Error occurred", ex);
+            logManager.logError("Error occurred", ex, errorLogger);
             merchantErrorList.add(new ErrorMerchantBean(Configurations.ERROR_EOD_ID, Configurations.EOD_DATE, merchantBean.getMerchantId(), ex.getMessage(), Configurations.RUNNING_PROCESS_ID, Configurations.RUNNING_PROCESS_DESCRIPTION, 0, MerchantCustomer.MERCHANTLOCATION));
         }
     }
@@ -115,7 +115,7 @@ public class PreMerchantFeeService {
             details.put("Applying merchant " + feeCode + " fee for the merchant ", merchantBean.getMerchantId());
             isApplied = preMerchantFeeDao.addMerchantFeeCount(merchantBean.getMerchantId(), feeCode);
         }
-        infoLogger.info(logManager.processDetailsStyles(details));
+       logManager.logDetails(details, infoLogger);
         details.clear();
         return isApplied;
     }
@@ -142,10 +142,8 @@ public class PreMerchantFeeService {
             isApplied = preMerchantFeeDao.addMerchantFeeCount(merchantId, feeCode);
         }
 
-        infoLogger.info(logManager.processDetailsStyles(details));
+        logManager.logDetails(details, infoLogger);
         details.clear();
         return isApplied;
     }
-
-
 }

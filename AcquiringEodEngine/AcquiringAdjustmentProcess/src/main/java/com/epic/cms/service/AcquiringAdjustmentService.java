@@ -162,7 +162,7 @@ public class AcquiringAdjustmentService {
 
                 Configurations.PROCESS_SUCCESS_COUNT++;
             } catch (Exception e) {
-                errorLogger.error(String.valueOf(e));
+                logManager.logError(String.valueOf(e), errorLogger);
 //            errorLogger.error(processHeader + " failed for merchantId:" + acqAdjustmentBean.getMerchantId(), e);
                 if (!errorMerchantList.contains((String) acqAdjustmentBean.getMerchantId())) {
                     merchantErrorList.add(new ErrorMerchantBean(Configurations.ERROR_EOD_ID, Configurations.EOD_DATE, acqAdjustmentBean.getMerchantId(), e.getMessage(), Configurations.RUNNING_PROCESS_ID, Configurations.RUNNING_PROCESS_DESCRIPTION, 0, MerchantCustomer.MERCHANTLOCATION));
@@ -170,6 +170,8 @@ public class AcquiringAdjustmentService {
                 }
                 failAdjustment++;
                 Configurations.PROCESS_FAILD_COUNT++;
+            } finally {
+                infoLogger.info(logManager.processDetailsStyles(details));
             }
         }
     }

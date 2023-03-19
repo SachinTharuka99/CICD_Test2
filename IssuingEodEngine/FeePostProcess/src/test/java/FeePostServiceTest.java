@@ -38,6 +38,7 @@ class FeePostServiceTest {
         feePostServiceUnderTest = new FeePostService();
         feePostServiceUnderTest.feePostDao = mock(FeePostDao.class);
         feePostServiceUnderTest.status = mock(StatusVarList.class);
+        feePostServiceUnderTest.logManager = mock(LogManager.class);
     }
 
     @ParameterizedTest

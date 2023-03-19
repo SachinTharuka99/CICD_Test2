@@ -46,6 +46,7 @@ class BalanceTransferServiceTest {
     void setUp() {
         balanceTransferServiceUnderTest = new BalanceTransferService();
         balanceTransferServiceUnderTest.commonRepo = mock(CommonRepo.class);
+        balanceTransferServiceUnderTest.logManager = mock(LogManager.class);
         balanceTransferServiceUnderTest.statusList = mock(StatusVarList.class);
         balanceTransferServiceUnderTest.installmentPaymentRepo = mock(InstallmentPaymentRepo.class);
         spyBalanceTransferServiceUnderTest = spy(BalanceTransferService.class);

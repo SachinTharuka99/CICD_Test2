@@ -74,8 +74,6 @@ public class MerchantEasyPaymentRequestConnector extends ProcessBuilder {
                     Thread.sleep(1000);
                 }
 
-                infoLogger.info("Thread Name Prefix: {}, Active count: {}, Pool size: {}, Queue Size: {}", taskExecutor.getThreadNamePrefix(), taskExecutor.getActiveCount(), taskExecutor.getPoolSize(), taskExecutor.getThreadPoolExecutor().getQueue().size());
-
                 failedCount = Configurations.PROCESS_FAILD_COUNT;
                 Configurations.PROCESS_TOTAL_NOOF_TRABSACTIONS = easyPaymentTranList.size();
                 Configurations.PROCESS_SUCCESS_COUNT = (easyPaymentTranList.size() - failedCount);
@@ -85,10 +83,9 @@ public class MerchantEasyPaymentRequestConnector extends ProcessBuilder {
             }
         } catch (Exception e) {
             Configurations.IS_PROCESS_COMPLETELY_FAILED = true;
-            errorLogger.error("Merchant Easy Payment process Error", e);
+            logManager.logError("Merchant Easy Payment process Error", e, errorLogger);
         } finally {
-            addSummaries();
-            infoLogger.info(logManager.processSummeryStyles(summery));
+            logManager.logSummery(summery, infoLogger);
             try {
                 if (easyPaymentTranList != null && easyPaymentTranList.size() != 0) {
                     /* PADSS Change -
@@ -99,11 +96,12 @@ public class MerchantEasyPaymentRequestConnector extends ProcessBuilder {
                     easyPaymentTranList = null;
                 }
             } catch (Exception e3) {
-                errorLogger.error("Exception", e3);
+                logManager.logError("Exception", e3, errorLogger);
             }
         }
     }
 
+    @Override
     public void addSummaries() {
         if (merchantErrorList != null) {
             summery.put("Number of transaction to sync", easyPaymentTranList.size());

@@ -38,6 +38,7 @@ class CardPermanentBlockServiceTest {
         cardPermanentBlockServiceUnderTest.statusList = mock(StatusVarList.class);
         cardPermanentBlockServiceUnderTest.cardPermanentBlockRepo = mock(CardBlockRepo.class);
         cardPermanentBlockServiceUnderTest.commonRepo = mock(CommonRepo.class);
+        cardPermanentBlockServiceUnderTest.logManager = mock(LogManager.class);
     }
 
     @Test

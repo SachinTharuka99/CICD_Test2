@@ -48,6 +48,8 @@ class LoanOnCardServiceTest {
         loanOnCardServiceUnderTest.installmentPaymentRepo = mock(InstallmentPaymentRepo.class);
         loanOnCardServiceUnderTest.commonRepo = mock(CommonRepo.class);
         loanOnCardServiceUnderTest.status = mock(StatusVarList.class);
+        loanOnCardServiceUnderTest.logManager = mock(LogManager.class);
+
     }
 
     @Test

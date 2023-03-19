@@ -21,7 +21,7 @@ import static com.epic.cms.util.LogManager.infoLogger;
 public class ChequeReturnService {
 
     @Autowired
-    LogManager logManager;
+    public LogManager logManager;
 
     @Autowired
     public ChequeReturnDao chequeReturnDao;

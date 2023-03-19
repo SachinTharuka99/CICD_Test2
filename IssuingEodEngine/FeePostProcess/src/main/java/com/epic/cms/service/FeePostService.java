@@ -20,7 +20,7 @@ import static com.epic.cms.util.LogManager.errorLogger;
 public class FeePostService {
 
     @Autowired
-    LogManager logManager;
+    public LogManager logManager;
 
     @Autowired
     public FeePostDao feePostDao;

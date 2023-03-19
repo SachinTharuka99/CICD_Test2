@@ -30,7 +30,7 @@ public class AcqTxnUpdateService {
     public String processHeader = "ACQUIRING_TXN_UPDATE_PROCESS";
     public List<ErrorCardBean> cardErrorList = new ArrayList<ErrorCardBean>();
     @Autowired
-    LogManager logManager;
+    public LogManager logManager;
     @Autowired
     StatusVarList status;
     @Autowired
@@ -156,8 +156,8 @@ public class AcqTxnUpdateService {
                                 Configurations.PROCESS_FAILD_COUNT++;
                                 Configurations.errorCardList.add(new ErrorCardBean(Configurations.ERROR_EOD_ID, Configurations.EOD_DATE, eodTransactionBean.getCardNo(), e.getMessage(), Configurations.RUNNING_PROCESS_ID, Configurations.RUNNING_PROCESS_DESCRIPTION, 0, CardAccount.CARD));
                                 details.put("Process Status", "Failed");
-                                infoLogger.info(processHeader + " failed for cardnumber " + CommonMethods.cardInfo(maskedCardNumber, processBean));
-                                errorLogger.error(processHeader + " failed for cardnumber " + CommonMethods.cardInfo(maskedCardNumber, processBean), e);
+                                logManager.logInfo(processHeader + " failed for cardnumber " + CommonMethods.cardInfo(maskedCardNumber, processBean), infoLogger);
+                                logManager.logError(processHeader + " failed for cardnumber " + CommonMethods.cardInfo(maskedCardNumber, processBean), e, errorLogger);
                             }
                         }
 
@@ -181,18 +181,18 @@ public class AcqTxnUpdateService {
                                 Configurations.PROCESS_FAILD_COUNT++;
                                 //merchantErrorList.add(new ErrorMerchantBean(Configurations.ERROR_EOD_ID, Configurations.EOD_DATE, eodTransactionBean.getMid(), e.getMessage(), configProcess, processHeader, 0, MerchantCustomerEnum.MERCHANTLOCATION));
                                 details.put("Process Status", "Failed");
-                                infoLogger.info(processHeader + " failed for mid " + eodTransactionBean.getMid());
-                                errorLogger.error(processHeader + " failed for mid " + eodTransactionBean.getMid(), e);
+                                logManager.logInfo(processHeader + " failed for mid " + eodTransactionBean.getMid(), infoLogger);
+                                logManager.logError(processHeader + " failed for mid " + eodTransactionBean.getMid(), e, errorLogger);
                             }
                         }
 
 
                     } catch (Exception e) {
 
-                        infoLogger.info(logManager.processStartEndStyle(processHeader + " Completely  failed"));
-                        errorLogger.error(processHeader + " failed for while data selection at the initial level", e);
+                        logManager.logStartEnd(processHeader + " Completely  failed", infoLogger);
+                        logManager.logError(processHeader + " failed for while data selection at the initial level", e, errorLogger);
                     }
-                    infoLogger.info(logManager.processDetailsStyles(details));
+                    logManager.logDetails(details, infoLogger);
                     details.clear();
                 }
                 Configurations.totalTxnCount_AcqTxnUpdateProcess = totalTxnCount;
@@ -201,7 +201,7 @@ public class AcqTxnUpdateService {
                 Configurations.onusTxnCount_AcqTxnUpdateProcess = onusTxnCount;
 
             } catch (Exception e) {
-                errorLogger.info("Failed Acq Txn Update Process for Card " + CommonMethods.cardNumberMask(eodTransactionBean.getCardNo()), e);
+                logManager.logError("Failed Acq Txn Update Process for Card " + CommonMethods.cardNumberMask(eodTransactionBean.getCardNo()), e, errorLogger);
             }
         }
     }

@@ -23,8 +23,7 @@ import org.springframework.stereotype.Service;
 import java.util.ArrayList;
 import java.util.List;
 
-import static com.epic.cms.util.LogManager.errorLogger;
-import static com.epic.cms.util.LogManager.infoLogger;
+import static com.epic.cms.util.LogManager.*;
 
 @Service
 public class MerchantCommissionCalculationConnector extends ProcessBuilder {
@@ -69,19 +68,20 @@ public class MerchantCommissionCalculationConnector extends ProcessBuilder {
 
             Configurations.PROCESS_TOTAL_NOOF_TRABSACTIONS = merchantCount;
             Configurations.PROCESS_SUCCESS_COUNT = (merchantCount - Configurations.PROCESS_FAILD_COUNT);
-            summery.put("Started Date", Configurations.EOD_DATE.toString());
-            summery.put("No of merchants effected", Integer.toString(merchantCount));
-            summery.put("No of Success merchants ", Integer.toString(merchantCount - Configurations.PROCESS_FAILD_COUNT));
-            infoLogger.info(logManager.processSummeryStyles(summery));
 
         } catch (Exception e) {
-            infoLogger.info(logManager.processStartEndStyle("Commission Calculation Process Terminated Because of Error"));
-            errorLogger.error("Commission Calculation Process Terminated Because of Error", e);
+            logManager.logStartEnd("Commission Calculation Process Terminated Because of Error", infoLogger);
+            logManager.logError("Commission Calculation Process Terminated Because of Error", e, errorLogger);
+        } finally {
+            logManager.logSummery(summery, infoLogger);
         }
     }
 
     @Override
     public void addSummaries() {
+        summery.put("Started Date", Configurations.EOD_DATE.toString());
+        summery.put("No of merchants effected", Integer.toString(merchantCount));
+        summery.put("No of Success merchants ", Integer.toString(merchantCount - Configurations.PROCESS_FAILD_COUNT));
 
     }
 }

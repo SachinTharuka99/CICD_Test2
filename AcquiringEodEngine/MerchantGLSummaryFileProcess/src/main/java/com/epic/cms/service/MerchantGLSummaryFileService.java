@@ -37,11 +37,10 @@ public class MerchantGLSummaryFileService {
     @Qualifier("ThreadPool_100")
     ThreadPoolTaskExecutor taskExecutor;
 
-    LinkedHashMap accDetails = new LinkedHashMap();
-
     @Async("taskExecutor2")
     @Transactional(value = "transactionManager", propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
     public void commissionGlFile(GlAccountBean glaccountBean) {
+        LinkedHashMap accDetails = new LinkedHashMap();
         if (!Configurations.isInterrupted) {
             try {
                 accDetails.put("Merchant ID", glaccountBean.getMerchantID());
@@ -55,17 +54,19 @@ public class MerchantGLSummaryFileService {
                 Configurations.PROCESS_SUCCESS_COUNT++;
             } catch (Exception e) {
                 Configurations.PROCESS_FAILD_COUNT++;
-                errorLogger.error("Commission gl file exeption ", e);
+                logManager.logError("Commission gl file exeption ", e, errorLogger);
                 accDetails.put("Sync fail to EOD Merchant GL Account Table for Primary ID " + glaccountBean.getKey(), glaccountBean.getKey());
+            } finally {
+                logManager.logDetails(accDetails, infoLogger);
+                accDetails.clear();
             }
-            infoLogger.info(logManager.processDetailsStyles(accDetails));
-            accDetails.clear();
         }
     }
 
     @Async("taskExecutor2")
     @Transactional(value = "transactionManager", propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
     public void createFeeGLFile(GlAccountBean glaccountBean) {
+        LinkedHashMap accDetails = new LinkedHashMap();
         if (!Configurations.isInterrupted) {
             try {
                 accDetails.put("Merchant ID", glaccountBean.getMerchantID());
@@ -79,17 +80,19 @@ public class MerchantGLSummaryFileService {
                 Configurations.PROCESS_SUCCESS_COUNT++;
             } catch (Exception e) {
                 Configurations.PROCESS_FAILD_COUNT++;
-                errorLogger.error("Create fee gl file exeption ", e);
+                logManager.logError("Create fee gl file exeption ", e, errorLogger);
                 accDetails.put("Sync fail to EOD GL Account Table for Primary ID " + glaccountBean.getKey(), glaccountBean.getKey());
+            } finally {
+                logManager.logDetails(accDetails, infoLogger);
+                accDetails.clear();
             }
-            infoLogger.info(logManager.processDetailsStyles(accDetails));
-            accDetails.clear();
         }
     }
 
     @Async("taskExecutor2")
     @Transactional(value = "transactionManager", propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
     public void createEODMerchantTxnTableGLFile(GlAccountBean glaccountBean) {
+        LinkedHashMap accDetails = new LinkedHashMap();
         if (!Configurations.isInterrupted) {
             try {
                 accDetails.put("Merchant ID", glaccountBean.getMerchantID());
@@ -103,17 +106,19 @@ public class MerchantGLSummaryFileService {
                 Configurations.PROCESS_SUCCESS_COUNT++;
             } catch (Exception e) {
                 Configurations.PROCESS_FAILD_COUNT++;
-                errorLogger.error("Exeption ", e);
+                logManager.logError("Exeption ", e, errorLogger);
                 accDetails.put("Sync fail to EOD GL Account Table for Primary ID " + glaccountBean.getKey(), glaccountBean.getKey());
+            } finally {
+                logManager.logDetails(accDetails, infoLogger);
+                accDetails.clear();
             }
-            infoLogger.info(logManager.processDetailsStyles(accDetails));
-            accDetails.clear();
         }
     }
 
     @Async("taskExecutor2")
     @Transactional(value = "transactionManager", propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
     public void createMerchantPaymentTableGLFile(GlAccountBean glaccountBean) {
+        LinkedHashMap accDetails = new LinkedHashMap();
         if (!Configurations.isInterrupted) {
             try {
                 accDetails.put("Merchant ID", glaccountBean.getMerchantID());
@@ -127,11 +132,12 @@ public class MerchantGLSummaryFileService {
                 Configurations.PROCESS_SUCCESS_COUNT++;
             } catch (Exception e) {
                 Configurations.PROCESS_FAILD_COUNT++;
-                errorLogger.error("Exeption ", e);
+                logManager.logError("Exeption ", e, errorLogger);
                 accDetails.put("Sync fail to EOD GL Account Table for Primary ID " + glaccountBean.getKey(), glaccountBean.getKey());
+            } finally {
+                logManager.logDetails(accDetails, infoLogger);
+                accDetails.clear();
             }
-            infoLogger.info(logManager.processDetailsStyles(accDetails));
-            accDetails.clear();
         }
     }
 }

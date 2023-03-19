@@ -38,7 +38,7 @@ public class ATMFileClearingService {
     @Autowired
     public ATMFileClearingRepo atmFileClearingRepo;
     @Autowired
-    LogManager logManager;
+    public LogManager logManager;
     @Autowired
     public StatusVarList status;
     @Autowired

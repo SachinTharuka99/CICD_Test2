@@ -96,8 +96,6 @@ public class AcqTxnUpdateConnector extends ProcessBuilder {
                     while (!(taskExecutor.getActiveCount() == 0)) {
                         Thread.sleep(1000);
                     }
-                    infoLogger.info("Thread Name Prefix: {}, Active count: {}, Pool size: {}, Queue Size: {}", taskExecutor.getThreadNamePrefix(), taskExecutor.getActiveCount(), taskExecutor.getPoolSize(), taskExecutor.getThreadPoolExecutor().getQueue().size());
-
                 }
 
                 totalTxnCount = Configurations.totalTxnCount_AcqTxnUpdateProcess;
@@ -111,33 +109,26 @@ public class AcqTxnUpdateConnector extends ProcessBuilder {
                 Configurations.PROCESS_TOTAL_NOOF_TRABSACTIONS = totalTxnCount;
                 Configurations.PROCESS_SUCCESS_COUNT = (totalTxnCount - (issFailedTxn + acqFailedMerchants));
                 Configurations.PROCESS_FAILD_COUNT = (issFailedTxn + acqFailedMerchants);
-                summery.put("Started Date", Configurations.EOD_DATE.toString());
-                summery.put("No of OnUsTxn effected", Integer.toString(onusTxnCount));
-                summery.put("No of Success OnUsTxn ", Integer.toString(onusTxnCount - issFailedTxn));
-                summery.put("No of fail OnUsTxn ", Integer.toString(issFailedTxn));
-                summery.put("No of Total Txn", Integer.toString(totalTxnCount));
-                summery.put("No of Total failed Txn ", Integer.toString(issFailedTxn + acqFailedMerchants));
-                infoLogger.info(logManager.processSummeryStyles(summery));
 
                 if (issFailedTxn > 0) {
                     //CommonMethods.insertFailedEODCards(cardErrorList, conComitTrue, processHeader);
 //                    commonRepo.updateEodProcessSummery(Configurations.ERROR_EOD_ID, status.getERROR_STATUS(), Configurations.PROCESS_ID_ACQUIRING_TXN_UPDATE_PROCESS, Configurations.PROCESS_SUCCESS_COUNT, Configurations.PROCESS_FAILD_COUNT, CommonMethods.eodDashboardProcessProgress(Configurations.PROCESS_SUCCESS_COUNT, Configurations.PROCESS_TOTAL_NOOF_TRABSACTIONS));
-                    infoLogger.info(logManager.processStartEndStyle(processHeader + "  completed with errors in card level"));
+                    logManager.logStartEnd(processHeader + "  completed with errors in card level", infoLogger);
                 }
                 if (acqFailedMerchants > 0) {
                     //CommonMethods.insertFailedEODMerchants(merchantErrorList, conComitTrue, processHeader);
 //                    commonRepo.updateEodProcessSummery(Configurations.ERROR_EOD_ID, status.getERROR_STATUS(), Configurations.PROCESS_ID_ACQUIRING_TXN_UPDATE_PROCESS, Configurations.PROCESS_SUCCESS_COUNT, Configurations.PROCESS_FAILD_COUNT, CommonMethods.eodDashboardProcessProgress(Configurations.PROCESS_SUCCESS_COUNT, Configurations.PROCESS_TOTAL_NOOF_TRABSACTIONS));
-                    infoLogger.info(logManager.processStartEndStyle(processHeader + "  completed with errors in merchant level"));
+                    logManager.logStartEnd(processHeader + "  completed with errors in merchant level", infoLogger);
                 }
                 if (issFailedTxn == 0 && acqFailedMerchants == 0) {
 //                    commonRepo.updateEodProcessSummery(Configurations.ERROR_EOD_ID, status.getSUCCES_STATUS(), Configurations.PROCESS_ID_ACQUIRING_TXN_UPDATE_PROCESS, Configurations.PROCESS_SUCCESS_COUNT, Configurations.PROCESS_FAILD_COUNT, CommonMethods.eodDashboardProcessProgress(Configurations.PROCESS_SUCCESS_COUNT, Configurations.PROCESS_TOTAL_NOOF_TRABSACTIONS));
-                    infoLogger.info(logManager.processStartEndStyle(processHeader + "completed without errors"));
+                    logManager.logStartEnd(processHeader + "completed without errors", infoLogger);
                 }
             }
         }catch (Exception e){
             try {
                 Configurations.IS_PROCESS_COMPLETELY_FAILED = true;
-                errorLogger.error(processHeader + " failed", e);
+                logManager.logError(processHeader + " failed", e, errorLogger);
                 if (processBean.getCriticalStatus() == 1) {
                     Configurations.COMMIT_STATUS = false;
                     Configurations.FLOW_STEP_COMPLETE_STATUS = false;
@@ -145,9 +136,10 @@ public class AcqTxnUpdateConnector extends ProcessBuilder {
                     Configurations.MAIN_EOD_STATUS = false;
                 }
             } catch (Exception e2) {
-                errorLogger.info("Failed Acq Txn Update Process ",e2);
+                logManager.logError("Failed Acq Txn Update Process ",e2, errorLogger);
             }
         } finally {
+            logManager.logSummery(summery, infoLogger);
             try {
                 /* PADSS Change -
                 variables handling card data should be nullified
@@ -159,7 +151,7 @@ public class AcqTxnUpdateConnector extends ProcessBuilder {
                     txnList = null;
                 }
             } catch (Exception e3) {
-                errorLogger.info("Failed Acq Txn Update Process ",e3);
+                logManager.logError("Failed Acq Txn Update Process ",e3, errorLogger);
             }
         }
 
@@ -167,6 +159,12 @@ public class AcqTxnUpdateConnector extends ProcessBuilder {
 
     @Override
     public void addSummaries() {
+        summery.put("Started Date", Configurations.EOD_DATE.toString());
+        summery.put("No of OnUsTxn effected", Integer.toString(onusTxnCount));
+        summery.put("No of Success OnUsTxn ", Integer.toString(onusTxnCount - issFailedTxn));
+        summery.put("No of fail OnUsTxn ", Integer.toString(issFailedTxn));
+        summery.put("No of Total Txn", Integer.toString(totalTxnCount));
+        summery.put("No of Total failed Txn ", Integer.toString(issFailedTxn + acqFailedMerchants));
 
     }
 

@@ -23,7 +23,7 @@ import java.util.List;
 @Service
 public class RunnableFeeService {
     @Autowired
-    LogManager logManager;
+    public LogManager logManager;
 
     @Autowired
     public RunnableFeeDao runnableFeeDao;

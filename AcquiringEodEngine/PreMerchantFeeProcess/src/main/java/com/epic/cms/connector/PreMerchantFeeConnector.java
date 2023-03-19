@@ -91,7 +91,7 @@ public class PreMerchantFeeConnector extends ProcessBuilder {
 
             }
         } catch (Exception e) {
-            errorLogger.error("Error occurred", e);
+            logManager.logError("Error occurred", e, errorLogger);
             try {
                 System.out.println("---------------------->> Pre Merchant Fee process failed....");
                 summery.put("Pre Merchant Fee process failed", "");
@@ -105,19 +105,17 @@ public class PreMerchantFeeConnector extends ProcessBuilder {
                 }
 
             } catch (Exception e2) {
-                errorLogger.error("Errors occurred", e2);
+                logManager.logError("Errors occurred", e2, errorLogger);
             }
         } finally {
-            summery.put("Success merchant  fee count", success_merchant_recurring_fee_count);
-            summery.put("Success terminal  fee count", success_terminal_recurring_count);
-            summery.put("Failed merchant count", fail_merchant_count);
-
-            infoLogger.info(logManager.processSummeryStyles(summery));
+            logManager.logSummery(summery, infoLogger);
         }
     }
 
     @Override
     public void addSummaries() {
-
+        summery.put("Success merchant  fee count", success_merchant_recurring_fee_count);
+        summery.put("Success terminal  fee count", success_terminal_recurring_count);
+        summery.put("Failed merchant count", fail_merchant_count);
     }
 }

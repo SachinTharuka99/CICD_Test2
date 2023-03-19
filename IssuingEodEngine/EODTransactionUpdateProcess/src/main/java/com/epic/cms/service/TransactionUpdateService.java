@@ -16,7 +16,7 @@ import static com.epic.cms.util.LogManager.infoLogger;
 @Service
 public class TransactionUpdateService {
     @Autowired
-    LogManager logManager;
+    public LogManager logManager;
 
     @Autowired
     public StatusVarList status;

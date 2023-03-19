@@ -62,13 +62,14 @@ public class MerchantFeeService {
                 details.put("flat fee", merchantFeeBean.getFlatFee());
                 details.put("fee MIN/MAX/CMB", merchantFeeBean.getCombination());
                 details.put("final amount", feeAmount);
-                infoLogger.info(logManager.processDetailsStyles(details));
                 Configurations.PROCESS_SUCCESS_COUNT++;
             } catch (Exception e) {
-                errorLogger.error("Commission calculation process failed for merchantId:" + merchantFeeBean.getMID(), e);
+               logManager.logError("Commission calculation process failed for merchantId:" + merchantFeeBean.getMID(), e, errorLogger);
                 merchantErrorList.add(new ErrorMerchantBean());
                 Configurations.merchantErrorList.add(new ErrorMerchantBean(Configurations.ERROR_EOD_ID, Configurations.EOD_DATE, merchantFeeBean.getMID(), e.getMessage(), Configurations.RUNNING_PROCESS_ID, Configurations.RUNNING_PROCESS_DESCRIPTION, 0, MerchantCustomer.MERCHANTLOCATION));
                 Configurations.PROCESS_FAILD_COUNT++;
+            } finally {
+                logManager.logDetails(details, infoLogger);
             }
         }
     }
