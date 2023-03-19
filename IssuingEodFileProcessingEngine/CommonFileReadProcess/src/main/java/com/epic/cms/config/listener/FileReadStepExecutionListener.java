@@ -62,9 +62,10 @@ public class FileReadStepExecutionListener implements StepExecutionListener {
                 details.put("Commit Count ", stepExecution.getCommitCount());
                 details.put("Rollback Count ", stepExecution.getRollbackCount());
 
-                logManager.logDetails(details, infoLoggerEFPE);
             } catch (Exception ex) {
                 logManager.logError(ex.getMessage(), ex, errorLoggerEFPE);
+            } finally {
+                logManager.logDetails(details, infoLoggerEFPE);
             }
 
         }

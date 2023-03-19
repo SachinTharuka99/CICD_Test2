@@ -21,10 +21,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 @Repository
 public class CommonFileReadRepo implements CommonFileReadDao {
-    @Autowired
-    private QueryParametersList queryParametersList;
-    @Autowired
-    private StatusVarList status;
+
     @Autowired
     private JdbcTemplate backendJdbcTemplate;
 
