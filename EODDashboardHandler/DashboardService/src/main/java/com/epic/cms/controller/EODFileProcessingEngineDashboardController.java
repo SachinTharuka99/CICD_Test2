@@ -8,9 +8,9 @@
 package com.epic.cms.controller;
 
 import com.epic.cms.model.bean.ResponseBean;
-import com.epic.cms.service.EodInputFileListService;
-import com.epic.cms.util.exception.MessageVarList;
-import com.epic.cms.util.exception.ResponseCodes;
+import com.epic.cms.service.EODFileProcessingEngineDashboardService;
+import com.epic.cms.util.MessageVarList;
+import com.epic.cms.util.ResponseCodes;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
@@ -25,13 +25,13 @@ public class EODFileProcessingEngineDashboardController {
     ResponseBean responseBean = new ResponseBean();
 
     @Autowired
-    EodInputFileListService inputFileListService;
+    EODFileProcessingEngineDashboardService processingEngineDashboardService;
 
     @PostMapping("/inputfile/{eodid}")
     public ResponseBean getEodInputFIleList(@PathVariable("eodid") final Long eodId) {
         try {
             dashboardInfoLogger.info(processStartEndStyle("EOD-File-Processing Dashboard Get Eod Input FIleList EodId :" + eodId));
-            List<Object> eodInputFIleList = inputFileListService.getEodInputFIleList(eodId);
+            List<Object> eodInputFIleList = processingEngineDashboardService.getEodInputFIleList(eodId);
 
             if (eodInputFIleList.size() > 0) {
                 responseBean.setContent(eodInputFIleList);

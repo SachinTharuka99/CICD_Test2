@@ -5,7 +5,7 @@
  * Project Name : ecms_eod_product
  */
 
-package com.epic.cms.util.exception;
+package com.epic.cms.util;
 
 public class MessageVarList {
     public static final String NO_DATA_FOUND = "Invalid Data.";

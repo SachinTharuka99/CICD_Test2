@@ -11,10 +11,9 @@ package com.epic.cms.controller;
 import com.epic.cms.model.bean.EodOutputFileBean;
 import com.epic.cms.model.bean.ResponseBean;
 import com.epic.cms.model.bean.StatementGenSummeryBean;
-import com.epic.cms.service.EodOutputFIleListService;
-import com.epic.cms.service.StatementGenSummeryListService;
-import com.epic.cms.util.exception.MessageVarList;
-import com.epic.cms.util.exception.ResponseCodes;
+import com.epic.cms.service.EODFileGenerationEngineDashboardService;
+import com.epic.cms.util.MessageVarList;
+import com.epic.cms.util.ResponseCodes;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
@@ -29,16 +28,13 @@ public class EODFileGenerationEngineDashboardController {
     ResponseBean responseBean = new ResponseBean();
 
     @Autowired
-    EodOutputFIleListService outputFIleListService;
-
-    @Autowired
-    StatementGenSummeryListService genSummeryListService;
+    EODFileGenerationEngineDashboardService engineDashboardService;
 
     @PostMapping("/outputfile/{eodid}")
     public ResponseBean getEodOutputFIleList(@PathVariable("eodid") final Long eodId) {
         try {
             dashboardInfoLogger.info(processStartEndStyle("EOD-File-Generation Dashboard Get Eod Output FIleList EodId :" + eodId));
-            List<EodOutputFileBean> eodOutputFIleList = outputFIleListService.getEodOutputFIleList(eodId);
+            List<EodOutputFileBean> eodOutputFIleList = engineDashboardService.getEodOutputFIleList(eodId);
 
             if (eodOutputFIleList.size() > 0) {
                 responseBean.setContent(eodOutputFIleList);
@@ -62,7 +58,7 @@ public class EODFileGenerationEngineDashboardController {
     public ResponseBean getStatementGenSummeryList(@PathVariable("eodid") final Long eodId) {
         try {
             dashboardInfoLogger.info(processStartEndStyle("EOD-File-Generation Dashboard Get Statement GenSummery List EodId :" + eodId));
-            List<StatementGenSummeryBean> genSummeryBeanList = genSummeryListService.getStatementGenSummeryList(eodId);
+            List<StatementGenSummeryBean> genSummeryBeanList = engineDashboardService.getStatementGenSummeryList(eodId);
 
             if (genSummeryBeanList.size() > 0) {
                 responseBean.setContent(genSummeryBeanList);
