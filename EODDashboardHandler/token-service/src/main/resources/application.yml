@@ -2,18 +2,55 @@
 spring:
   application:
     name: token-service
-  cloud:
-    config:
-      enabled: true
-      username: ${CONFIG_SERVER_USERNAME:root}
-      password: ${CONFIG_SERVER_PASSWORD:s3cr3t}
-      label: master
-  config:
-    import: optional:configserver:http://${spring.cloud.config.username}:${spring.cloud.config.password}@localhost:8000
+#  cloud:
+#    config:
+#      enabled: true
+#      username: ${CONFIG_SERVER_USERNAME:root}
+#      password: ${CONFIG_SERVER_PASSWORD:s3cr3t}
+#      label: master
+#  config:
+#    import: optional:configserver:http://${spring.cloud.config.username}:${spring.cloud.config.password}@localhost:8000
 
+  mvc:
+    static-path-pattern: /static
+    throw-exception-if-no-handler-found: true
+  jpa:
+    show-sql: true
+    hibernate:
+      ddl-auto: none
+  servlet:
+    multipart:
+      max-file-size: 6MB
+  datasource:
+    backend:
+      jdbcUrl: ${BACKEND_DB_URL:jdbc:oracle:thin:@124.43.16.185:50040:oradb}
+      username: ${BACKEND_USERNAME:ECMSBEDEV1}
+      password: ${BACKEND_PASSWORD:ECMSBEDEV1}
+      driverClassName: oracle.jdbc.driver.OracleDriver
+      test-on-borrow: true
+      validationQuery: SELECT 1 FROM DUAL
+jwt:
+  issuer: epic-cms
+  secret: EPICCMSREVAMP
+  token-validity: 36000
 # Server config
 server:
-  port: 0
+  port: 9999
+
+# Eureka config
+eureka:
+  client:
+    serviceUrl:
+      defaultZone: ${DISCOVERY_URL:http://localhost:8761}/eureka/
+  instance:
+    instanceId: token-service:${spring.application.instance_id:${random.value}}
+    leaseRenewalIntervalInSeconds: 1
+    leaseExpirationDurationInSeconds: 2
+
+# Ribbon config
+ribbon:
+  eureka:
+    enabled: true
 
 # Admin Config
 management:
