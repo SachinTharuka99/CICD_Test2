@@ -13,6 +13,7 @@ import com.epic.cms.service.CardRenewLetterService;
 import com.epic.cms.util.CommonMethods;
 import com.epic.cms.util.Configurations;
 import com.epic.cms.util.LogManager;
+import com.epic.cms.util.StatusVarList;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -32,13 +33,19 @@ public class CardRenewLetterConnector extends FileGenProcessBuilder {
     @Autowired
     CardRenewLetterService cardRenewLetterService;
 
+    @Autowired
+    StatusVarList statusVarList;
+
     String[] fileNameAndPath = null;
 
     @Override
     public void concreteProcess() throws Exception {
 
         ArrayList<StringBuffer> renewalCardList = new ArrayList<>();
+        String[] fileNameAndPath = null;
+
         try {
+
             Configurations.RUNNING_PROCESS_ID = Configurations.PROCESS_ID_CARDRENEW_LETTER;
             CommonMethods.eodDashboardProgressParametersReset();
 
@@ -76,6 +83,6 @@ public class CardRenewLetterConnector extends FileGenProcessBuilder {
         summery.put("Total No of Effected Files ", Configurations.PROCESS_TOTAL_NOOF_TRABSACTIONS);
         summery.put("Process Success Count ", Configurations.PROCESS_SUCCESS_COUNT);
         summery.put("Process Failed Count ", Configurations.PROCESS_FAILD_COUNT);
-        summery.put("File Name and Path ", fileNameAndPath);
+        //summery.put("File Name and Path ", fileNameAndPath);
     }
 }

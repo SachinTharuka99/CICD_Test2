@@ -54,7 +54,7 @@ public class CashBackConnector extends ProcessBuilder {
             processBean = cashBackRepo.getProcessDetails(Configurations.PROCESS_CASHBACK);
 
             if (processBean != null) {
-                commonRepo.insertToEodProcessSumery(Configurations.PROCESS_CASHBACK);
+                commonRepo.insertToEodProcessSumery(Configurations.PROCESS_CASHBACK, processBean.getEodmodule());
 
                 //load initial configurations for cashback
                 cashBackRepo.loadInitialConfigurationsForCashback();

@@ -18,6 +18,7 @@ import com.epic.cms.service.LetterService;
 import com.epic.cms.util.CommonMethods;
 import com.epic.cms.util.Configurations;
 import com.epic.cms.util.LogManager;
+import com.epic.cms.util.StatusVarList;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -50,6 +51,9 @@ public class CardApplicationRejectLetterConnector extends ProcessBuilder {
     CardApplicationRejectLetterService cardApplicationRejectLetterService;
 
     String[] fileNameAndPath = null;
+
+    @Autowired
+    StatusVarList statusVarList;
 
     @Override
     public void concreteProcess() throws Exception {
@@ -86,7 +90,7 @@ public class CardApplicationRejectLetterConnector extends ProcessBuilder {
             if (fileNameAndPath != null) {
                 fileGenerationService.deleteExistFile(fileNameAndPath[0]);
             }
-        } finally {
+        }finally {
             logManager.logSummery(summery, infoLoggerEFGE);
         }
     }
@@ -97,6 +101,6 @@ public class CardApplicationRejectLetterConnector extends ProcessBuilder {
         summery.put("Total No of Effected Files ", Configurations.PROCESS_TOTAL_NOOF_TRABSACTIONS);
         summery.put("Process Success Count ", Configurations.PROCESS_SUCCESS_COUNT);
         summery.put("Process Failed Count ", Configurations.PROCESS_FAILD_COUNT);
-        summery.put("File Name and Path ", fileNameAndPath);
+        //summery.put("File Name and Path ", fileNameAndPath);
     }
 }

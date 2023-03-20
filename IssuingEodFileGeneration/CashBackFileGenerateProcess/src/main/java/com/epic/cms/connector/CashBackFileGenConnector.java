@@ -184,7 +184,6 @@ public class CashBackFileGenConnector extends FileGenProcessBuilder {
                     }
                 } catch (Exception e) {
                     logManager.logError("Error while writing Cash back file--->", e, errorLoggerEFGE);
-                    throw e;
                 } finally {
                     if (toDeleteStatus) {
                         //delete first file

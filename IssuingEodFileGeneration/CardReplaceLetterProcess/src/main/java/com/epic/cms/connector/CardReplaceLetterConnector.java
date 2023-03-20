@@ -45,6 +45,7 @@ public class CardReplaceLetterConnector extends FileGenProcessBuilder {
 
         try {
             replaceCardList = cardReplaceLetterRepo.getReplacedToGenerateLetters();
+
             try {
                 Configurations.RUNNING_PROCESS_ID = Configurations.PROCESS_ID_CARDREPLACE_LETTER;
                 CommonMethods.eodDashboardProgressParametersReset();
@@ -71,7 +72,6 @@ public class CardReplaceLetterConnector extends FileGenProcessBuilder {
                 if (fileNameAndPath != null) {
                     fileGenerationService.deleteExistFile(fileNameAndPath[0]);
                 }
-                throw e;
             }
 
         } finally {
@@ -91,7 +91,6 @@ public class CardReplaceLetterConnector extends FileGenProcessBuilder {
                 }
             } catch (Exception e) {
                 logManager.logError("Exception in Card Number Clearing ", e, errorLoggerEFGE);
-                throw e;
             }
         }
     }
@@ -102,6 +101,6 @@ public class CardReplaceLetterConnector extends FileGenProcessBuilder {
         summery.put("Total No of Effected Letters ", Configurations.PROCESS_TOTAL_NOOF_TRABSACTIONS);
         summery.put("Letter Success Count ", Configurations.PROCESS_SUCCESS_COUNT);
         summery.put("Letter Failed Count ", Configurations.PROCESS_FAILD_COUNT);
-        summery.put("File Name and Path ", fileNameAndPath);
+        //summery.put("File Name and Path ", fileNameAndPath);
     }
 }

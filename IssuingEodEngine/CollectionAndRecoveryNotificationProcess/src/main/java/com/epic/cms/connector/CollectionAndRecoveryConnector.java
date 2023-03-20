@@ -54,7 +54,7 @@ public class CollectionAndRecoveryConnector extends ProcessBuilder {
         try {
             Configurations.RUNNING_PROCESS_ID = Configurations.COLLECTION_AND_RECOVERY_NOTIFICATION;
             CommonMethods.eodDashboardProgressParametersReset();
-            commonRepo.insertToEodProcessSumery(Configurations.COLLECTION_AND_RECOVERY_NOTIFICATION);
+            commonRepo.insertToEodProcessSumery(Configurations.COLLECTION_AND_RECOVERY_NOTIFICATION, processBean.getEodmodule());
 
             processBean = new ProcessBean();
             processBean = commonRepo.getProcessDetails(151);

@@ -37,6 +37,7 @@ public class CardApplicationConfirmationLetterConnector extends FileGenProcessBu
     @Override
     public void concreteProcess() throws Exception {
 
+        String[] fileNameAndPath = null;
         ArrayList<StringBuffer> confirmCardlist = cardApplicationConfirmationLetterRepo.getConfirmedCardToGenerateLetters();
         try {
 
@@ -60,8 +61,6 @@ public class CardApplicationConfirmationLetterConnector extends FileGenProcessBu
             if(fileNameAndPath!= null){
                 fileGenerationService.deleteExistFile(fileNameAndPath[0]);
             }
-            throw e;
-
         }finally {
             logManager.logSummery(summery, infoLoggerEFGE);
             try {
@@ -72,7 +71,6 @@ public class CardApplicationConfirmationLetterConnector extends FileGenProcessBu
                 }
             } catch (Exception e) {
                 logManager.logError("Exception in Card Number Clearing ",e, errorLoggerEFGE);
-                throw e;
             }
         }
     }
@@ -83,6 +81,6 @@ public class CardApplicationConfirmationLetterConnector extends FileGenProcessBu
         summery.put("Total No of Effected Letters ", Configurations.PROCESS_TOTAL_NOOF_TRABSACTIONS);
         summery.put("Letter Success Count ", Configurations.PROCESS_SUCCESS_COUNT);
         summery.put("Letter Failed Count ", Configurations.PROCESS_FAILD_COUNT);
-        summery.put("File Name and Path ", fileNameAndPath);
+        //summery.put("File Name and Path ", fileNameAndPath);
     }
 }

@@ -85,7 +85,7 @@ public class RB36FileGenerationConnector extends FileGenProcessBuilder {
                     Configurations.RUNNING_PROCESS_ID = Configurations.PROCESS_RB36_FILE_CREATION;
                     CommonMethods.eodDashboardProgressParametersReset();
                     logManager.logStartEnd("RB36 File Generation Successfully Started", infoLoggerEFGE);
-                    commonRepo.insertToEodProcessSumery(Configurations.PROCESS_RB36_FILE_CREATION);
+                    commonRepo.insertToEodProcessSumery(Configurations.PROCESS_RB36_FILE_CREATION, processBean.getEodmodule());
 
                     //Get NP card set
                     npCards = rb36FileGenerationRepo.getNPCard();
@@ -151,7 +151,6 @@ public class RB36FileGenerationConnector extends FileGenProcessBuilder {
 
                 } catch (Exception e) {
                     logManager.logError("Error while writing RB36 file.Exit from the process. Exception:---> ", e, errorLoggerEFGE);
-                    throw e;
                 }
             }
         } catch (Exception e) {
@@ -163,7 +162,7 @@ public class RB36FileGenerationConnector extends FileGenProcessBuilder {
                 Configurations.PROCESS_FLOW_STEP_COMPLETE_STATUS = false;
                 Configurations.MAIN_EOD_STATUS = false;
             }
-        } finally {
+        }finally {
             logManager.logSummery(summery, infoLoggerEFGE);
         }
     }
