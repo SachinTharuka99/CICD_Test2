@@ -27,7 +27,7 @@ import java.util.Map;
 import static com.epic.cms.util.LogManager.infoLogger;
 
 @RestController
-@RequestMapping("eod-engine")
+@RequestMapping("/eod-engine")
 public class EODEngineHandler {
 
     @Autowired

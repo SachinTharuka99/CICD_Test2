@@ -63,7 +63,7 @@ class EodParameterResetProcessServiceTest {
         eodParameterResetProcessServiceUnderTest.startEodParameterResetProcess();
 
         // Verify the results
-        verify(eodParameterResetProcessServiceUnderTest.commonRepo).insertToEodProcessSumery(0);
+        verify(eodParameterResetProcessServiceUnderTest.commonRepo).insertToEodProcessSumery(0, processBean.getEodmodule());
         verify(eodParameterResetProcessServiceUnderTest.eodParameterResetProcessRepo,times(1)).resetMerchantParameters();
         verify(eodParameterResetProcessServiceUnderTest.eodParameterResetProcessRepo).resetTerminalParameters();
     }

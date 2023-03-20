@@ -36,7 +36,7 @@ public class EODFileGenEngineListener {
     public void eodFileGenEngineListener(String eodId) throws Exception {
         if (eodId != null) {
             System.out.println("Start the EOD File Generation Module");
-            int categoryId = 10;
+            int categoryId = 20;
             Configurations.IssuingOrAcquiring =1;
             int issuingOrAcquiring = Configurations.IssuingOrAcquiring;
             fileGenMainService.startEODFileGenEngine(categoryId, issuingOrAcquiring, Integer.parseInt(eodId));

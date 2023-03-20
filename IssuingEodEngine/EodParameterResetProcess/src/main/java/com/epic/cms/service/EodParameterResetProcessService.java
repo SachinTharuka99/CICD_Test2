@@ -36,7 +36,7 @@ public class EodParameterResetProcessService {
                 processBean = commonRepo.getProcessDetails(Configurations.PROCESS_ID_EOD_PARAMETER_RESET);
                 if (processBean != null) {
                     //Update EODProcess Summary Table
-                    commonRepo.insertToEodProcessSumery(Configurations.PROCESS_ID_EOD_PARAMETER_RESET);
+                    commonRepo.insertToEodProcessSumery(Configurations.PROCESS_ID_EOD_PARAMETER_RESET, processBean.getEodmodule());
                     Configurations.RUNNING_PROCESS_ID = Configurations.PROCESS_ID_EOD_PARAMETER_RESET;
                     CommonMethods.eodDashboardProgressParametersReset();
                     try {

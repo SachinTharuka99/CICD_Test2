@@ -63,7 +63,6 @@ public class EOMSupplementaryCardResetConnector extends ProcessBuilder {
 
             if (processBean != null) {
                 logManager.logStartEnd("Supplementary Reset Process started", infoLogger);
-                commonRepo.insertToEodProcessSumery(Configurations.PROCESS_EOM_SUP_CARD_RESET);
 
                 ArrayList accList = eomSupplementaryCardResetDao.getEligibleAccounts();
                 Configurations.PROCESS_TOTAL_NOOF_TRABSACTIONS = accList.size();
