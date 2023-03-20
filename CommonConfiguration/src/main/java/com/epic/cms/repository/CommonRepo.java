@@ -20,7 +20,6 @@ import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
-import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.*;
 
 import static com.epic.cms.util.LogManager.errorLogger;
@@ -55,9 +54,9 @@ public class CommonRepo implements CommonDao {
 
     @Override
     @Transactional(value = "transactionManager", propagation = Propagation.REQUIRES_NEW)
-    public void insertToEodProcessSumery(int processId) throws Exception {
+    public void insertToEodProcessSumery(int processId, String eodmodule) throws Exception {
         try {
-            backendJdbcTemplate.update(queryParametersList.getCommonInsertToEodProcessSumery(), Configurations.ERROR_EOD_ID, processId, statusList.getINITIAL_STATUS(), Configurations.EOD_USER);
+            backendJdbcTemplate.update(queryParametersList.getCommonInsertToEodProcessSumery(), Configurations.ERROR_EOD_ID, processId, statusList.getINITIAL_STATUS(), Configurations.EOD_USER, eodmodule);
         } catch (Exception e) {
             errorLogger.error(String.valueOf(e));
         }
@@ -1249,7 +1248,19 @@ public class CommonRepo implements CommonDao {
 
     @Override
     public void updateFileGenProcessSummery(String fileName, int eodId, String status, int processId, int processSuccessCount, int processFaildCount, String progress) {
+        try {
+            String query = "UPDATE EODPROCESSSUMMERY SET ENDTIME = SYSDATE , STATUS = ?,LASTUPDATEDTIME = SYSDATE,LASTUPDATEDUSER = ? WHERE EODID = ? AND PROCESSID = ?";
 
+            backendJdbcTemplate.update(query,
+                    status,
+                    Configurations.EOD_USER,
+                    eodId,
+                    processId
+            );
+
+        } catch (Exception e) {
+            throw e;
+        }
     }
 
 

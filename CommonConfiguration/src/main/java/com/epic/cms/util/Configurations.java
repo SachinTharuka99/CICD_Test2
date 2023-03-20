@@ -1197,4 +1197,8 @@ public class Configurations {
     public static final String LOG_FILE_PREFIX_EOD_FILE_GENERATION_ENGINE = "file_gen_engine";
     public static final String INFO_LOG_PATTERN = "%d{yyyy-MM-dd HH:mm:ss} [%thread] %-5level %logger{36} - %msg%n";
     public static final String ERROR_LOG_PATTERN = "%d [%thread] %-5level %-5logger{40} - %msg%n";
+
+    public static final String EOD_ENGINE = "EENG";
+    public static final String EOD_FILE_GENERATION = "EFGE";
+    public static final String EOD_FILE_PROCESSING = "EFPE";
 }

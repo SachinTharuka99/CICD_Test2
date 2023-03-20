@@ -6,12 +6,11 @@ import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
-import java.util.List;
 
 public interface CommonDao {
     ProcessBean getProcessDetails(int processId) throws Exception;
 
-    void insertToEodProcessSumery(int processId) throws Exception;
+    void insertToEodProcessSumery(int processId, String eodmodule) throws Exception;
 
     void updateEodProcessSummery(int eodId, String status, int processId, int successCount, int failedCount, String progress) throws Exception;
 

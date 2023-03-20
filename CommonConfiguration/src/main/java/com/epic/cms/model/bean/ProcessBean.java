@@ -29,5 +29,5 @@ public class ProcessBean {
     private int holidayAction;
     private String kafkaTopic;
     private String kafkaGroupId;
-
+    private String eodmodule;
 }
