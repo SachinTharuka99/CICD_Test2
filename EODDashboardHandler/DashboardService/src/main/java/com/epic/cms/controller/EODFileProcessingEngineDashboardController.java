@@ -9,6 +9,7 @@ package com.epic.cms.controller;
 
 import com.epic.cms.model.bean.ResponseBean;
 import com.epic.cms.service.EODFileProcessingEngineDashboardService;
+import com.epic.cms.util.LogManager;
 import com.epic.cms.util.MessageVarList;
 import com.epic.cms.util.ResponseCodes;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -19,7 +20,7 @@ import java.util.List;
 import static com.epic.cms.util.LogManager.*;
 
 @RestController
-@RequestMapping("eod-file-processing/dashboard")
+@RequestMapping("eod-dashboard/file-processing")
 public class EODFileProcessingEngineDashboardController {
 
     ResponseBean responseBean = new ResponseBean();
@@ -27,10 +28,13 @@ public class EODFileProcessingEngineDashboardController {
     @Autowired
     EODFileProcessingEngineDashboardService processingEngineDashboardService;
 
+    @Autowired
+    LogManager logManager;
+
     @PostMapping("/inputfile/{eodid}")
     public ResponseBean getEodInputFIleList(@PathVariable("eodid") final Long eodId) {
         try {
-            dashboardInfoLogger.info(processStartEndStyle("EOD-File-Processing Dashboard Get Eod Input FIleList EodId :" + eodId));
+            logManager.logHeader("EOD-File-Processing Dashboard Get Eod Input FIleList EodId :" + eodId, dashboardInfoLogger);
             List<Object> eodInputFIleList = processingEngineDashboardService.getEodInputFIleList(eodId);
 
             if (eodInputFIleList.size() > 0) {
@@ -46,7 +50,7 @@ public class EODFileProcessingEngineDashboardController {
             responseBean.setResponseCode(ResponseCodes.UNEXPECTED_ERROR);
             responseBean.setContent(null);
             responseBean.setResponseMsg(MessageVarList.NULL_POINTER);
-            dashboardErrorLogger.error("Failed Eod Input FIleList ", e);
+            logManager.logError("Failed Eod Input FIleList ", e, dashboardErrorLogger);
         }
         return responseBean;
     }
