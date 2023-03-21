@@ -7,16 +7,25 @@
 
 package com.epic.cms.service;
 
+import com.epic.cms.common.ComSpecification;
+import com.epic.cms.common.Common;
 import com.epic.cms.model.bean.*;
 import com.epic.cms.model.entity.*;
 import com.epic.cms.repository.*;
 import com.epic.cms.util.LogManager;
+import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
+
+import static com.epic.cms.common.Common.searchAuditString;
 
 
 @Service
@@ -43,6 +52,15 @@ public class EODEngineDashboardService {
 
     @Autowired
     LogManager logManager;
+
+    @Autowired
+    Common common;
+
+    @Autowired
+    ComSpecification comSpecification;
+
+    @Autowired
+    private ModelMapper modelMapper;
 
     public EodBean getEodInfoList(Long eodId) {
 
@@ -87,79 +105,189 @@ public class EODEngineDashboardService {
         return processSummeryList;
     }
 
-    public List<Object> getEodInvalidTransactionList(Long eodId) {
-        List<Object> invalidTransactionBeanList = new ArrayList<>();
+//    public List<Object> getEodInvalidTransactionList(Long eodId) {
+//        List<Object> invalidTransactionBeanList = new ArrayList<>();
+//
+//        try {
+//            List<RECATMFILEINVALID> recAtmFileInvalidList = atmFileInvalidRepo.findRECATMFILEINVALIDByEODID(eodId);
+//            List<RECPAYMENTFILEINVALID> recPaymentFileInvalidList = paymentFileInvalidRepo.findRECPAYMENTFILEINVALIDByEODID(eodId);
+//
+//            recAtmFileInvalidList.forEach(eod -> {
+//                EodInvalidTransactionBean eodInvalidTransactionBean = new EodInvalidTransactionBean();
+//                eodInvalidTransactionBean.setEodId(eod.getEODID());
+//                eodInvalidTransactionBean.setFileId(eod.getFILEID());
+//                eodInvalidTransactionBean.setFileType("ATM");
+//                eodInvalidTransactionBean.setLineNumber(eod.getLINENUMBER());
+//                eodInvalidTransactionBean.setErrorRemark(eod.getERRORDESC());
+//
+//                invalidTransactionBeanList.add(eodInvalidTransactionBean);
+//            });
+//
+//            recPaymentFileInvalidList.forEach(eod -> {
+//                EodInvalidTransactionBean eodInvalidTransactionBean = new EodInvalidTransactionBean();
+//                eodInvalidTransactionBean.setEodId(eod.getEODID());
+//                eodInvalidTransactionBean.setFileId(eod.getFILEID());
+//                eodInvalidTransactionBean.setFileType("PAYMENT");
+//                eodInvalidTransactionBean.setLineNumber(eod.getLINENUMBER());
+//                eodInvalidTransactionBean.setErrorRemark(eod.getERRORDESC());
+//
+//                invalidTransactionBeanList.add(eodInvalidTransactionBean);
+//            });
+//        } catch (Exception e) {
+//            throw e;
+//        }
+//        return invalidTransactionBeanList;
+//    }
 
-        try {
-            List<RECATMFILEINVALID> recAtmFileInvalidList = atmFileInvalidRepo.findRECATMFILEINVALIDByEODID(eodId);
-            List<RECPAYMENTFILEINVALID> recPaymentFileInvalidList = paymentFileInvalidRepo.findRECPAYMENTFILEINVALIDByEODID(eodId);
+    public List<Object> getEodInvalidTransactionList(RequestBean requestBean, Long eodId) {
+        DataTableBean dataTableBean = new DataTableBean();
+        List<Object> generalLedgerMgtDataBeans = new ArrayList<>();
+        Page<RECATMFILEINVALID> recatmfileinvalidPage;
+        Specification<RECATMFILEINVALID> atmSpecification = null;
+        Page<RECPAYMENTFILEINVALID> recpaymentfileinvalids;
+        Specification<Object> specification = null;
 
-            recAtmFileInvalidList.forEach(eod -> {
-                EodInvalidTransactionBean eodInvalidTransactionBean = new EodInvalidTransactionBean();
-                eodInvalidTransactionBean.setEodId(eod.getEODID());
-                eodInvalidTransactionBean.setFileId(eod.getFILEID());
-                eodInvalidTransactionBean.setFileType("ATM");
-                eodInvalidTransactionBean.setLineNumber(eod.getLINENUMBER());
-                eodInvalidTransactionBean.setErrorRemark(eod.getERRORDESC());
+        if (requestBean.isSearch() && requestBean.getRequestBody() != null) {
+            EodInvalidTransactionBean transactionBean = modelMapper.map(requestBean.getRequestBody(), EodInvalidTransactionBean.class);
 
-                invalidTransactionBeanList.add(eodInvalidTransactionBean);
-            });
+            //Set audit description
+            String description = "";
+            description = searchAuditString(description, "Eod Id", transactionBean.getEodId().toString());
+            description = searchAuditString(description, "Invalid Transaction File Id", transactionBean.getFileId());
+            description = searchAuditString(description, "Invalid Transaction File Type", transactionBean.getFileType());
+            description = searchAuditString(description, "Line Number", String.valueOf(transactionBean.getLineNumber()));
+            description = searchAuditString(description, "Error Response", transactionBean.getErrorRemark());
 
-            recPaymentFileInvalidList.forEach(eod -> {
-                EodInvalidTransactionBean eodInvalidTransactionBean = new EodInvalidTransactionBean();
-                eodInvalidTransactionBean.setEodId(eod.getEODID());
-                eodInvalidTransactionBean.setFileId(eod.getFILEID());
-                eodInvalidTransactionBean.setFileType("PAYMENT");
-                eodInvalidTransactionBean.setLineNumber(eod.getLINENUMBER());
-                eodInvalidTransactionBean.setErrorRemark(eod.getERRORDESC());
-
-                invalidTransactionBeanList.add(eodInvalidTransactionBean);
-            });
-        } catch (Exception e) {
-            throw e;
+            specification = comSpecification.makeInvalidTransactionSpecification(transactionBean);
         }
-        return invalidTransactionBeanList;
+        //List<Sort.Order> orders = common.getSort(requestBean.getSort());
+
+        Pageable paging = PageRequest.of(requestBean.getPage(), requestBean.getSize());
+
+        Page<RECATMFILEINVALID> recatmfileinvalidByEODID = atmFileInvalidRepo.findRECATMFILEINVALIDByEODID(eodId, paging);
+
+        if (recatmfileinvalidByEODID != null) {
+            dataTableBean.setCount(recatmfileinvalidByEODID.getTotalElements());
+            dataTableBean.setPagecount(recatmfileinvalidByEODID.getTotalPages());
+        }
+
+        recatmfileinvalidByEODID.forEach(eod -> {
+            EodInvalidTransactionBean eodInvalidTransactionBean = new EodInvalidTransactionBean();
+            eodInvalidTransactionBean.setEodId(eod.getEODID());
+            eodInvalidTransactionBean.setFileId(eod.getFILEID());
+            eodInvalidTransactionBean.setFileType("ATM");
+            eodInvalidTransactionBean.setLineNumber(eod.getLINENUMBER());
+            eodInvalidTransactionBean.setErrorRemark(eod.getERRORDESC());
+
+            generalLedgerMgtDataBeans.add(eodInvalidTransactionBean);
+        });
+
+        Page<RECPAYMENTFILEINVALID> recpaymentfileinvalidByEODID = paymentFileInvalidRepo.findRECPAYMENTFILEINVALIDByEODID(eodId, paging);
+
+        if (recpaymentfileinvalidByEODID != null) {
+            dataTableBean.setCount(recpaymentfileinvalidByEODID.getTotalElements());
+            dataTableBean.setPagecount(recpaymentfileinvalidByEODID.getTotalPages());
+        }
+
+        recpaymentfileinvalidByEODID.forEach(eod -> {
+            EodInvalidTransactionBean eodInvalidTransactionBean = new EodInvalidTransactionBean();
+            eodInvalidTransactionBean.setEodId(eod.getEODID());
+            eodInvalidTransactionBean.setFileId(eod.getFILEID());
+            eodInvalidTransactionBean.setFileType("PAYMENT");
+            eodInvalidTransactionBean.setLineNumber(eod.getLINENUMBER());
+            eodInvalidTransactionBean.setErrorRemark(eod.getERRORDESC());
+
+            generalLedgerMgtDataBeans.add(eodInvalidTransactionBean);
+        });
+
+        return null;
     }
 
-    public List<EodErrorMerchantBean> getEodErrorMerchantList(Long eodId) {
-        List<EodErrorMerchantBean> eodErrorMerchantBeansList = new ArrayList<>();
+    public DataTableBean getEodErrorCardList(RequestBean requestBean, Long eodId) {
+        DataTableBean dataTableBean = new DataTableBean();
+        List<Object> generalLedgerMgtDataBeans = new ArrayList<>();
+        Page<EODERRORCARDS> eoderrorcardsPage;
+        Specification<EODERRORCARDS> specification = null;
 
-        try {
-            List<EODERRORMERCHANT> eodErrorMerchantList = eodErrorMerchantListRepo.findEODERRORMERCHANTByEODID(eodId);
+        if (requestBean.isSearch() && requestBean.getRequestBody() != null) {
+            EodErrorCardBean errorCardBean = modelMapper.map(requestBean.getRequestBody(), EodErrorCardBean.class);
 
-            eodErrorMerchantList.forEach(eod -> {
-                EodErrorMerchantBean errorMerchantBean = new EodErrorMerchantBean();
-                errorMerchantBean.setEodId(eod.getEODID());
-                errorMerchantBean.setMerchantId(eod.getMID());
-                errorMerchantBean.setErrorProcessId(eod.getERRORPROCESSID());
-                errorMerchantBean.setErrorReason(eod.getERRORREMARK());
+            //Set audit description
+            String description = "";
+            description = searchAuditString(description, "Eod Id", errorCardBean.getEodId().toString());
+            description = searchAuditString(description, "Error Card Number", errorCardBean.getCardNumber());
+            description = searchAuditString(description, "Error Process Id", errorCardBean.getErrorProcess());
+            description = searchAuditString(description, "Error Response", errorCardBean.getErrorReason());
 
-                eodErrorMerchantBeansList.add(errorMerchantBean);
-            });
-        } catch (Exception e) {
-            throw e;
+            specification = comSpecification.makeErrorCardSpecification(errorCardBean);
+
         }
-        return eodErrorMerchantBeansList;
+
+        //List<Sort.Order> orders = common.getSort(requestBean.getSort());
+
+        Pageable paging = PageRequest.of(requestBean.getPage(), requestBean.getSize());
+
+        Page<EODERRORCARDS> eoderrorcardsByEODID = eodErrorCardListRepo.findEODERRORCARDSByEODID(eodId, paging);
+
+        if (eoderrorcardsByEODID != null) {
+            dataTableBean.setCount(eoderrorcardsByEODID.getTotalElements());
+            dataTableBean.setPagecount(eoderrorcardsByEODID.getTotalPages());
+        }
+
+        eoderrorcardsByEODID.forEach(eod -> {
+            EodErrorCardBean bean = new EodErrorCardBean();
+            bean.setEodId(eod.getEODID());
+            bean.setCardNumber(eod.getCARDNO());
+            bean.setErrorProcess(eod.getERRORPROCESSID());
+            bean.setErrorReason(eod.getERRORREMARK());
+            generalLedgerMgtDataBeans.add(bean);
+        });
+
+        dataTableBean.setList(generalLedgerMgtDataBeans);
+        return dataTableBean;
     }
 
-    public List<EodErrorCardBean> getEodErrorCardList(Long eodId) {
-        List<EodErrorCardBean> errorCardBeanList = new ArrayList<>();
-        try {
-            List<EODERRORCARDS> eodErrorCardsList = eodErrorCardListRepo.findEODERRORCARDSByEODID(eodId);
+    public DataTableBean getEodErrorMerchantList(RequestBean requestBean, Long eodId) {
+        DataTableBean dataTableBean = new DataTableBean();
+        List<Object> generalLedgerMgtDataBeans = new ArrayList<>();
+        Page<EODERRORMERCHANT> eodErrorMerchant;
+        Specification<EODERRORMERCHANT> specification = null;
 
-            eodErrorCardsList.forEach(eod -> {
-                EodErrorCardBean errorCardBean = new EodErrorCardBean();
-                errorCardBean.setEodId(eod.getEODID());
-                //errorCardBean.setCardNumber(CommonMethods.cardNumberMask(eod.getCARDNO()));
-                errorCardBean.setCardNumber(eod.getCARDNO());
-                errorCardBean.setErrorProcess(eod.getERRORPROCESSID());
-                errorCardBean.setErrorReason(eod.getERRORREMARK());
+        if (requestBean.isSearch() && requestBean.getRequestBody() != null) {
+            EodErrorMerchantBean errorMerchantBean = modelMapper.map(requestBean.getRequestBody(), EodErrorMerchantBean.class);
 
-                errorCardBeanList.add(errorCardBean);
-            });
-        } catch (Exception e) {
-            throw e;
+            //Set audit description
+            String description = "";
+            description = searchAuditString(description, "Merchant Id", errorMerchantBean.getMerchantId());
+            description = searchAuditString(description, "Error Response", errorMerchantBean.getErrorReason());
+            description = searchAuditString(description, "Error Process Id", errorMerchantBean.getErrorProcessId());
+            description = searchAuditString(description, "EodId", errorMerchantBean.getEodId().toString());
+
+            specification = comSpecification.makeMerchantSpecification(errorMerchantBean);
+
         }
-        return errorCardBeanList;
+
+        //List<Sort.Order> orders = common.getSort(requestBean.getSort());
+
+        Pageable paging = PageRequest.of(requestBean.getPage(), requestBean.getSize());
+
+        Page<EODERRORMERCHANT> eoderrormerchantByEODID = eodErrorMerchantListRepo.findEODERRORMERCHANTByEODID(eodId, paging);
+
+        if (eoderrormerchantByEODID != null) {
+            dataTableBean.setCount(eoderrormerchantByEODID.getTotalElements());
+            dataTableBean.setPagecount(eoderrormerchantByEODID.getTotalPages());
+        }
+
+        eoderrormerchantByEODID.forEach(eod -> {
+            EodErrorMerchantBean bean = new EodErrorMerchantBean();
+            bean.setEodId(eod.getEODID());
+            bean.setMerchantId(eod.getMID());
+            bean.setErrorProcessId(eod.getERRORPROCESSID());
+            bean.setErrorReason(eod.getERRORREMARK());
+            generalLedgerMgtDataBeans.add(bean);
+        });
+
+        dataTableBean.setList(generalLedgerMgtDataBeans);
+        return dataTableBean;
     }
 }

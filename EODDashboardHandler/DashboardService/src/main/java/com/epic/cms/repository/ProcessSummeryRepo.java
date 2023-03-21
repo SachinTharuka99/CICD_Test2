@@ -19,6 +19,6 @@ import java.util.List;
 
 @Repository
 public interface ProcessSummeryRepo extends JpaRepository<EODPROCESS, Integer>, JpaSpecificationExecutor<EODPROCESS> {
-    @Query("SELECT DISTINCT new com.epic.cms.model.bean.ProcessSummeryBean(ep.PROCESSID,ep.DESCRIPTION,eps.STATUS,eps.PROCESSPROGRESS) FROM EODPROCESSSUMMERY eps INNER JOIN EODPROCESS ep ON eps.PROCESSID=ep.PROCESSID WHERE eps.EODID = ?1")
+    @Query("SELECT new com.epic.cms.model.bean.ProcessSummeryBean(ep.PROCESSID,ep.DESCRIPTION,eps.STATUS,eps.PROCESSPROGRESS) FROM EODPROCESSSUMMERY eps INNER JOIN EODPROCESS ep ON eps.PROCESSID=ep.PROCESSID WHERE eps.EODID = ?1 ORDER BY eps.STARTTIME")
     List<ProcessSummeryBean> findProcessSummeryListById(Long eodId);
 }
