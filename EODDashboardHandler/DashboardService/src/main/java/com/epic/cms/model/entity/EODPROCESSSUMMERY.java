@@ -55,4 +55,7 @@ public class EODPROCESSSUMMERY implements Serializable {
     @Column(name = "SUBEODSTS")
     private String SUBEODSTS;
 
+    @Column(name = "EODMODULE")
+    private String EODMODULE;
+
 }

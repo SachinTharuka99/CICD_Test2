@@ -12,6 +12,7 @@ import com.epic.cms.model.bean.StatementGenSummeryBean;
 import com.epic.cms.model.entity.EODOUTPUTFILES;
 import com.epic.cms.repository.EodOutputFileRepo;
 import com.epic.cms.repository.StatementGenSummeryListRepo;
+import com.epic.cms.util.Configurations;
 import com.epic.cms.util.LogManager;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -59,7 +60,7 @@ public class EODFileGenerationEngineDashboardService {
         List<StatementGenSummeryBean> stmtGenSummeryList = new ArrayList<>();
 
         try {
-            stmtGenSummeryList = genSummeryListRepo.findStmtGenSummeryListByEodId(eodId);
+            stmtGenSummeryList = genSummeryListRepo.findStmtGenSummeryListByEodId(eodId, Configurations.EOD_FILE_GENERATION);
         } catch (Exception e) {
             throw e;
         }

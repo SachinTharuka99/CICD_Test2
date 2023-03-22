@@ -8,14 +8,14 @@
 package com.epic.cms.service;
 
 import com.epic.cms.model.bean.EodInputFileBean;
+import com.epic.cms.model.bean.ProcessSummeryBean;
+import com.epic.cms.model.bean.StatementGenSummeryBean;
 import com.epic.cms.model.entity.EODATMFILE;
 import com.epic.cms.model.entity.EODMASTERFILE;
 import com.epic.cms.model.entity.EODPAYMENTFILE;
 import com.epic.cms.model.entity.EODVISAFILE;
-import com.epic.cms.repository.EodAtmInputFileRepo;
-import com.epic.cms.repository.EodMasterInputFileRepo;
-import com.epic.cms.repository.EodPaymentInputFileRepo;
-import com.epic.cms.repository.EodVisaInputFileRepo;
+import com.epic.cms.repository.*;
+import com.epic.cms.util.Configurations;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -36,6 +36,10 @@ public class EODFileProcessingEngineDashboardService {
 
     @Autowired
     EodPaymentInputFileRepo eodPaymentInputFileRepo;
+
+    @Autowired
+    FileProcessingSummeryListRepo processingSummeryListRepo;
+
 
     public List<Object> getEodInputFIleList(Long eodId) {
         List<Object> eodInputFileObjectList = new ArrayList<>();
@@ -94,5 +98,15 @@ public class EODFileProcessingEngineDashboardService {
             throw e;
         }
         return eodInputFileObjectList;
+    }
+
+    public List<StatementGenSummeryBean> getProcessingSummeryList(Long eodID) {
+        List<StatementGenSummeryBean> processingSummeryBeans = new ArrayList<>();
+        try {
+            processingSummeryBeans = processingSummeryListRepo.findProcessingSummeryListByEodId(eodID, Configurations.EOD_FILE_PROCESSING);
+        } catch (Exception e) {
+            throw e;
+        }
+        return processingSummeryBeans;
     }
 }

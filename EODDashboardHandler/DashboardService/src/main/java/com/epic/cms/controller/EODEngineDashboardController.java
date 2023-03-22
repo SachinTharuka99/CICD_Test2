@@ -107,9 +107,9 @@ public class EODEngineDashboardController {
     public ResponseBean getEodInvalidTransactionList(@RequestBody RequestBean requestBean, @PathVariable("eodid") final Long eodId) {
         try {
             logManager.logHeader("EOD-Error Dashboard Get Eod Invalid Transaction List EodId :" + eodId, dashboardInfoLogger);
-            List<Object> invalidTransactionBeanList = engineDashboardService.getEodInvalidTransactionList(requestBean, eodId);
+            DataTableBean invalidTransactionBeanList = engineDashboardService.getEodInvalidTransactionList(requestBean, eodId);
 
-            if (invalidTransactionBeanList.size() > 0) {
+            if (invalidTransactionBeanList != null) {
                 responseBean.setContent(invalidTransactionBeanList);
                 responseBean.setResponseCode(ResponseCodes.SUCCESS);
                 responseBean.setResponseMsg(MessageVarList.SUCCESS);

@@ -12,6 +12,7 @@ import com.epic.cms.common.Common;
 import com.epic.cms.model.bean.*;
 import com.epic.cms.model.entity.*;
 import com.epic.cms.repository.*;
+import com.epic.cms.util.Configurations;
 import com.epic.cms.util.LogManager;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -98,7 +99,7 @@ public class EODEngineDashboardService {
     public List<ProcessSummeryBean> getEodProcessSummeryList(Long eodID) {
         List<ProcessSummeryBean> processSummeryList = new ArrayList<>();
         try {
-            processSummeryList = processSummeryRepo.findProcessSummeryListById(eodID);
+            processSummeryList = processSummeryRepo.findProcessSummeryListById(eodID, Configurations.EOD_ENGINE);
         } catch (Exception e) {
             throw e;
         }
@@ -139,12 +140,9 @@ public class EODEngineDashboardService {
 //        return invalidTransactionBeanList;
 //    }
 
-    public List<Object> getEodInvalidTransactionList(RequestBean requestBean, Long eodId) {
+    public DataTableBean getEodInvalidTransactionList(RequestBean requestBean, Long eodId) {
         DataTableBean dataTableBean = new DataTableBean();
         List<Object> generalLedgerMgtDataBeans = new ArrayList<>();
-        Page<RECATMFILEINVALID> recatmfileinvalidPage;
-        Specification<RECATMFILEINVALID> atmSpecification = null;
-        Page<RECPAYMENTFILEINVALID> recpaymentfileinvalids;
         Specification<Object> specification = null;
 
         if (requestBean.isSearch() && requestBean.getRequestBody() != null) {
@@ -200,7 +198,8 @@ public class EODEngineDashboardService {
             generalLedgerMgtDataBeans.add(eodInvalidTransactionBean);
         });
 
-        return null;
+        dataTableBean.setList(generalLedgerMgtDataBeans);
+        return dataTableBean;
     }
 
     public DataTableBean getEodErrorCardList(RequestBean requestBean, Long eodId) {

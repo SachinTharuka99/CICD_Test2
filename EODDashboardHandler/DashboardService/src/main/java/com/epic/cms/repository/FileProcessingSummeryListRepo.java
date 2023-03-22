@@ -1,7 +1,7 @@
 /**
  * Author : rasintha_j
- * Date : 2/23/2023
- * Time : 9:26 AM
+ * Date : 3/21/2023
+ * Time : 3:07 PM
  * Project Name : ecms_eod_product
  */
 
@@ -17,7 +17,7 @@ import org.springframework.stereotype.Repository;
 import java.util.List;
 
 @Repository
-public interface StatementGenSummeryListRepo extends JpaRepository<EODPROCESSSUMMERY, Integer>, JpaSpecificationExecutor<EODPROCESSSUMMERY> {
+public interface FileProcessingSummeryListRepo extends JpaRepository<EODPROCESSSUMMERY, Integer>, JpaSpecificationExecutor<EODPROCESSSUMMERY> {
     @Query("SELECT new com.epic.cms.model.bean.StatementGenSummeryBean(ep.PROCESSID,ep.DESCRIPTION,ps.STATUS,ps.PROCESSPROGRESS,ps.SUCCESSCOUNT,ps.FAILEDCOUNT) FROM EODPROCESSSUMMERY ps INNER JOIN EODPROCESS ep ON ps.PROCESSID=ep.PROCESSID WHERE ps.EODID=?1 AND ps.EODMODULE = ?2 ORDER BY ps.STARTTIME")
-    List<StatementGenSummeryBean> findStmtGenSummeryListByEodId(Long eodId, String eodFileGeneration);
+    List<StatementGenSummeryBean> findProcessingSummeryListByEodId(Long eodId, String eodFileProcessing);
 }
