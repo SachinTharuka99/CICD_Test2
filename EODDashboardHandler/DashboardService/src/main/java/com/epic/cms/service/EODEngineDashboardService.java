@@ -74,7 +74,7 @@ public class EODEngineDashboardService {
         try {
             Optional<EOD> eodInfo = eodIdInfoRepo.findById(eodId);
 
-            int count1 = eodProcessFlowRepo.findCount();
+            int count1 = eodProcessFlowRepo.countByPROCESSCATEGORYIDNotIn(Collections.singletonList(90));
 
             eodInfo.ifPresent(eod -> {
                 eodBean.setEodId(eod.getEODID());
