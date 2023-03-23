@@ -12,4 +12,5 @@ import java.util.List;
 @Repository
 public interface RecAtmFileInvalidRepo extends JpaRepository<RECATMFILEINVALID, Integer>, JpaSpecificationExecutor<RECATMFILEINVALID> {
     Page<RECATMFILEINVALID> findRECATMFILEINVALIDByEODID(Long eodId, Pageable page);
+    List<RECATMFILEINVALID> findRECATMFILEINVALIDByEODID(Long eodId);
 }

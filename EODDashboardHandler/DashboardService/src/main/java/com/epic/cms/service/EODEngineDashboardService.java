@@ -23,6 +23,7 @@ import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 
@@ -61,6 +62,9 @@ public class EODEngineDashboardService {
     ComSpecification comSpecification;
 
     @Autowired
+    EodProcessFlowRepo eodProcessFlowRepo;
+
+    @Autowired
     private ModelMapper modelMapper;
 
     public EodBean getEodInfoList(Long eodId) {
@@ -70,6 +74,8 @@ public class EODEngineDashboardService {
         try {
             Optional<EOD> eodInfo = eodIdInfoRepo.findById(eodId);
 
+            int count1 = eodProcessFlowRepo.findCount();
+
             eodInfo.ifPresent(eod -> {
                 eodBean.setEodId(eod.getEODID());
                 eodBean.setStartTime(eod.getSTARTTIME());
@@ -78,6 +84,7 @@ public class EODEngineDashboardService {
                 eodBean.setSubEodStatus(eod.getSUBEODSTATUS());
                 eodBean.setNoOfSuccessProcess(eod.getNOOFSUCCESSPROCESS());
                 eodBean.setNoOfErrorProcess(eod.getNOOFERRORPAROCESS());
+                eodBean.setTotalProcessCount(count1);
             });
         } catch (Exception e) {
             throw e;
@@ -143,7 +150,7 @@ public class EODEngineDashboardService {
     public DataTableBean getEodInvalidTransactionList(RequestBean requestBean, Long eodId) {
         DataTableBean dataTableBean = new DataTableBean();
         List<Object> generalLedgerMgtDataBeans = new ArrayList<>();
-        Specification<Object> specification = null;
+        Specification<EodInvalidTransactionBean> specification = null;
 
         if (requestBean.isSearch() && requestBean.getRequestBody() != null) {
             EodInvalidTransactionBean transactionBean = modelMapper.map(requestBean.getRequestBody(), EodInvalidTransactionBean.class);
@@ -163,6 +170,10 @@ public class EODEngineDashboardService {
         Pageable paging = PageRequest.of(requestBean.getPage(), requestBean.getSize());
 
         Page<RECATMFILEINVALID> recatmfileinvalidByEODID = atmFileInvalidRepo.findRECATMFILEINVALIDByEODID(eodId, paging);
+
+        List<RECATMFILEINVALID> recatmfileinvalidByEODID1 = atmFileInvalidRepo.findRECATMFILEINVALIDByEODID(eodId);
+
+        System.out.println(recatmfileinvalidByEODID1);
 
         if (recatmfileinvalidByEODID != null) {
             dataTableBean.setCount(recatmfileinvalidByEODID.getTotalElements());

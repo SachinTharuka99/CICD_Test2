@@ -26,11 +26,11 @@ public class EODEngineDashboardController {
 
     ResponseBean responseBean = new ResponseBean();
 
-   @Autowired
-   EODEngineDashboardService engineDashboardService;
+    @Autowired
+    EODEngineDashboardService engineDashboardService;
 
-   @Autowired
-   LogManager logManager;
+    @Autowired
+    LogManager logManager;
 
     @PostMapping("/starteodid")
     public ResponseBean getNextRunningEodId() {
@@ -86,14 +86,16 @@ public class EODEngineDashboardController {
             logManager.logHeader("EOD-Engine Dashboard EOD info by EODID:" + eodId, dashboardInfoLogger);
             EodBean eodInfo = engineDashboardService.getEodInfoList(eodId);
 
+            if (eodInfo != null) {
                 responseBean.setContent(eodInfo);
                 responseBean.setResponseCode(ResponseCodes.SUCCESS);
                 responseBean.setResponseMsg(MessageVarList.SUCCESS);
+            } else {
+                responseBean.setResponseCode(ResponseCodes.NO_DATA_FOUND);
+                responseBean.setContent(null);
+                responseBean.setResponseMsg(MessageVarList.NO_DATA_FOUND);
+            }
 
-        } catch (NullPointerException ex) {
-            responseBean.setResponseCode(ResponseCodes.NO_DATA_FOUND);
-            responseBean.setContent(null);
-            responseBean.setResponseMsg(MessageVarList.NO_DATA_FOUND);
         } catch (Exception e) {
             responseBean.setResponseCode(ResponseCodes.UNEXPECTED_ERROR);
             responseBean.setContent(null);

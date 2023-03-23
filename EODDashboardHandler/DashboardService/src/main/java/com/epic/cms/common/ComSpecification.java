@@ -66,7 +66,7 @@ public class ComSpecification {
         };
     }
 
-    public Specification<Object> makeInvalidTransactionSpecification(EodInvalidTransactionBean transactionBean) {
+    public Specification<EodInvalidTransactionBean> makeInvalidTransactionSpecification(EodInvalidTransactionBean transactionBean) {
 
         return (root, query, criteriaBuilder) -> {
             List<Predicate> predicates = new ArrayList<>();
