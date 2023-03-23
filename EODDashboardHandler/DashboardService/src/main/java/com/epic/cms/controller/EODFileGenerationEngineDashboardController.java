@@ -12,7 +12,6 @@ import com.epic.cms.model.bean.EodOutputFileBean;
 import com.epic.cms.model.bean.ResponseBean;
 import com.epic.cms.model.bean.StatementGenSummeryBean;
 import com.epic.cms.service.EODFileGenerationEngineDashboardService;
-import com.epic.cms.util.Configurations;
 import com.epic.cms.util.LogManager;
 import com.epic.cms.util.MessageVarList;
 import com.epic.cms.util.ResponseCodes;

@@ -109,7 +109,7 @@ public class EODEngineDashboardController {
     public ResponseBean getEodInvalidTransactionList(@RequestBody RequestBean requestBean, @PathVariable("eodid") final Long eodId) {
         try {
             logManager.logHeader("EOD-Error Dashboard Get Eod Invalid Transaction List EodId :" + eodId, dashboardInfoLogger);
-            DataTableBean invalidTransactionBeanList = engineDashboardService.getEodInvalidTransactionList(requestBean, eodId);
+            List<Object> invalidTransactionBeanList = engineDashboardService.getEodInvalidTransactionList(requestBean, eodId);
 
             if (invalidTransactionBeanList != null) {
                 responseBean.setContent(invalidTransactionBeanList);
@@ -130,10 +130,10 @@ public class EODEngineDashboardController {
     }
 
     @PostMapping("/errormerchant/{eodid}")
-    public ResponseBean getList(@RequestBody RequestBean requestBean, @PathVariable("eodid") final Long eodId) throws Exception {
+    public ResponseBean getEodErrorMerchantList(@RequestBody RequestBean requestBean, @PathVariable("eodid") final Long eodId) throws Exception {
         try {
             logManager.logHeader("EOD-Error Dashboard Get Eod Merchant List EodId :" + eodId, dashboardInfoLogger);
-            DataTableBean eodErrorMerchantList = engineDashboardService.getEodErrorMerchantList(requestBean, eodId);
+            List<EodErrorMerchantBean> eodErrorMerchantList = engineDashboardService.getEodErrorMerchantList(requestBean, eodId);
 
             if (eodErrorMerchantList != null) {
                 responseBean.setContent(eodErrorMerchantList);
@@ -158,7 +158,7 @@ public class EODEngineDashboardController {
     public ResponseBean getEodErrorCardList(@RequestBody RequestBean requestBean, @PathVariable("eodid") final Long eodId) {
         try {
             logManager.logHeader("EOD-Error Dashboard Get Eod Error Card List EodId :" + eodId, dashboardInfoLogger);
-            DataTableBean eodErrorCardList = engineDashboardService.getEodErrorCardList(requestBean, eodId);
+            List<EodErrorCardBean> eodErrorCardList = engineDashboardService.getEodErrorCardList(requestBean, eodId);
 
             if (eodErrorCardList != null) {
                 responseBean.setContent(eodErrorCardList);
