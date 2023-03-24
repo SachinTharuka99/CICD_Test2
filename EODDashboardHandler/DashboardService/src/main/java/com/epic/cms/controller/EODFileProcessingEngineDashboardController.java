@@ -10,10 +10,12 @@ package com.epic.cms.controller;
 import com.epic.cms.model.bean.ResponseBean;
 import com.epic.cms.model.bean.StatementGenSummeryBean;
 import com.epic.cms.service.EODFileProcessingEngineDashboardService;
+import com.epic.cms.util.Configurations;
 import com.epic.cms.util.LogManager;
 import com.epic.cms.util.MessageVarList;
 import com.epic.cms.util.ResponseCodes;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.kafka.core.KafkaTemplate;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -31,6 +33,9 @@ public class EODFileProcessingEngineDashboardController {
 
     @Autowired
     LogManager logManager;
+
+    @Autowired
+    private KafkaTemplate<String, String> kafkaTemplate;
 
     @PostMapping("/inputfile/{eodid}")
     public ResponseBean getEodInputFIleList(@PathVariable("eodid") final Long eodId) {
@@ -78,5 +83,23 @@ public class EODFileProcessingEngineDashboardController {
             logManager.logError("Failed Eod Input FIleList ", e, dashboardErrorLogger);
         }
         return responseBean;
+    }
+
+    @GetMapping("/fileUpload/{filetype}")
+    public void InputFileUploadListener(@PathVariable("filetype") final String filetype) {
+        try {
+
+            if (filetype.equals("ATM")) {
+                kafkaTemplate.send("ATMFileClearing", filetype);
+            } else if (filetype.equals("PAYMENT")) {
+                kafkaTemplate.send("PaymentFileClearing", filetype);
+            } else if (filetype.equals("VISA")) {
+                kafkaTemplate.send("VisaFileClearing", filetype);
+            } else if (filetype.equals("MASTER")) {
+                kafkaTemplate.send("MasterFileClearing", filetype);
+            }
+        } catch (Exception e) {
+            logManager.logError("Failed Input" + filetype + "File Upload Listener ", e, dashboardErrorLogger);
+        }
     }
 }

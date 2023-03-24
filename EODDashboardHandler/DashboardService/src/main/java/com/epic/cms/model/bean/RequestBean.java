@@ -26,7 +26,6 @@ public class RequestBean {
     private byte[] multipartFile;
     private String fileNm;
     private long fileSize;
-
     private String uploadStatus;
     private String fileName;
 }
