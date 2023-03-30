@@ -10,9 +10,11 @@ package com.epic.cms.repository;
 import com.epic.cms.model.entity.EODATMFILE;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.JpaSpecificationExecutor;
+import org.springframework.stereotype.Repository;
 
 import java.util.List;
 
+@Repository
 public interface EodAtmInputFileRepo extends JpaRepository<EODATMFILE, String>, JpaSpecificationExecutor<EODATMFILE> {
     List<EODATMFILE> findEODATMFILEByEODID(Long eodId);
 }

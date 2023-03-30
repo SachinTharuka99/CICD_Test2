@@ -10,11 +10,9 @@ package com.epic.cms.controller;
 import com.epic.cms.model.bean.ResponseBean;
 import com.epic.cms.model.bean.StatementGenSummeryBean;
 import com.epic.cms.service.EODFileProcessingEngineDashboardService;
-import com.epic.cms.util.Configurations;
-import com.epic.cms.util.LogManager;
-import com.epic.cms.util.MessageVarList;
-import com.epic.cms.util.ResponseCodes;
+import com.epic.cms.util.*;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.annotation.ComponentScan;
 import org.springframework.kafka.core.KafkaTemplate;
 import org.springframework.web.bind.annotation.*;
 
@@ -85,21 +83,13 @@ public class EODFileProcessingEngineDashboardController {
         return responseBean;
     }
 
-    @GetMapping("/fileUpload/{filetype}")
-    public void InputFileUploadListener(@PathVariable("filetype") final String filetype) {
+    @PostMapping("/fileUpload/{topic}/{fileId}/{eodId}")
+    public void InputFileUploadListener(@PathVariable("fileId") final String fileId ) {
         try {
+            processingEngineDashboardService.sendInputFileUploadListener(fileId);
 
-            if (filetype.equals("ATM")) {
-                kafkaTemplate.send("ATMFileClearing", filetype);
-            } else if (filetype.equals("PAYMENT")) {
-                kafkaTemplate.send("PaymentFileClearing", filetype);
-            } else if (filetype.equals("VISA")) {
-                kafkaTemplate.send("VisaFileClearing", filetype);
-            } else if (filetype.equals("MASTER")) {
-                kafkaTemplate.send("MasterFileClearing", filetype);
-            }
         } catch (Exception e) {
-            logManager.logError("Failed Input" + filetype + "File Upload Listener ", e, dashboardErrorLogger);
+            logManager.logError("Failed Input" + fileId + "File Upload Listener ", e, dashboardErrorLogger);
         }
     }
 }

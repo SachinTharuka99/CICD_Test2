@@ -8,7 +8,6 @@
 package com.epic.cms.service;
 
 import com.epic.cms.model.bean.EodInputFileBean;
-import com.epic.cms.model.bean.ProcessSummeryBean;
 import com.epic.cms.model.bean.StatementGenSummeryBean;
 import com.epic.cms.model.entity.EODATMFILE;
 import com.epic.cms.model.entity.EODMASTERFILE;
@@ -16,14 +15,17 @@ import com.epic.cms.model.entity.EODPAYMENTFILE;
 import com.epic.cms.model.entity.EODVISAFILE;
 import com.epic.cms.repository.*;
 import com.epic.cms.util.Configurations;
+import com.epic.cms.util.LogManager;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.annotation.ComponentScan;
+import org.springframework.kafka.core.KafkaTemplate;
 import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
 import java.util.List;
 
-
 @Service
+@ComponentScan(basePackages = {"com.epic.cms.*"})
 public class EODFileProcessingEngineDashboardService {
     @Autowired
     EodAtmInputFileRepo eodAtmInputFileRepo;
@@ -39,6 +41,12 @@ public class EODFileProcessingEngineDashboardService {
 
     @Autowired
     FileProcessingSummeryListRepo processingSummeryListRepo;
+
+    @Autowired
+    private KafkaTemplate<String, String> kafkaTemplate;
+
+    @Autowired
+    LogManager logManager;
 
 
     public List<Object> getEodInputFIleList(Long eodId) {
@@ -108,5 +116,23 @@ public class EODFileProcessingEngineDashboardService {
             throw e;
         }
         return processingSummeryBeans;
+    }
+
+    public void sendInputFileUploadListener(String fileId) {
+        try {
+            char a = fileId.charAt(0);
+            String filetype = String.valueOf(a);
+            if (filetype.equals("a")) {
+                kafkaTemplate.send("ATMFileClearing", fileId);
+            } else if (filetype.equals("p")) {
+                kafkaTemplate.send("PaymentFileClearing", fileId);
+            } else if (filetype.equals("v")) {
+                kafkaTemplate.send("VisaFileClearing", fileId);
+            } else if (filetype.equals("m")) {
+                kafkaTemplate.send("MasterFileClearing", fileId);
+            }
+        } catch (Exception e) {
+            throw e;
+        }
     }
 }

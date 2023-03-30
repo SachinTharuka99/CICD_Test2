@@ -130,7 +130,7 @@ public class EODEngineDashboardController {
     }
 
     @PostMapping("/errormerchant/{eodid}")
-    public ResponseBean getEodErrorMerchantList(@RequestBody RequestBean requestBean, @PathVariable("eodid") final Long eodId) throws Exception {
+    public ResponseBean getEodErrorMerchantList(@RequestBody RequestBean requestBean, @PathVariable("eodid") final Long eodId){
         try {
             logManager.logHeader("EOD-Error Dashboard Get Eod Merchant List EodId :" + eodId, dashboardInfoLogger);
             List<EodErrorMerchantBean> eodErrorMerchantList = engineDashboardService.getEodErrorMerchantList(requestBean, eodId);

@@ -77,7 +77,7 @@ public class EODEngineDashboardService {
         return eodBean;
     }
 
-    public NextRunningEodBean getNextRunningEodId() throws Exception {
+    public NextRunningEodBean getNextRunningEodId() {
         NextRunningEodBean nextRunningEodBean = new NextRunningEodBean();
         try {
             nextRunningEodBean.setEodId(eodIdInfoRepo.findByNextRunnindEodId());
