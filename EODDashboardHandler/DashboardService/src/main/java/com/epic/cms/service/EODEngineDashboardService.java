@@ -14,6 +14,7 @@ import com.epic.cms.util.Configurations;
 import com.epic.cms.util.LogManager;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
@@ -134,14 +135,21 @@ public class EODEngineDashboardService {
         return invalidTransactionBeanList;
     }
 
-    public List<EodErrorCardBean> getEodErrorCardList(RequestBean requestBean, Long eodId) {
-        List<EodErrorCardBean> eodErrorCardBeans = new ArrayList<>();
+    public DataTableBean getEodErrorCardList(RequestBean requestBean, Long eodId) {
+        List<Object> eodErrorCardBeans = new ArrayList<>();
+        DataTableBean dataTableBean = new DataTableBean();
+
         try {
             Pageable paging = PageRequest.of(requestBean.getPage(), requestBean.getSize());
 
-            List<EODERRORCARDS> eoderrorcardsByEODID = eodErrorCardListRepo.findEODERRORCARDSByEODID(eodId, paging);
+            Page<EODERRORCARDS> eoderrorcardsByEODID = eodErrorCardListRepo.findEODERRORCARDSByEODID(eodId, paging);
 
-            eoderrorcardsByEODID.forEach(eod -> {
+            if (eoderrorcardsByEODID != null) {
+                dataTableBean.setCount(eoderrorcardsByEODID.getTotalElements());
+                dataTableBean.setPagecount(eoderrorcardsByEODID.getTotalPages());
+            }
+
+            eoderrorcardsByEODID.getContent().forEach(eod -> {
                 EodErrorCardBean bean = new EodErrorCardBean();
                 bean.setEodId(eod.getEODID());
                 bean.setCardNumber(eod.getCARDNO());
@@ -149,11 +157,12 @@ public class EODEngineDashboardService {
                 bean.setErrorReason(eod.getERRORREMARK());
                 eodErrorCardBeans.add(bean);
             });
+            dataTableBean.setList(eodErrorCardBeans);
 
         } catch (Exception e) {
             throw e;
         }
-        return eodErrorCardBeans;
+        return dataTableBean;
     }
 
     public List<EodErrorMerchantBean> getEodErrorMerchantList(RequestBean requestBean, Long eodId) {

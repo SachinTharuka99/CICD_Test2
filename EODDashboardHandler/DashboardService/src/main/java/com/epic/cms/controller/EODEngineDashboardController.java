@@ -158,7 +158,7 @@ public class EODEngineDashboardController {
     public ResponseBean getEodErrorCardList(@RequestBody RequestBean requestBean, @PathVariable("eodid") final Long eodId) {
         try {
             logManager.logHeader("EOD-Error Dashboard Get Eod Error Card List EodId :" + eodId, dashboardInfoLogger);
-            List<EodErrorCardBean> eodErrorCardList = engineDashboardService.getEodErrorCardList(requestBean, eodId);
+            DataTableBean eodErrorCardList = engineDashboardService.getEodErrorCardList(requestBean, eodId);
 
             if (eodErrorCardList != null) {
                 responseBean.setContent(eodErrorCardList);
