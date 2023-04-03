@@ -46,6 +46,12 @@ public class EODFileProcessingEngineDashboardService {
     private KafkaTemplate<String, String> kafkaTemplate;
 
     @Autowired
+    KafkaMessageUpdator kafkaMessageUpdator;
+
+    @Autowired
+    CommonRepo commonRepo;
+
+    @Autowired
     LogManager logManager;
 
 
@@ -118,8 +124,15 @@ public class EODFileProcessingEngineDashboardService {
         return processingSummeryBeans;
     }
 
-    public void sendInputFileUploadListener(String fileId) {
+    public void sendInputFileUploadListener(String fileId) throws Exception {
         try {
+
+//            ProcessBean processDetails = commonRepo.getProcessDetails(processId);
+//            String kafkaTopic = processDetails.getKafkaTopic();
+//
+//            //kafkaMessageUpdator.producerWithReturn(fileId,kafkaTopic);
+//            kafkaTemplate.send(fileId,kafkaTopic);
+//            System.out.println(kafkaTopic+" "+fileId);
             char a = fileId.charAt(0);
             String filetype = String.valueOf(a);
             if (filetype.equals("a")) {

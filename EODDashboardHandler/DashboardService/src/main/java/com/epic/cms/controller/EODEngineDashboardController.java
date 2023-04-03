@@ -15,6 +15,7 @@ import com.epic.cms.util.ResponseCodes;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
+import javax.ws.rs.QueryParam;
 import java.util.List;
 
 import static com.epic.cms.util.LogManager.*;
@@ -109,7 +110,7 @@ public class EODEngineDashboardController {
     public ResponseBean getEodInvalidTransactionList(@RequestBody RequestBean requestBean, @PathVariable("eodid") final Long eodId) {
         try {
             logManager.logHeader("EOD-Error Dashboard Get Eod Invalid Transaction List EodId :" + eodId, dashboardInfoLogger);
-            List<Object> invalidTransactionBeanList = engineDashboardService.getEodInvalidTransactionList(requestBean, eodId);
+            DataTableBean invalidTransactionBeanList = engineDashboardService.getEodInvalidTransactionList(requestBean, eodId);
 
             if (invalidTransactionBeanList != null) {
                 responseBean.setContent(invalidTransactionBeanList);
@@ -133,7 +134,7 @@ public class EODEngineDashboardController {
     public ResponseBean getEodErrorMerchantList(@RequestBody RequestBean requestBean, @PathVariable("eodid") final Long eodId){
         try {
             logManager.logHeader("EOD-Error Dashboard Get Eod Merchant List EodId :" + eodId, dashboardInfoLogger);
-            List<EodErrorMerchantBean> eodErrorMerchantList = engineDashboardService.getEodErrorMerchantList(requestBean, eodId);
+            DataTableBean eodErrorMerchantList = engineDashboardService.getEodErrorMerchantList(requestBean, eodId);
 
             if (eodErrorMerchantList != null) {
                 responseBean.setContent(eodErrorMerchantList);

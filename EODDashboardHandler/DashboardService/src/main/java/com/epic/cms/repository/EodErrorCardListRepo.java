@@ -19,4 +19,5 @@ import java.util.List;
 @Repository
 public interface EodErrorCardListRepo extends PagingAndSortingRepository<EODERRORCARDS, Integer>{
     Page<EODERRORCARDS> findEODERRORCARDSByEODID(Long eodId, Pageable pageable);
+
 }
