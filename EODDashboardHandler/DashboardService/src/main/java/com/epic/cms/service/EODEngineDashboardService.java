@@ -12,7 +12,6 @@ import com.epic.cms.model.entity.*;
 import com.epic.cms.repository.*;
 import com.epic.cms.util.Configurations;
 import com.epic.cms.util.LogManager;
-import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
@@ -101,16 +100,18 @@ public class EODEngineDashboardService {
         List<Object> invalidTransactionBeanList = new ArrayList<>();
         DataTableBean dataTableBean = new DataTableBean();
         try {
-            //int fixSize = requestBean.getSize() / 2;
-            Pageable paging = PageRequest.of(requestBean.getPage(), requestBean.getSize(), Sort.by("FILEID").ascending());
+            int fixSize = requestBean.getSize() / 2;
+            Pageable paging = PageRequest.of(requestBean.getPage(), fixSize, Sort.by("FILEID").ascending());
+            //Pageable paging = PageRequest.of(requestBean.getPage(), requestBean.getSize(), Sort.by("FILEID").ascending());
 
             Page<RECATMFILEINVALID> recAtmFileInvalidList = atmFileInvalidRepo.findRECATMFILEINVALIDByEODID(eodId, paging);
             Page<RECPAYMENTFILEINVALID> recPaymentFileInvalidList = paymentFileInvalidRepo.findRECPAYMENTFILEINVALIDByEODID(eodId, paging);
 
-            if (recAtmFileInvalidList != null) {
+            int content = recAtmFileInvalidList.getContent().size() + recPaymentFileInvalidList.getContent().size();
+
+            if (content > 0) {
                 dataTableBean.setCount(recAtmFileInvalidList.getTotalElements() + recPaymentFileInvalidList.getTotalElements());
                 dataTableBean.setPagecount(recAtmFileInvalidList.getTotalPages() + recPaymentFileInvalidList.getTotalPages());
-
 
                 recAtmFileInvalidList.getContent().forEach(eod -> {
                     EodInvalidTransactionBean eodInvalidTransactionBean = new EodInvalidTransactionBean();
@@ -134,6 +135,10 @@ public class EODEngineDashboardService {
                     invalidTransactionBeanList.add(eodInvalidTransactionBean);
                 });
                 dataTableBean.setList(invalidTransactionBeanList);
+            } else {
+                dataTableBean.setCount(recAtmFileInvalidList.getTotalElements() + recPaymentFileInvalidList.getTotalElements());
+                dataTableBean.setPagecount(recAtmFileInvalidList.getTotalPages() + recPaymentFileInvalidList.getTotalPages());
+                dataTableBean.setList(invalidTransactionBeanList);
             }
         } catch (Exception e) {
             throw e;
@@ -148,7 +153,7 @@ public class EODEngineDashboardService {
         try {
             Pageable paging = PageRequest.of(requestBean.getPage(), requestBean.getSize());
 
-            Page<EODERRORCARDS> eoderrorcards = eodErrorCardListRepo.findEODERRORCARDSByEODID(eodId, paging);
+            Page<EODERRORCARDS> eoderrorcards = eodErrorCardListRepo.findAllByEODID(eodId, paging);
 
             if (!eoderrorcards.getContent().isEmpty()) {
                 dataTableBean.setCount(eoderrorcards.getTotalElements());
@@ -163,6 +168,10 @@ public class EODEngineDashboardService {
                     eodErrorCardBeans.add(bean);
                 });
                 dataTableBean.setList(eodErrorCardBeans);
+            } else {
+                dataTableBean.setCount(eoderrorcards.getTotalElements());
+                dataTableBean.setPagecount(eoderrorcards.getTotalPages());
+                dataTableBean.setList(eodErrorCardBeans);
             }
         } catch (Exception e) {
             throw e;
@@ -176,13 +185,13 @@ public class EODEngineDashboardService {
         try {
             Pageable paging = PageRequest.of(requestBean.getPage(), requestBean.getSize());
 
-            Page<EODERRORMERCHANT> eoderrormerchantByEODID = eodErrorMerchantListRepo.findEODERRORMERCHANTByEODID(eodId, paging);
+            Page<EODERRORMERCHANT> eoderrormerchant = eodErrorMerchantListRepo.findEODERRORMERCHANTByEODID(eodId, paging);
 
-            if (!eoderrormerchantByEODID.getContent().isEmpty()) {
-                dataTableBean.setCount(eoderrormerchantByEODID.getTotalElements());
-                dataTableBean.setPagecount(eoderrormerchantByEODID.getTotalPages());
+            if (!eoderrormerchant.getContent().isEmpty()) {
+                dataTableBean.setCount(eoderrormerchant.getTotalElements());
+                dataTableBean.setPagecount(eoderrormerchant.getTotalPages());
 
-                eoderrormerchantByEODID.getContent().forEach(eod -> {
+                eoderrormerchant.getContent().forEach(eod -> {
                     EodErrorMerchantBean bean = new EodErrorMerchantBean();
                     bean.setEodId(eod.getEODID());
                     bean.setMerchantId(eod.getMID());
@@ -191,6 +200,10 @@ public class EODEngineDashboardService {
                     errorMerchantBeans.add(bean);
                 });
 
+                dataTableBean.setList(errorMerchantBeans);
+            } else {
+                dataTableBean.setCount(eoderrormerchant.getTotalElements());
+                dataTableBean.setPagecount(eoderrormerchant.getTotalPages());
                 dataTableBean.setList(errorMerchantBeans);
             }
 

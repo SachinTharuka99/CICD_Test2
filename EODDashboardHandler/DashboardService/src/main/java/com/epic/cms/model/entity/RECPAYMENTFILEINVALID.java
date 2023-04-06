@@ -30,11 +30,6 @@ public class RECPAYMENTFILEINVALID implements Serializable {
 
     @Column(name = "CREATEDTIME")
     private Date CREATEDTIME;
-
-    @ManyToOne
-    @JoinColumn(name = "LASTUPDATEDUSER")
-    private SYSTEMUSER LASTUPDATEDUSER;
-
     @Column(name = "LASTUPDATEDDATE")
     private Date LASTUPDATEDDATE;
 

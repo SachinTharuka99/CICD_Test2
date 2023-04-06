@@ -14,9 +14,7 @@ import org.springframework.stereotype.Repository;
 import org.springframework.data.repository.PagingAndSortingRepository;
 
 
-import java.util.List;
-
 @Repository
 public interface EodErrorMerchantListRepo extends PagingAndSortingRepository<EODERRORMERCHANT, Integer>{
-    Page<EODERRORMERCHANT> findEODERRORMERCHANTByEODID(Long eodId, Pageable pageable);
+    Page<EODERRORMERCHANT> findEODERRORMERCHANTByEODID(Long EODID, Pageable pageable);
 }

@@ -21,14 +21,6 @@ public class STATUS implements Serializable {
     @ManyToOne
     @JoinColumn (name = "STATUSCATEGORY")
     private STATUSCATEGORY STATUSCATEGORY;
-
-    @Column(name = "SORTKEY")
-    private String SORTKEY;
-
-    @ManyToOne
-    @JoinColumn (name = "LASTUPDATEDUSER")
-    private SYSTEMUSER LASTUPDATEDUSER;
-
     @Column(name = "LASTUPDATEDTIME")
     private Date LASTUPDATEDTIME;
 

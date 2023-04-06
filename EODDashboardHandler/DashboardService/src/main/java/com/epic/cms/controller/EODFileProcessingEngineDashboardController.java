@@ -12,7 +12,6 @@ import com.epic.cms.model.bean.StatementGenSummeryBean;
 import com.epic.cms.service.EODFileProcessingEngineDashboardService;
 import com.epic.cms.util.*;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.context.annotation.ComponentScan;
 import org.springframework.kafka.core.KafkaTemplate;
 import org.springframework.web.bind.annotation.*;
 
@@ -83,11 +82,10 @@ public class EODFileProcessingEngineDashboardController {
         return responseBean;
     }
 
-    @PostMapping("/fileUpload/{topic}/{fileId}/{eodId}")
-    public void InputFileUploadListener(@PathVariable("fileId") final String fileId ) {
+    @PostMapping("/fileUpload/{fileId}/{processId}")
+    public void inputFileUploadListener(@PathVariable("fileId") final String fileId, @PathVariable("processId") final int processId) {
         try {
-            //processingEngineDashboardService.sendInputFileUploadListener(fileId,processId);
-            processingEngineDashboardService.sendInputFileUploadListener(fileId);
+            processingEngineDashboardService.sendInputFileUploadListener(fileId,processId);
 
         } catch (Exception e) {
             logManager.logError("Failed Input" + fileId + "File Upload Listener ", e, dashboardErrorLogger);

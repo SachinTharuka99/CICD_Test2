@@ -8,6 +8,7 @@
 package com.epic.cms.service;
 
 import com.epic.cms.model.bean.EodInputFileBean;
+import com.epic.cms.model.bean.ProcessBean;
 import com.epic.cms.model.bean.StatementGenSummeryBean;
 import com.epic.cms.model.entity.EODATMFILE;
 import com.epic.cms.model.entity.EODMASTERFILE;
@@ -124,26 +125,13 @@ public class EODFileProcessingEngineDashboardService {
         return processingSummeryBeans;
     }
 
-    public void sendInputFileUploadListener(String fileId) throws Exception {
+    public void sendInputFileUploadListener(String fileId, int processId) throws Exception {
         try {
+            ProcessBean processDetails = commonRepo.getProcessDetails(processId);
+            String kafkaTopic = processDetails.getKafkaTopic();
 
-//            ProcessBean processDetails = commonRepo.getProcessDetails(processId);
-//            String kafkaTopic = processDetails.getKafkaTopic();
-//
-//            //kafkaMessageUpdator.producerWithReturn(fileId,kafkaTopic);
-//            kafkaTemplate.send(fileId,kafkaTopic);
-//            System.out.println(kafkaTopic+" "+fileId);
-            char a = fileId.charAt(0);
-            String filetype = String.valueOf(a);
-            if (filetype.equals("a")) {
-                kafkaTemplate.send("ATMFileClearing", fileId);
-            } else if (filetype.equals("p")) {
-                kafkaTemplate.send("PaymentFileClearing", fileId);
-            } else if (filetype.equals("v")) {
-                kafkaTemplate.send("VisaFileClearing", fileId);
-            } else if (filetype.equals("m")) {
-                kafkaTemplate.send("MasterFileClearing", fileId);
-            }
+            kafkaTemplate.send(kafkaTopic,fileId);
+
         } catch (Exception e) {
             throw e;
         }
