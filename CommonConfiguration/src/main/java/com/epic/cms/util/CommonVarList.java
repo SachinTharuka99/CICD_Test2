@@ -15,15 +15,13 @@ public class CommonVarList {
     @Value("${my.app.title}")
     public String title;
 
-//    @Value("${my.app.title}")
-//    public void setTitle(String title_NON) {
-//        CommonVarList.title = title_NON;
-//    }
-
     @Value("${my.app.email}")
     public String email;
 
-//    @Value("${swap.Eod.Card.Balance}")
-//    public String backendUrl;
+    @Value("${spring.kafka.consumer.bootstrap-servers}")
+    public String consumerUrl;
+
+    @Value("${spring.kafka.producer.bootstrap-servers}")
+    public String producerUrl;
 }
 

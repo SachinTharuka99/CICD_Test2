@@ -45,7 +45,7 @@ public class EODEngineMainService {
     public synchronized void EODEngineMain(String eodID, int categoryId) throws InterruptedException {
         System.out.println("Main Method Started");
         try {
-            infoLogger.info(LogManager.processStartEndStyle("EOD-Engine main service started for EODID:" + eodID));
+            LogManager.processStartEndStyle("EOD-Engine main service started for EODID:" + eodID);
             List<ProcessBean> processList = new ArrayList<ProcessBean>();
             String uniqueId = generateUniqueId();
             Configurations.PROCESS_FLOW_STEP_COMPLETE_STATUS = true;
@@ -73,7 +73,7 @@ public class EODEngineMainService {
 
         } catch (Exception ex) {
             ex.printStackTrace();
-            errorLogger.error(ex.toString(), ex);
+            logManager.logError(ex.toString(), ex, errorLogger);
         }
 
     }
@@ -102,7 +102,7 @@ public class EODEngineMainService {
                     while (true) {
                         //Check whether msg push to consumer service is complete & the process complete from their end.
                         if (future && Configurations.PROCESS_COMPLETE_STATUS && !Configurations.IS_PROCESS_COMPLETELY_FAILED) {
-                            infoLogger.info(LogManager.processStartEndStyle(processList.get(j).getProcessDes() + " completed - "));
+                            LogManager.processStartEndStyle(processList.get(j).getProcessDes() + " completed - ");
                             break;
                         } else if (future && Configurations.PROCESS_COMPLETE_STATUS && Configurations.IS_PROCESS_COMPLETELY_FAILED) {
                             throw new EODEngineCompletelyFailedException(processList.get(j).getProcessDes() + " Process completely failed.");

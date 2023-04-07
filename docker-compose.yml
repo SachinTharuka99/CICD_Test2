@@ -1,0 +1,74 @@
+version: '2'
+services:
+  eureka-server:
+    image: lahirusandaruwan/discovery-service:1.0
+    ports:
+      - "8761:8761"
+
+  config-server:
+    image: lahirusandaruwan/spring-cloud-config-server:1.0
+    ports:
+      - "8888:8888"
+
+  eod-engine:
+    image: lahirusandaruwan/eod-engine-consumer:3.0
+      # ... other environment variables
+    ports:
+      - "8070:8070"
+    restart: unless-stopped
+    environment:
+        - SPRING_CONFIG_IMPORT=optional:configserver:http://192.168.8.137:8888
+    depends_on:
+      - config-server
+    links:
+      - config-server
+
+  api-cloud-gateway:
+    image: lahirusandaruwan/gateway-service:1.0
+    # ... other environment variables
+    ports:
+      - "8989:8989"
+    restart: unless-stopped
+    environment:
+#      - SPRING_CONFIG_IMPORT=optional:configserver:http://192.168.8.137:8888
+      - EUREKA_CLIENT_SERVICEURL_DEFAULTZONE:http://eureka-server:8761/eureka
+    depends_on:
+      - eureka-server
+    links:
+      - eureka-server
+
+  eod-dashboard:
+    image: lahirusandaruwan/dashboard-service:1.0
+    # ... other environment variables
+    ports:
+      - "7777:7777"
+    restart: unless-stopped
+    environment:
+      - SPRING_CONFIG_IMPORT=optional:configserver:http://192.168.8.137:8888
+      - EUREKA_CLIENT_SERVICEURL_DEFAULTZONE:http://eureka-server:8761/eureka
+    depends_on:
+      - config-server
+      - eureka-server
+    links:
+      - config-server
+      - eureka-server
+
+  eod-engine-producer:
+    image: lahirusandaruwan/eod-engine-producer:1.0
+    # ... other environment variables
+    ports:
+      - "8055:8055"
+    restart: unless-stopped
+    environment:
+      - SPRING_CONFIG_IMPORT=optional:configserver:http://192.168.8.137:8888
+      - EUREKA_CLIENT_SERVICEURL_DEFAULTZONE:http://eureka-server:8761/eureka
+    depends_on:
+      - config-server
+      - eureka-server
+    links:
+      - config-server
+      - eureka-server
+
+
+
+

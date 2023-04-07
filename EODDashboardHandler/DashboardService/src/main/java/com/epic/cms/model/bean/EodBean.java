@@ -22,4 +22,5 @@ public class EodBean {
     private String subEodStatus;
     private Integer noOfSuccessProcess;
     private Integer noOfErrorProcess;
+    private Integer totalProcessCount;
 }

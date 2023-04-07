@@ -45,7 +45,7 @@ public class EODEngineHandler {
         Map<String, Object> response = new HashMap<>();
         int categoryId = 2;
         try {
-            infoLogger.info(logManager.processStartEndStyle("EOD-Engine Start for EODID:" + eodId));
+            LogManager.processStartEndStyle("EOD-Engine Start for EODID:" + eodId);
             Configurations.STARTING_EOD_STATUS = producerRepo.getEODStatusFromEODID(eodId)
                     .stream()
                     .findFirst()

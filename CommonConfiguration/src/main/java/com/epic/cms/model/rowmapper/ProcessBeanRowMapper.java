@@ -30,7 +30,7 @@ public class ProcessBeanRowMapper implements RowMapper<ProcessBean> {
         processDetails.setHolidayAction(result.getInt("HOLIDAYACTION"));
         processDetails.setKafkaTopic(result.getString("KAFKATOPICNAME"));
         processDetails.setKafkaGroupId(result.getString("KAFKAGROUPID"));
-        processDetails.setKafkaGroupId(result.getString("EODMODULE"));
+        processDetails.setEodmodule(result.getString("EODMODULE"));
 
         return processDetails;
     }

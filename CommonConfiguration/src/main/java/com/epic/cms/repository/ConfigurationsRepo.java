@@ -30,6 +30,8 @@ public class ConfigurationsRepo implements ConfigurationsDao {
     @Autowired
     ConfigVarList configVarList;
 
+    public SimpleDateFormat sdf = new SimpleDateFormat("dd-MM-yyyy");
+
     @Override
     @Transactional("backendDb")
     public void loadTxnTypeConfigurations() throws Exception {
@@ -135,6 +137,7 @@ public class ConfigurationsRepo implements ConfigurationsDao {
             Configurations.EOD_ID = 22072500; // Current EOD Id
             Configurations.ERROR_EOD_ID = Configurations.EOD_ID;
             Configurations.EOD_DATE = getDateFromEODID(Configurations.EOD_ID);
+            Configurations.EOD_DATE_String = sdf.format(Configurations.EOD_DATE);
 
             Configurations.TXN_TYPE_ONLINE_SIGN_ON = configVarList.getTXN_TYPE_ONLINE_SIGN_ON();
             Configurations.TXN_TYPE_ONLINE_KEY_EXCHANGE = configVarList.getTXN_TYPE_ONLINE_KEY_EXCHANGE();
