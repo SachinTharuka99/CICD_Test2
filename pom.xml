@@ -14,6 +14,10 @@
         <module>IssuingEodFileProcessingEngine</module>
         <module>AcquiringEodFileProcessingEngine</module>
         <module>EODDashboardHandler</module>
+        <module>token-service</module>
+        <module>discovery-service</module>
+        <module>SpringCloudConfigServer</module>
+        <module>GatewayService</module>
     </modules>
     <parent>
         <groupId>org.springframework.boot</groupId>

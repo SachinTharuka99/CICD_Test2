@@ -2,31 +2,26 @@
 <project xmlns="http://maven.apache.org/POM/4.0.0"
          xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <modelVersion>4.0.0</modelVersion>
+
+    <groupId>com.epic.cms</groupId>
+    <artifactId>discovery-service</artifactId>
+    <version>1.0</version>
+    <packaging>jar</packaging>
+
     <parent>
         <artifactId>ECMS_EOD_PRODUCT</artifactId>
         <groupId>com.epic.cms</groupId>
         <version>0.0.1-SNAPSHOT</version>
     </parent>
-    <modelVersion>4.0.0</modelVersion>
-    <packaging>jar</packaging>
-    <artifactId>EODEngineProducer</artifactId>
+
     <dependencies>
         <dependency>
-            <groupId>com.epic.cms</groupId>
-            <artifactId>CommonConfiguration</artifactId>
-            <version>0.0.1-SNAPSHOT</version>
-            <scope>compile</scope>
-        </dependency>
-        <dependency>
             <groupId>org.springframework.cloud</groupId>
-            <artifactId>spring-cloud-starter-netflix-eureka-client</artifactId>
-            <version>3.0.1</version>
-        </dependency>
-        <dependency>
-            <groupId>org.springframework.boot</groupId>
-            <artifactId>spring-boot-starter-web</artifactId>
+            <artifactId>spring-cloud-starter-netflix-eureka-server</artifactId>
         </dependency>
     </dependencies>
+
     <dependencyManagement>
         <dependencies>
             <dependency>
@@ -38,8 +33,9 @@
             </dependency>
         </dependencies>
     </dependencyManagement>
+
     <build>
-        <finalName>eod-engine-producer</finalName>
+        <finalName>discovery-service</finalName>
         <plugins>
             <plugin>
                 <groupId>org.springframework.boot</groupId>
@@ -47,5 +43,4 @@
             </plugin>
         </plugins>
     </build>
-
 </project>

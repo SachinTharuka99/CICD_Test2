@@ -112,8 +112,8 @@ public abstract class ProcessBuilder {
         } finally {
             addSummaries();
             logManager.logSummery(summery, infoLogger);
-            kafkaMessageUpdator.producerWithNoReturn("true", "processStatus");
-            kafkaMessageUpdator.producerWithNoReturn(!Configurations.IS_PROCESS_COMPLETELY_FAILED, "eodEngineConsumerStatus");
+            //kafkaMessageUpdator.producerWithNoReturn("true", "processStatus");
+            //kafkaMessageUpdator.producerWithNoReturn(!Configurations.IS_PROCESS_COMPLETELY_FAILED, "eodEngineConsumerStatus");
             System.out.println("Send the process success status");
             logManager.logStartEnd(completedHeader, infoLogger);
             commonRepo.updateEODProcessCount(Configurations.eodUniqueId);
