@@ -18,7 +18,7 @@ public class ConsumerService {
     @Autowired
     MasterFileClearingConnector masterFileClearingConnector;
 
-    @KafkaListener(topics = "ATMFileClearing", groupId = "group_ATMFileClearing")
+    @KafkaListener(topics = "ATMFileClearing", groupId = "group_ATMFileClearing", containerFactory = "kafkaListenerContainerFactory")
     public void ATMFileClearingConsumer(String fileId) throws Exception {
         System.out.println("Start ATM File Clearing Process");
         atmFileClearingConnector.startProcess(fileId);

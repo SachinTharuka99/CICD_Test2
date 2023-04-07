@@ -8,22 +8,25 @@
 package com.epic.cms.service;
 
 import com.epic.cms.model.bean.EodInputFileBean;
+import com.epic.cms.model.bean.ProcessBean;
+import com.epic.cms.model.bean.StatementGenSummeryBean;
 import com.epic.cms.model.entity.EODATMFILE;
 import com.epic.cms.model.entity.EODMASTERFILE;
 import com.epic.cms.model.entity.EODPAYMENTFILE;
 import com.epic.cms.model.entity.EODVISAFILE;
-import com.epic.cms.repository.EodAtmInputFileRepo;
-import com.epic.cms.repository.EodMasterInputFileRepo;
-import com.epic.cms.repository.EodPaymentInputFileRepo;
-import com.epic.cms.repository.EodVisaInputFileRepo;
+import com.epic.cms.repository.*;
+import com.epic.cms.util.Configurations;
+import com.epic.cms.util.LogManager;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.annotation.ComponentScan;
+import org.springframework.kafka.core.KafkaTemplate;
 import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
 import java.util.List;
 
-
 @Service
+@ComponentScan(basePackages = {"com.epic.cms.*"})
 public class EODFileProcessingEngineDashboardService {
     @Autowired
     EodAtmInputFileRepo eodAtmInputFileRepo;
@@ -36,6 +39,22 @@ public class EODFileProcessingEngineDashboardService {
 
     @Autowired
     EodPaymentInputFileRepo eodPaymentInputFileRepo;
+
+    @Autowired
+    FileProcessingSummeryListRepo processingSummeryListRepo;
+
+    @Autowired
+    private KafkaTemplate<String, String> kafkaTemplate;
+
+    @Autowired
+    KafkaMessageUpdator kafkaMessageUpdator;
+
+    @Autowired
+    CommonRepo commonRepo;
+
+    @Autowired
+    LogManager logManager;
+
 
     public List<Object> getEodInputFIleList(Long eodId) {
         List<Object> eodInputFileObjectList = new ArrayList<>();
@@ -94,5 +113,27 @@ public class EODFileProcessingEngineDashboardService {
             throw e;
         }
         return eodInputFileObjectList;
+    }
+
+    public List<StatementGenSummeryBean> getProcessingSummeryList(Long eodID) {
+        List<StatementGenSummeryBean> processingSummeryBeans = new ArrayList<>();
+        try {
+            processingSummeryBeans = processingSummeryListRepo.findProcessingSummeryListByEodId(eodID, Configurations.EOD_FILE_PROCESSING);
+        } catch (Exception e) {
+            throw e;
+        }
+        return processingSummeryBeans;
+    }
+
+    public void sendInputFileUploadListener(String fileId, int processId) throws Exception {
+        try {
+            ProcessBean processDetails = commonRepo.getProcessDetails(processId);
+            String kafkaTopic = processDetails.getKafkaTopic();
+
+            kafkaTemplate.send(kafkaTopic,fileId);
+
+        } catch (Exception e) {
+            throw e;
+        }
     }
 }

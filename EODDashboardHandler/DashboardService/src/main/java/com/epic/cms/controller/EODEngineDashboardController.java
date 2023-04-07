@@ -15,6 +15,7 @@ import com.epic.cms.util.ResponseCodes;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
+import javax.ws.rs.QueryParam;
 import java.util.List;
 
 import static com.epic.cms.util.LogManager.*;
@@ -26,11 +27,11 @@ public class EODEngineDashboardController {
 
     ResponseBean responseBean = new ResponseBean();
 
-   @Autowired
-   EODEngineDashboardService engineDashboardService;
+    @Autowired
+    EODEngineDashboardService engineDashboardService;
 
-   @Autowired
-   LogManager logManager;
+    @Autowired
+    LogManager logManager;
 
     @PostMapping("/starteodid")
     public ResponseBean getNextRunningEodId() {
@@ -86,14 +87,16 @@ public class EODEngineDashboardController {
             logManager.logHeader("EOD-Engine Dashboard EOD info by EODID:" + eodId, dashboardInfoLogger);
             EodBean eodInfo = engineDashboardService.getEodInfoList(eodId);
 
+            if (eodInfo != null) {
                 responseBean.setContent(eodInfo);
                 responseBean.setResponseCode(ResponseCodes.SUCCESS);
                 responseBean.setResponseMsg(MessageVarList.SUCCESS);
+            } else {
+                responseBean.setResponseCode(ResponseCodes.NO_DATA_FOUND);
+                responseBean.setContent(null);
+                responseBean.setResponseMsg(MessageVarList.NO_DATA_FOUND);
+            }
 
-        } catch (NullPointerException ex) {
-            responseBean.setResponseCode(ResponseCodes.NO_DATA_FOUND);
-            responseBean.setContent(null);
-            responseBean.setResponseMsg(MessageVarList.NO_DATA_FOUND);
         } catch (Exception e) {
             responseBean.setResponseCode(ResponseCodes.UNEXPECTED_ERROR);
             responseBean.setContent(null);
@@ -104,12 +107,12 @@ public class EODEngineDashboardController {
     }
 
     @PostMapping("/invalidtransaction/{eodid}")
-    public ResponseBean getEodInvalidTransactionList(@PathVariable("eodid") final Long eodId) {
+    public ResponseBean getEodInvalidTransactionList(@RequestBody RequestBean requestBean, @PathVariable("eodid") final Long eodId) {
         try {
             logManager.logHeader("EOD-Error Dashboard Get Eod Invalid Transaction List EodId :" + eodId, dashboardInfoLogger);
-            List<Object> invalidTransactionBeanList = engineDashboardService.getEodInvalidTransactionList(eodId);
+            DataTableBean invalidTransactionBeanList = engineDashboardService.getEodInvalidTransactionList(requestBean, eodId);
 
-            if (invalidTransactionBeanList.size() > 0) {
+            if (invalidTransactionBeanList != null) {
                 responseBean.setContent(invalidTransactionBeanList);
                 responseBean.setResponseCode(ResponseCodes.SUCCESS);
                 responseBean.setResponseMsg(MessageVarList.SUCCESS);
@@ -128,13 +131,13 @@ public class EODEngineDashboardController {
     }
 
     @PostMapping("/errormerchant/{eodid}")
-    public ResponseBean getEodMerchantList(@PathVariable("eodid") final Long eodId) {
+    public ResponseBean getEodErrorMerchantList(@RequestBody RequestBean requestBean, @PathVariable("eodid") final Long eodId){
         try {
             logManager.logHeader("EOD-Error Dashboard Get Eod Merchant List EodId :" + eodId, dashboardInfoLogger);
-            List<EodErrorMerchantBean> eodMerchantList = engineDashboardService.getEodErrorMerchantList(eodId);
+            DataTableBean eodErrorMerchantList = engineDashboardService.getEodErrorMerchantList(requestBean, eodId);
 
-            if (eodMerchantList.size() > 0) {
-                responseBean.setContent(eodMerchantList);
+            if (eodErrorMerchantList != null) {
+                responseBean.setContent(eodErrorMerchantList);
                 responseBean.setResponseCode(ResponseCodes.SUCCESS);
                 responseBean.setResponseMsg(MessageVarList.SUCCESS);
             } else {
@@ -146,18 +149,19 @@ public class EODEngineDashboardController {
             responseBean.setResponseCode(ResponseCodes.UNEXPECTED_ERROR);
             responseBean.setContent(null);
             responseBean.setResponseMsg(MessageVarList.NULL_POINTER);
-            logManager.logError("Failed Eod Merchant List ", e, dashboardErrorLogger);
+            logManager.logError("Failed Eod Error Card List ", e, dashboardErrorLogger);
         }
+
         return responseBean;
     }
 
-    @PostMapping("/errorcard/{eodid}")
-    public ResponseBean getEodErrorCardList(@PathVariable("eodid") final Long eodId) {
+    @PostMapping(value = "/errorcard/{eodid}")
+    public ResponseBean getEodErrorCardList(@RequestBody RequestBean requestBean, @PathVariable("eodid") final Long eodId) {
         try {
             logManager.logHeader("EOD-Error Dashboard Get Eod Error Card List EodId :" + eodId, dashboardInfoLogger);
-            List<EodErrorCardBean> eodErrorCardList = engineDashboardService.getEodErrorCardList(eodId);
+            DataTableBean eodErrorCardList = engineDashboardService.getEodErrorCardList(requestBean, eodId);
 
-            if (eodErrorCardList.size() > 0) {
+            if (eodErrorCardList != null) {
                 responseBean.setContent(eodErrorCardList);
                 responseBean.setResponseCode(ResponseCodes.SUCCESS);
                 responseBean.setResponseMsg(MessageVarList.SUCCESS);
