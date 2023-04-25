@@ -15,10 +15,10 @@ import java.util.Date;
 public class EODPROCESS implements Serializable {
 
     @Id
-    @Column(name = "PROCESSID", nullable = false)
+    @Column(name = "PROCESSID")
     private Integer PROCESSID;
 
-    @Column(name = "DESCRIPTION", nullable = false)
+    @Column(name = "DESCRIPTION")
     private String DESCRIPTION;
 
     @Column(name = "CRITICALSTATUS")
@@ -63,10 +63,10 @@ public class EODPROCESS implements Serializable {
     @Column(name = "STATUS")
     private String STATUS;
 
-    @Column(name = "CREATEDTIME", nullable = false)
+    @Column(name = "CREATEDTIME")
     private Date CREATEDTIME;
 
-    @Column(name = "LASTUPDATEDTIME", nullable = false)
+    @Column(name = "LASTUPDATEDTIME")
     private Date LASTUPDATEDTIME;
 
     @Column(name = "LASTUPDATEDUSER")

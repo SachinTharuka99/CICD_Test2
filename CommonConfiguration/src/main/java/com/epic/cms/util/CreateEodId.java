@@ -8,9 +8,6 @@ import java.util.Date;
 
 public class CreateEodId {
 
-    @Autowired
-    CommonRepo commonRepo;
-
     // get Current date as yymmdd format
     public String getDate(Date date) throws Exception {
         try {

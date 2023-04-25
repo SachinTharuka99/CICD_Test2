@@ -19,7 +19,7 @@ public class RECPAYMENTFILEINVALID implements Serializable {
     @Column(name = "FILEID", nullable = false)
     private String FILEID;
 
-    @Column(name = "EODID", nullable = false)
+    @Column(name = "EODID")
     private Long EODID;
 
     @Column(name = "LINENUMBER")

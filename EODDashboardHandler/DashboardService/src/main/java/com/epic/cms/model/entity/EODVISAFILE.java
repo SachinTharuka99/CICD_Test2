@@ -15,7 +15,7 @@ import java.util.Date;
 public class EODVISAFILE implements Serializable {
 
     @Id
-    @Column(name = "FILEID", nullable = false)
+    @Column(name = "FILEID")
     private String FILEID;
 
     @Column(name = "EODID")

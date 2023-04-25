@@ -34,10 +34,10 @@ public class EODPROCESSSUMMERY implements Serializable {
     @Column(name = "STATUS")
     private String STATUS;
 
-    @Column(name = "CREATEDTIME", nullable = false)
+    @Column(name = "CREATEDTIME")
     private Date CREATEDTIME;
 
-    @Column(name = "LASTUPDATEDTIME", nullable = false)
+    @Column(name = "LASTUPDATEDTIME")
     private Date LASTUPDATEDTIME;
 
     @Column(name = "LASTUPDATEDUSER")
