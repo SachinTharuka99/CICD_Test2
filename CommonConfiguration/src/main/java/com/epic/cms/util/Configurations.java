@@ -920,6 +920,7 @@ public class Configurations {
     public static int PROCESS_ID_MERCHANT_FEE;
     public static int PROCESS_ID_MERCHANT_STATEMENT;//202
     public static int PROCESS_MERCHANT_STATEMENT_FILE_CREATION;//203
+    public static int PROCESS_CUSTOMER_STATEMENT_GENERATION;//191
     public static int PROCESS_ID_MERCHANT_CUSTOMER_STATEMENT;//204
     public static int PROCESS_MERCHANT_CUSTOMER_STATEMENT_FILE_CREATION;//205
 

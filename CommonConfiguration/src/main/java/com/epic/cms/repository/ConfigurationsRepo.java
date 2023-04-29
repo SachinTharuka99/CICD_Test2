@@ -539,6 +539,11 @@ public class ConfigurationsRepo implements ConfigurationsDao {
             Configurations.PROCESS_ID_EOD_MERCHANT_EASY_PAYMENT_REQUEST = configVarList.getProcess_id_eod_merchant_easy_payment_request();
             //acquiring
             Configurations.PROCESS_ID_COMMISSION_CALCULATION = configVarList.getCommission_calculation_process();
+            Configurations.PROCESS_ID_MERCHANT_STATEMENT = configVarList.getPROCESS_ID_MERCHANT_STATEMENT();
+            Configurations.PROCESS_MERCHANT_STATEMENT_FILE_CREATION = configVarList.getPROCESS_MERCHANT_STATEMENT_FILE_CREATION();
+            Configurations.PROCESS_MERCHANT_CUSTOMER_STATEMENT_FILE_CREATION = configVarList.getPROCESS_MERCHANT_CUSTOMER_STATEMENT_FILE_CREATION();
+            Configurations.PROCESS_CUSTOMER_STATEMENT_GENERATION = configVarList.getPROCESS_CUSTOMER_STATEMENT_GENERATION();
+            Configurations.STATEMENT_BATCH_SIZE = configVarList.getSTATEMENT_BATCH_SIZE();
 
         } catch (Exception e) {
             throw e;

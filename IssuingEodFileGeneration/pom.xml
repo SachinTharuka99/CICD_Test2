@@ -23,6 +23,9 @@
         <module>CardApplicationRejectLetterProcess</module>
         <module>FileGeneration</module>
         <module>EODFileGenerationConsumer</module>
+        <module>MerchantLocationStatement</module>
+        <module>MerchantCustomerStatement</module>
+        <module>CustomerStatementGeneration</module>
     </modules>
     <artifactId>IssuingEodFileGeneration</artifactId>
 
