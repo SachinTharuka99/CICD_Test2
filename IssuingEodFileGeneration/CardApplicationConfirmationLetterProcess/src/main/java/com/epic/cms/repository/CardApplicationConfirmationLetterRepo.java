@@ -9,6 +9,7 @@ package com.epic.cms.repository;
 
 import com.epic.cms.dao.CardApplicationConfirmationLetterDao;
 import com.epic.cms.util.Configurations;
+import com.epic.cms.util.LogManager;
 import com.epic.cms.util.StatusVarList;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.jdbc.core.JdbcTemplate;
@@ -19,6 +20,7 @@ import java.sql.SQLException;
 import java.util.ArrayList;
 
 import static com.epic.cms.util.LogManager.errorLogger;
+import static com.epic.cms.util.LogManager.errorLoggerEFGE;
 
 @Repository
 public class CardApplicationConfirmationLetterRepo implements CardApplicationConfirmationLetterDao {
@@ -28,6 +30,9 @@ public class CardApplicationConfirmationLetterRepo implements CardApplicationCon
 
     @Autowired
     private StatusVarList statusVarList;
+
+    @Autowired
+    LogManager logManager;
 
     @Override
     public ArrayList<StringBuffer> getConfirmedCardToGenerateLetters() throws SQLException {
@@ -66,7 +71,7 @@ public class CardApplicationConfirmationLetterRepo implements CardApplicationCon
                         );
             }
         }catch (Exception e){
-            errorLogger.error("Error in get Confirm card to Generate Letter ", e);
+            logManager.logError("Error in get Confirm card to Generate Letter ", errorLoggerEFGE);
             throw e;
         }
         return confirmCardList;
@@ -82,7 +87,7 @@ public class CardApplicationConfirmationLetterRepo implements CardApplicationCon
                     cardNo.toString()
                     );
         }catch (Exception e){
-            errorLogger.error("Error in Update Letter generate status ", e);
+            logManager.logError("Error in Update Letter generate status ", errorLoggerEFGE);
             throw e;
         }
         return count;

@@ -136,7 +136,7 @@ public class ConfigurationsRepo implements ConfigurationsDao {
         try {
             Configurations.SERVER_RUN_PLATFORM = "WINDOWS";
             Configurations.STARTING_EOD_STATUS = "INIT";
-            Configurations.EOD_ID = 22072500; // Current EOD Id
+            Configurations.EOD_ID = 22082500; // Current EOD Id
             Configurations.ERROR_EOD_ID = Configurations.EOD_ID;
             Configurations.EOD_DATE = getDateFromEODID(Configurations.EOD_ID);
             Configurations.EOD_DATE_String = sdf.format(Configurations.EOD_DATE);

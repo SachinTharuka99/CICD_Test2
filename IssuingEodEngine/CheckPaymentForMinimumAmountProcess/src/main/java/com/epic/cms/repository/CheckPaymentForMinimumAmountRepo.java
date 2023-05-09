@@ -7,15 +7,13 @@ import com.epic.cms.model.rowmapper.LastStatementSummeryRowMapper;
 import com.epic.cms.model.rowmapper.MinimumPaymentRowMapper;
 import com.epic.cms.util.CommonMethods;
 import com.epic.cms.util.Configurations;
+import com.epic.cms.util.LogManager;
 import com.epic.cms.util.StatusVarList;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.core.RowCountCallbackHandler;
 import org.springframework.stereotype.Repository;
-import org.springframework.transaction.annotation.Isolation;
-import org.springframework.transaction.annotation.Propagation;
-import org.springframework.transaction.annotation.Transactional;
 
 import java.sql.Date;
 import java.util.ArrayList;
@@ -32,6 +30,9 @@ public class CheckPaymentForMinimumAmountRepo implements CheckPaymentForMinimumA
 
     @Autowired
     private JdbcTemplate backendJdbcTemplate;
+
+    @Autowired
+    LogManager logManager;
 
     @Override
     public List<LastStatementSummeryBean> getStatementCardList() throws Exception {
@@ -50,7 +51,7 @@ public class CheckPaymentForMinimumAmountRepo implements CheckPaymentForMinimumA
             );
 
         } catch (Exception e) {
-            errorLogger.error("Statement Card List Error", e);
+            logManager.logError("Statement Card List Error", errorLogger);
             throw e;
         }
         return cardList;
@@ -68,7 +69,7 @@ public class CheckPaymentForMinimumAmountRepo implements CheckPaymentForMinimumA
         } catch (EmptyResultDataAccessException e) {
             return accNo;
         } catch (Exception e) {
-            errorLogger.error("AccountNo On Card Error", e);
+            logManager.logError("AccountNo On Card Error", errorLogger);
             throw e;
         }
         return accNo;
@@ -179,11 +180,11 @@ public class CheckPaymentForMinimumAmountRepo implements CheckPaymentForMinimumA
             flag = true;
 
         } catch (EmptyResultDataAccessException ex) {
-            infoLogger.info("--no result found--");
+            logManager.logError("--no result found--",errorLogger);
             backendJdbcTemplate.update(insertQuery, cardNo.toString(), fee - totalPayment, dueDate, statusList.getEOD_PENDING_STATUS(), Configurations.EOD_ID);
             flag = true;
         } catch (Exception ex) {
-            errorLogger.error("Insert To MinPay Table Error", ex);
+            logManager.logError("Insert To MinPay Table Error", errorLogger);
             throw ex;
         }
         return flag;
@@ -210,7 +211,7 @@ public class CheckPaymentForMinimumAmountRepo implements CheckPaymentForMinimumA
         } catch (EmptyResultDataAccessException e) {
             return paymentAmount;
         } catch (Exception e) {
-            errorLogger.error("Get Payment Amount Error", e);
+            logManager.logError("Get Payment Amount Error", errorLogger);
             throw e;
         }
         return paymentAmount;
@@ -237,7 +238,7 @@ public class CheckPaymentForMinimumAmountRepo implements CheckPaymentForMinimumA
         } catch (EmptyResultDataAccessException e) {
             return paymentAmount;
         } catch (Exception e) {
-            errorLogger.error("Get Total Payment Except DueDate Error", e);
+            logManager.logError("Get Total Payment Except DueDate Error", errorLogger);
             throw e;
         }
         return paymentAmount;

@@ -26,9 +26,6 @@ public class ExposureFileRepo implements ExposureFileDao {
     @Autowired
     private JdbcTemplate backendJdbcTemplate;
 
-    @Autowired
-    private StatusVarList statusVarList;
-
     @Override
     public List<ExposureFileBean> getExposureFileDetails() throws Exception {
         List<ExposureFileBean> beanList = new ArrayList<>();

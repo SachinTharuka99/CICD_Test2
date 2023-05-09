@@ -1,6 +1,7 @@
 package com.epic.cms.repository;
 
 import com.epic.cms.dao.OnlineToBackendTxnDao;
+import com.epic.cms.util.LogManager;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.core.namedparam.MapSqlParameterSource;
@@ -19,6 +20,9 @@ import static com.epic.cms.util.LogManager.errorLogger;
 public class OnlineToBackendTxnRepo implements OnlineToBackendTxnDao {
     @Autowired
     JdbcTemplate backendJdbcTemplate;
+
+    @Autowired
+    LogManager logManager;
 
     @Override
     public int[] callStoredProcedureForTxnSync() throws SQLException {
@@ -72,7 +76,7 @@ public class OnlineToBackendTxnRepo implements OnlineToBackendTxnDao {
                     throw new SQLException();
             }
         }catch (Exception e){
-            errorLogger.error("Exception in Call Stored Procedure for Txn Sync " , e);
+            logManager.logError("Exception in Call Stored Procedure for Txn Sync " , errorLogger);
             throw e;
         }
     }

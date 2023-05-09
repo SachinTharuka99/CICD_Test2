@@ -11,10 +11,7 @@ import com.epic.cms.dao.VisaBaseIIFileClearingDao;
 import com.epic.cms.model.bean.FileBean;
 import com.epic.cms.model.bean.VisaTC56ComposingDataBean;
 import com.epic.cms.model.bean.VisaTC56CurrencyEntryBean;
-import com.epic.cms.util.Configurations;
-import com.epic.cms.util.DatabaseStatus;
-import com.epic.cms.util.QueryParametersList;
-import com.epic.cms.util.StatusVarList;
+import com.epic.cms.util.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.jdbc.core.JdbcTemplate;
@@ -48,6 +45,8 @@ public class VisaBaseIIFileClearingRepo implements VisaBaseIIFileClearingDao {
     private JdbcTemplate backendJdbcTemplate;
     @Autowired
     CommonRepo commonRepo;
+    @Autowired
+    LogManager logManager;
 
     @Override
     public FileBean getVisaFileInfo(String fileId) throws Exception {
@@ -70,7 +69,7 @@ public class VisaBaseIIFileClearingRepo implements VisaBaseIIFileClearingDao {
             );
 
         } catch (EmptyResultDataAccessException ex) {
-            infoLoggerEFPE.info(ex.getMessage());
+            logManager.logError(ex.getMessage(),errorLoggerEFPE);
         } catch (Exception ex) {
             throw ex;
         }
@@ -141,7 +140,7 @@ public class VisaBaseIIFileClearingRepo implements VisaBaseIIFileClearingDao {
             backendJdbcTemplate.update(query,
                     fileId);
         } catch (Exception ex) {
-            errorLoggerEFPE.error("VisaBaseIIClearing", ex);
+            logManager.logError("VisaBaseIIClearing", errorLoggerEFPE);
         }
     }
 
@@ -153,7 +152,7 @@ public class VisaBaseIIFileClearingRepo implements VisaBaseIIFileClearingDao {
                     noOfRecords,
                     fileID);
         } catch (Exception ex) {
-            errorLoggerEFPE.error("VisaBaseIIClearing", ex);
+            logManager.logError("VisaBaseIIClearing", errorLoggerEFPE);
         }
     }
 
@@ -252,7 +251,7 @@ public class VisaBaseIIFileClearingRepo implements VisaBaseIIFileClearingDao {
                     fileID
             );
         } catch (EmptyResultDataAccessException ex) {
-            infoLoggerEFPE.info(ex.getMessage());
+            logManager.logError(ex.getMessage(),errorLoggerEFPE);
         } catch (Exception ex) {
             throw ex;
         }
@@ -301,11 +300,11 @@ public class VisaBaseIIFileClearingRepo implements VisaBaseIIFileClearingDao {
                                         effectiveDate,
                                         Configurations.EOD_USER);
                             } catch (Exception ee) {
-                                errorLoggerEFPE.error("Currency not defined in CURRENCY table: " + visaTC56CurrencyEntryBean.getCounterCurrencyCode(), ee);
+                                logManager.logError("Currency not defined in CURRENCY table: " + visaTC56CurrencyEntryBean.getCounterCurrencyCode(), errorLoggerEFPE);
                             }
                         }
                     } catch (Exception ee) {
-                        errorLoggerEFPE.error("Unable to update CURRENCYEXCHANGERATE table for currency: " + visaTC56CurrencyEntryBean.getCounterCurrencyCode(), ee);
+                        logManager.logError("Unable to update CURRENCYEXCHANGERATE table for currency: " + visaTC56CurrencyEntryBean.getCounterCurrencyCode(), errorLoggerEFPE);
                     }
                     //update in wallet schema CURRENCY table
                     try {
@@ -317,7 +316,7 @@ public class VisaBaseIIFileClearingRepo implements VisaBaseIIFileClearingDao {
                                 Configurations.EOD_USER,
                                 visaTC56CurrencyEntryBean.getCounterCurrencyCode());
                     } catch (Exception ee) {
-                        errorLoggerEFPE.error("Unable to update WALLET_CURRENCY table in  " + Configurations.WALLET_SCHEMA_NAME + " for currency: " + visaTC56CurrencyEntryBean.getCounterCurrencyCode(), ee);
+                        logManager.logError("Unable to update WALLET_CURRENCY table in  " + Configurations.WALLET_SCHEMA_NAME + " for currency: " + visaTC56CurrencyEntryBean.getCounterCurrencyCode(), errorLoggerEFPE);
                     }
                     //add to online side ECMS_ONLINE_EXCHANGE_RATE table
                     try {
@@ -337,11 +336,11 @@ public class VisaBaseIIFileClearingRepo implements VisaBaseIIFileClearingDao {
                                         calculatedSellingRate,
                                         calculatedBuyingRate);
                             } catch (Exception ee) {
-                                errorLoggerEFPE.error("Unable to insert ECMS_ONLINE_EXCHANGE_RATE table in  " + Configurations.ONLINE_DB_VIEW_NAME + " for currency: " + visaTC56CurrencyEntryBean.getCounterCurrencyCode(), ee);
+                                logManager.logError("Unable to insert ECMS_ONLINE_EXCHANGE_RATE table in  " + Configurations.ONLINE_DB_VIEW_NAME + " for currency: " + visaTC56CurrencyEntryBean.getCounterCurrencyCode(), errorLoggerEFPE);
                             }
                         }
                     } catch (Exception ee) {
-                        errorLoggerEFPE.error("Unable to update ECMS_ONLINE_EXCHANGE_RATE table in  " + Configurations.ONLINE_DB_VIEW_NAME + " for currency: " + visaTC56CurrencyEntryBean.getCounterCurrencyCode(), ee);
+                        logManager.logError("Unable to update ECMS_ONLINE_EXCHANGE_RATE table in  " + Configurations.ONLINE_DB_VIEW_NAME + " for currency: " + visaTC56CurrencyEntryBean.getCounterCurrencyCode(), errorLoggerEFPE);
                     }
                 } catch (Exception ex) {
                     throw ex;
@@ -372,7 +371,7 @@ public class VisaBaseIIFileClearingRepo implements VisaBaseIIFileClearingDao {
             backendJdbcTemplate.update(query,
                     fileID);
         } catch (Exception ex) {
-            errorLoggerEFPE.error("VisaBaseIIClearing", ex);
+            logManager.logError("VisaBaseIIClearing", errorLoggerEFPE);
         }
     }
 

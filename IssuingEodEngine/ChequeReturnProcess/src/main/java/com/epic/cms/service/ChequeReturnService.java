@@ -114,7 +114,7 @@ public class ChequeReturnService {
                         //EOM balance
                         if (returnBean == null) {
                             Configurations.PROCESS_FAILD_COUNT++;
-                            errorLogger.error("null point for eod card:" + CommonMethods.cardNumberMask(cardNo));
+                            logManager.logError("null point for eod card:" + CommonMethods.cardNumberMask(cardNo),errorLogger);
                             throw new NullPointerException("EOD Payment knockoff data is null");
                         }
                         double eomOtbCash = returnBean.getMainCashAdvanceKnockoff();

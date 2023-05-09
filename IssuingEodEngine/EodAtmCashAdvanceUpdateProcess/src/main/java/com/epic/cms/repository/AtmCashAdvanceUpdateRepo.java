@@ -1,10 +1,7 @@
 package com.epic.cms.repository;
 
 import com.epic.cms.dao.AtmCashAdvanceUpdateDao;
-import com.epic.cms.util.Configurations;
-import com.epic.cms.util.DateUtil;
-import com.epic.cms.util.QueryParametersList;
-import com.epic.cms.util.StatusVarList;
+import com.epic.cms.util.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.core.namedparam.MapSqlParameterSource;
@@ -33,6 +30,9 @@ public class AtmCashAdvanceUpdateRepo implements AtmCashAdvanceUpdateDao {
 
     @Autowired
     StatusVarList status;
+
+    @Autowired
+    LogManager logManager;
 
     @Override
     public int[] callStoredProcedureForCashAdvUpdate() throws SQLException {
@@ -84,10 +84,9 @@ public class AtmCashAdvanceUpdateRepo implements AtmCashAdvanceUpdateDao {
             }
 
         }catch (SQLException e){
-            errorLogger.error(String.valueOf(e));
             throw e;
         } catch (Exception ex) {
-            errorLogger.error("Call StoredProcedure For CashAdvUpdate Error", ex);
+            logManager.logError("Call StoredProcedure For CashAdvUpdate Error", errorLogger);
             throw ex;
         }
     }

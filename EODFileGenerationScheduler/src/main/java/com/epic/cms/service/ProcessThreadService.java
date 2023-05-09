@@ -10,6 +10,8 @@ package com.epic.cms.service;
 import com.epic.cms.common.ProcessBuilder;
 import com.epic.cms.connector.*;
 import com.epic.cms.util.Configurations;
+import com.epic.cms.util.LogManager;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 
@@ -17,6 +19,10 @@ import static com.epic.cms.util.LogManager.errorLogger;
 
 @Service
 public class ProcessThreadService {
+
+    @Autowired
+    LogManager logManager;
+
     @Async("ThreadPool_100")
     public void startProcessByProcessId(int processId) throws Exception {
         try{
@@ -25,7 +31,7 @@ public class ProcessThreadService {
                 String uniqueId = "1";
                 processBuilder.startProcess(processId, uniqueId);
             }else {
-                errorLogger.error("Invalid Process Id ");
+                logManager.logError("Invalid Process Id ",errorLogger);
             }
         }catch (Exception e){
             throw e;

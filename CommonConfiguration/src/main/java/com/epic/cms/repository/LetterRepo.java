@@ -3,6 +3,7 @@ package com.epic.cms.repository;
 import com.epic.cms.dao.LetterDao;
 import com.epic.cms.model.bean.LetterGenerationReferanceTableDetailsBean;
 import com.epic.cms.util.Configurations;
+import com.epic.cms.util.LogManager;
 import com.epic.cms.util.QueryParametersList;
 import com.epic.cms.util.StatusVarList;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -13,11 +14,11 @@ import org.springframework.transaction.annotation.Transactional;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
-import java.util.concurrent.atomic.AtomicReference;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import static com.epic.cms.util.LogManager.errorLogger;
+import static com.epic.cms.util.LogManager.errorLoggerCOM;
 
 @Repository
 public class LetterRepo implements LetterDao {
@@ -27,12 +28,10 @@ public class LetterRepo implements LetterDao {
 
     @Autowired
     StatusVarList status;
-
+    @Autowired
+    LogManager logManager;
     @Autowired
     private JdbcTemplate backendJdbcTemplate;
-
-    @Autowired
-    private JdbcTemplate onlineJdbcTemplate;
 
     @Override
     @Transactional("backendDb")
@@ -63,7 +62,7 @@ public class LetterRepo implements LetterDao {
             );
 
         } catch (Exception e) {
-            errorLogger.error(String.valueOf(e));
+            logManager.logError(e,errorLoggerCOM);
             throw e;
         }
         return parameterList;
@@ -234,7 +233,7 @@ public class LetterRepo implements LetterDao {
             }
 
         } catch (Exception e) {
-            errorLogger.error("Exception ", e);
+            logManager.logError(e,errorLoggerCOM);
             throw e;
         }
 
@@ -261,7 +260,7 @@ public class LetterRepo implements LetterDao {
             );
 
         } catch (Exception e) {
-            errorLogger.error(String.valueOf(e));
+            logManager.logError(e,errorLoggerCOM);
             throw e;
         }
 
@@ -299,7 +298,7 @@ public class LetterRepo implements LetterDao {
             value = backendJdbcTemplate.queryForObject(query, StringBuffer.class);
 
         } catch (Exception e) {
-            errorLogger.error(String.valueOf(e));
+            logManager.logError(e,errorLoggerCOM);
             throw e;
         }
 
@@ -329,7 +328,7 @@ public class LetterRepo implements LetterDao {
             //body = backendJdbcTemplate.queryForObject(query,String.class,inputParam[0],inputParam[1]);
 
         } catch (Exception e) {
-            errorLogger.error(String.valueOf(e));
+            logManager.logError(e,errorLoggerCOM);
             throw e;
         }
 
@@ -346,7 +345,7 @@ public class LetterRepo implements LetterDao {
             cardCategory = backendJdbcTemplate.queryForObject(query, String.class, applicationID);
 
         } catch (Exception e) {
-            errorLogger.error(String.valueOf(e));
+            logManager.logError(e,errorLoggerCOM);
             throw e;
         }
 
@@ -364,7 +363,7 @@ public class LetterRepo implements LetterDao {
             cardCategory = backendJdbcTemplate.queryForObject(query, String.class, cardNumber.toString());
 
         } catch (Exception e) {
-            errorLogger.error(String.valueOf(e));
+            logManager.logError(e,errorLoggerCOM);
             throw e;
         }
 

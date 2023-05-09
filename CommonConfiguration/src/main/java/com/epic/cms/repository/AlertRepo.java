@@ -23,8 +23,7 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import static com.epic.cms.util.CommonMethods.validate;
-import static com.epic.cms.util.LogManager.errorLogger;
-import static com.epic.cms.util.LogManager.infoLogger;
+import static com.epic.cms.util.LogManager.*;
 
 @Repository
 public class AlertRepo implements AlertDao {
@@ -46,6 +45,9 @@ public class AlertRepo implements AlertDao {
 
     @Autowired
     LastStatementSummaryRepo statementSummaryRepo;
+
+    @Autowired
+    LogManager logManager;
 
     @Override
     @Transactional("backendDb")
@@ -95,7 +97,7 @@ public class AlertRepo implements AlertDao {
             }
 
         } catch (Exception e) {
-            infoLogger.error("Exception ", e);
+            logManager.logError("Exception ", errorLoggerCOM);
             throw e;
         }
         return isActive;
@@ -134,7 +136,7 @@ public class AlertRepo implements AlertDao {
                 return parameterList;
             }, templateCode);
         } catch (Exception e) {
-            errorLogger.error("Exception ", e);
+            logManager.logError("Exception ", errorLoggerCOM);
             throw e;
         }
         return parameterList;
@@ -314,7 +316,7 @@ public class AlertRepo implements AlertDao {
                 return bean;
             });
         } catch (Exception e) {
-            errorLogger.error("Exception ", e);
+            logManager.logError("Exception ", errorLoggerCOM);
             throw e;
         }
         return bean;

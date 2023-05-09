@@ -2,14 +2,11 @@ package com.epic.cms.repository;
 
 import com.epic.cms.dao.CashBackAlertDao;
 import com.epic.cms.model.bean.CashBackAlertBean;
-import com.epic.cms.util.QueryParametersList;
+import com.epic.cms.util.LogManager;
 import com.epic.cms.util.StatusVarList;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Repository;
-import org.springframework.transaction.annotation.Isolation;
-import org.springframework.transaction.annotation.Propagation;
-import org.springframework.transaction.annotation.Transactional;
 
 import java.sql.ResultSet;
 import java.util.ArrayList;
@@ -25,6 +22,9 @@ public class CashBackAlertRepo implements CashBackAlertDao {
 
     @Autowired
     StatusVarList statusList;
+
+    @Autowired
+    LogManager logManager;
 
     @Override
     public HashMap<String, ArrayList<CashBackAlertBean>> getConfirmedAccountToAlert() throws Exception {
@@ -62,7 +62,7 @@ public class CashBackAlertRepo implements CashBackAlertDao {
                 return confirmAccountList;
             }, 0);
         } catch (Exception e) {
-            errorLogger.error("Exception ", e);
+            logManager.logError("Exception ", errorLogger);
             throw e;
         }
         return confirmAccountList;
@@ -75,7 +75,7 @@ public class CashBackAlertRepo implements CashBackAlertDao {
 
             backendJdbcTemplate.update(updatePay, 1, reqId);
         } catch (Exception e) {
-            errorLogger.error("Exception ", e);
+            logManager.logError("Exception ", errorLogger);
             throw e;
         }
     }
@@ -87,7 +87,7 @@ public class CashBackAlertRepo implements CashBackAlertDao {
 
             backendJdbcTemplate.update(updatePay, 1, statementId);
         }catch (Exception e){
-            errorLogger.error("Exception ", e);
+            logManager.logError("Exception ", errorLogger);
             throw e;
         }
     }

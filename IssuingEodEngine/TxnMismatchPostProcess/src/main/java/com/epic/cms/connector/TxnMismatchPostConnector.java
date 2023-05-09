@@ -93,7 +93,7 @@ public class TxnMismatchPostConnector extends ProcessBuilder {
                     txnList = null;
                 }
             } catch (Exception e) {
-                errorLogger.error(String.valueOf(e));
+                logManager.logError(String.valueOf(e),errorLogger);
             }
 
         }

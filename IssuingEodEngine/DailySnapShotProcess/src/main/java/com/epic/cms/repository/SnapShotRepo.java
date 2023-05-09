@@ -2,6 +2,7 @@ package com.epic.cms.repository;
 
 import com.epic.cms.dao.SnapShotDao;
 import com.epic.cms.util.Configurations;
+import com.epic.cms.util.LogManager;
 import com.epic.cms.util.StatusVarList;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
@@ -29,6 +30,9 @@ public class SnapShotRepo implements SnapShotDao {
     @Autowired
     StatusVarList statusList;
 
+    @Autowired
+    LogManager logManager;
+
     @Override
     public int checkEodComplete() throws Exception {
         int count = 0;
@@ -40,7 +44,7 @@ public class SnapShotRepo implements SnapShotDao {
         } catch (EmptyResultDataAccessException e) {
             return 0;
         } catch (Exception e) {
-            errorLogger.error("Check Eod Complete Error",e);
+            logManager.logError("Check Eod Complete Error",errorLogger);
             throw e;
         }
         return count;
@@ -57,7 +61,7 @@ public class SnapShotRepo implements SnapShotDao {
             simpleJdbcCall.execute(in);
 
         } catch (Exception e) {
-            errorLogger.error("Update SnapShot Table Of Cards Error ",e);
+            logManager.logError("Update SnapShot Table Of Cards Error ",errorLogger);
             throw e;
         }
     }
@@ -73,7 +77,7 @@ public class SnapShotRepo implements SnapShotDao {
             simpleJdbcCall.execute(in);
 
         } catch (Exception e) {
-            errorLogger.error("Update SnapShot Table Of Accounts Error ",e);
+            logManager.logError("Update SnapShot Table Of Accounts Error ",errorLogger);
             throw e;
         }
     }
@@ -89,7 +93,7 @@ public class SnapShotRepo implements SnapShotDao {
             simpleJdbcCall.execute(in);
 
         } catch (Exception e) {
-            errorLogger.error("Update Online SnapShot Table Of Cards Error ",e);
+            logManager.logError("Update Online SnapShot Table Of Cards Error ",errorLogger);
             throw e;
         }
     }
@@ -105,7 +109,7 @@ public class SnapShotRepo implements SnapShotDao {
             simpleJdbcCall.execute(in);
 
         } catch (Exception e) {
-            errorLogger.error("Update Online SnapShot Table Of Accounts Error ",e);
+            logManager.logError("Update Online SnapShot Table Of Accounts Error ",errorLogger);
             throw e;
         }
     }

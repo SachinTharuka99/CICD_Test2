@@ -12,6 +12,7 @@ import com.epic.cms.model.bean.CommissionProfileBean;
 import com.epic.cms.model.bean.CommissionTxnBean;
 import com.epic.cms.model.bean.MerchantLocationBean;
 import com.epic.cms.util.Configurations;
+import com.epic.cms.util.LogManager;
 import com.epic.cms.util.StatusVarList;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.jdbc.core.JdbcTemplate;
@@ -38,6 +39,9 @@ public class MerchantCommissionCalculationRepo implements MerchantCommissionCalc
 
     @Autowired
     StatusVarList statusList;
+
+    @Autowired
+    LogManager logManager;
 
     @Override
     public List<MerchantLocationBean> getAllMerchants() throws Exception {
@@ -92,7 +96,7 @@ public class MerchantCommissionCalculationRepo implements MerchantCommissionCalc
                 return false;
             }
         } catch (Exception e) {
-            errorLogger.error(String.valueOf(e));
+            logManager.logError(String.valueOf(e),errorLogger);
         }
         return false;
     }
@@ -104,7 +108,7 @@ public class MerchantCommissionCalculationRepo implements MerchantCommissionCalc
             String query = "SELECT COMMISSIONPROFILE FROM MERCHANTCUSTOMER WHERE MERCHANTCUSTOMERNO=?";
             commissionProfile = backendJdbcTemplate.queryForObject(query, String.class, merchantCustomerNo);
         } catch (Exception e) {
-            errorLogger.error(String.valueOf(e));
+            logManager.logError(String.valueOf(e),errorLogger);
         }
         return commissionProfile;
     }
@@ -116,7 +120,7 @@ public class MerchantCommissionCalculationRepo implements MerchantCommissionCalc
             String query = "SELECT CALMETHOD FROM COMMISSIONPROFILE WHERE COMMISSIONPROFILECODE=?";
             calMethod = backendJdbcTemplate.queryForObject(query, String.class, profileCode);
         } catch (Exception e) {
-            errorLogger.error(String.valueOf(e));
+            logManager.logError(String.valueOf(e),errorLogger);
         }
         return calMethod;
     }

@@ -3,10 +3,7 @@ package com.epic.cms.repository;
 import com.epic.cms.dao.StampDutyFeeDao;
 import com.epic.cms.model.bean.CardFeeBean;
 import com.epic.cms.model.bean.StampDutyBean;
-import com.epic.cms.util.Configurations;
-import com.epic.cms.util.DateUtil;
-import com.epic.cms.util.QueryParametersList;
-import com.epic.cms.util.StatusVarList;
+import com.epic.cms.util.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.jdbc.core.JdbcTemplate;
@@ -35,6 +32,9 @@ public class StampDutyFeeRepo implements StampDutyFeeDao {
     @Autowired
     private JdbcTemplate backendJdbcTemplate;
 
+    @Autowired
+    LogManager logManager;
+
     @Override
     public ArrayList<StampDutyBean> getInitStatementAccountList() throws Exception {
         ArrayList<StampDutyBean> statementCardList = new ArrayList<StampDutyBean>();
@@ -52,7 +52,7 @@ public class StampDutyFeeRepo implements StampDutyFeeDao {
             );
 
         } catch (Exception e) {
-            errorLogger.error("GetInit Statement Account List Error" + e);
+            logManager.logError("GetInit Statement Account List Error", errorLogger);
             throw e;
         }
         return statementCardList;
@@ -78,7 +78,7 @@ public class StampDutyFeeRepo implements StampDutyFeeDao {
             );
 
         } catch (Exception e) {
-            errorLogger.error("Get Error Statement Account List Error" + e);
+            logManager.logError("Get Error Statement Account List Error",errorLogger);
             throw e;
         }
         return statementCardList;
@@ -104,7 +104,7 @@ public class StampDutyFeeRepo implements StampDutyFeeDao {
             );
 
         } catch (Exception e) {
-            errorLogger.error("Get Old Card Numbers Error" + e);
+            logManager.logError("Get Old Card Numbers Error" ,errorLogger);
             throw e;
         }
         return cardList;
@@ -130,8 +130,7 @@ public class StampDutyFeeRepo implements StampDutyFeeDao {
         } catch (EmptyResultDataAccessException e) {
             return 0;
         } catch (Exception e) {
-            e.printStackTrace();
-            errorLogger.error("Get Total Foreign Txns Error" + e);
+            logManager.logError("Get Total Foreign Txns Error" ,errorLogger);
             throw e;
         }
         return totalForeignTxns;
@@ -168,7 +167,7 @@ public class StampDutyFeeRepo implements StampDutyFeeDao {
                 );
             }
         } catch (Exception e) {
-            errorLogger.error("Insert To EODcard Fee Error" + e);
+            logManager.logError("Insert To EODcard Fee Error" ,errorLogger);
             throw e;
         }
     }
@@ -183,7 +182,7 @@ public class StampDutyFeeRepo implements StampDutyFeeDao {
             startEodId = backendJdbcTemplate.queryForObject(query, Integer.class, accountNo);
 
         } catch (Exception e) {
-            errorLogger.error("Error startEodId " + e);
+            logManager.logError("Error startEodId ", errorLogger);
             throw e;
         }
         return startEodId;
@@ -210,7 +209,7 @@ public class StampDutyFeeRepo implements StampDutyFeeDao {
                     statusVarList.getCARD_PRODUCT_CHANGE_STATUS() //CAPC
             );
         } catch (Exception e) {
-            errorLogger.error("Get Statement Card List Error" + e);
+            logManager.logError("Get Statement Card List Error" ,errorLogger);
             throw e;
         }
         return statementCardList;
@@ -238,7 +237,7 @@ public class StampDutyFeeRepo implements StampDutyFeeDao {
                     feeCode
             ));
         } catch (Exception e) {
-            errorLogger.error("Check Fee Exixt For Card Error" + e);
+            logManager.logError("Check Fee Exixt For Card Error",errorLogger);
             throw e;
         }
         return forward;

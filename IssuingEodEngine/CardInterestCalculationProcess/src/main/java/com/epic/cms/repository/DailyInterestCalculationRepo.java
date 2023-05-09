@@ -15,6 +15,7 @@ import com.epic.cms.model.bean.StatementBean;
 import com.epic.cms.model.rowmapper.DailyInterestRowMapper;
 import com.epic.cms.util.CommonMethods;
 import com.epic.cms.util.Configurations;
+import com.epic.cms.util.LogManager;
 import com.epic.cms.util.StatusVarList;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.EmptyResultDataAccessException;
@@ -39,6 +40,9 @@ public class DailyInterestCalculationRepo implements DailyInterestCalculationDao
     @Autowired
     private JdbcTemplate backendJdbcTemplate;
 
+    @Autowired
+    LogManager logManager;
+
     @Override
     public ArrayList<StatementBean> getLatestStatementAccountList() throws Exception {
         ArrayList<StatementBean> accountList = new ArrayList<>();
@@ -61,7 +65,7 @@ public class DailyInterestCalculationRepo implements DailyInterestCalculationDao
                     }),
                     statusList.getCARD_CLOSED_STATUS()); //CACL
         } catch (Exception e) {
-            errorLogger.error("Get Latest Statement AccountList Error ", e);
+            logManager.logError("Get Latest Statement AccountList Error ", errorLogger);
             throw e;
         }
         return accountList;
@@ -86,7 +90,7 @@ public class DailyInterestCalculationRepo implements DailyInterestCalculationDao
             ));
 
         } catch (Exception e) {
-            errorLogger.error("Get IntProf Error ", e);
+            logManager.logError("Get IntProf Error ", errorLogger);
             throw e;
         }
         return interestDetailBean;
@@ -185,7 +189,7 @@ public class DailyInterestCalculationRepo implements DailyInterestCalculationDao
                     lastBillEndEodId
             );
         } catch (Exception e) {
-            errorLogger.error("Get Txn Or Payment Detail ByAccount Error ", e);
+            logManager.logError("Get Txn Or Payment Detail ByAccount Error ", errorLogger);
             throw e;
         }
         return txnList;
@@ -232,7 +236,7 @@ public class DailyInterestCalculationRepo implements DailyInterestCalculationDao
         } catch (EmptyResultDataAccessException ex) {
             return 0;
         } catch (Exception e) {
-            errorLogger.error("Update EodInterest Error ", e);
+            logManager.logError("Update EodInterest Error ", errorLogger);
             throw e;
         }
         return count;

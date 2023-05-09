@@ -3,6 +3,7 @@ package com.epic.cms.repository;
 import com.epic.cms.dao.TransactionUpdateDao;
 import com.epic.cms.util.CommonMethods;
 import com.epic.cms.util.Configurations;
+import com.epic.cms.util.LogManager;
 import com.epic.cms.util.StatusVarList;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.jdbc.core.JdbcTemplate;
@@ -27,6 +28,9 @@ public class TransactionUpdateRepo implements TransactionUpdateDao {
 
     @Autowired
     StatusVarList status;
+
+    @Autowired
+    LogManager logManager;
 
     @Override
     public int[] callStoredProcedureForVisaTxnUpdate() throws SQLException {
@@ -73,10 +77,9 @@ public class TransactionUpdateRepo implements TransactionUpdateDao {
             }
 
         } catch (SQLException e){
-            errorLogger.error(String.valueOf(e));
             throw e;
         } catch (Exception ex) {
-            errorLogger.error("Call StoredProcedure For VisaTxnUpdate Error" +ex);
+            logManager.logError("Call StoredProcedure For VisaTxnUpdate Error" ,errorLogger);
             throw ex;
         }
     }
@@ -125,10 +128,9 @@ public class TransactionUpdateRepo implements TransactionUpdateDao {
                     throw new SQLException();
             }
         } catch (SQLException e){
-            errorLogger.error(String.valueOf(e));
             throw e;
         } catch (Exception ex) {
-            errorLogger.error("Call StoredProcedure For MasterTxnUpdate Error" +ex);
+            logManager.logError("Call StoredProcedure For MasterTxnUpdate Error",errorLogger);
             throw ex;
         }
     }

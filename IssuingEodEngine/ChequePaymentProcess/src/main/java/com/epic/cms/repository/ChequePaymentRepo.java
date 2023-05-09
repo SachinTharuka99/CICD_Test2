@@ -2,10 +2,7 @@ package com.epic.cms.repository;
 
 import com.epic.cms.dao.ChequePaymentDao;
 import com.epic.cms.model.bean.*;
-import com.epic.cms.util.CommonMethods;
-import com.epic.cms.util.Configurations;
-import com.epic.cms.util.CreateEodId;
-import com.epic.cms.util.StatusVarList;
+import com.epic.cms.util.*;
 import org.joda.time.DateTime;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.EmptyResultDataAccessException;
@@ -39,6 +36,9 @@ public class ChequePaymentRepo implements ChequePaymentDao {
 
     @Autowired
     ChequeProcessRepo chequeProcessRepo;
+
+    @Autowired
+    LogManager logManager;
 
     @Override
     public List<ReturnChequePaymentDetailBean> getChequePaymentsBackup() throws Exception {
@@ -155,7 +155,7 @@ public class ChequePaymentRepo implements ChequePaymentDao {
                                 chqBeanList.add(bean);
 
                             } catch (Exception e) {
-                                errorLogger.error("Exception ", e);
+                                logManager.logError("Exception ", errorLogger);
                             }
                         }
                         return chqBeanList;

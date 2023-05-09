@@ -5,6 +5,7 @@ import com.epic.cms.model.bean.CashBackBean;
 import com.epic.cms.model.bean.ProcessBean;
 import com.epic.cms.util.Configurations;
 import com.epic.cms.util.DateUtil;
+import com.epic.cms.util.LogManager;
 import com.epic.cms.util.StatusVarList;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.EmptyResultDataAccessException;
@@ -36,6 +37,9 @@ public class CashBackRepo implements CashBackDao {
 
     @Autowired
     private JdbcTemplate backendJdbcTemplate;
+
+    @Autowired
+    LogManager logManager;
 
     @Override
     public ProcessBean getProcessDetails(int processId) throws Exception {
@@ -94,7 +98,7 @@ public class CashBackRepo implements CashBackDao {
         } catch (EmptyResultDataAccessException e) {
             return processBean;
         } catch (Exception e) {
-            errorLogger.error("Get Process Details Error", e);
+            logManager.logError("Get Process Details Error", errorLogger);
             throw e;
         }
         return processBean;
@@ -114,7 +118,7 @@ public class CashBackRepo implements CashBackDao {
             );
 
         } catch (Exception e) {
-            errorLogger.error("LoadInitial Configurations For Cashback Error", e);
+            logManager.logError("LoadInitial Configurations For Cashback Error", errorLogger);
             throw e;
         }
     }
@@ -201,7 +205,7 @@ public class CashBackRepo implements CashBackDao {
                 );
             }
         } catch (Exception e) {
-            errorLogger.error("Get EligibleAccounts For Cashback Error", e);
+            logManager.logError("Get EligibleAccounts For Cashback Error", errorLogger);
             throw e;
         }
         return accountList;
@@ -331,7 +335,7 @@ public class CashBackRepo implements CashBackDao {
         } catch (EmptyResultDataAccessException e) {
             return new BigDecimal(0);
         } catch (Exception e) {
-            errorLogger.error("Get Cashback Amount Error", e);
+            logManager.logError("Get Cashback Amount Error", errorLogger);
             throw e;
         }
         return calculatedCashBackAmt;
@@ -357,7 +361,7 @@ public class CashBackRepo implements CashBackDao {
         } catch (EmptyResultDataAccessException e) {
             return new BigDecimal(0);
         } catch (Exception e) {
-            errorLogger.error("Get Cashback Adjustment Amount Error", e);
+            logManager.logError("Get Cashback Adjustment Amount Error", errorLogger);
             throw e;
         }
         return adjustmentAmount;
@@ -396,7 +400,7 @@ public class CashBackRepo implements CashBackDao {
             );
 
         } catch (Exception e) {
-            errorLogger.error("Add New CashBack Error", e);
+            logManager.logError("Add New CashBack Error", errorLogger);
             throw e;
         }
         return count;
@@ -417,7 +421,7 @@ public class CashBackRepo implements CashBackDao {
             );
 
         } catch (Exception e) {
-            errorLogger.error("Update Cashback Adjustment Status Error", e);
+            logManager.logError("Update Cashback Adjustment Status Error", errorLogger);
             throw e;
         }
         return count;
@@ -437,7 +441,7 @@ public class CashBackRepo implements CashBackDao {
             );
 
         } catch (Exception e) {
-            errorLogger.error("Update Cashback StartDate Error", e);
+            logManager.logError("Update Cashback StartDate Error", errorLogger);
             throw e;
         }
         return count;
@@ -465,7 +469,7 @@ public class CashBackRepo implements CashBackDao {
         } catch (EmptyResultDataAccessException e) {
             return new BigDecimal(0);
         } catch (Exception e) {
-            errorLogger.error("Get Redeem Request Amount Error", e);
+            logManager.logError("Get Redeem Request Amount Error", errorLogger);
             throw e;
         }
         return redeemAmount;
@@ -530,7 +534,7 @@ public class CashBackRepo implements CashBackDao {
                     cashbackBean.getAccountNumber()
             );
         } catch (Exception e) {
-            errorLogger.error("Eedeem Cashbacks Error", e);
+            logManager.logError("Eedeem Cashbacks Error", errorLogger);
             throw e;
         }
         return count;
@@ -550,7 +554,7 @@ public class CashBackRepo implements CashBackDao {
             );
 
         } catch (Exception e) {
-            errorLogger.error("Update Eod Status InCashback Request Error", e);
+            logManager.logError("Update Eod Status InCashback Request Error", errorLogger);
             throw e;
         }
         return count;
@@ -610,7 +614,7 @@ public class CashBackRepo implements CashBackDao {
                 }
             }
         } catch (Exception e) {
-            errorLogger.error("Get Redeemable Amount Error", e);
+            logManager.logError("Get Redeemable Amount Error", errorLogger);
             throw e;
         }
         return ActualAmountCanRedeem;
@@ -645,7 +649,7 @@ public class CashBackRepo implements CashBackDao {
             );
 
         } catch (Exception e) {
-            errorLogger.error("Update Next CBRedeemDate Error", e);
+            logManager.logError("Update Next CBRedeemDate Error", errorLogger);
             throw e;
         }
         return count;
@@ -667,7 +671,7 @@ public class CashBackRepo implements CashBackDao {
         } catch (EmptyResultDataAccessException e) {
             return new BigDecimal(0);
         } catch (Exception e) {
-            errorLogger.error("Get Cashback Amount To BeExpire For Account Error", e);
+            logManager.logError("Get Cashback Amount To BeExpire For Account Error", errorLogger);
             throw e;
         }
         return expireAmount;
@@ -707,7 +711,7 @@ public class CashBackRepo implements CashBackDao {
             );
 
         } catch (Exception e) {
-            errorLogger.error("Expire NonPerforming Cashbacks Error", e);
+            logManager.logError("Expire NonPerforming Cashbacks Error", errorLogger);
             throw e;
         }
         return count;
@@ -747,7 +751,7 @@ public class CashBackRepo implements CashBackDao {
             );
 
         } catch (Exception e) {
-            errorLogger.error("Expire Card Close Cashbacks Error", e);
+            logManager.logError("Expire Card Close Cashbacks Error", errorLogger);
             throw e;
         }
         return count;
@@ -802,7 +806,7 @@ public class CashBackRepo implements CashBackDao {
                 );
             }
         } catch (Exception e) {
-            errorLogger.error("Expire Cashbacks Error", e);
+            logManager.logError("Expire Cashbacks Error", errorLogger);
             throw e;
         }
         return count;
@@ -822,7 +826,7 @@ public class CashBackRepo implements CashBackDao {
             );
 
         } catch (Exception e) {
-            errorLogger.error("Update Total CBAmount Error", e);
+            logManager.logError("Update Total CBAmount Error", errorLogger);
             throw e;
         }
         return count;

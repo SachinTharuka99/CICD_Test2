@@ -14,6 +14,7 @@ import com.epic.cms.model.bean.MerchantPaymentCycleBean;
 import com.epic.cms.model.model.EodOuputFileBean;
 import com.epic.cms.util.CommonMethods;
 import com.epic.cms.util.Configurations;
+import com.epic.cms.util.LogManager;
 import com.epic.cms.util.StatusVarList;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.jdbc.core.JdbcTemplate;
@@ -38,6 +39,9 @@ public class MerchantPaymentFileRepo implements MerchantPaymentFileDao {
 
     @Autowired
     private JdbcTemplate backendJdbcTemplate;
+
+    @Autowired
+    LogManager logManager;
 
     @Override
     public HashMap<String, String> getCurrencyList() throws Exception {
@@ -188,7 +192,6 @@ public class MerchantPaymentFileRepo implements MerchantPaymentFileDao {
             }
 
             query += " ORDER BY PAYMENTMAINTEINANCESTATUS, MC.MERCHANTCUSTOMERNO ";
-            System.out.println("Merchant Payment file query : " + query);
 
             backendJdbcTemplate.query(query,
                     (ResultSet rs) -> {
@@ -368,7 +371,6 @@ public class MerchantPaymentFileRepo implements MerchantPaymentFileDao {
                     , status.getMERCHANT_CANCEL_STATUS()//14
             );
         } catch (Exception e) {
-//            errorLog.error(e);
             throw e;
         }
         return merchantListOnPayMode;
@@ -423,21 +425,18 @@ public class MerchantPaymentFileRepo implements MerchantPaymentFileDao {
                     backendJdbcTemplate.update(updateQuery, nextBillingDate, cusNo);
 
                 } else {
-                    infoLogger.info("No merchant location for mID " + cusNo + ".");
+                    logManager.logError("No merchant location for mID " + cusNo + ".",errorLogger);
                 }
             }
 
         } catch (Exception e) {
-            errorLogger.error("Exeption ", e);
+            logManager.logError("Exeption ", errorLogger);
             throw e;
         }
     }
 
     @Override
     public void updateMerchantCustomerNextPaymentDate(ArrayList<String> merchantList) throws SQLException, Exception {
-        PreparedStatement stmt = null;
-        PreparedStatement stmt2 = null;
-        ResultSet result = null;
         try {
             String nextBillingDate = null;
             SimpleDateFormat sdf = new SimpleDateFormat("dd-MMM-yy");
@@ -481,11 +480,11 @@ public class MerchantPaymentFileRepo implements MerchantPaymentFileDao {
                     backendJdbcTemplate.update(updateQuery, nextBillingDate, cusNo);
 
                 } else {
-                    infoLogger.info("No merchant customer for customerNo " + cusNo + ".");
+                    logManager.logInfo("No merchant customer for customerNo " + cusNo + ".",infoLogger);
                 }
             }
         } catch (Exception e) {
-            errorLogger.error("Exeption ", e);
+            logManager.logError("Exeption ", errorLogger);
             throw e;
         }
     }
@@ -562,7 +561,6 @@ public class MerchantPaymentFileRepo implements MerchantPaymentFileDao {
             }
 
         } catch (Exception ex) {
-//            LogFileCreator.writeErrorToLog(ex);
             throw ex;
         }
         return i;

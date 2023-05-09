@@ -8,9 +8,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Repository;
-import org.springframework.transaction.annotation.Isolation;
-import org.springframework.transaction.annotation.Propagation;
-import org.springframework.transaction.annotation.Transactional;
 
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
@@ -31,6 +28,9 @@ public class IncrementLimitExpireRepo implements IncrementLimitExpireDao {
 
     @Autowired
     StatusVarList statusList;
+
+    @Autowired
+    LogManager logManager;
 
     /**Use BackEnd Database */
     @Override
@@ -254,11 +254,11 @@ public class IncrementLimitExpireRepo implements IncrementLimitExpireDao {
 
             if (Configurations.ONLINE_LOG_LEVEL == 1) {
                 //Only for troubleshoot
-                infoLogger.info("================ expireOnlineCreditLimit ===================" + Integer.toString(Configurations.EOD_ID));
-                infoLogger.info(query);
-                infoLogger.info(Configurations.EOD_USER);
-                infoLogger.info(CommonMethods.cardNumberMask(incrementBean.getCardNumber()));
-                infoLogger.info("================ expireOnlineCreditLimit END ===================");
+                logManager.logInfo("================ expireOnlineCreditLimit ===================" + Integer.toString(Configurations.EOD_ID),infoLogger);
+                logManager.logInfo(query,infoLogger);
+                logManager.logInfo(Configurations.EOD_USER,infoLogger);
+                logManager.logInfo(CommonMethods.cardNumberMask(incrementBean.getCardNumber()),infoLogger);
+                logManager.logInfo("================ expireOnlineCreditLimit END ===================",infoLogger);
             }
 
         }catch (Exception e){
@@ -285,11 +285,11 @@ public class IncrementLimitExpireRepo implements IncrementLimitExpireDao {
 
             if (Configurations.ONLINE_LOG_LEVEL == 1) {
                 //Only for troubleshoot
-                infoLogger.info("================ limitExpireOnAccount ===================" + Integer.toString(Configurations.EOD_ID));
-                infoLogger.info(query);
-                infoLogger.info(Configurations.EOD_USER);
-                infoLogger.info(incrementBean.getAccountnumber());
-                infoLogger.info("================ limitExpireOnAccount END ===================");
+                logManager.logInfo("================ limitExpireOnAccount ===================" + Integer.toString(Configurations.EOD_ID),infoLogger);
+                logManager.logInfo(query,infoLogger);
+                logManager.logInfo(Configurations.EOD_USER,infoLogger);
+                logManager.logInfo(incrementBean.getAccountnumber(),infoLogger);
+                logManager.logInfo("================ limitExpireOnAccount END ===================",infoLogger);
             }
 
         }catch (Exception e){
@@ -315,15 +315,14 @@ public class IncrementLimitExpireRepo implements IncrementLimitExpireDao {
 
             if (Configurations.ONLINE_LOG_LEVEL == 1) {
                 //Only for troubleshoot
-                infoLogger.info("================ limitExpireOnAccount ===================" + Integer.toString(Configurations.EOD_ID));
-                infoLogger.info(query);
-                infoLogger.info(Configurations.EOD_USER);
-                infoLogger.info(limitIncrementBean.getCustomerid());
-                infoLogger.info("================ limitExpireOnAccount END ===================");
+                logManager.logInfo("================ limitExpireOnAccount ===================" + Integer.toString(Configurations.EOD_ID),infoLogger);
+                logManager.logInfo(query,infoLogger);
+                logManager.logInfo(Configurations.EOD_USER,infoLogger);
+                logManager.logInfo(limitIncrementBean.getCustomerid(),infoLogger);
+                logManager.logInfo("================ limitExpireOnAccount END ===================",infoLogger);
             }
 
         }catch (Exception e){
-            //LogFileCreator.writeErrorToLog(e);
             throw e;
         }
     }
@@ -347,15 +346,14 @@ public class IncrementLimitExpireRepo implements IncrementLimitExpireDao {
 
             if (Configurations.ONLINE_LOG_LEVEL == 1) {
                 //Only for troubleshoot
-                infoLogger.info("================ expireOnlineCashLimit ===================" + Integer.toString(Configurations.EOD_ID));
-                infoLogger.info(query);
-                infoLogger.info(Configurations.EOD_USER);
-                infoLogger.info(CommonMethods.cardNumberMask(incrementBean.getCardNumber()));
-                infoLogger.info("================ expireOnlineCashLimit END ===================");
+                logManager.logInfo("================ expireOnlineCashLimit ===================" + Integer.toString(Configurations.EOD_ID),infoLogger);
+                logManager.logInfo(query,infoLogger);
+                logManager.logInfo(Configurations.EOD_USER,infoLogger);
+                logManager.logInfo(CommonMethods.cardNumberMask(incrementBean.getCardNumber()),infoLogger);
+                logManager.logInfo("================ expireOnlineCashLimit END ===================",infoLogger);
             }
 
         }catch (Exception e){
-            //LogFileCreator.writeErrorToLog(e);
             throw e;
         }
         return flag;
@@ -379,11 +377,11 @@ public class IncrementLimitExpireRepo implements IncrementLimitExpireDao {
 
             if (Configurations.ONLINE_LOG_LEVEL == 1) {
                 //Only for troubleshoot
-                infoLogger.info("================ cashLimitExpireOnAccount ===================" + Integer.toString(Configurations.EOD_ID));
-                infoLogger.info(query);
-                infoLogger.info(Configurations.EOD_USER);
-                infoLogger.info(limitIncrementBean.getAccountnumber());
-                infoLogger.info("================ cashLimitExpireOnAccount END ===================");
+                logManager.logInfo("================ cashLimitExpireOnAccount ===================" + Integer.toString(Configurations.EOD_ID),infoLogger);
+                logManager.logInfo(query,infoLogger);
+                logManager.logInfo(Configurations.EOD_USER,infoLogger);
+                logManager.logInfo(limitIncrementBean.getAccountnumber(),infoLogger);
+                logManager.logInfo("================ cashLimitExpireOnAccount END ===================",infoLogger);
             }
 
         }catch (Exception e){
@@ -408,11 +406,11 @@ public class IncrementLimitExpireRepo implements IncrementLimitExpireDao {
 
             if (Configurations.ONLINE_LOG_LEVEL == 1) {
                 //Only for troubleshoot
-                infoLogger.info("================ cashLimitExpireOnCustomer ===================" + Integer.toString(Configurations.EOD_ID));
-                infoLogger.info(query);
-                infoLogger.info(Configurations.EOD_USER);
-                infoLogger.info(limitIncrementBean.getCustomerid());
-                infoLogger.info("================ cashLimitExpireOnCustomer END ===================");
+                logManager.logInfo("================ cashLimitExpireOnCustomer ===================" + Integer.toString(Configurations.EOD_ID),infoLogger);
+                logManager.logInfo(query,infoLogger);
+                logManager.logInfo(Configurations.EOD_USER,infoLogger);
+                logManager.logInfo(limitIncrementBean.getCustomerid(),infoLogger);
+                logManager.logInfo("================ cashLimitExpireOnCustomer END ===================",infoLogger);
             }
 
         }catch (Exception e){

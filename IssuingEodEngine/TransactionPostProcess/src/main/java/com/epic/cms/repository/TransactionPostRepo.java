@@ -11,6 +11,7 @@ import com.epic.cms.dao.TransactionPostDao;
 import com.epic.cms.model.bean.OtbBean;
 import com.epic.cms.model.rowmapper.TransactionpostRowMapper;
 import com.epic.cms.util.Configurations;
+import com.epic.cms.util.LogManager;
 import com.epic.cms.util.StatusVarList;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
@@ -36,6 +37,9 @@ public class TransactionPostRepo implements TransactionPostDao {
     @Autowired
     @Qualifier("onlineJdbcTemplate")
     private JdbcTemplate onlineJdbcTemplate;
+
+    @Autowired
+    LogManager logManager;
 
     @Override
     public ArrayList<OtbBean> getInitEodTxnPostCustAcc() throws Exception {
@@ -364,11 +368,11 @@ public class TransactionPostRepo implements TransactionPostDao {
             count = onlineJdbcTemplate.update(query, bean.getOtbcredit(), bean.getAccountnumber());
 
             if (Configurations.ONLINE_LOG_LEVEL == 1) {
-                infoLogger.info("================ updateAccountOtbCredit ===================" + Integer.toString(Configurations.EOD_ID));
-                infoLogger.info(query);
-                infoLogger.info(Double.toString(bean.getOtbcredit()));
-                infoLogger.info(bean.getAccountnumber());
-                infoLogger.info("================ updateAccountOtbCredit END ===================");
+                logManager.logInfo("================ updateAccountOtbCredit ===================" + Integer.toString(Configurations.EOD_ID),infoLogger);
+                logManager.logInfo(query,infoLogger);
+                logManager.logInfo(Double.toString(bean.getOtbcredit()),infoLogger);
+                logManager.logInfo(bean.getAccountnumber(),infoLogger);
+                logManager.logInfo("================ updateAccountOtbCredit END ===================",infoLogger);
             }
         } catch (Exception e) {
             throw e;

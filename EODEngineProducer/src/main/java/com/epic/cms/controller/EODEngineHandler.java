@@ -37,9 +37,6 @@ public class EODEngineHandler {
     @Autowired
     EODEngineMainService eodEngineMainService;
 
-    @Autowired
-    LogManager logManager;
-
     @GetMapping("/start/{eodid}")
     public Map<String, Object> startEODEngine(@PathVariable("eodid") final String eodId) throws Exception {
         Map<String, Object> response = new HashMap<>();

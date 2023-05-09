@@ -682,7 +682,7 @@ public class MerchantGLSummaryFileConnector extends ProcessBuilder {
             summery.put("File Name", fileName);
             summery.put("No of records ", Configurations.PROCESS_SUCCESS_COUNT);
             summery.put("Created Date ", Configurations.EOD_DATE.toString());
-            infoLogger.info(logManager.processSummeryStyles(summery));
+            logManager.logSummery(summery, infoLogger);
         } catch (Exception e) {
             throw e;
         } finally {

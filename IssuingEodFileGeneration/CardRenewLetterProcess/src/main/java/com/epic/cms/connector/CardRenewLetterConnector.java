@@ -36,8 +36,6 @@ public class CardRenewLetterConnector extends FileGenProcessBuilder {
     @Autowired
     StatusVarList statusVarList;
 
-    String[] fileNameAndPath = null;
-
     @Override
     public void concreteProcess() throws Exception {
 

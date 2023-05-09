@@ -102,12 +102,9 @@ public class AdjustmentService {
                 Configurations.PROCESS_FAILD_COUNT++;
                 Configurations.errorCardList.add(new ErrorCardBean(Configurations.ERROR_EOD_ID, Configurations.EOD_DATE, new StringBuffer(adjustmentBean.getCardNumber()), ex.getMessage(), Configurations.RUNNING_PROCESS_ID, Configurations.RUNNING_PROCESS_DESCRIPTION, 0, CardAccount.CARD));
                 details.put("Adjustment Sync Status", "Failed");
-                //infoLogger.info("ADJUSTMENT_PROCESS failed for card number " + maskedCardNumber);
                 logManager.logInfo("ADJUSTMENT_PROCESS failed for card number " + maskedCardNumber, infoLogger);
-                //errorLogger.error("ADJUSTMENT_PROCESS failed for card number " + maskedCardNumber, ex);
                 logManager.logError("ADJUSTMENT_PROCESS failed for card number " + maskedCardNumber, ex, errorLogger);
             } finally {
-//                infoLogger.info(logManager.processDetailsStyles(details));
                 logManager.logDetails(details, infoLogger);
                 /** PADSS Change -variables handling card data should be nullified
                  by replacing the value of variable with zero and call NULL function */

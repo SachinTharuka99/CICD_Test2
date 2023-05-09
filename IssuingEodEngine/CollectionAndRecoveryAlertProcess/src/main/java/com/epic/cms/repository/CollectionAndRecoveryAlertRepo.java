@@ -2,6 +2,7 @@ package com.epic.cms.repository;
 
 import com.epic.cms.dao.CollectionAndRecoveryAlertDao;
 import com.epic.cms.util.Configurations;
+import com.epic.cms.util.LogManager;
 import com.epic.cms.util.QueryParametersList;
 import com.epic.cms.util.StatusVarList;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -23,6 +24,10 @@ public class CollectionAndRecoveryAlertRepo implements CollectionAndRecoveryAler
 
     @Autowired
     StatusVarList statusList;
+
+    @Autowired
+    LogManager logManager;
+
     @Override
     public HashMap<StringBuffer, String> getConfirmedCardToAlert() throws Exception {
         HashMap<StringBuffer, String> confirmCardList = new HashMap<>();
@@ -48,7 +53,7 @@ public class CollectionAndRecoveryAlertRepo implements CollectionAndRecoveryAler
                 },0, Configurations.PROCESS_ID_CARDAPPLICATION_LETTER_APPROVE, Configurations.EOD_PENDING_STATUS);
             }
         }catch (Exception e){
-            errorLogger.error("Exception ", e);
+            logManager.logError("Exception ", errorLogger);
             throw e;
         }
         return confirmCardList;
@@ -61,7 +66,7 @@ public class CollectionAndRecoveryAlertRepo implements CollectionAndRecoveryAler
 
             backendJdbcTemplate.update(updatePay, 1, cardNumber.toString(), trigger);
         } catch (Exception e) {
-            errorLogger.error("Exception ", e);
+            logManager.logError("Exception ", errorLogger);
             throw e;
         }
     }

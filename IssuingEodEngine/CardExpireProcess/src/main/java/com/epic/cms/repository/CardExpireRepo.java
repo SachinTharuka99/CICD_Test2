@@ -4,6 +4,7 @@ import com.epic.cms.dao.CardExpireDao;
 import com.epic.cms.model.bean.CardBean;
 import com.epic.cms.util.CommonMethods;
 import com.epic.cms.util.Configurations;
+import com.epic.cms.util.LogManager;
 import com.epic.cms.util.StatusVarList;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
@@ -27,6 +28,9 @@ public class CardExpireRepo implements CardExpireDao {
 
     @Autowired
     StatusVarList statusList;
+
+    @Autowired
+    LogManager logManager;
 
     @Override
     public ArrayList<CardBean> getExpiredCardList() throws Exception {
@@ -86,12 +90,12 @@ public class CardExpireRepo implements CardExpireDao {
 
             if (Configurations.ONLINE_LOG_LEVEL == 1) {
                 //Only for troubleshoot
-                infoLogger.info("================ setCardStatusToExpire ===================" + Integer.toString(Configurations.EOD_ID));
-                infoLogger.info(sql);
-                infoLogger.info(Integer.toString(statusList.getONLINE_CARD_EXPIRED_STATUS()));
-                infoLogger.info(Configurations.EOD_USER);
-                infoLogger.info(CommonMethods.cardNumberMask(cardNumber));
-                infoLogger.info("================ setCardStatusToExpire END ===================");
+                logManager.logInfo("================ setCardStatusToExpire ===================" + Integer.toString(Configurations.EOD_ID),infoLogger);
+                logManager.logInfo(sql,infoLogger);
+                logManager.logInfo(Integer.toString(statusList.getONLINE_CARD_EXPIRED_STATUS()),infoLogger);
+                logManager.logInfo(Configurations.EOD_USER,infoLogger);
+                logManager.logInfo(CommonMethods.cardNumberMask(cardNumber),infoLogger);
+                logManager.logInfo("================ setCardStatusToExpire END ===================",infoLogger);
             }
         } catch (Exception e) {
             throw e;

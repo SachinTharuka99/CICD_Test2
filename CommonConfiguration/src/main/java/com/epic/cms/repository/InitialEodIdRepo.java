@@ -10,6 +10,7 @@ package com.epic.cms.repository;
 import com.epic.cms.dao.InitialEodIdDao;
 import com.epic.cms.util.Configurations;
 import com.epic.cms.util.CreateEodId;
+import com.epic.cms.util.LogManager;
 import com.epic.cms.util.StatusVarList;
 import org.joda.time.LocalDate;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -20,6 +21,9 @@ import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.Date;
+
+import static com.epic.cms.util.LogManager.errorLoggerCOM;
+import static com.epic.cms.util.LogManager.infoLoggerCOM;
 
 @Repository
 public class InitialEodIdRepo implements InitialEodIdDao {

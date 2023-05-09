@@ -17,8 +17,7 @@ import java.sql.ResultSet;
 import java.util.ArrayList;
 import java.util.Date;
 
-import static com.epic.cms.util.LogManager.errorLogger;
-import static com.epic.cms.util.LogManager.infoLogger;
+import static com.epic.cms.util.LogManager.*;
 
 @Repository
 public class CardBlockRepo implements CardBlockDao {
@@ -30,6 +29,9 @@ public class CardBlockRepo implements CardBlockDao {
 
     @Autowired
     private JdbcTemplate backendJdbcTemplate;
+
+    @Autowired
+    LogManager logManager;
 
     @Autowired
     @Qualifier("onlineJdbcTemplate")
@@ -47,7 +49,7 @@ public class CardBlockRepo implements CardBlockDao {
         }catch (EmptyResultDataAccessException e) {
             return 0;
         } catch (Exception e) {
-            errorLogger.error("Get Block Theshhol dPeriod Error ", e);
+            logManager.logError("Get Block Theshhol dPeriod Error ", errorLoggerCOM);
             throw e;
         }
         return noOfMonth;
@@ -74,7 +76,7 @@ public class CardBlockRepo implements CardBlockDao {
                     , statusList.getCARD_PRODUCT_CHANGE_STATUS()
             );
         } catch (Exception e) {
-            errorLogger.error("Get Card List From Min Payment Error ", e);
+            logManager.logError("Get Card List From Min Payment Error ", errorLoggerCOM);
             throw e;
         }
         return cardList;
@@ -98,7 +100,7 @@ public class CardBlockRepo implements CardBlockDao {
                 count = backendJdbcTemplate.update(sql2, newStatus, Configurations.EOD_USER, cardNo.toString()); //CAPB
             }
         } catch (Exception e) {
-            errorLogger.error("Update Card Table For Block Error ", e);
+            logManager.logError("Update Card Table For Block Error ", errorLoggerCOM);
             throw e;
         }
         return status;
@@ -117,7 +119,7 @@ public class CardBlockRepo implements CardBlockDao {
                     statusList.getACTIVE_STATUS());
 
         } catch (Exception e) {
-            errorLogger.error("Deactivate Card Block Error" + e);
+            logManager.logError("Deactivate Card Block Error ", errorLoggerCOM);
             throw e;
         }
         return count;
@@ -137,7 +139,7 @@ public class CardBlockRepo implements CardBlockDao {
                     Configurations.EOD_USER,
                     eodDate);
         } catch (Exception e) {
-            errorLogger.error("InsertInto Card Block Error", e);
+            logManager.logError("InsertInto Card Block Error ", errorLoggerCOM);
             throw e;
         }
         return count;
@@ -152,7 +154,7 @@ public class CardBlockRepo implements CardBlockDao {
 
             count = backendJdbcTemplate.update(sql, status, Configurations.EOD_USER, cardNo.toString());
         } catch (Exception e) {
-            errorLogger.error("Update Minimum Payment Table Error", e);
+            logManager.logError("Update Minimum Payment Table Error", errorLoggerCOM);
             throw e;
         }
         return count;
@@ -170,15 +172,15 @@ public class CardBlockRepo implements CardBlockDao {
 
             if (Configurations.ONLINE_LOG_LEVEL == 1) {
                 //Only for troubleshoot
-                infoLogger.info("================ updateOnlineCardStatus ===================" + Configurations.EOD_ID);
-                infoLogger.info(sql);
-                infoLogger.info(Integer.toString(ONLINE_CARD_TEMPORARILY_BLOCKED_STATUS));
-                infoLogger.info(Configurations.EOD_USER);
-                infoLogger.info(CommonMethods.cardNumberMask(cardNo));
-                infoLogger.info("================ updateOnlineCardStatus END ===================");
+                logManager.logInfo("================ updateOnlineCardStatus ===================" + Configurations.EOD_ID,infoLoggerCOM);
+                logManager.logInfo(sql,infoLoggerCOM);
+                logManager.logInfo(Integer.toString(ONLINE_CARD_TEMPORARILY_BLOCKED_STATUS),infoLoggerCOM);
+                logManager.logInfo(Configurations.EOD_USER,infoLoggerCOM);
+                logManager.logInfo(CommonMethods.cardNumberMask(cardNo),infoLoggerCOM);
+                logManager.logInfo("================ updateOnlineCardStatus END ===================",infoLoggerCOM);
             }
         } catch (Exception e) {
-            errorLogger.error("Update Online Card Status Error" + e);
+            logManager.logError("Update Online Card Status Error ", errorLoggerCOM);
             throw e;
         }
         return flag;
@@ -198,16 +200,16 @@ public class CardBlockRepo implements CardBlockDao {
 
             if (Configurations.ONLINE_LOG_LEVEL == 1) {
                 //Only for troubleshoot
-                infoLogger.info("================ deactivateCardBlockOnline ===================" + Configurations.EOD_ID);
-                infoLogger.info(sql);
-                infoLogger.info(Integer.toString(statusList.getONLINE_CARD_DEACTIVE_STATUS()));
-                infoLogger.info(Configurations.EOD_USER);
-                infoLogger.info(CommonMethods.cardNumberMask(cardNo));
-                infoLogger.info(Integer.toString(statusList.getONLINE_CARD_ACTIVE_STATUS()));
-                infoLogger.info("================ deactivateCardBlockOnline END ===================");
+                logManager.logInfo("================ deactivateCardBlockOnline ===================" + Configurations.EOD_ID,infoLoggerCOM);
+                logManager.logInfo(sql,infoLoggerCOM);
+                logManager.logInfo(Integer.toString(statusList.getONLINE_CARD_DEACTIVE_STATUS()),infoLoggerCOM);
+                logManager.logInfo(Configurations.EOD_USER,infoLoggerCOM);
+                logManager.logInfo(CommonMethods.cardNumberMask(cardNo),infoLoggerCOM);
+                logManager.logInfo(Integer.toString(statusList.getONLINE_CARD_ACTIVE_STATUS()),infoLoggerCOM);
+                logManager.logInfo("================ deactivateCardBlockOnline END ===================",infoLoggerCOM);
             }
         } catch (Exception e) {
-            errorLogger.error("Deactivate Card Block Error" + e);
+            logManager.logError("Deactivate Card Block Error", errorLoggerCOM);
             throw e;
         }
         return count;
@@ -227,16 +229,16 @@ public class CardBlockRepo implements CardBlockDao {
 
             if (Configurations.ONLINE_LOG_LEVEL == 1) {
                 //Only for troubleshoot
-                infoLogger.info("================ updateOnlineCardTable ===================" + Configurations.EOD_ID);
-                infoLogger.info(sql);
-                infoLogger.info(CommonMethods.cardNumberMask(cardNo));
-                infoLogger.info(String.valueOf(statusNo));
-                infoLogger.info(Configurations.EOD_USER);
-                infoLogger.info(Integer.toString(Configurations.ONLINE_ACTIVE_STATUS));
-                infoLogger.info("================ updateOnlineCardTable END ===================");
+                logManager.logInfo("================ updateOnlineCardTable ===================" + Configurations.EOD_ID,infoLoggerCOM);
+                logManager.logInfo(sql,infoLoggerCOM);
+                logManager.logInfo(CommonMethods.cardNumberMask(cardNo),infoLoggerCOM);
+                logManager.logInfo(String.valueOf(statusNo),infoLoggerCOM);
+                logManager.logInfo(Configurations.EOD_USER,infoLoggerCOM);
+                logManager.logInfo(Integer.toString(Configurations.ONLINE_ACTIVE_STATUS),infoLoggerCOM);
+                logManager.logInfo("================ updateOnlineCardTable END ===================",infoLoggerCOM);
             }
         } catch (Exception e) {
-            errorLogger.error("InsertTo Online Card Block Error" + e);
+            logManager.logError("InsertTo Online Card Block Error ", errorLoggerCOM);
             throw e;
         }
         return count;
@@ -264,7 +266,7 @@ public class CardBlockRepo implements CardBlockDao {
                     statusList.getACTIVE_STATUS()
             );
         } catch (Exception e) {
-            errorLogger.error("Get Card BlockOld Card Status Error" + e);
+            logManager.logError("Get Card BlockOld Card Status Error ", errorLoggerCOM);
             throw e;
         }
         return blockBean;
@@ -280,7 +282,7 @@ public class CardBlockRepo implements CardBlockDao {
             flag = backendJdbcTemplate.update(sql, status, Configurations.EOD_USER, cardNO.toString());
 
         } catch (Exception e) {
-            errorLogger.error("update Card Status Error" + e);
+            logManager.logError("update Card Status Error ", errorLoggerCOM);
             throw e;
         }
         return flag;

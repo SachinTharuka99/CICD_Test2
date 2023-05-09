@@ -17,7 +17,7 @@ public class DashboardKafkaConsumer {
     @Autowired
     SimpMessagingTemplate template;
 
-    @KafkaListener(topics = "dashboardMsg", groupId = "msg-group-id", containerFactory = "kafkaListenerContainerFactory")
+    @KafkaListener(topics = "logTopic", groupId = "msg-group-id", containerFactory = "kafkaListenerContainerFactory")
     public void listenSenderEmail(String data) {
         template.convertAndSend("/topic/message", data);
     }

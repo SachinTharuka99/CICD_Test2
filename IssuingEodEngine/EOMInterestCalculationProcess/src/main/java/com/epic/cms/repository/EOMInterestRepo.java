@@ -6,6 +6,7 @@ import com.epic.cms.model.bean.EomCardBean;
 import com.epic.cms.model.rowmapper.GetEOMCardListRowMapper;
 import com.epic.cms.util.CommonMethods;
 import com.epic.cms.util.Configurations;
+import com.epic.cms.util.LogManager;
 import com.epic.cms.util.StatusVarList;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.jdbc.core.JdbcTemplate;
@@ -29,6 +30,9 @@ public class EOMInterestRepo implements EOMInterestDao {
 
     @Autowired
     JdbcTemplate backendJdbcTemplate;
+
+    @Autowired
+    LogManager logManager;
 
     @Override
     public ArrayList<EomCardBean> getEomCardList(int day) throws Exception {
@@ -65,7 +69,7 @@ public class EOMInterestRepo implements EOMInterestDao {
             }
             cardList = (ArrayList<EomCardBean>)backendJdbcTemplate.query(sql, new GetEOMCardListRowMapper(), param);
         } catch (Exception e) {
-            errorLogger.error("Exception in Get EOM Card List ", e);
+            logManager.logError("Exception in Get EOM Card List ", errorLogger);
             throw e;
         }
         return cardList;
@@ -80,7 +84,7 @@ public class EOMInterestRepo implements EOMInterestDao {
             String sql = "select C.CARDSTATUS AS  CARDSTATUS from CARD C where C.CARDNUMBER=?";
             cardStatus = backendJdbcTemplate.queryForObject(sql, String.class, cardNumber);
         } catch (Exception e) {
-            errorLogger.error("Exception in Get Check For Card Increment Status ", e);
+            logManager.logError("Exception in Get Check For Card Increment Status ", errorLogger);
             throw e;
         }
         return cardStatus;
@@ -94,7 +98,7 @@ public class EOMInterestRepo implements EOMInterestDao {
             query = "DELETE FROM EOMINTEREST WHERE CARDNO = ?";
             count = backendJdbcTemplate.update(query, cardNo.toString());
         } catch (Exception e) {
-            errorLogger.error("Exception in Clear EOM Interest ", e);
+            logManager.logError("Exception in Clear EOM Interest ", errorLogger);
             throw e;
         }
         return count;
@@ -113,7 +117,7 @@ public class EOMInterestRepo implements EOMInterestDao {
                 return lastBillingDates;
             }, accNo);
         } catch (Exception e) {
-            errorLogger.error("Exception in Get Last Two Billing Dates On Account ", e);
+            logManager.logError("Exception in Get Last Two Billing Dates On Account ", errorLogger);
             throw e;
         }
         return lastBillingDates;
@@ -142,7 +146,7 @@ public class EOMInterestRepo implements EOMInterestDao {
             },
             accNo));
         } catch (Exception e) {
-            errorLogger.error("Exception in Get Last Two Billing Dates And Eod Id On Account ", e);
+            logManager.logError("Exception in Get Last Two Billing Dates And Eod Id On Account ", errorLogger);
             throw e;
         }
         return cardInfoBilling;
@@ -486,7 +490,7 @@ public class EOMInterestRepo implements EOMInterestDao {
             logDetails.add(Double.parseDouble(ValuesRoundup(interest)));
 
         } catch (Exception e) {
-            errorLogger.error("Exception in Get Last Two Billing Dates On Account ", e);
+            logManager.logError("Exception in Get Last Two Billing Dates On Account ", errorLogger);
             throw e;
         }
         return logDetails;
@@ -501,7 +505,7 @@ public class EOMInterestRepo implements EOMInterestDao {
                     accNo
                     );
         }catch (Exception e){
-            errorLogger.error("Exception in Clear Temp TXN Details ", e);
+            logManager.logError("Exception in Clear Temp TXN Details ", errorLogger);
             throw e;
         }
         return count;
@@ -523,7 +527,7 @@ public class EOMInterestRepo implements EOMInterestDao {
                     crDr
                     );
         }catch (Exception e){
-            errorLogger.error("Exception in Get EOM Interest ", e);
+            logManager.logError("Exception in Get EOM Interest ", errorLogger);
             throw e;
         }
         return count;
@@ -543,7 +547,7 @@ public class EOMInterestRepo implements EOMInterestDao {
                     accNo
                     );
         }catch (Exception e){
-            errorLogger.error("Exception in Update DeliquentAccount Np Details ", e);
+            logManager.logError("Exception in Update DeliquentAccount Np Details ", errorLogger);
             throw e;
         }
         return count;
@@ -556,7 +560,7 @@ public class EOMInterestRepo implements EOMInterestDao {
             String sql = "insert into EOMINTEREST (CARDNO,FORWARDINTEREST,INTERESTAMOUNT,EODID,ACCOUNTNO,STATUS) values (?,?,?,?,?,?)";
             count = backendJdbcTemplate.update(sql, cardNo, FORWARDINTEREST, INTERESTAMOUNT, eodId, accNO, status);
         } catch (Exception e) {
-            errorLogger.error("Exception in Insert Into EOM Interest ", e);
+            logManager.logError("Exception in Insert Into EOM Interest ", errorLogger);
             throw e;
         }
         return count;
@@ -577,7 +581,7 @@ public class EOMInterestRepo implements EOMInterestDao {
                     cdStatus,
                     payType);
         } catch (Exception e) {
-            errorLogger.error("Exception in Insert In To EOD GL Account ", e);
+            logManager.logError("Exception in Insert In To EOD GL Account ", errorLogger);
             throw e;
         }
         return count;

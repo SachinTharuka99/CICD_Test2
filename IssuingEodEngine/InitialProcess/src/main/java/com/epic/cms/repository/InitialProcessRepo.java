@@ -3,6 +3,7 @@ package com.epic.cms.repository;
 import com.epic.cms.dao.InitialProcessDao;
 import com.epic.cms.model.bean.ProcessBean;
 import com.epic.cms.model.rowmapper.ProcessBeanRowMapper;
+import com.epic.cms.util.LogManager;
 import com.epic.cms.util.QueryParametersList;
 import com.epic.cms.util.StatusVarList;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -36,6 +37,9 @@ public class InitialProcessRepo implements InitialProcessDao {
     @Autowired
     StatusVarList statusList;
 
+    @Autowired
+    LogManager logManager;
+
     @Override
     public int swapEodCardBalance() throws Exception {
         int count = 0;
@@ -51,9 +55,7 @@ public class InitialProcessRepo implements InitialProcessDao {
 
         boolean status = true;
         int rs = 0;
-        int npstatus = 1;
-        String accountNo ="212140006009";
-        String sql = "update cardaccount set npstatus =  ?  where  accountno = ? ";
+
         try {
             rs= backendJdbcTemplate.update(queryParametersList.getInitialUpdateInsertIntoAccountBalance());
 //            if(rs > 0){
@@ -104,7 +106,7 @@ public class InitialProcessRepo implements InitialProcessDao {
         try {
             processDetails = backendJdbcTemplate.queryForObject(queryParametersList.getCommonSelectGetProcessDetails(), new ProcessBeanRowMapper(),processId);
         }catch (Exception e){
-            errorLogger.error(String.valueOf(e));
+            logManager.logError(String.valueOf(e),errorLogger);
         }
         return processDetails;
     }

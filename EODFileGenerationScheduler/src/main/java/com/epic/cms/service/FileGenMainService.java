@@ -33,64 +33,6 @@ import static com.epic.cms.util.LogManager.infoLogger;
 public class FileGenMainService {
 
     @Autowired
-    private KafkaTemplate<String, String> kafkaTemplate;
-
-    @Autowired
-    LogManager logManager;
-
-    @Autowired
-    EODFileGenEngineProducerRepo producerRepo;
-
-    @Autowired
-    ProcessThreadService processThreadService;
-
-    @Autowired
-    @Qualifier("ThreadPool_100")
-    ThreadPoolTaskExecutor taskExecutor;
-
-    @Autowired
-    StatusVarList statusVarList;
-
-    public void startEODFileGenEngine(int categoryId, int issuingOrAcquiring, int eodId) {
-        System.out.println("Main Method Started");
-        try {
-            //get EOD-ID
-            Configurations.EOD_ID = eodId;
-            CreateEodId createDate = new CreateEodId();
-            Configurations.EOD_DATE = createDate.getDateFromEODID(Configurations.EOD_ID);
-
-            infoLogger.info(logManager.processStartEndStyle("EOD-File-Generation Engine main service started for EOD-ID:" + Configurations.EOD_ID));
-            List<ProcessBean> processList = new ArrayList<ProcessBean>();
-            //get process list by process category id , issuing or acquiring and file-gen category
-
-            processList = producerRepo.getProcessListByFileGenCategoryId(categoryId, issuingOrAcquiring);//get process list for this step
-
-            this.EODScheduler(processList);
-
-        } catch (Exception e) {
-            errorLogger.error("EOD File Generation Process Failed ", e);
-        }
-    }
-
-    private void EODScheduler(List<ProcessBean> processList) throws Exception {
-        try {
-            System.out.println("Start EOD File Generation Processes");
-            loadProcessConnectorList();
-            for (ProcessBean processBean : processList) {
-                processThreadService.startProcessByProcessId(processBean.getProcessId());
-            }
-            //wait till all the threads are completed
-            while (!(taskExecutor.getActiveCount() == 0)) {
-                Thread.sleep(1000);
-            }
-
-            System.out.println("EOD File Generation process completed..");
-        } catch (Exception e) {
-            throw e;
-        }
-    }
-
-    @Autowired
     ExposureFileConnector exposureFileConnector;
 
     @Autowired
@@ -120,7 +62,61 @@ public class FileGenMainService {
     @Autowired
     RB36FileGenerationConnector rb36FileGenerationConnector;
 
+    @Autowired
+    LogManager logManager;
 
+    @Autowired
+    EODFileGenEngineProducerRepo producerRepo;
+
+    @Autowired
+    ProcessThreadService processThreadService;
+
+    @Autowired
+    @Qualifier("ThreadPool_100")
+    ThreadPoolTaskExecutor taskExecutor;
+
+    @Autowired
+    StatusVarList statusVarList;
+
+    public void startEODFileGenEngine(int categoryId, int issuingOrAcquiring, int eodId) {
+        System.out.println("Main Method Started");
+        try {
+            //get EOD-ID
+            Configurations.EOD_ID = eodId;
+            CreateEodId createDate = new CreateEodId();
+            Configurations.EOD_DATE = createDate.getDateFromEODID(Configurations.EOD_ID);
+
+            logManager.logStartEnd("EOD-File-Generation Engine main service started for EOD-ID:" + Configurations.EOD_ID,infoLogger);
+
+            List<ProcessBean> processList = new ArrayList<ProcessBean>();
+            //get process list by process category id , issuing or acquiring and file-gen category
+
+            processList = producerRepo.getProcessListByFileGenCategoryId(categoryId, issuingOrAcquiring);//get process list for this step
+
+            this.EODScheduler(processList);
+
+        } catch (Exception e) {
+            logManager.logError("EOD File Generation Process Failed ", errorLogger);
+        }
+    }
+
+    private void EODScheduler(List<ProcessBean> processList) throws Exception {
+        try {
+            System.out.println("Start EOD File Generation Processes");
+            loadProcessConnectorList();
+            for (ProcessBean processBean : processList) {
+                processThreadService.startProcessByProcessId(processBean.getProcessId());
+            }
+            //wait till all the threads are completed
+            while (!(taskExecutor.getActiveCount() == 0)) {
+                Thread.sleep(1000);
+            }
+
+            System.out.println("EOD File Generation process completed..");
+        } catch (Exception e) {
+            throw e;
+        }
+    }
 
     public void loadProcessConnectorList() throws Exception {
         try {
