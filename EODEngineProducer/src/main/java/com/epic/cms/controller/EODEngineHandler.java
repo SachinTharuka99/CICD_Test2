@@ -52,10 +52,11 @@ public class EODEngineHandler {
                     .orElseThrow(() -> new InvalidEodId("Invalid EOD ID:" + eodId));
 
             boolean isFilesCompleted = producerRepo.checkUploadedFileStatus();
-            //run the main service thread
-            eodEngineMainService.EODEngineMain(eodId, categoryId);
 
+            isFilesCompleted = true;
             if (isFilesCompleted) {
+                //run the main service thread
+                eodEngineMainService.EODEngineMain(eodId, categoryId);
                 response.put(Util.STATUS_VALUE, Util.STATUS_SUCCESS);
             } else {
                 throw new UploadedFileNotCompleted("Uploaded file not completed.");

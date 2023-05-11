@@ -7,6 +7,8 @@
 
 package com.epic.cms.util;
 
+import java.util.List;
+
 public class Util {
     // SUCCESS STATUS
     public static final String STATUS_SUCCESS = "SUCCESS";
