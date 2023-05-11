@@ -495,8 +495,8 @@ public class ConsumerService {
         System.out.println("Complete EOM Supplementary Card Reset Process");
     }
 
-    @KafkaListener(topics = "logTopic", groupId = "group_id_logs", containerFactory = "kafkaListenerContainerFactory")
-    public void LoggerConsumer(Logger message) throws Exception {
-        System.out.println("log Topic Message..........");
-    }
+//    @KafkaListener(topics = "logTopic", groupId = "group_id_logs", containerFactory = "kafkaListenerContainerFactory")
+//    public void LoggerConsumer(Logger message) throws Exception {
+//        System.out.println("log Topic Message..........");
+//    }
 }
