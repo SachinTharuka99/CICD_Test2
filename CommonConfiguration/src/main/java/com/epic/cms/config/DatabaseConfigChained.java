@@ -46,10 +46,12 @@ public class DatabaseConfigChained {
         hikariConfig.setUsername(commonBackendDbVarList.getBackendUsername());
         hikariConfig.setPassword(commonBackendDbVarList.getBackendPassword());
         hikariConfig.setMaximumPoolSize(20);
-        hikariConfig.setIdleTimeout(200000);
+        hikariConfig.setMinimumIdle(10);
+        //hikariConfig.setIdleTimeout(200000);
         hikariConfig.setConnectionTimeout(100000);
         hikariConfig.setMaxLifetime(1800000);
         hikariConfig.addDataSourceProperty("socketTimeout", "120");
+        hikariConfig.addDataSourceProperty("oracle.jdbc.javaNetNio", "false");
         return new HikariDataSource(hikariConfig);
     }
     @Primary
@@ -71,10 +73,12 @@ public class DatabaseConfigChained {
         hikariConfig.setUsername(commonOnlineDbVarList.getOnlineUsername());
         hikariConfig.setPassword(commonOnlineDbVarList.getOnlinePassword());
         hikariConfig.setMaximumPoolSize(10);
-        hikariConfig.setIdleTimeout(200000);
+        //hikariConfig.setIdleTimeout(200000);
+        hikariConfig.setMinimumIdle(10);
         hikariConfig.setConnectionTimeout(100000);
         hikariConfig.setMaxLifetime(1800000);
         hikariConfig.addDataSourceProperty("socketTimeout", "120");
+        hikariConfig.addDataSourceProperty("oracle.jdbc.javaNetNio", "false");
         return new HikariDataSource(hikariConfig);
     }
 

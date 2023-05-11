@@ -28,7 +28,7 @@ class ConfigurationServiceTest {
     }
 
     @Test
-    void testSetConfigurations_ThrowsException() {
+    void testSetConfigurations_ThrowsException() throws Exception {
         // Setup
         doThrow(ArrayIndexOutOfBoundsException.class).when(configurationServiceUnderTest.configurationsRepo).setConfigurations();
         // Run the test
