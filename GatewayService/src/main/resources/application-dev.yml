@@ -23,18 +23,35 @@ spring:
           filters:
             - AuthenticationFilter
 
+        - id: EODFileGenProducer
+          uri: lb://EODFileGenProducer
+          predicates:
+            - Path=/eod-file-generation/**
+          filters:
+            - AuthenticationFilter
+
+      globalcors:
+        corsConfigurations:
+          '[/**]':
+            allowedOrigins: "http://localhost:3000"
+            allowedHeaders: "*"
+            allowedMethods:
+              - GET
+              - POST
+              - PUT
 
 # Eureka config
 eureka:
   client:
     serviceUrl:
-      defaultZone: ${DISCOVERY_URL:http://192.168.1.122:8761}/eureka/
+#      defaultZone: ${DISCOVERY_URL:http://192.168.1.122:8761}/eureka/
+      defaultZone: ${DISCOVERY_URL:http://localhost:8761}/eureka/
   instance:
     instanceId: GatewayService:${spring.application.instance_id:${random.value}}
     leaseRenewalIntervalInSeconds: 1
     leaseExpirationDurationInSeconds: 2
-    preferIpAddress: true
-    ip-address: ${HERE-GOES-YOUR-PUBLIC-IP:192.168.1.122}
+#    preferIpAddress: true
+#    ip-address: ${HERE-GOES-YOUR-PUBLIC-IP:192.168.1.122}
 
 
 # Ribbon config

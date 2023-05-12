@@ -7,6 +7,7 @@ import com.epic.cms.model.rowmapper.CommonFilePathRowMapper;
 import com.epic.cms.model.rowmapper.TransactionTypeRowMapper;
 import com.epic.cms.util.ConfigVarList;
 import com.epic.cms.util.Configurations;
+import com.epic.cms.util.CreateEodId;
 import com.epic.cms.util.QueryParametersList;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.jdbc.core.JdbcTemplate;
@@ -29,6 +30,9 @@ public class ConfigurationsRepo implements ConfigurationsDao {
 
     @Autowired
     ConfigVarList configVarList;
+
+    @Autowired
+    CreateEodId createEodId;
 
     public SimpleDateFormat sdf = new SimpleDateFormat("dd-MM-yyyy");
 
@@ -130,11 +134,11 @@ public class ConfigurationsRepo implements ConfigurationsDao {
     }
 
     @Override
-    public void setConfigurations() {
+    public void setConfigurations() throws Exception {
         try {
             Configurations.SERVER_RUN_PLATFORM = "WINDOWS";
             Configurations.STARTING_EOD_STATUS = "INIT";
-            Configurations.EOD_ID = 22072500; // Current EOD Id
+            Configurations.EOD_ID = createEodId.getCurrentEodId("INIT", "EROR"); // Current EOD Id
             Configurations.ERROR_EOD_ID = Configurations.EOD_ID;
             Configurations.EOD_DATE = getDateFromEODID(Configurations.EOD_ID);
             Configurations.EOD_DATE_String = sdf.format(Configurations.EOD_DATE);

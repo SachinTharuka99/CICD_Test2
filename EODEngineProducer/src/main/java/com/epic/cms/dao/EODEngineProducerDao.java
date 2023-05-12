@@ -25,4 +25,22 @@ public interface EODEngineProducerDao {
     int getCompletedProcessCount(String uniqueId) throws Exception;
 
     void clearEodProcessCountTable() throws Exception;
+
+    int updatePreviousEODErrorCardDetails(String currentEodID) throws Exception;
+
+    int updatePreviousEODErrorMerchantDetails(String currentEodID) throws Exception;
+
+    int updateEodProcessProgress() throws Exception;
+
+    List<String> getErrorProcessIdList() throws Exception;
+
+    void updateProcessProgressForErrorProcess(String processId) throws Exception;
+
+    int updateEodProcessStateCount() throws Exception;
+
+    void updateEodStatus(int errorEodId, String status) throws Exception;
+
+    boolean hasErrorforLastEOD() throws Exception;
+
+    void updateEodEndStatus(int errorEodId, String status) throws Exception;
 }

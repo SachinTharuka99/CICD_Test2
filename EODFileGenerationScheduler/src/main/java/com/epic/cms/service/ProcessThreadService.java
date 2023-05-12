@@ -7,25 +7,30 @@
 
 package com.epic.cms.service;
 
-import com.epic.cms.common.ProcessBuilder;
-import com.epic.cms.connector.*;
+import com.epic.cms.common.FileGenProcessBuilder;
 import com.epic.cms.util.Configurations;
+import com.epic.cms.util.LogManager;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 
 import static com.epic.cms.util.LogManager.errorLogger;
+import static com.epic.cms.util.LogManager.errorLoggerEFGE;
 
 @Service
 public class ProcessThreadService {
+
+    @Autowired
+    LogManager logManager;
+
     @Async("ThreadPool_100")
-    public void startProcessByProcessId(int processId) throws Exception {
+    public void startProcessByProcessId(int processId, String uniqueId) throws Exception {
         try{
             if(processId > 0){
-                ProcessBuilder processBuilder = (ProcessBuilder) Configurations.processConnectorList.get(processId);
-                String uniqueId = "1";
+                FileGenProcessBuilder processBuilder = (FileGenProcessBuilder) Configurations.processConnectorList.get(processId);
                 processBuilder.startProcess(processId, uniqueId);
             }else {
-                errorLogger.error("Invalid Process Id ");
+                logManager.logError("Invalid Process Id ", errorLoggerEFGE);
             }
         }catch (Exception e){
             throw e;

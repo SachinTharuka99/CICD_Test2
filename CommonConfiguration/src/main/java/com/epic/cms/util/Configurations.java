@@ -1201,4 +1201,59 @@ public class Configurations {
     public static final String EOD_ENGINE = "EENG";
     public static final String EOD_FILE_GENERATION = "EFGE";
     public static final String EOD_FILE_PROCESSING = "EFPE";
+
+    public static volatile int AUTO_SETTLEMENT_PROCESS_TOTAL_NO_OF_TRANSACTIONS = 0;
+    public static volatile int AUTO_SETTLEMENT_PROCESS_SUCCESS_COUNT = 0;
+    public static volatile int AUTO_SETTLEMENT_PROCESS_FAILED_COUNT = 0;
+    public static String AUTO_SETTLEMENT_PROCESS_PROGRESS = "N/A";
+
+    public static volatile int CARD_APP_CONFIRM_LETTER_PROCESS_TOTAL_NO_OF_TRANSACTIONS = 0;
+    public static volatile int CARD_APP_CONFIRM_LETTER_PROCESS_SUCCESS_COUNT = 0;
+    public static volatile int CARD_APP_CONFIRM_LETTER_PROCESS_FAILED_COUNT = 0;
+    public static String CARD_APP_CONFIRM_LETTER_PROCESS_PROGRESS = "N/A";
+
+    public static volatile int CARD_APP_REJECT_LETTER_PROCESS_TOTAL_NO_OF_TRANSACTIONS = 0;
+    public static volatile int CARD_APP_REJECT_LETTER_PROCESS_SUCCESS_COUNT = 0;
+    public static volatile int CARD_APP_REJECT_LETTER_PROCESS_FAILED_COUNT = 0;
+    public static String CARD_APP_REJECT_LETTER_PROCESS_PROGRESS = "N/A";
+
+    public static volatile int CARD_RENEW_LETTER_PROCESS_TOTAL_NO_OF_TRANSACTIONS = 0;
+    public static volatile int CARD_RENEW_LETTER_PROCESS_SUCCESS_COUNT = 0;
+    public static volatile int CARD_RENEW_LETTER_PROCESS_FAILED_COUNT = 0;
+    public static String CARD_RENEW_LETTER_PROCESS_PROGRESS = "N/A";
+
+    public static volatile int CARDREPLACE_LETTER_PROCESS_TOTAL_NO_OF_TRANSACTIONS = 0;
+    public static volatile int CARDREPLACE_LETTER_PROCESS_SUCCESS_COUNT = 0;
+    public static volatile int CARDREPLACE_LETTER_PROCESS_FAILED_COUNT = 0;
+    public static String CARDREPLACE_LETTER_PROCESS_PROGRESS = "N/A";
+
+    public static volatile int CASH_BACK_FILE_PROCESS_TOTAL_NO_OF_TRANSACTIONS = 0;
+    public static volatile int CASH_BACK_FILE_PROCESS_SUCCESS_COUNT = 0;
+    public static volatile int CASH_BACK_FILE_PROCESS_FAILED_COUNT = 0;
+    public static String CASH_BACK_FILE_PROCESS_PROGRESS = "N/A";
+
+    public static volatile int COLLECTION_AND_RECOVERY_PROCESS_TOTAL_NO_OF_TRANSACTIONS = 0;
+    public static volatile int COLLECTION_AND_RECOVERY_PROCESS_SUCCESS_COUNT = 0;
+    public static volatile int COLLECTION_AND_RECOVERY_PROCESS_FAILED_COUNT = 0;
+    public static String COLLECTION_AND_RECOVERY_PROCESS_PROGRESS = "N/A";
+
+    public static volatile int EXPOSURE_FILE_PROCESS_TOTAL_NO_OF_TRANSACTIONS = 0;
+    public static volatile int EXPOSURE_FILE_PROCESS_SUCCESS_COUNT = 0;
+    public static volatile int EXPOSURE_FILE_PROCESS_FAILED_COUNT = 0;
+    public static String EXPOSURE_FILE_PROCESS_PROGRESS = "N/A";
+
+    public static volatile int GL_SUMMARY_FILE_PROCESS_TOTAL_NO_OF_TRANSACTIONS = 0;
+    public static volatile int GL_SUMMARY_FILE_PROCESS_SUCCESS_COUNT = 0;
+    public static volatile int GL_SUMMARY_FILE_PROCESS_FAILED_COUNT = 0;
+    public static String GL_SUMMARY_FILE_PROCESS_PROGRESS = "N/A";
+
+    public static volatile int OUTGOING_IPM_FILE_PROCESS_TOTAL_NO_OF_TRANSACTIONS = 0;
+    public static volatile int OUTGOING_IPM_FILE_PROCESS_SUCCESS_COUNT = 0;
+    public static volatile int OUTGOING_IPM_FILE_PROCESS_FAILED_COUNT = 0;
+    public static String OUTGOING_IPM_FILE_PROCESS_PROGRESS = "N/A";
+
+    public static volatile int RB36_FILE_PROCESS_TOTAL_NO_OF_TRANSACTIONS = 0;
+    public static volatile int RB36_FILE_PROCESS_SUCCESS_COUNT = 0;
+    public static volatile int RB36_FILE_PROCESS_FAILED_COUNT = 0;
+    public static String RB36_FILE_PROCESS_PROGRESS = "N/A";
 }

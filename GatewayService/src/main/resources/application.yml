@@ -1,11 +1,11 @@
 spring:
   application:
     name: GatewayService
-  boot:
-    admin:
-      client:
-        instance:
-          management-base-url: http://localhost:8081
+#  boot:
+#    admin:
+#      client:
+#        instance:
+#          management-base-url: http://localhost:8081
   cloud:
     gateway:
       routes:
@@ -22,6 +22,22 @@ spring:
             - Path=/eod-engine/**
           filters:
             - AuthenticationFilter
+
+        - id: EODFileGenProducer
+          uri: lb://EODFileGenProducer
+          predicates:
+            - Path=/eod-file-generation/**
+          filters:
+            - AuthenticationFilter
+
+      globalcors:
+        corsConfigurations:
+          '[/**]':
+            allowedOrigins: "http://localhost:3000"
+            allowedHeaders: "*"
+            allowedMethods:
+              - GET
+              - POST
 
 
 # Eureka config
