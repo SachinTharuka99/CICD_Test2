@@ -54,7 +54,7 @@ public class PaymentFileClearingConnector extends FileProcessingProcessBuilder {
         boolean fileReadStatus = false;
         ArrayList<RecPaymentFileIptRowDataBean> fileContent = new ArrayList<RecPaymentFileIptRowDataBean>();
         try {
-            Configurations.RUNNING_PROCESS_ID = Configurations.PROCESS_PAYMENT_FILE_READ;
+            Configurations.RUNNING_PROCESS_ID = Configurations.PROCESS_PAYMENT_FILE_VALIDATE;
             CommonMethods.eodDashboardProgressParametersReset();
 
             if ("LINUX".equals(Configurations.SERVER_RUN_PLATFORM)) {

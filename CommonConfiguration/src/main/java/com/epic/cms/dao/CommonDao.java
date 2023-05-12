@@ -99,4 +99,8 @@ public interface CommonDao {
 
     ArrayList<String> getNameFields(String fileType) throws Exception;
 
+    int getCurrentEodId(String initStatus, String errorStatus) throws Exception;
+
+    String getEodStatusByEodID(int eodId) throws Exception;
+
 }

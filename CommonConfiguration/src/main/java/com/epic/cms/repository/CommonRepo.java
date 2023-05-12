@@ -1263,5 +1263,15 @@ public class CommonRepo implements CommonDao {
         }
     }
 
+    @Override
+    public int getCurrentEodId(String status1, String status2) throws Exception {
+        return 0;
+    }
+
+    @Override
+    public String getEodStatusByEodID(int eodId) throws Exception {
+        return null;
+    }
+
 
 }
