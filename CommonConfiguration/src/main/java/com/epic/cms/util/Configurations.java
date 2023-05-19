@@ -1256,4 +1256,7 @@ public class Configurations {
     public static volatile int RB36_FILE_PROCESS_SUCCESS_COUNT = 0;
     public static volatile int RB36_FILE_PROCESS_FAILED_COUNT = 0;
     public static String RB36_FILE_PROCESS_PROGRESS = "N/A";
+
+    //Statement Gen Base Url
+    public static final String EOD_STATEMENT_GEN_BASE_URL = "http://192.168.1.122:5000/eod-engine";
 }

@@ -45,6 +45,15 @@ public class ConsumerService {
     @Autowired
     GLSummaryFileConnector glSummaryFileConnector;
 
+    @Autowired
+    MerchantLocationStatementConnector merchantLocationStatementConnector;
+
+    @Autowired
+    MerchantCustomerStatementConnector merchantCustomerStatementConnector;
+
+    @Autowired
+    CustomerStatementConnector customerStatementConnector;
+
     @KafkaListener(topics = "GlSummeryFile", groupId = "group_GlSummeryFile")
     public void GLSummeryFileConsumer(String uniqueID) throws Exception {
         Configurations.eodUniqueId = uniqueID;
@@ -130,5 +139,29 @@ public class ConsumerService {
         System.out.println("Start Cash Back File Gen Process");
         cashBackFileGenConnector.startProcess(Configurations.PROCESS_ID_CASHBACK_FILE_GENERATION, uniqueID);
         System.out.println("Complete Cash Back File Gen Process");
+    }
+
+    @KafkaListener(topics = "merchantStatementGeneration", groupId = "group_merchantStatementGeneration")
+    public void merchantLocationFileGeneration(String uniqueID) throws Exception {
+        Configurations.eodUniqueId = uniqueID;
+        System.out.println("Start Merchant Location File Gen Process");
+        merchantLocationStatementConnector.startProcess(Configurations.PROCESS_MERCHANT_STATEMENT_FILE_CREATION, uniqueID);
+        System.out.println("Complete Merchant Location File Gen Process");
+    }
+
+    @KafkaListener(topics = "merchantCustomerStatementGeneration", groupId = "group_merchantCustomerStatementGeneration")
+    public void merchantCustomerFileGeneration(String uniqueID) throws Exception {
+        Configurations.eodUniqueId = uniqueID;
+        System.out.println("Start Merchant Customer File Gen Process");
+        merchantCustomerStatementConnector.startProcess(Configurations.PROCESS_MERCHANT_CUSTOMER_STATEMENT_FILE_CREATION, uniqueID);
+        System.out.println("Complete Merchant Customer File Gen Process");
+    }
+
+    @KafkaListener(topics = "monthlyStatementFile", groupId = "group_monthlyStatementFile")
+    public void statementFileGeneration(String uniqueID) throws Exception {
+        Configurations.eodUniqueId = uniqueID;
+        System.out.println("Start Customer Statement Gen Process");
+        customerStatementConnector.startProcess(Configurations.PROCESS_MONTHLY_STATEMENT_FILE_CREATION, uniqueID);
+        System.out.println("Complete Customer Statement Gen Process");
     }
 }
