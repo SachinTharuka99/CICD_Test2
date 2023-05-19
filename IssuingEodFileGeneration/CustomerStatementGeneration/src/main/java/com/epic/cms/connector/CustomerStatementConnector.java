@@ -15,12 +15,14 @@ import com.epic.cms.util.LogManager;
 import com.fasterxml.jackson.databind.JsonNode;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.web.client.RestTemplateBuilder;
+import org.springframework.http.client.HttpComponentsClientHttpRequestFactory;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
 
 import java.util.HashMap;
 import java.util.Map;
 
+import static com.epic.cms.util.Configurations.EOD_STATEMENT_GEN_BASE_URL;
 import static com.epic.cms.util.LogManager.errorLoggerEFGE;
 import static com.epic.cms.util.LogManager.infoLoggerEFGE;
 
@@ -42,18 +44,18 @@ public class CustomerStatementConnector extends FileGenProcessBuilder {
         try{
 
             processBean = new ProcessBean();
-            processBean = commonRepo.getProcessDetails(Configurations.PROCESS_CUSTOMER_STATEMENT_GENERATION);
+            processBean = commonRepo.getProcessDetails(Configurations.PROCESS_MONTHLY_STATEMENT_FILE_CREATION);
 
             if (processBean != null) {
 
-                Configurations.RUNNING_PROCESS_ID = Configurations.PROCESS_CUSTOMER_STATEMENT_GENERATION;
+                Configurations.RUNNING_PROCESS_ID = Configurations.PROCESS_MONTHLY_STATEMENT_FILE_CREATION;
                 CommonMethods.eodDashboardProgressParametersReset();
 
                 Map<String, Object> requestBody = new HashMap<>();
                 requestBody.put("eodDate", Configurations.EOD_DATE);
                 requestBody.put("eodStatus", Configurations.STARTING_EOD_STATUS);
 
-                JsonNode response = restTemplate.postForObject("http://127.0.0.1:5000/eod-engine/customerStatement?eodDate={eodDate}&eodStatus={eodStatus}", requestBody, JsonNode.class, Map.of("eodDate",Configurations.EOD_DATE,"eodStatus", Configurations.STARTING_EOD_STATUS));
+                JsonNode response = restTemplate.postForObject(EOD_STATEMENT_GEN_BASE_URL+"/customerStatement?eodDate={eodDate}&eodStatus={eodStatus}", requestBody, JsonNode.class, Map.of("eodDate",Configurations.EOD_DATE,"eodStatus", Configurations.STARTING_EOD_STATUS));
 
                 // Access the properties of the JsonNode
                 JsonNode successFile = response.get("successno");

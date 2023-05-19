@@ -1064,8 +1064,8 @@ public class ConfigVarList {
     @Value("${merchant_customer_statement_file_generation_process}")
     public int PROCESS_MERCHANT_CUSTOMER_STATEMENT_FILE_CREATION;
 
-    @Value("${statement_generation_process}")
-    public int PROCESS_CUSTOMER_STATEMENT_GENERATION;
+    @Value("${process_monthly_statement_file_creation}")
+    public int PROCESS_MONTHLY_STATEMENT_FILE_CREATION;
 
     @Value("${statement_batch_size}")
     public int STATEMENT_BATCH_SIZE;

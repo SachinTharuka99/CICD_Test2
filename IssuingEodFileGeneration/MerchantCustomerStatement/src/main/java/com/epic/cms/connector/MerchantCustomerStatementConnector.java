@@ -21,6 +21,7 @@ import org.springframework.web.client.RestTemplate;
 import java.util.HashMap;
 import java.util.Map;
 
+import static com.epic.cms.util.Configurations.EOD_STATEMENT_GEN_BASE_URL;
 import static com.epic.cms.util.LogManager.errorLoggerEFGE;
 import static com.epic.cms.util.LogManager.infoLoggerEFGE;
 
@@ -51,7 +52,7 @@ public class MerchantCustomerStatementConnector extends FileGenProcessBuilder {
                 Map<String, Object> requestBody = new HashMap<>();
                 requestBody.put("eodDate", Configurations.EOD_DATE);
 
-                JsonNode response = restTemplate.postForObject("http://127.0.0.1:5000/eod-engine/merchantCustomer?eodDate={eodDate}", requestBody, JsonNode.class, Map.of("eodDate",Configurations.EOD_DATE));
+                JsonNode response = restTemplate.postForObject(EOD_STATEMENT_GEN_BASE_URL+"/merchantCustomer?eodDate={eodDate}", requestBody, JsonNode.class, Map.of("eodDate",Configurations.EOD_DATE));
 
                 // Access the properties of the JsonNode
                 JsonNode successFile = response.get("successno");

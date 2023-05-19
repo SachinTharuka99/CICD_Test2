@@ -550,7 +550,6 @@ public class Configurations {
     public static int PROCESS_ID_CASHBACK_FILE_GENERATION;
     public static int PROCESS_CARD_RENEW;
     public static int PROCESS_MONTHLY_STATEMENT;
-    public static int PROCESS_MONTHLY_STATEMENT_FILE_CREATION;
     public static int PROCESS_ID_VISA_BASEII_CLEARING;
     public static int PROCESS_ID_COPY_VISA_TRANSACTION_TO_BACKEND;
     public static String MERCHANT_PAYMENT_STARTDATE;
@@ -920,7 +919,7 @@ public class Configurations {
     public static int PROCESS_ID_MERCHANT_FEE;
     public static int PROCESS_ID_MERCHANT_STATEMENT;//202
     public static int PROCESS_MERCHANT_STATEMENT_FILE_CREATION;//203
-    public static int PROCESS_CUSTOMER_STATEMENT_GENERATION;//191
+    public static int PROCESS_MONTHLY_STATEMENT_FILE_CREATION;//191 - 17
     public static int PROCESS_ID_MERCHANT_CUSTOMER_STATEMENT;//204
     public static int PROCESS_MERCHANT_CUSTOMER_STATEMENT_FILE_CREATION;//205
 
@@ -1202,4 +1201,7 @@ public class Configurations {
     public static final String EOD_ENGINE = "EENG";
     public static final String EOD_FILE_GENERATION = "EFGE";
     public static final String EOD_FILE_PROCESSING = "EFPE";
+
+    //Statement Gen Base Url
+    public static final String EOD_STATEMENT_GEN_BASE_URL = "http://192.168.1.122:5000/eod-engine";
 }

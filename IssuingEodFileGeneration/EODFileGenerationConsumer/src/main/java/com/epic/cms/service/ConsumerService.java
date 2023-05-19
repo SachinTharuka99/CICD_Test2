@@ -157,11 +157,11 @@ public class ConsumerService {
         System.out.println("Complete Merchant Customer File Gen Process");
     }
 
-    @KafkaListener(topics = "statementGenerateProcess", groupId = "group_statementGenerateProcess")
+    @KafkaListener(topics = "monthlyStatementFile", groupId = "group_monthlyStatementFile")
     public void statementFileGeneration(String uniqueID) throws Exception {
         Configurations.eodUniqueId = uniqueID;
         System.out.println("Start Customer Statement Gen Process");
-        customerStatementConnector.startProcess(Configurations.PROCESS_CUSTOMER_STATEMENT_GENERATION, uniqueID);
+        customerStatementConnector.startProcess(Configurations.PROCESS_MONTHLY_STATEMENT_FILE_CREATION, uniqueID);
         System.out.println("Complete Customer Statement Gen Process");
     }
 }
