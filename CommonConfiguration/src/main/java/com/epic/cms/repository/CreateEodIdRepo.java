@@ -96,9 +96,9 @@ public class CreateEodIdRepo implements CreateEodIdDao {
         String query = null;
         int count = 0;
         try {
-            query = "INSERT INTO EOD (EODID,STATUS,NEXTEODSTARTTIME,CREATEDTIME,LASTUPDATEDTIME,LASTUPDATEDUSER,NOOFSUCCESSPROCESS,NOOFERRORPAROCESS,filegen_status,filepro_status) VALUES (?,?,?,SYSDATE,SYSDATE,?,0,0,?,?)";
+            query = "INSERT INTO EOD (EODID,STATUS,NEXTEODSTARTTIME,CREATEDTIME,LASTUPDATEDTIME,LASTUPDATEDUSER,NOOFSUCCESSPROCESS,NOOFERRORPAROCESS,FILEGENSTATUS) VALUES (?,?,?,SYSDATE,SYSDATE,?,0,0,?)";
 
-            count = backendJdbcTemplate.update(query, EodId, mainEODStatus, nextMainEODSchDate, Configurations.EOD_USER, fileGenStatus, fileProStatus);
+            count = backendJdbcTemplate.update(query, EodId, mainEODStatus, nextMainEODSchDate, Configurations.EOD_USER, fileGenStatus);
 
             if (count == 1) {
                 status = true;

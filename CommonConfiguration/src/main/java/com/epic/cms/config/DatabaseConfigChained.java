@@ -49,7 +49,7 @@ public class DatabaseConfigChained {
         hikariConfig.setMinimumIdle(10);
         //hikariConfig.setIdleTimeout(200000);
         hikariConfig.setConnectionTimeout(100000);
-        hikariConfig.setMaxLifetime(1800000);
+        //hikariConfig.setMaxLifetime(1800000);
         hikariConfig.addDataSourceProperty("socketTimeout", "120");
         hikariConfig.addDataSourceProperty("oracle.jdbc.javaNetNio", "false");
         return new HikariDataSource(hikariConfig);
@@ -76,7 +76,7 @@ public class DatabaseConfigChained {
         //hikariConfig.setIdleTimeout(200000);
         hikariConfig.setMinimumIdle(10);
         hikariConfig.setConnectionTimeout(100000);
-        hikariConfig.setMaxLifetime(1800000);
+        //hikariConfig.setMaxLifetime(1800000);
         hikariConfig.addDataSourceProperty("socketTimeout", "120");
         hikariConfig.addDataSourceProperty("oracle.jdbc.javaNetNio", "false");
         return new HikariDataSource(hikariConfig);

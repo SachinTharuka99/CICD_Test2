@@ -22,5 +22,14 @@ public interface EODFileProcessingEngineProducerDao {
 
     HashMap<String, List<String>> getAllProcessingPendingFiles() throws Exception;
 
+    String getProcessIdByUniqueId(String uniqueId) throws Exception;
+
+    List<String> getErrorProcessIdList() throws Exception;
+
+    void updateProcessProgressForErrorProcess(String processId) throws Exception;
+
+    void updateEodProcessStateCount() throws Exception;
+
+    void updateEodProcessProgress(int successCount, int failedCount, String progress, int processId) throws Exception;
 }
 

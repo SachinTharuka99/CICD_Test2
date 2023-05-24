@@ -6,7 +6,6 @@
  */
 
 package com.epic.cms.service;
-
 import com.epic.cms.model.bean.ProcessBean;
 import com.epic.cms.repository.CommonRepo;
 import com.epic.cms.repository.EODFileProcessingEngineProducerRepo;
@@ -18,6 +17,8 @@ import org.springframework.context.annotation.ComponentScan;
 import org.springframework.stereotype.Service;
 
 import java.util.*;
+
+import static com.epic.cms.util.LogManager.errorLogger;
 
 @Service
 @ComponentScan(basePackages = {"com.epic.cms.*"})
@@ -37,10 +38,10 @@ public class EODFileProcessingEngineMainService {
     public void startProcess() throws Exception {
         HashMap<String, List<String>> fileMap = new HashMap<>();
         try {
-            String uniqueId = generateUniqueId();
+            //String uniqueId = generateUniqueId();
             //get processing pending all input files
             fileMap = producerRepo.getAllProcessingPendingFiles();
-            this.startFileProcessingEngineScheduler(fileMap, uniqueId);
+            this.startFileProcessingEngineScheduler(fileMap);
         } catch (Exception ex) {
             ex.printStackTrace();
         }
@@ -49,15 +50,15 @@ public class EODFileProcessingEngineMainService {
     public void startProcess(String fileType, String fileId) throws Exception {
         HashMap<String, List<String>> fileMap = new HashMap<>();
         try {
-            String uniqueId = generateUniqueId();
+            //String uniqueId = generateUniqueId();
             fileMap.put(fileType, Arrays.asList(fileId));
-            this.startFileProcessingEngineScheduler(fileMap, uniqueId);
+            this.startFileProcessingEngineScheduler(fileMap);
         } catch (Exception ex) {
 
         }
     }
 
-    public synchronized void startFileProcessingEngineScheduler(HashMap<String, List<String>> fileMap, String uniqueId) throws Exception {
+    public synchronized void startFileProcessingEngineScheduler(HashMap<String, List<String>> fileMap) throws Exception {
         StringBuilder selectQueryBuilder = new StringBuilder();
         StringBuilder updateQueryBuilder = new StringBuilder();
         String tableName = null;
@@ -96,19 +97,15 @@ public class EODFileProcessingEngineMainService {
 
                     //get process bean from process id
                     ProcessBean processBean = commonRepo.getProcessDetails(processId);
-
                     for (String fileId : entry.getValue()) {
                         System.out.println("fileid" + fileId);
                         fileStatus = producerRepo.getFileStatus(selectQueryBuilder.toString(), fileId);
                         System.out.println("fileStatus" + fileStatus);
                         if (fileStatus != null && !fileStatus.isEmpty() && fileStatus.equals(status.getINITIAL_STATUS())) {
                             System.out.println("--can process--");
-                            //                            boolean future = kafkaMessageUpdator.producerWithReturn(uniqueId,
-//                                    processBean.getKafkaTopic());
-//                            //can process, update file status to INPR
-//                            if (future) {
-//                                producerRepo.updateFileStatus(updateQueryBuilder.toString(), fileId, status.getINPROGRESS_STATUS());
-//                            }
+                            kafkaMessageUpdator.producerWithNoReturn(fileId, processBean.getKafkaTopic());
+                            //can process, update file status to INPR
+                            producerRepo.updateFileStatus(updateQueryBuilder.toString(), fileId, status.getINPROGRESS_STATUS());
                         } else {
                             System.out.println("file not found");
                         }
@@ -126,17 +123,6 @@ public class EODFileProcessingEngineMainService {
         } catch (Exception ex) {
             ex.printStackTrace();
         }
-    }
-
-    private String generateUniqueId() throws Exception {
-        String uniqueId = null;
-        try {
-            uniqueId = Long.toString(System.currentTimeMillis()) + Math.round(Math.random() * 10) + Math.round(Math.random() * 10);
-            System.out.println("@@@@@@@@@@@@ " + uniqueId);
-        } catch (Exception e) {
-            throw e;
-        }
-        return uniqueId;
     }
 
 }

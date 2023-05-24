@@ -247,7 +247,7 @@ public class EODEngineProducerRepo implements EODEngineProducerDao {
         String query = null;
         boolean flag = false;
         try {
-            query = "SELECT STATUS FROM EODPROCESSSUMMERY WHERE STATUS=? AND EODID=? and CREATEDTIME >=TO_DATE(SYSDATE,'DD-MON-YY') and EODMODULE = ? ";
+            query = "SELECT EPS.STATUS FROM EODPROCESSSUMMERY EPS INNER JOIN EODPROCESS EP ON EP.PROCESSID=EPS.PROCESSID WHERE EPS.STATUS=? AND EPS.EODID=? and EPS.CREATEDTIME >=TO_DATE(SYSDATE,'DD-MON-YY') and EP.EODMODULE = ? ";
 
             RowCountCallbackHandler countCallback = new RowCountCallbackHandler();
             backendJdbcTemplate.query(query, countCallback, statusList.getERROR_STATUS(), Configurations.EOD_ID, Configurations.EOD_ENGINE);

@@ -83,7 +83,7 @@ public abstract class ProcessBuilder {
             if (hasErrorEODandProcess == 1 && processBean != null || hasErrorEODandProcess == 0 && processBean != null) {
                 logManager.logHeader(processHeader, infoLogger);
                 logManager.logStartEnd(startHeader, infoLogger);
-                commonRepo.insertToEodProcessSumery(processId, processBean.getEodmodule());
+                commonRepo.insertToEodProcessSumery(processId);
                 /**
                  * Abstract method call.
                  */

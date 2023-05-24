@@ -1,5 +1,5 @@
 FROM adoptopenjdk/openjdk11:alpine-jre
-EXPOSE 7778
+EXPOSE 7777
 # Refer to Maven build -> finalName
 ARG JAR_FILE=target/web-socket-service.jar
 ## Environmental variable

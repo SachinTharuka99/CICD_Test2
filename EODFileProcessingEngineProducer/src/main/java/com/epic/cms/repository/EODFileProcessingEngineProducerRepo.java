@@ -87,4 +87,29 @@ public class EODFileProcessingEngineProducerRepo implements EODFileProcessingEng
         }
         return fileMap;
     }
+
+    @Override
+    public String getProcessIdByUniqueId(String uniqueId) throws Exception {
+        return null;
+    }
+
+    @Override
+    public List<String> getErrorProcessIdList() throws Exception {
+        return null;
+    }
+
+    @Override
+    public void updateProcessProgressForErrorProcess(String processId) throws Exception {
+
+    }
+
+    @Override
+    public void updateEodProcessStateCount() throws Exception {
+
+    }
+
+    @Override
+    public void updateEodProcessProgress(int successCount, int failedCount, String progress, int processId) throws Exception {
+
+    }
 }
