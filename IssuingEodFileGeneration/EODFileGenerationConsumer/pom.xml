@@ -80,6 +80,24 @@
             <version>0.0.1-SNAPSHOT</version>
             <scope>compile</scope>
         </dependency>
+        <dependency>
+            <groupId>com.epic.cms</groupId>
+            <artifactId>MerchantLocationStatement</artifactId>
+            <version>0.0.1-SNAPSHOT</version>
+            <scope>compile</scope>
+        </dependency>
+        <dependency>
+            <groupId>com.epic.cms</groupId>
+            <artifactId>MerchantCustomerStatement</artifactId>
+            <version>0.0.1-SNAPSHOT</version>
+            <scope>compile</scope>
+        </dependency>
+        <dependency>
+            <groupId>com.epic.cms</groupId>
+            <artifactId>CustomerStatementGeneration</artifactId>
+            <version>0.0.1-SNAPSHOT</version>
+            <scope>compile</scope>
+        </dependency>
     </dependencies>
     <artifactId>EODFileGenerationConsumer</artifactId>
 

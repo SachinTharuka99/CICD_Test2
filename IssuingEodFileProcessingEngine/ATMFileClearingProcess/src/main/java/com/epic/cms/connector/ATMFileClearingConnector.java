@@ -57,7 +57,7 @@ public class ATMFileClearingConnector extends FileProcessingProcessBuilder {
 
         ArrayList<RecATMFileIptRowDataBean> fileContent = new ArrayList<RecATMFileIptRowDataBean>();
         try {
-            Configurations.RUNNING_PROCESS_ID = Configurations.PROCESS_ATM_FILE_READ;
+            Configurations.RUNNING_PROCESS_ID = Configurations.PROCESS_ATM_FILE_VALIDATE;
             CommonMethods.eodDashboardProgressParametersReset();
 
             if ("LINUX".equals(Configurations.SERVER_RUN_PLATFORM)) {

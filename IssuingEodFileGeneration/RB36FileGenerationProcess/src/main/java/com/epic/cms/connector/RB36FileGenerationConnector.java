@@ -85,7 +85,7 @@ public class RB36FileGenerationConnector extends FileGenProcessBuilder {
                     Configurations.RUNNING_PROCESS_ID = Configurations.PROCESS_RB36_FILE_CREATION;
                     CommonMethods.eodDashboardProgressParametersReset();
                     logManager.logStartEnd("RB36 File Generation Successfully Started", infoLoggerEFGE);
-                    commonRepo.insertToEodProcessSumery(Configurations.PROCESS_RB36_FILE_CREATION, processBean.getEodmodule());
+                    commonRepo.insertToEodProcessSumery(Configurations.PROCESS_RB36_FILE_CREATION);
 
                     //Get NP card set
                     npCards = rb36FileGenerationRepo.getNPCard();

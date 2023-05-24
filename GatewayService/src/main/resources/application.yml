@@ -1,13 +1,21 @@
 spring:
   application:
     name: GatewayService
-  boot:
-    admin:
-      client:
-        instance:
-          management-base-url: http://localhost:8081
+#  boot:
+#    admin:
+#      client:
+#        instance:
+#          management-base-url: http://localhost:8081
   cloud:
     gateway:
+      defaultFilters:
+        - DedupeResponseHeader=Access-Control-Allow-Credentials Access-Control-Allow-Origin
+      globalcors:
+        corsConfigurations:
+          '[/**]':
+            allowedOrigins: "*"
+            allowedHeaders: "*"
+            allowedMethods: "*"
       routes:
         - id: DashboardService
           uri: lb://DashboardService
@@ -23,12 +31,25 @@ spring:
           filters:
             - AuthenticationFilter
 
+        - id: EODFileGenProducer
+          uri: lb://EODFileGenProducer
+          predicates:
+            - Path=/eod-file-generation/**
+          filters:
+            - AuthenticationFilter
+
+        - id: EODFileProcessingProducer
+            uri: lb://EODFileProcessingProducer
+            predicates:
+              - Path=/eod-file-processing-engine/**
+            filters:
+              - AuthenticationFilter
 
 # Eureka config
 eureka:
   client:
     serviceUrl:
-      defaultZone: ${DISCOVERY_URL:http://localhost:8761}/eureka/
+      defaultZone: ${DISCOVERY_URL:http://192.168.1.122:8761}/eureka/
   instance:
     instanceId: GatewayService:${spring.application.instance_id:${random.value}}
     leaseRenewalIntervalInSeconds: 1

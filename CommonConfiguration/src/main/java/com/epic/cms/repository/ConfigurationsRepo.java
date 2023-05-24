@@ -5,20 +5,19 @@ import com.epic.cms.model.bean.CommonFilePathBean;
 import com.epic.cms.model.bean.TransactionTypeBean;
 import com.epic.cms.model.rowmapper.CommonFilePathRowMapper;
 import com.epic.cms.model.rowmapper.TransactionTypeRowMapper;
-import com.epic.cms.util.*;
-import org.joda.time.DateTime;
-import org.joda.time.LocalDate;
+import com.epic.cms.util.ConfigVarList;
+import com.epic.cms.util.Configurations;
+import com.epic.cms.util.CreateEodId;
+import com.epic.cms.util.QueryParametersList;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Repository;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.sql.Timestamp;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
-import java.util.Scanner;
 
 @Repository
 public class ConfigurationsRepo implements ConfigurationsDao {
@@ -31,6 +30,9 @@ public class ConfigurationsRepo implements ConfigurationsDao {
 
     @Autowired
     ConfigVarList configVarList;
+
+    @Autowired
+    CreateEodId createEodId;
 
     public SimpleDateFormat sdf = new SimpleDateFormat("dd-MM-yyyy");
 
@@ -132,11 +134,11 @@ public class ConfigurationsRepo implements ConfigurationsDao {
     }
 
     @Override
-    public void setConfigurations() {
+    public void setConfigurations() throws Exception {
         try {
             Configurations.SERVER_RUN_PLATFORM = "WINDOWS";
             Configurations.STARTING_EOD_STATUS = "INIT";
-            Configurations.EOD_ID = 22082500; // Current EOD Id
+            Configurations.EOD_ID = createEodId.getCurrentEodId("INIT", "EROR"); // Current EOD Id
             Configurations.ERROR_EOD_ID = Configurations.EOD_ID;
             Configurations.EOD_DATE = getDateFromEODID(Configurations.EOD_ID);
             Configurations.EOD_DATE_String = sdf.format(Configurations.EOD_DATE);
@@ -541,6 +543,10 @@ public class ConfigurationsRepo implements ConfigurationsDao {
             Configurations.PROCESS_ID_EOD_MERCHANT_EASY_PAYMENT_REQUEST = configVarList.getProcess_id_eod_merchant_easy_payment_request();
             //acquiring
             Configurations.PROCESS_ID_COMMISSION_CALCULATION = configVarList.getCommission_calculation_process();
+            Configurations.PROCESS_ID_MERCHANT_STATEMENT = configVarList.getPROCESS_ID_MERCHANT_STATEMENT();
+            Configurations.PROCESS_MERCHANT_STATEMENT_FILE_CREATION = configVarList.getPROCESS_MERCHANT_STATEMENT_FILE_CREATION();
+            Configurations.PROCESS_MERCHANT_CUSTOMER_STATEMENT_FILE_CREATION = configVarList.getPROCESS_MERCHANT_CUSTOMER_STATEMENT_FILE_CREATION();
+            Configurations.STATEMENT_BATCH_SIZE = configVarList.getSTATEMENT_BATCH_SIZE();
 
         } catch (Exception e) {
             throw e;

@@ -56,7 +56,7 @@ public abstract class ProcessBuilder {
     public void startProcess(int processId, String uniqueId) throws Exception {
         try {
             ProcessBean processBean = processBuilderRepo.getProcessDetails(processId);
-
+            System.out.println("EOD ID :"+Configurations.ERROR_EOD_ID);
             StartEodStatus = Configurations.STARTING_EOD_STATUS;
             boolean isErrorProcess = processBuilderRepo.isErrorProcess(processId);
             this.processHeader = processBean.getProcessDes();
@@ -83,7 +83,7 @@ public abstract class ProcessBuilder {
             if (hasErrorEODandProcess == 1 && processBean != null || hasErrorEODandProcess == 0 && processBean != null) {
                 logManager.logHeader(processHeader, infoLogger);
                 logManager.logStartEnd(startHeader, infoLogger);
-                commonRepo.insertToEodProcessSumery(processId, processBean.getEodmodule());
+                commonRepo.insertToEodProcessSumery(processId);
                 /**
                  * Abstract method call.
                  */
@@ -96,7 +96,7 @@ public abstract class ProcessBuilder {
                  * Add any failed cards at EOD
                  */
                 insertFailedEODCards();
-                commonRepo.updateEodProcessSummery(Configurations.ERROR_EOD_ID, statusVarList.SUCCES_STATUS, processId, Configurations.PROCESS_SUCCESS_COUNT, Configurations.PROCESS_FAILD_COUNT, eodDashboardProcessProgress(Configurations.PROCESS_SUCCESS_COUNT, Configurations.PROCESS_TOTAL_NOOF_TRABSACTIONS));
+                commonRepo.updateEodProcessSummery(Configurations.ERROR_EOD_ID, statusVarList.getSUCCES_STATUS(), processId, Configurations.PROCESS_SUCCESS_COUNT, Configurations.PROCESS_FAILD_COUNT, eodDashboardProcessProgress(Configurations.PROCESS_SUCCESS_COUNT, Configurations.PROCESS_TOTAL_NOOF_TRABSACTIONS));
             } else if (hasErrorEODandProcess == 2 && processBean != null) {
                 System.out.println("Skipping this process since Process not under error: " + processBean.getProcessDes());
                 commonRepo.updateEODProcessCount(uniqueId);
@@ -106,14 +106,15 @@ public abstract class ProcessBuilder {
         } catch (Exception ex) {
             logManager.logStartEnd(failedHeader, infoLogger);
             logManager.logError(failedHeader, ex, errorLogger);
+            //add updateeodprocesssummary
             if (ex instanceof FailedCardException) {
 
             }
         } finally {
             addSummaries();
             logManager.logSummery(summery, infoLogger);
-            //kafkaMessageUpdator.producerWithNoReturn("true", "processStatus");
-            //kafkaMessageUpdator.producerWithNoReturn(!Configurations.IS_PROCESS_COMPLETELY_FAILED, "eodEngineConsumerStatus");
+            kafkaMessageUpdator.producerWithNoReturn("true", "processStatus");
+            kafkaMessageUpdator.producerWithNoReturn(!Configurations.IS_PROCESS_COMPLETELY_FAILED, "eodEngineConsumerStatus");
             System.out.println("Send the process success status");
             logManager.logStartEnd(completedHeader, infoLogger);
             commonRepo.updateEODProcessCount(Configurations.eodUniqueId);

@@ -39,11 +39,11 @@ public class InitialProcessService  {
             ProcessBean processBean = null;
             try {
                 processBean = new ProcessBean();
-                processBean = commonRepo.getProcessDetails(100);
+                processBean = commonRepo.getProcessDetails(23);
 
                 if (processBean != null) {
                     //Update EODProcess Summary Table
-                    commonRepo.insertToEodProcessSumery(Configurations.PROCESS_ID_INITIAL_PROCESS, processBean.getEodmodule());
+                    //commonRepo.insertToEodProcessSumery(Configurations.PROCESS_ID_INITIAL_PROCESS, processBean.getEodmodule());
 
                     Configurations.RUNNING_PROCESS_ID = Configurations.PROCESS_ID_INITIAL_PROCESS;
                     CommonMethods.eodDashboardProgressParametersReset();

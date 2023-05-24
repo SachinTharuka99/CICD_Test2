@@ -56,9 +56,10 @@ public class CommonRepo implements CommonDao {
 
     @Override
     @Transactional(value = "transactionManager", propagation = Propagation.REQUIRES_NEW)
-    public void insertToEodProcessSumery(int processId, String eodmodule) throws Exception {
+    public void insertToEodProcessSumery(int processId) throws Exception {
         try {
-            backendJdbcTemplate.update(queryParametersList.getCommonInsertToEodProcessSumery(), Configurations.ERROR_EOD_ID, processId, statusList.getINITIAL_STATUS(), Configurations.EOD_USER, eodmodule);
+            backendJdbcTemplate.update(queryParametersList.getCommonInsertToEodProcessSumery(), Configurations.ERROR_EOD_ID, processId, statusList.getINITIAL_STATUS(), Configurations.EOD_USER);
+            System.out.println("EOD ID :"+Configurations.ERROR_EOD_ID);
         } catch (Exception e) {
             logManager.logError(e,errorLoggerCOM);
         }
@@ -1259,4 +1260,16 @@ public class CommonRepo implements CommonDao {
             throw e;
         }
     }
+
+    @Override
+    public int getCurrentEodId(String status1, String status2) throws Exception {
+        return 0;
+    }
+
+    @Override
+    public String getEodStatusByEodID(int eodId) throws Exception {
+        return null;
+    }
+
+
 }

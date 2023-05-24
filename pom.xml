@@ -18,6 +18,7 @@
         <module>discovery-service</module>
         <module>SpringCloudConfigServer</module>
         <module>GatewayService</module>
+        <module>EODFileProcessingEngineProducer</module>
     </modules>
     <parent>
         <groupId>org.springframework.boot</groupId>

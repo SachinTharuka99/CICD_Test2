@@ -1,5 +1,5 @@
 FROM adoptopenjdk/openjdk11:alpine-jre
-EXPOSE 7777
+EXPOSE 7778
 # Refer to Maven build -> finalName
 ARG JAR_FILE=target/dashboard-service.jar
 ## Environmental variable

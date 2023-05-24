@@ -10,7 +10,7 @@ import java.util.HashMap;
 public interface CommonDao {
     ProcessBean getProcessDetails(int processId) throws Exception;
 
-    void insertToEodProcessSumery(int processId, String eodmodule) throws Exception;
+    void insertToEodProcessSumery(int processId) throws Exception;
 
     void updateEodProcessSummery(int eodId, String status, int processId, int successCount, int failedCount, String progress) throws Exception;
 
@@ -98,5 +98,9 @@ public interface CommonDao {
     String getWindowsFilePath(String fileCode) throws Exception;
 
     ArrayList<String> getNameFields(String fileType) throws Exception;
+
+    int getCurrentEodId(String initStatus, String errorStatus) throws Exception;
+
+    String getEodStatusByEodID(int eodId) throws Exception;
 
 }
