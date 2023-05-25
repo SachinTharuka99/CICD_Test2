@@ -39,17 +39,17 @@ spring:
             - AuthenticationFilter
 
         - id: EODFileProcessingProducer
-            uri: lb://EODFileProcessingProducer
-            predicates:
-              - Path=/eod-file-processing-engine/**
-            filters:
-              - AuthenticationFilter
+          uri: lb://EODFileProcessingProducer
+          predicates:
+            - Path=/eod-file-processing-engine/**
+          filters:
+            - AuthenticationFilter
 
 # Eureka config
 eureka:
   client:
     serviceUrl:
-      defaultZone: ${DISCOVERY_URL:http://192.168.1.122:8761}/eureka/
+      defaultZone: ${DISCOVERY_URL:http://localhost:8761}/eureka/
   instance:
     instanceId: GatewayService:${spring.application.instance_id:${random.value}}
     leaseRenewalIntervalInSeconds: 1

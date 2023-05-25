@@ -46,9 +46,9 @@ public class EODFileGenerationEngineDashboardService {
                 eodBean.setEodId(eodId);
                 eodBean.setCreatedTime((Date) eod[0]);
                 eodBean.setFileType((String) eod[1]);
-                eodBean.setNoOfRecords(((BigDecimal) eod[2]).intValue());
-                eodBean.setFileName((String) eod[3]);
-                eodBean.setSubFolder((String) eod[4]);
+                eodBean.setNoOfRecords((int) ((BigDecimal) eod[3]).doubleValue());
+                eodBean.setFileName((String) eod[4]);
+                eodBean.setSubFolder((String) eod[5]);
 
                 outputFileBeanList.add(eodBean);
             });
