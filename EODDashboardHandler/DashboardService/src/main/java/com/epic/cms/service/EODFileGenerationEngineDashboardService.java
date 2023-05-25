@@ -17,7 +17,9 @@ import com.epic.cms.util.LogManager;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.math.BigDecimal;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 
 
@@ -37,16 +39,16 @@ public class EODFileGenerationEngineDashboardService {
         List<EodOutputFileBean> outputFileBeanList = new ArrayList<>();
 
         try {
-            List<EODOUTPUTFILES> eodOutputFilesList = eodOutputFileRepo.findEODOUTPUTFILESByEODID(eodId);
+            List<Object[]> eodOutputFilesList = eodOutputFileRepo.findEODOUTPUTFILESByEODID(eodId);
 
             eodOutputFilesList.forEach(eod -> {
                 EodOutputFileBean eodBean = new EodOutputFileBean();
                 eodBean.setEodId(eodId);
-                eodBean.setCreatedTime(eod.getCREATEDTIME());
-                eodBean.setFileType(eod.getFILETYPE());
-                eodBean.setNoOfRecords(eod.getNOOFRECORDS());
-                eodBean.setFileName(eod.getFILENAME());
-                eodBean.setSubFolder(eod.getSUBFOLDER());
+                eodBean.setCreatedTime((Date) eod[0]);
+                eodBean.setFileType((String) eod[1]);
+                eodBean.setNoOfRecords(((BigDecimal) eod[2]).intValue());
+                eodBean.setFileName((String) eod[3]);
+                eodBean.setSubFolder((String) eod[4]);
 
                 outputFileBeanList.add(eodBean);
             });

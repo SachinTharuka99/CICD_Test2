@@ -12,11 +12,10 @@ import java.sql.Date;
 public class RECPAYMENTFILEINVALID implements Serializable {
 
     @Id
-    @GeneratedValue(strategy = GenerationType.AUTO)
     @Column(name = "ID")
     private Integer id;
 
-    @Column(name = "FILEID", nullable = false)
+    @Column(name = "FILEID")
     private String FILEID;
 
     @Column(name = "EODID")
@@ -30,7 +29,11 @@ public class RECPAYMENTFILEINVALID implements Serializable {
 
     @Column(name = "CREATEDTIME")
     private Date CREATEDTIME;
+
     @Column(name = "LASTUPDATEDDATE")
     private Date LASTUPDATEDDATE;
+
+    @Column(name = "LASTUPDATEDUSER")
+    private String LASTUPDATEDUSER;
 
 }

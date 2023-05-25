@@ -28,6 +28,6 @@ public class STATUS implements Serializable {
     private Date CREATETIME;
 
     @Column(name = "ONLINECODE")
-    private String ONLINECODE;
+    private Integer ONLINECODE;
 
 }

@@ -24,9 +24,6 @@ public class STATUSCATEGORY implements Serializable {
     @Column(name = "SORTKEY")
     private String SORTKEY;
 
-    @Column(name = "LASTUPDATEDUSER")
-    private String LASTUPDATEDUSER;
-
     @Column(name = "LASTUPDATEDTIME")
     private Date LASTUPDATEDTIME;
 

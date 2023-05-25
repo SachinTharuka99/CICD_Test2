@@ -20,4 +20,14 @@ public class EODPROCESSFLOW implements Serializable {
     @Column(name = "PROCESSCATEGORYID")
     private Integer PROCESSCATEGORYID;
 
+    @Column(name = "STATUS")
+    private String STATUS;
+
+    @Column(name = "MAKER")
+    private String MAKER;
+
+    @Column(name = "CHECKER")
+    private String CHECKER;
+
+
 }

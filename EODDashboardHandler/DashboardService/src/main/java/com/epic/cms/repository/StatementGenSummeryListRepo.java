@@ -18,6 +18,6 @@ import java.util.List;
 
 @Repository
 public interface StatementGenSummeryListRepo extends JpaRepository<EODPROCESSSUMMERY, Integer>, JpaSpecificationExecutor<EODPROCESSSUMMERY> {
-    @Query("SELECT new com.epic.cms.model.bean.StatementGenSummeryBean(ep.PROCESSID,ep.DESCRIPTION,ps.STATUS,ps.PROCESSPROGRESS,ps.SUCCESSCOUNT,ps.FAILEDCOUNT) FROM EODPROCESSSUMMERY ps INNER JOIN EODPROCESS ep ON ps.PROCESSID=ep.PROCESSID WHERE ps.EODID=?1 AND ps.EODMODULE = ?2 ORDER BY ps.STARTTIME")
+    @Query("SELECT new com.epic.cms.model.bean.StatementGenSummeryBean(ep.PROCESSID,ep.DESCRIPTION,ps.STATUS,ps.PROCESSPROGRESS,ps.SUCCESSCOUNT,ps.FAILEDCOUNT) FROM EODPROCESSSUMMERY ps INNER JOIN EODPROCESS ep ON ps.PROCESSID=ep.PROCESSID WHERE ps.EODID=?1 AND ep.EODMODULE = ?2 ORDER BY ps.STARTTIME")
     List<StatementGenSummeryBean> findStmtGenSummeryListByEodId(Long eodId, String eodFileGeneration);
 }

@@ -4,6 +4,7 @@ import lombok.Data;
 
 import javax.persistence.*;
 import java.io.Serializable;
+import java.sql.Timestamp;
 import java.util.Date;
 
 @Data
@@ -16,14 +17,13 @@ public class EOD implements Serializable {
     private Long EODID;
 
     @Column(name = "STARTTIME")
-    private Date STARTTIME;
+    private Timestamp STARTTIME;
 
     @Column(name = "ENDTIME")
-    private Date ENDTIME;
+    private Timestamp ENDTIME;
 
-    @ManyToOne
-    @JoinColumn(name = "STATUS")
-    private STATUS STATUS;
+    @Column(name = "STATUS")
+    private String STATUS;
 
     @Column(name = "CREATEDTIME")
     private Date CREATEDTIME;
@@ -35,10 +35,10 @@ public class EOD implements Serializable {
     private String LASTUPDATEDUSER;
 
     @Column(name = "NEXTEODSTARTTIME")
-    private Date NEXTEODSTARTTIME;
+    private Timestamp NEXTEODSTARTTIME;
 
     @Column(name = "NEXTSUBEODSTARTTIME")
-    private Date NEXTSUBEODSTARTTIME;
+    private Timestamp NEXTSUBEODSTARTTIME;
 
     @Column(name = "SUBEODSTATUS")
     private String SUBEODSTATUS;
@@ -49,13 +49,13 @@ public class EOD implements Serializable {
     @Column(name = "NOOFERRORPAROCESS")
     private Integer NOOFERRORPAROCESS;
 
-    @Column(name = "SUBEODPARTCOMP")
-    private String SUBEODPARTCOMP;
+//    @Column(name = "SUBEODPARTCOMP")
+//    private String SUBEODPARTCOMP;
 
     @Column(name = "FILEGENERATIONSTATUS")
     private String FILEGENERATIONSTATUS;
 
-    @Column(name = "ESTATEMENTFLAG")
-    private String ESTATEMENTFLAG;
+//    @Column(name = "ESTATEMENTFLAG")
+//    private String ESTATEMENTFLAG;
 
 }
