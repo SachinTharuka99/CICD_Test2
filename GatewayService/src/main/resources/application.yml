@@ -39,11 +39,11 @@ spring:
             - AuthenticationFilter
 
         - id: EODFileProcessingProducer
-            uri: lb://EODFileProcessingProducer
-            predicates:
-              - Path=/eod-file-processing-engine/**
-            filters:
-              - AuthenticationFilter
+          uri: lb://EODFileProcessingProducer
+          predicates:
+            - Path=/eod-file-processing-engine/**
+          filters:
+            - AuthenticationFilter
 
 # Eureka config
 eureka:
