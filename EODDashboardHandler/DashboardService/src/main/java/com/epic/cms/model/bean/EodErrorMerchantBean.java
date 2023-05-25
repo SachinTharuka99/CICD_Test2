@@ -15,6 +15,6 @@ import lombok.Setter;
 public class EodErrorMerchantBean {
     private Long eodId;
     private String merchantId;
-    private String errorProcessId;
+    private Integer errorProcessId;
     private String errorReason;
 }

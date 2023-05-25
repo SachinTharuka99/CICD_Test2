@@ -7,6 +7,7 @@ import javax.persistence.Entity;
 import javax.persistence.Id;
 import javax.persistence.Table;
 import java.io.Serializable;
+import java.sql.Timestamp;
 import java.util.Date;
 
 @Data
@@ -15,79 +16,88 @@ import java.util.Date;
 public class EODPROCESS implements Serializable {
 
     @Id
-    @Column(name = "PROCESSID", nullable = false)
+    @Column(name = "PROCESSID")
     private Integer PROCESSID;
 
-    @Column(name = "DESCRIPTION", nullable = false)
+    @Column(name = "DESCRIPTION")
     private String DESCRIPTION;
 
     @Column(name = "CRITICALSTATUS")
-    private String CRITICALSTATUS;
+    private Integer CRITICALSTATUS;
 
     @Column(name = "ROLLBACKSTATUS")
-    private String ROLLBACKSTATUS;
+    private Integer ROLLBACKSTATUS;
 
     @Column(name = "SHEDULEDATE")
     private Date SHEDULEDATE;
 
     @Column(name = "SHEDULETIME")
-    private String SHEDULETIME;
+    private Integer SHEDULETIME;
 
     @Column(name = "FREQUENCYTYPE")
-    private String FREQUENCYTYPE;
+    private Integer FREQUENCYTYPE;
 
     @Column(name = "CONTINUESFREQUENCYTYPE")
-    private String CONTINUESFREQUENCYTYPE;
+    private Integer CONTINUESFREQUENCYTYPE;
 
     @Column(name = "CONTINUESFREQUENCY")
-    private String CONTINUESFREQUENCY;
+    private Integer CONTINUESFREQUENCY;
 
     @Column(name = "MULTIPLECYCLESTATUS")
-    private String MULTIPLECYCLESTATUS;
+    private Integer MULTIPLECYCLESTATUS;
 
     @Column(name = "PROCESSCATEGORYID")
-    private String PROCESSCATEGORYID;
+    private Integer PROCESSCATEGORYID;
 
     @Column(name = "DEPENDANCYSTATUS")
-    private String DEPENDANCYSTATUS;
+    private Integer DEPENDANCYSTATUS;
 
     @Column(name = "RUNNINGONMAIN")
-    private String RUNNINGONMAIN;
+    private Integer RUNNINGONMAIN;
 
     @Column(name = "RUNNINGONSUB")
-    private String RUNNINGONSUB;
+    private Integer RUNNINGONSUB;
 
     @Column(name = "PROCESSTYPE")
-    private String PROCESSTYPE;
+    private Integer PROCESSTYPE;
 
     @Column(name = "STATUS")
     private String STATUS;
 
-    @Column(name = "CREATEDTIME", nullable = false)
+    @Column(name = "CREATEDTIME")
     private Date CREATEDTIME;
 
-    @Column(name = "LASTUPDATEDTIME", nullable = false)
+    @Column(name = "LASTUPDATEDTIME")
     private Date LASTUPDATEDTIME;
 
     @Column(name = "LASTUPDATEDUSER")
     private String LASTUPDATEDUSER;
 
     @Column(name = "SHEDULEDATETIME")
-    private Date SHEDULEDATETIME;
+    private Timestamp SHEDULEDATETIME;
 
     @Column(name = "HOLIDAYACTION")
-    private String HOLIDAYACTION;
+    private Integer HOLIDAYACTION;
 
     @Column(name = "LETTERGENARATIONSTATUS")
     private String LETTERGENARATIONSTATUS;
 
-    @Column(name = "KAFKATOPICNAME")
-    private String KAFKATOPICNAME;
+    @Column(name = "ISSUINGORACQUIRING")
+    private Integer ISSUINGORACQUIRING;
+
+    @Column(name = "EODMODULE")
+    private String EODMODULE;
 
     @Column(name = "KAFKAGROUPID")
     private String KAFKAGROUPID;
 
-    @Column(name = "ISSUINGORACQUIRING")
-    private String ISSUINGORACQUIRING;
+    @Column(name = "KAFKATOPICNAME")
+    private String KAFKATOPICNAME;
+
+    @Column(name = "MAKER")
+    private String MAKER;
+
+    @Column(name = "CHECKER")
+    private String CHECKER;
 
 }

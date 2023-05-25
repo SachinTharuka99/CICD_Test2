@@ -11,7 +11,6 @@ import java.sql.Date;
 public class EODERRORCARDS {
 
     @Id
-    @GeneratedValue(strategy = GenerationType.AUTO)
     @Column(name = "ID")
     private Integer id;
 
@@ -31,7 +30,7 @@ public class EODERRORCARDS {
     private String STATUS;
 
     @Column(name = "ERRORPROCESSID")
-    private String ERRORPROCESSID;
+    private Integer ERRORPROCESSID;
 
     @Column(name = "ERRORPROCESSNAME")
     private String ERRORPROCESSNAME;
@@ -52,9 +51,9 @@ public class EODERRORCARDS {
     private String LASTUPDATEDUSER;
 
     @Column(name = "ISPROCESSFAIL")
-    private String ISPROCESSFAIL;
+    private Integer ISPROCESSFAIL;
 
     @Column(name = "PROCESSSTEPID")
-    private String PROCESSSTEPID;
+    private Integer PROCESSSTEPID;
 
 }

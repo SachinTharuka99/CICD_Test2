@@ -5,9 +5,9 @@ import com.epic.cms.model.bean.DelinquentAccountBean;
 import com.epic.cms.model.bean.ProcessBean;
 import com.epic.cms.model.rowmapper.ProcessBeanRowMapper;
 import com.epic.cms.util.Configurations;
+import com.epic.cms.util.LogManager;
 import com.epic.cms.util.StatusVarList;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.core.RowCountCallbackHandler;
 import org.springframework.stereotype.Repository;
@@ -34,6 +34,9 @@ public class ManualNpRepo implements ManualNpDao {
 
     @Autowired
     JdbcTemplate onlineJdbcTemplate;
+
+    @Autowired
+    LogManager logManager;
 
 
     @Override
@@ -79,7 +82,7 @@ public class ManualNpRepo implements ManualNpDao {
                     reqType, Status, sdf.format(Configurations.EOD_DATE)
             ));
         } catch (Exception e) {
-            errorLogger.error("Exception in Get Manual Np Request Details ", e);
+            logManager.logError("Exception in Get Manual Np Request Details ", errorLogger);
             throw e;
         }
         return manualNpMap;
@@ -96,8 +99,7 @@ public class ManualNpRepo implements ManualNpDao {
                     accNo
             );
         } catch (Exception e) {
-            e.printStackTrace();
-            errorLogger.error("Exception in Update Np Status Card Account ", e);
+            logManager.logError("Exception in Update Np Status Card Account ", errorLogger);
             throw e;
         }
         return flag;
@@ -116,7 +118,7 @@ public class ManualNpRepo implements ManualNpDao {
                     Configurations.EOD_USER
             );
         } catch (Exception e) {
-            errorLogger.error("Exception in Insert In to Delinquent History ", e);
+            logManager.logError("Exception in Insert In to Delinquent History ", errorLogger);
             throw e;
         }
         return flag;
@@ -181,7 +183,7 @@ public class ManualNpRepo implements ManualNpDao {
             }
 
         } catch (Exception e) {
-            errorLogger.error("Exception in Get NP Details From Last Billing Statement ", e);
+            logManager.logError("Exception in Get NP Details From Last Billing Statement ", errorLogger);
             throw e;
         }
         return count;
@@ -259,7 +261,7 @@ public class ManualNpRepo implements ManualNpDao {
                 ));
             }
         } catch (Exception e) {
-            errorLogger.error("Exception in Set Delinquent Account Details ", e);
+            logManager.logError("Exception in Set Delinquent Account Details ", errorLogger);
             throw e;
         }
         return delinquentAccountBean;
@@ -290,7 +292,7 @@ public class ManualNpRepo implements ManualNpDao {
                     statusList.getCHEQUE_RETURN_STATUS()
             ));
         } catch (Exception e) {
-            errorLogger.error("Exception in Get Total Payment Sync Last Due ", e);
+            logManager.logError("Exception in Get Total Payment Sync Last Due ", errorLogger);
             throw e;
         }
         return payment;
@@ -315,7 +317,7 @@ public class ManualNpRepo implements ManualNpDao {
                     noOfDates
             );
         } catch (Exception e) {
-            errorLogger.error("Exception in Get Risk Class On Ndia ", e);
+            logManager.logError("Exception in Get Risk Class On Ndia ", errorLogger);
             throw e;
         }
         return newRiskClass;
@@ -337,7 +339,7 @@ public class ManualNpRepo implements ManualNpDao {
                     payType
             );
         } catch (Exception e) {
-            errorLogger.error("Exception in Insert Into EOD Gl Account ", e);
+            logManager.logError("Exception in Insert Into EOD Gl Account ", errorLogger);
             throw e;
         }
         return count;
@@ -401,7 +403,7 @@ public class ManualNpRepo implements ManualNpDao {
                 );
             }
         } catch (Exception e) {
-            errorLogger.error("Exception in Add Details For Manual N PTo Delinquent Account Table ", e);
+            logManager.logError("Exception in Add Details For Manual N PTo Delinquent Account Table ", errorLogger);
             throw e;
         }
         return count;
@@ -418,7 +420,7 @@ public class ManualNpRepo implements ManualNpDao {
                     reqID
             );
         } catch (Exception e) {
-            errorLogger.error("Exception in Update Manual Np To Compelete ", e);
+            logManager.logError("Exception in Update Manual Np To Compelete ", errorLogger);
             throw e;
         }
         return flag;
@@ -439,7 +441,7 @@ public class ManualNpRepo implements ManualNpDao {
                     }
             ));
         } catch (Exception e) {
-            errorLogger.error("Exception in Get NP Risk CLass ", e);
+            logManager.logError("Exception in Get NP Risk CLass ", errorLogger);
             throw e;
         }
         return npRiskClass;
@@ -463,7 +465,7 @@ public class ManualNpRepo implements ManualNpDao {
                     riskClass
             );
         } catch (Exception e) {
-            errorLogger.error("Exception in Get NDIA On Risk Class ", e);
+            logManager.logError("Exception in Get NDIA On Risk Class ", errorLogger);
             throw e;
         }
         return bucket;
@@ -492,7 +494,7 @@ public class ManualNpRepo implements ManualNpDao {
                     accNo
             ));
         } catch (Exception e) {
-            errorLogger.error("Exception in Get Np Details for Np GL ", e);
+            logManager.logError("Exception in Get Np Details for Np GL ", errorLogger);
             throw e;
         }
         return count;
@@ -516,7 +518,7 @@ public class ManualNpRepo implements ManualNpDao {
                     accNo
             );
         } catch (Exception e) {
-            errorLogger.error("Exception in Update Delinquent Account For Manual Np ", e);
+            logManager.logError("Exception in Update Delinquent Account For Manual Np ", errorLogger);
             throw e;
         }
         return flag;
@@ -533,7 +535,7 @@ public class ManualNpRepo implements ManualNpDao {
                     accNo
             );
         } catch (Exception e) {
-            errorLogger.error("Exception in Update Account Status ", e);
+            logManager.logError("Exception in Update Account Status ", errorLogger);
             throw e;
         }
         return flag;
@@ -552,14 +554,14 @@ public class ManualNpRepo implements ManualNpDao {
 
             if (Configurations.ONLINE_LOG_LEVEL == 1) {
                 /**Only for troubleshoot*/
-                infoLogger.info("================ updateOnlineAccountStatus ===================" + Configurations.EOD_ID);
-                infoLogger.info(sql);
-                infoLogger.info(Integer.toString(status));
-                infoLogger.info(accNo);
-                infoLogger.info("================ updateOnlineAccountStatus END ===================");
+                logManager.logInfo("================ updateOnlineAccountStatus ===================" + Configurations.EOD_ID,infoLogger);
+                logManager.logInfo(sql,infoLogger);
+                logManager.logInfo(Integer.toString(status),infoLogger);
+                logManager.logInfo(accNo,infoLogger);
+                logManager.logInfo("================ updateOnlineAccountStatus END ===================",infoLogger);
             }
         } catch (Exception e) {
-            errorLogger.error("Exception in Update Online Account Status ", e);
+            logManager.logError("Exception in Update Online Account Status ", errorLogger);
             throw e;
         }
         return flag;

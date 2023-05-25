@@ -11,6 +11,7 @@ import com.epic.cms.dao.CommonFileGenProcessDao;
 import com.epic.cms.model.bean.GlBean;
 import com.epic.cms.util.CommonMethods;
 import com.epic.cms.util.Configurations;
+import com.epic.cms.util.LogManager;
 import com.epic.cms.util.StatusVarList;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.EmptyResultDataAccessException;
@@ -21,7 +22,7 @@ import org.springframework.transaction.annotation.Transactional;
 import java.sql.ResultSet;
 import java.util.*;
 
-import static com.epic.cms.util.LogManager.errorLogger;
+import static com.epic.cms.util.LogManager.*;
 
 @Repository
 public class CommonFileGenProcessRepo implements CommonFileGenProcessDao {
@@ -31,6 +32,9 @@ public class CommonFileGenProcessRepo implements CommonFileGenProcessDao {
 
     @Autowired
     StatusVarList statusList;
+
+    @Autowired
+    LogManager logManager;
 
     @Override
     public List<String> getCardProductCardType(StringBuffer cardNo) throws Exception {
@@ -77,8 +81,7 @@ public class CommonFileGenProcessRepo implements CommonFileGenProcessDao {
             ,cardDetails.get(2)
             ,statusList.getEOD_DONE_STATUS());
         } catch (Exception e) {
-            e.printStackTrace();
-            errorLogger.error("Exception in Insert into Download Table " + e.getMessage());
+            logManager.logError("Exception in Insert into Download Table " + e.getMessage(),errorLoggerEFGE);
             throw e;
         }
     }
@@ -98,7 +101,7 @@ public class CommonFileGenProcessRepo implements CommonFileGenProcessDao {
             }, applicationId);
         } catch (Exception e) {
             e.printStackTrace();
-            errorLogger.error("Exception in Get Card Product Type Method " + e);
+            logManager.logError("Exception in Get Card Product Type Method ", errorLoggerEFGE);
             throw e;
         }
         return cardDetails;

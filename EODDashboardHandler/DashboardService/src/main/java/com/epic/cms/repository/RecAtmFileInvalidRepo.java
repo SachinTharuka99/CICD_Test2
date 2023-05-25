@@ -10,6 +10,5 @@ import java.util.List;
 
 @Repository
 public interface RecAtmFileInvalidRepo extends PagingAndSortingRepository<RECATMFILEINVALID, Integer> {
-
     Page<RECATMFILEINVALID> findRECATMFILEINVALIDByEODID(Long EODID, Pageable pageable);
 }

@@ -9,6 +9,7 @@ package com.epic.cms.repository;
 
 import com.epic.cms.dao.CardApplicationRejectLetterDao;
 import com.epic.cms.util.Configurations;
+import com.epic.cms.util.LogManager;
 import com.epic.cms.util.QueryParametersList;
 import com.epic.cms.util.StatusVarList;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -19,6 +20,7 @@ import java.sql.ResultSet;
 import java.util.ArrayList;
 
 import static com.epic.cms.util.LogManager.errorLogger;
+import static com.epic.cms.util.LogManager.errorLoggerEFGE;
 
 @Repository
 public class CardApplicationRejectLetterRepo implements CardApplicationRejectLetterDao {
@@ -31,6 +33,9 @@ public class CardApplicationRejectLetterRepo implements CardApplicationRejectLet
 
     @Autowired
     private JdbcTemplate backendJdbcTemplate;
+
+    @Autowired
+    LogManager logManager;
 
     @Override
     public ArrayList<String> getRejectApplictionIDsToGenerateLetters(String StartEodStatus, boolean isErrorProcessInLastEod, boolean isProcessCompletlyFail) throws Exception {
@@ -70,7 +75,7 @@ public class CardApplicationRejectLetterRepo implements CardApplicationRejectLet
             }
 
         } catch (Exception e) {
-            errorLogger.error("Error in get Rejected Application ID's to Generate Letteter ", e);
+            logManager.logError("Error in get Rejected Application ID's to Generate Letteter ", errorLoggerEFGE);
             throw e;
         }
         return cardNoList;
@@ -89,7 +94,7 @@ public class CardApplicationRejectLetterRepo implements CardApplicationRejectLet
             );
 
         } catch (Exception e) {
-            errorLogger.error("Error in Update Letter generate status ", e);
+            logManager.logError("Error in Update Letter generate status ", errorLoggerEFGE);
             throw e;
         }
         return count;

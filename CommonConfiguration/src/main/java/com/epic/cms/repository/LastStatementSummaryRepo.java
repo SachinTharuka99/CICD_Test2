@@ -5,6 +5,7 @@ import com.epic.cms.model.bean.LastStatementSummeryBean;
 import com.epic.cms.model.bean.StatementBean;
 import com.epic.cms.model.rowmapper.LastStatementSummeryRowMapper;
 import com.epic.cms.util.CommonMethods;
+import com.epic.cms.util.LogManager;
 import com.epic.cms.util.StatusVarList;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.jdbc.core.JdbcTemplate;
@@ -27,6 +28,9 @@ public class LastStatementSummaryRepo implements LastStatmentSummaryDao {
     @Autowired
     StatusVarList statusList;
 
+    @Autowired
+    LogManager logManager;
+
     @Override
     public List<LastStatementSummeryBean> getStatementCardList() throws Exception {
         List<LastStatementSummeryBean> cardList = new ArrayList<>();
@@ -45,7 +49,7 @@ public class LastStatementSummaryRepo implements LastStatmentSummaryDao {
                     statusList.getCARD_PRODUCT_CHANGE_STATUS());
 
         } catch (Exception e) {
-            errorLogger.error("Get Statement Card List Error", e);
+            logManager.logError("Get Statement Card List Error", errorLogger);
             throw e;
         }
         return cardList;
@@ -76,7 +80,7 @@ public class LastStatementSummaryRepo implements LastStatmentSummaryDao {
                         }
                     },cardNo.toString());
         } catch (Exception e) {
-            errorLogger.error("Get Last Statement Summary Info Error", e);
+            logManager.logError("Get Last Statement Summary Info Error", errorLogger);
             throw e;
         }
         return lastStatementSummeryBean;
@@ -106,7 +110,7 @@ public class LastStatementSummaryRepo implements LastStatmentSummaryDao {
                         return stmtBean;
                     }, cardNumber.toString());
         } catch (Exception e) {
-            errorLogger.error("Get Last Statement Details Error", e);
+            logManager.logError("Get Last Statement Details Error", errorLogger);
             throw e;
         }
         return statementBean;

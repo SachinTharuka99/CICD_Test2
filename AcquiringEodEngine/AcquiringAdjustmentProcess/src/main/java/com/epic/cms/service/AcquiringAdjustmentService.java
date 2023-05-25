@@ -155,7 +155,7 @@ public class AcquiringAdjustmentService {
                 }
                 details.put("Adjustment Amount :", acqAdjustmentBean.getAdjustAmount());
                 details.put("CRDR  :", acqAdjustmentBean.getCrDr());
-                infoLogger.info(logManager.processDetailsStyles(details));
+                logManager.logDetails(details, infoLogger);
                 details.clear();
                 //Update acq adjustment to EDON
                 acquiringAdjustmentDao.updateAdjustmentToEdon(acqAdjustmentBean.getId(), txnID);
@@ -163,7 +163,6 @@ public class AcquiringAdjustmentService {
                 Configurations.PROCESS_SUCCESS_COUNT++;
             } catch (Exception e) {
                 logManager.logError(String.valueOf(e), errorLogger);
-//            errorLogger.error(processHeader + " failed for merchantId:" + acqAdjustmentBean.getMerchantId(), e);
                 if (!errorMerchantList.contains((String) acqAdjustmentBean.getMerchantId())) {
                     merchantErrorList.add(new ErrorMerchantBean(Configurations.ERROR_EOD_ID, Configurations.EOD_DATE, acqAdjustmentBean.getMerchantId(), e.getMessage(), Configurations.RUNNING_PROCESS_ID, Configurations.RUNNING_PROCESS_DESCRIPTION, 0, MerchantCustomer.MERCHANTLOCATION));
                     errorMerchantList.add(acqAdjustmentBean.getMerchantId());
@@ -171,7 +170,7 @@ public class AcquiringAdjustmentService {
                 failAdjustment++;
                 Configurations.PROCESS_FAILD_COUNT++;
             } finally {
-                infoLogger.info(logManager.processDetailsStyles(details));
+                logManager.logDetails(details, infoLogger);
             }
         }
     }

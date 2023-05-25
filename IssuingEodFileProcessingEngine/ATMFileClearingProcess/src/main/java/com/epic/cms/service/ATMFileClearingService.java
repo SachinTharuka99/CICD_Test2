@@ -218,7 +218,7 @@ public class ATMFileClearingService {
             referenceNo = "V" + date + time + padLine;
 
         } catch (ISOException e) {
-            errorLoggerEFPE.error("ATM FILE VALIDATION", e);
+            logManager.logError("ATM FILE VALIDATION", errorLoggerEFPE);
         }
         return referenceNo;
     }

@@ -42,7 +42,7 @@ public class ProcessBuilderRepo implements ProcessBuilderDao {
         try {
             processDetails = backendJdbcTemplate.queryForObject(queryParametersList.getCommonSelectGetProcessDetails(), new ProcessBeanRowMapper(), processId);
         } catch (Exception e) {
-            errorLogger.error(String.valueOf(e));
+            throw e;
         }
         return processDetails;
     }

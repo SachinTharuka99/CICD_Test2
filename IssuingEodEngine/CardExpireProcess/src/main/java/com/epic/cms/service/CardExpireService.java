@@ -57,11 +57,9 @@ public class CardExpireService {
                 details.put("Expire date", cardBean.getExpiryDate());
                 details.put("Old Status", cardBean.getCardStatus());
                 details.put("New Status", statusList.getCARD_EXPIRED_STATUS());
-//                infoLogger.info(logManager.processDetailsStyles(details));
 
             } catch (Exception e) {
                 Configurations.errorCardList.add(new ErrorCardBean(Configurations.ERROR_EOD_ID, Configurations.EOD_DATE, new StringBuffer(cardBean.getCardnumber()), e.getMessage(), Configurations.RUNNING_PROCESS_ID, Configurations.RUNNING_PROCESS_DESCRIPTION, 0, CardAccount.CARD));
-                //errorLogger.error("Card expire process failed for card number " + CommonMethods.cardNumberMask(cardBean.getCardnumber()), e);
                 logManager.logError("Card expire process failed for card number " + CommonMethods.cardNumberMask(cardBean.getCardnumber()), e, errorLogger);
                 Configurations.PROCESS_FAILD_COUNT++;
             } finally {

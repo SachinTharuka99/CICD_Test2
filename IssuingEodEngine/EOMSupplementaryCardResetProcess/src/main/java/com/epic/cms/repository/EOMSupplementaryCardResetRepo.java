@@ -74,7 +74,6 @@ public class EOMSupplementaryCardResetRepo implements EOMSupplementaryCardResetD
                     , statusVarList.getCARD_CLOSED_STATUS()
                     , statusVarList.getCARD_PRODUCT_CHANGE_STATUS());
         } catch (Exception e) {
-            errorLogger.error(String.valueOf(e));
             throw e;
         }
         return accNo;
@@ -414,15 +413,15 @@ public class EOMSupplementaryCardResetRepo implements EOMSupplementaryCardResetD
 
             if (Configurations.ONLINE_LOG_LEVEL == 1) {
                 //Only for troubleshoot
-                infoLogger.info("================ updateMainCardBalOnline ===================" + Integer.toString(Configurations.EOD_ID));
-                infoLogger.info(query);
-                infoLogger.info(Double.toString(totalSupTempCredit));
-                infoLogger.info(Double.toString(supFowardPayments));
-                infoLogger.info(Double.toString(totalSupTempCash));
-                infoLogger.info(Double.toString(totalSupTempCredit));
-                infoLogger.info(Double.toString(totalSupTempCash));
-                infoLogger.info(CommonMethods.cardNumberMask(mainCardNumber));
-                infoLogger.info("================ updateMainCardBalOnline END ===================");
+                logManager.logInfo("================ updateMainCardBalOnline ===================" + Integer.toString(Configurations.EOD_ID),infoLogger);
+                logManager.logInfo(query,infoLogger);
+                logManager.logInfo(Double.toString(totalSupTempCredit),infoLogger);
+                logManager.logInfo(Double.toString(supFowardPayments),infoLogger);
+                logManager.logInfo(Double.toString(totalSupTempCash),infoLogger);
+                logManager.logInfo(Double.toString(totalSupTempCredit),infoLogger);
+                logManager.logInfo(Double.toString(totalSupTempCash),infoLogger);
+                logManager.logInfo(CommonMethods.cardNumberMask(mainCardNumber),infoLogger);
+                logManager.logInfo("================ updateMainCardBalOnline END ===================",infoLogger);
             }
         } catch (Exception e) {
             throw e;
@@ -605,13 +604,13 @@ public class EOMSupplementaryCardResetRepo implements EOMSupplementaryCardResetD
 
                     if (Configurations.ONLINE_LOG_LEVEL == 1) {
                         //Only for troubleshoot
-                        infoLogger.info("================ resetSuplimentryBalanceInOnlineCardTable ===================" + Integer.toString(Configurations.EOD_ID));
-                        infoLogger.info(query);
-                        infoLogger.info(Double.toString(values[0]));
-                        infoLogger.info(Double.toString(values[1]));
-                        infoLogger.info("0,0");
-                        infoLogger.info(CommonMethods.cardNumberMask(cardnumber));
-                        infoLogger.info("================ resetSuplimentryBalanceInOnlineCardTable END ===================");
+                        logManager.logInfo("================ resetSuplimentryBalanceInOnlineCardTable ===================" + Integer.toString(Configurations.EOD_ID),infoLogger);
+                        logManager.logInfo(query,infoLogger);
+                        logManager.logInfo(Double.toString(values[0]),infoLogger);
+                        logManager.logInfo(Double.toString(values[1]),infoLogger);
+                        logManager.logInfo("0,0",infoLogger);
+                        logManager.logInfo(CommonMethods.cardNumberMask(cardnumber),infoLogger);
+                        logManager.logInfo("================ resetSuplimentryBalanceInOnlineCardTable END ===================",infoLogger);
                     }
                 }
             }

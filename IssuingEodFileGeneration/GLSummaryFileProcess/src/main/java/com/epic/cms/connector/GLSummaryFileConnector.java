@@ -79,7 +79,6 @@ public class GLSummaryFileConnector extends FileGenProcessBuilder {
 
                             } catch (Exception e) {
                                 Configurations.PROCESS_FAILD_COUNT++;
-                                //errorLogger.error("Sync fail to EOD GL Account Table for Primary ID " + glaccountBean.getKey(), glaccountBean.getKey(), e);
                                 logManager.logError("Sync fail to EOD GL Account Table for Primary ID ", errorLoggerEFGE);
                                 accDetails.put("Sync fail to EOD GL Account Table for Primary ID " + glaccountBean.getKey(), glaccountBean.getKey());
                             }

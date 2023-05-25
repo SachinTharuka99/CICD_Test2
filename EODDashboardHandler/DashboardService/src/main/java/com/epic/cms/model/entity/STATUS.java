@@ -12,7 +12,7 @@ import java.sql.Date;
 public class STATUS implements Serializable {
 
     @Id
-    @Column(name = "STATUSCODE", nullable = false)
+    @Column(name = "STATUSCODE")
     private String STATUSCODE;
 
     @Column(name = "DESCRIPTION")
@@ -28,6 +28,6 @@ public class STATUS implements Serializable {
     private Date CREATETIME;
 
     @Column(name = "ONLINECODE")
-    private String ONLINECODE;
+    private Integer ONLINECODE;
 
 }

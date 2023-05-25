@@ -3,6 +3,7 @@ package com.epic.cms.repository;
 import com.epic.cms.dao.PaymentReversalDao;
 import com.epic.cms.model.bean.PaymentBean;
 import com.epic.cms.util.Configurations;
+import com.epic.cms.util.LogManager;
 import com.epic.cms.util.QueryParametersList;
 import com.epic.cms.util.StatusVarList;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -30,6 +31,9 @@ public class PaymentReversalRepo implements PaymentReversalDao {
     @Autowired
     StatusVarList status;
 
+    @Autowired
+    LogManager logManager;
+
     @Override
     public List<PaymentBean> getPaymentReversals() throws Exception {
 
@@ -52,7 +56,7 @@ public class PaymentReversalRepo implements PaymentReversalDao {
                     })
                     , "CADP", Configurations.EOD_ID, status.getINITIAL_STATUS());
         } catch (Exception e) {
-            errorLogger.error("Exception in Get Payments Reversals ", e);
+            logManager.logError("Exception in Get Payments Reversals ", errorLogger);
             throw e;
         }
         return chqBeanList;
@@ -77,7 +81,7 @@ public class PaymentReversalRepo implements PaymentReversalDao {
                         Configurations.EOD_ID);
             }
         } catch (Exception e) {
-            errorLogger.error("Exception in Update Payments For Cash Reversals ", e);
+            logManager.logError("Exception in Update Payments For Cash Reversals ", errorLogger);
             throw e;
         }
         return count;

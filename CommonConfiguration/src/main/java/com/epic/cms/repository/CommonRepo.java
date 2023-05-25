@@ -22,8 +22,7 @@ import java.util.Date;
 import java.util.HashMap;
 import java.util.*;
 
-import static com.epic.cms.util.LogManager.errorLogger;
-import static com.epic.cms.util.LogManager.infoLogger;
+import static com.epic.cms.util.LogManager.*;
 
 @Repository
 public class CommonRepo implements CommonDao {
@@ -37,6 +36,9 @@ public class CommonRepo implements CommonDao {
     @Autowired
     private JdbcTemplate backendJdbcTemplate;
 
+//    @Autowired
+//    LogManager logManager;
+
     @Autowired
     @Qualifier("onlineJdbcTemplate")
     private JdbcTemplate onlineJdbcTemplate;
@@ -47,7 +49,7 @@ public class CommonRepo implements CommonDao {
         try {
             processDetails = backendJdbcTemplate.queryForObject(queryParametersList.getCommonSelectGetProcessDetails(), new ProcessBeanRowMapper(), processId);
         } catch (Exception e) {
-            errorLogger.error(String.valueOf(e));
+            throw e;
         }
         return processDetails;
     }
@@ -59,7 +61,7 @@ public class CommonRepo implements CommonDao {
             backendJdbcTemplate.update(queryParametersList.getCommonInsertToEodProcessSumery(), Configurations.ERROR_EOD_ID, processId, statusList.getINITIAL_STATUS(), Configurations.EOD_USER);
             System.out.println("EOD ID :"+Configurations.ERROR_EOD_ID);
         } catch (Exception e) {
-            errorLogger.error(String.valueOf(e));
+            //logManager.logError(e,errorLoggerCOM);
         }
     }
 
@@ -69,7 +71,7 @@ public class CommonRepo implements CommonDao {
         try {
             backendJdbcTemplate.update(queryParametersList.getCommonUpdateEodProcessSummery(), status, Configurations.EOD_USER, successCount, failedCount, progress, eodId, processId);
         } catch (Exception e) {
-            errorLogger.error(String.valueOf(e));
+            //logManager.logError(e,errorLoggerCOM);
         }
     }
 
@@ -99,7 +101,7 @@ public class CommonRepo implements CommonDao {
         try {
             mainCardNo = backendJdbcTemplate.queryForObject(queryParametersList.getCommon_getMainCardNumber(), StringBuffer.class, new Object[]{cardNo});
         } catch (Exception e) {
-            errorLogger.error(String.valueOf(e));
+            //logManager.logError(e,errorLoggerCOM);
         }
         return mainCardNo;
     }
@@ -167,7 +169,7 @@ public class CommonRepo implements CommonDao {
             }
 
         } catch (Exception e) {
-            errorLogger.error(String.valueOf(e));
+            //logManager.logError(e,errorLoggerCOM);
         }
         return txnMap;
     }
@@ -178,7 +180,6 @@ public class CommonRepo implements CommonDao {
         try {
             accNo = backendJdbcTemplate.queryForObject(query, String.class, cardNo.toString());
         } catch (Exception e) {
-            //LogFileCreator.writeErrorToLog(e);
             throw e;
         }
         return accNo;
@@ -286,7 +287,7 @@ public class CommonRepo implements CommonDao {
             count = backendJdbcTemplate.update(queryParametersList.getCommon_updateTransactionToEDON(),
                     statusList.getEOD_DONE_STATUS(), txnId);
         } catch (Exception e) {
-            errorLogger.error(String.valueOf(e));
+            //logManager.logError(e,errorLoggerCOM);
         }
         return count;
     }
@@ -306,7 +307,6 @@ public class CommonRepo implements CommonDao {
             cardNumber = oldCardNumber;
 
         } catch (Exception e) {
-            //LogFileCreator.writeErrorToLog(e);
             throw e;
         }
         return cardNumber;
@@ -327,18 +327,17 @@ public class CommonRepo implements CommonDao {
 
             // if (Configurations.ONLINE_LOG_LEVEL == 1) {
             //Only for troubleshoot
-            infoLogger.info("================ updateCardOtb ===================" + Configurations.EOD_ID);
-            //infoLogger.info(query);
-            infoLogger.info(Double.toString(cardBean.getOtbcredit()));
-            infoLogger.info(Double.toString(cardBean.getOtbcash()));
-            infoLogger.info(Double.toString(cardBean.getTmpcredit()));
-            infoLogger.info(Double.toString(cardBean.getTmpcash()));
-            infoLogger.info(Configurations.EOD_USER);
-            infoLogger.info(CommonMethods.cardNumberMask(cardBean.getCardnumber()));
-            infoLogger.info("================ updateCardOtb END ===================");
+//            logManager.logInfo("================ updateCardOtb ===================" + Configurations.EOD_ID,infoLoggerCOM);
+//            logManager.logInfo(Double.toString(cardBean.getOtbcredit()),infoLoggerCOM);
+//            logManager.logInfo(Double.toString(cardBean.getOtbcash()),infoLoggerCOM);
+//            logManager.logInfo(Double.toString(cardBean.getTmpcredit()),infoLoggerCOM);
+//            logManager.logInfo(Double.toString(cardBean.getTmpcash()),infoLoggerCOM);
+//            logManager.logInfo(Configurations.EOD_USER,infoLoggerCOM);
+//            logManager.logInfo(CommonMethods.cardNumberMask(cardBean.getCardnumber()),infoLoggerCOM);
+//            logManager.logInfo("================ updateCardOtb END ===================",infoLoggerCOM);
             //}
         } catch (Exception e) {
-            errorLogger.error(String.valueOf(e));
+            //logManager.logError(e,errorLoggerCOM);
         }
     }
 
@@ -354,15 +353,15 @@ public class CommonRepo implements CommonDao {
 
             if (Configurations.ONLINE_LOG_LEVEL == 1) {
                 //Only for troubleshoot
-                infoLogger.info("================ updateAccountOtb ===================" + Configurations.EOD_ID);
-                infoLogger.info(queryParametersList.getCommon_updateAccountOtb());
-                infoLogger.info(Double.toString(otbBean.getOtbcredit()));
-                infoLogger.info(Double.toString(otbBean.getOtbcash()));
-                infoLogger.info(otbBean.getAccountnumber());
-                infoLogger.info("================ updateAccountOtb END ===================");
+//                logManager.logInfo("================ updateAccountOtb ===================" + Configurations.EOD_ID,infoLoggerCOM);
+//                logManager.logInfo(queryParametersList.getCommon_updateAccountOtb(),infoLoggerCOM);
+//                logManager.logInfo(Double.toString(otbBean.getOtbcredit()),infoLoggerCOM);
+//                logManager.logInfo(Double.toString(otbBean.getOtbcash()),infoLoggerCOM);
+//                logManager.logInfo(otbBean.getAccountnumber(),infoLoggerCOM);
+//                logManager.logInfo("================ updateAccountOtb END ===================",infoLoggerCOM);
             }
         } catch (Exception e) {
-            errorLogger.error(String.valueOf(e));
+            //logManager.logError(e,errorLoggerCOM);
         }
     }
 
@@ -378,15 +377,15 @@ public class CommonRepo implements CommonDao {
 
             if (Configurations.ONLINE_LOG_LEVEL == 1) {
                 //Only for troubleshoot
-                infoLogger.info("================ updateCustomerOtb ===================" + Configurations.EOD_ID);
-                infoLogger.info(queryParametersList.getCommon_updateCustomerOtb());
-                infoLogger.info(Double.toString(bean.getOtbcredit()));
-                infoLogger.info(Double.toString(bean.getOtbcash()));
-                infoLogger.info(bean.getCustomerid());
-                infoLogger.info("================ updateCustomerOtb END ===================");
+//                logManager.logInfo("================ updateCustomerOtb ===================" + Configurations.EOD_ID,infoLoggerCOM);
+//                logManager.logInfo(queryParametersList.getCommon_updateCustomerOtb(),infoLoggerCOM);
+//                logManager.logInfo(Double.toString(bean.getOtbcredit()),infoLoggerCOM);
+//                logManager.logInfo(Double.toString(bean.getOtbcash()),infoLoggerCOM);
+//                logManager.logInfo(bean.getCustomerid(),infoLoggerCOM);
+//                logManager.logInfo("================ updateCustomerOtb END ===================",infoLoggerCOM);
             }
         } catch (Exception e) {
-            errorLogger.error(String.valueOf(e));
+            //logManager.logError(e,errorLoggerCOM);
         }
     }
 
@@ -410,7 +409,7 @@ public class CommonRepo implements CommonDao {
         } catch (EmptyResultDataAccessException e) {
             return 0;
         } catch (Exception e) {
-            errorLogger.error("Get Total Payment Since LastDue Error" + e);
+            //logManager.logError("Get Total Payment Since LastDue Error",errorLoggerCOM);
             throw e;
         }
         return payments;
@@ -434,7 +433,7 @@ public class CommonRepo implements CommonDao {
                     }, cardNumber.toString()
             );
         } catch (Exception e) {
-            infoLogger.error("Exception occurred for cardNumber " + CommonMethods.cardNumberMask(cardNumber), e);
+            //logManager.logError("Exception occurred for cardNumber " + CommonMethods.cardNumberMask(cardNumber), errorLoggerCOM);
             throw e;
         }
         return dueAmountList;
@@ -826,7 +825,6 @@ public class CommonRepo implements CommonDao {
 
             }
         } catch (Exception e) {
-            //LogFileCreator.writeErrorToLog(e);
             throw e;
         }
 
@@ -865,7 +863,7 @@ public class CommonRepo implements CommonDao {
             }
 
         } catch (Exception e) {
-            infoLogger.error("Check Fee Exist For Card Exception ", e);
+            //logManager.logError("Check Fee Exist For Card Exception",errorLoggerCOM);
             throw e;
         }
         return forward;
@@ -894,7 +892,7 @@ public class CommonRepo implements CommonDao {
             return false;
 
         } catch (Exception e) {
-            infoLogger.error("Exception ", e);
+            //logManager.logError(e,errorLoggerCOM);
             throw e;
         }
         return forward;
@@ -945,7 +943,6 @@ public class CommonRepo implements CommonDao {
             );
 
         } catch (Exception e) {
-            //LogFileCreator.writeErrorToLog(e);
             throw e;
         }
         return bean;
@@ -966,7 +963,7 @@ public class CommonRepo implements CommonDao {
             }
 
         } catch (Exception e) {
-            infoLogger.error("Exception ", e);
+            //logManager.logError(e,errorLoggerCOM);
             throw e;
         }
         return status;
@@ -1015,9 +1012,9 @@ public class CommonRepo implements CommonDao {
             String query = "SELECT CAC.CARDASSOCIATION AS CARDASSOCIATION FROM CARDASSOCIATIONCHANNEL CAC INNER JOIN BIN CB ON CAC.CHANNELID=CB.CHANNELID WHERE CB.BIN=?";
             cardAssociation = backendJdbcTemplate.queryForObject(query, String.class, cardBin);
         } catch (EmptyResultDataAccessException e) {
-            infoLogger.info("--no result found--");
+            //logManager.logError("--no result found--",errorLoggerCOM);
         } catch (Exception e) {
-            errorLogger.error(String.valueOf(e));
+            //logManager.logError(e,errorLoggerCOM);
         }
         return cardAssociation;
     }
@@ -1194,7 +1191,7 @@ public class CommonRepo implements CommonDao {
             filePath = backendJdbcTemplate.queryForObject(query, String.class, fileCode);
 
         } catch (Exception e) {
-            errorLogger.error(String.valueOf(e));
+            //logManager.logError(e,errorLoggerCOM);
             throw e;
         }
         return filePath;
@@ -1211,7 +1208,7 @@ public class CommonRepo implements CommonDao {
             filePath = backendJdbcTemplate.queryForObject(query, String.class, fileCode);
 
         } catch (Exception e) {
-            errorLogger.error(String.valueOf(e));
+            //logManager.logError(e,errorLoggerCOM);
             throw e;
         }
         return filePath;
@@ -1240,7 +1237,7 @@ public class CommonRepo implements CommonDao {
                     fileType);
 
         } catch (Exception e) {
-            errorLogger.error(String.valueOf(e));
+            //logManager.logError(e,errorLoggerCOM);
             throw e;
         }
 

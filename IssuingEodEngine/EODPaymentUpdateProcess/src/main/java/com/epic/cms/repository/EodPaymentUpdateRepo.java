@@ -1,10 +1,7 @@
 package com.epic.cms.repository;
 
 import com.epic.cms.dao.EodPaymentUpdateDao;
-import com.epic.cms.util.Configurations;
-import com.epic.cms.util.DateUtil;
-import com.epic.cms.util.QueryParametersList;
-import com.epic.cms.util.StatusVarList;
+import com.epic.cms.util.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.core.namedparam.MapSqlParameterSource;
@@ -31,6 +28,9 @@ public class EodPaymentUpdateRepo implements EodPaymentUpdateDao {
 
     @Autowired
     StatusVarList status;
+
+    @Autowired
+    LogManager logManager;
 
     @Override
     public int[] callStoredProcedureForEodPaymentUpdate() throws SQLException {
@@ -83,10 +83,9 @@ public class EodPaymentUpdateRepo implements EodPaymentUpdateDao {
                     throw new SQLException();
             }
         } catch (SQLException e){
-            errorLogger.error(String.valueOf(e));
             throw e;
         } catch (Exception ex) {
-            errorLogger.error("Call StoredProcedure For EodPaymentUpdate Error", ex);
+            logManager.logError("Call StoredProcedure For EodPaymentUpdate Error", errorLogger);
             throw ex;
         }
     }

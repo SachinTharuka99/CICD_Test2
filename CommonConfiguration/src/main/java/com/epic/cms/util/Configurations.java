@@ -3,6 +3,7 @@ package com.epic.cms.util;
 
 import com.epic.cms.model.bean.ErrorCardBean;
 import com.epic.cms.model.bean.ErrorMerchantBean;
+import org.joda.time.LocalDate;
 
 import java.sql.Timestamp;
 import java.util.*;
@@ -1110,6 +1111,7 @@ public class Configurations {
 
     //Kafka Log Topic Config
     public static final String LOG_TOPIC = "logTopic";
+    public static LocalDate initDate = LocalDate.parse("2023-04-10");
 
     public static synchronized void countFinishedCategories() {
         STEP_CATEGORY_COUNT = STEP_CATEGORY_COUNT + 1;

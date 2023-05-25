@@ -4,6 +4,7 @@ import lombok.Data;
 
 import javax.persistence.*;
 import java.io.Serializable;
+import java.sql.Timestamp;
 import java.util.Date;
 
 @Data
@@ -12,7 +13,6 @@ import java.util.Date;
 public class EODPROCESSSUMMERY implements Serializable {
 
     @Id
-    @GeneratedValue(strategy = GenerationType.AUTO)
     @Column(name = "ID")
     private Integer id;
 
@@ -23,21 +23,21 @@ public class EODPROCESSSUMMERY implements Serializable {
     private Integer PROCESSID;
 
     @Column(name = "STARTTIME")
-    private Date STARTTIME;
+    private Timestamp STARTTIME;
 
     @Column(name = "ENDTIME")
-    private Date ENDTIME;
+    private Timestamp ENDTIME;
 
     @Column(name = "RUNNNGONPROCESSID")
-    private String RUNNNGONPROCESSID;
+    private Integer RUNNNGONPROCESSID;
 
     @Column(name = "STATUS")
     private String STATUS;
 
-    @Column(name = "CREATEDTIME", nullable = false)
+    @Column(name = "CREATEDTIME")
     private Date CREATEDTIME;
 
-    @Column(name = "LASTUPDATEDTIME", nullable = false)
+    @Column(name = "LASTUPDATEDTIME")
     private Date LASTUPDATEDTIME;
 
     @Column(name = "LASTUPDATEDUSER")
@@ -51,11 +51,5 @@ public class EODPROCESSSUMMERY implements Serializable {
 
     @Column(name = "PROCESSPROGRESS")
     private String PROCESSPROGRESS;
-
-    @Column(name = "SUBEODSTS")
-    private String SUBEODSTS;
-
-    @Column(name = "EODMODULE")
-    private String EODMODULE;
 
 }

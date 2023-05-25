@@ -23,9 +23,9 @@ spring:
       max-file-size: 6MB
   datasource:
     backend:
-      jdbcUrl: ${BACKEND_DB_URL:jdbc:oracle:thin:@124.43.16.185:50040:oradb}
-      username: ${BACKEND_USERNAME:ECMSBEDEV1}
-      password: ${BACKEND_PASSWORD:ECMSBEDEV1}
+      jdbcUrl: ${BACKEND_DB_URL:jdbc:oracle:thin:@124.43.16.185:50170/cmsbkdb}
+      username: ${BACKEND_USERNAME:CMSPRODUCTBACKEND}
+      password: ${BACKEND_PASSWORD:password}
       driverClassName: oracle.jdbc.driver.OracleDriver
       test-on-borrow: true
       validationQuery: SELECT 1 FROM DUAL

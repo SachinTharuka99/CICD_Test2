@@ -3,6 +3,7 @@ package com.epic.cms.repository;
 import com.epic.cms.dao.ClearMinAmountAndTempBlockDao;
 import com.epic.cms.util.Configurations;
 import com.epic.cms.util.DateUtil;
+import com.epic.cms.util.LogManager;
 import com.epic.cms.util.StatusVarList;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.jdbc.core.JdbcTemplate;
@@ -24,6 +25,9 @@ public class ClearMinAmountAndTempBlockRepo implements ClearMinAmountAndTempBloc
 
     @Autowired
     StatusVarList statusList;
+
+    @Autowired
+    LogManager logManager;
 
     @Override
     public ArrayList<StringBuffer[]> getAllCards(StringBuffer cardNo) throws Exception {
@@ -48,7 +52,7 @@ public class ClearMinAmountAndTempBlockRepo implements ClearMinAmountAndTempBloc
                     , statusList.getCARD_PRODUCT_CHANGE_STATUS()
             );
         } catch (Exception e) {
-            errorLogger.error("Get All Cards Error", e);
+            logManager.logError("Get All Cards Error", errorLogger);
             throw e;
         }
         return cardList;
@@ -109,7 +113,7 @@ public class ClearMinAmountAndTempBlockRepo implements ClearMinAmountAndTempBloc
                 }
             }
         } catch (Exception e) {
-            errorLogger.error("Remove From MinPay Table Error", e);
+            logManager.logError("Remove From MinPay Table Error", errorLogger);
             throw e;
         }
     }
@@ -124,7 +128,7 @@ public class ClearMinAmountAndTempBlockRepo implements ClearMinAmountAndTempBloc
             count = backendJdbcTemplate.update(sql, oldStatus, newStatus, eodDate, statusList.getACTIVE_STATUS(), cardNo.toString());
 
         } catch (Exception e) {
-            errorLogger.error("Update Card Block Error", e);
+            logManager.logError("Update Card Block Error", errorLogger);
             throw e;
         }
         return count;
@@ -147,7 +151,7 @@ public class ClearMinAmountAndTempBlockRepo implements ClearMinAmountAndTempBloc
                     }, cardNo.toString()
             );
         } catch (Exception e) {
-            errorLogger.error("Get Minimum Payment Exist Statement Date Error", e);
+            logManager.logError("Get Minimum Payment Exist Statement Date Error", errorLogger);
             throw e;
         }
         return lastStmtDetails;

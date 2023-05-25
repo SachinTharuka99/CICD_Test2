@@ -7,6 +7,7 @@ import javax.persistence.Entity;
 import javax.persistence.Id;
 import javax.persistence.Table;
 import java.io.Serializable;
+import java.sql.Timestamp;
 import java.util.Date;
 
 @Data
@@ -15,7 +16,7 @@ import java.util.Date;
 public class EODATMFILE implements Serializable {
 
     @Id
-    @Column(name = "FILEID", nullable = false)
+    @Column(name = "FILEID")
     private String FILEID;
 
     @Column(name = "EODID")
@@ -43,7 +44,7 @@ public class EODATMFILE implements Serializable {
     private Date CREATETIME;
 
     @Column(name = "UPLOADTIME")
-    private Date UPLOADTIME;
+    private Timestamp UPLOADTIME;
 
     @Column(name = "NOOFRECORDS")
     private String NOOFRECORDS;

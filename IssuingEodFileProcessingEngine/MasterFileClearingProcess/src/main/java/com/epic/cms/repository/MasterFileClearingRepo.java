@@ -65,7 +65,7 @@ public class MasterFileClearingRepo implements MasterFileClearingDao {
                 return false;
             }
         } catch (Exception ex) {
-            errorLoggerEFPE.error(ex.toString());
+            logManager.logError(ex.toString(),errorLoggerEFPE);
             return false;
         }
     }
@@ -86,7 +86,7 @@ public class MasterFileClearingRepo implements MasterFileClearingDao {
             );
             return fileNames;
         } catch (Exception ex) {
-            errorLoggerEFPE.error(ex.getMessage());
+            logManager.logError(ex.getMessage(),errorLoggerEFPE);
             return null;
         }
     }
@@ -126,7 +126,7 @@ public class MasterFileClearingRepo implements MasterFileClearingDao {
             );
 
         } catch (EmptyResultDataAccessException ex) {
-            infoLoggerEFPE.info(ex.getMessage());
+            logManager.logError(ex.getMessage(),errorLoggerEFPE);
         } catch (Exception ex) {
             throw ex;
         }

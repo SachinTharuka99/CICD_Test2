@@ -8,27 +8,20 @@
 package com.epic.cms.repository;
 
 import com.epic.cms.dao.MerchantPaymentDao;
-import com.epic.cms.model.bean.ProcessBean;
 import com.epic.cms.util.Configurations;
 import com.epic.cms.util.DateUtil;
+import com.epic.cms.util.LogManager;
 import com.epic.cms.util.StatusVarList;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.jdbc.core.JdbcTemplate;
-import org.springframework.jdbc.core.RowMapper;
 import org.springframework.jdbc.core.namedparam.MapSqlParameterSource;
 import org.springframework.jdbc.core.namedparam.SqlParameterSource;
 import org.springframework.jdbc.core.simple.SimpleJdbcCall;
 import org.springframework.stereotype.Repository;
 
 import java.math.BigDecimal;
-import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.text.SimpleDateFormat;
-import java.util.ArrayList;
-import java.util.Calendar;
 import java.util.Map;
-import java.util.TimeZone;
 
 import static com.epic.cms.util.LogManager.errorLogger;
 
@@ -39,6 +32,9 @@ public class MerchantPaymentRepo implements MerchantPaymentDao {
 
     @Autowired
     private JdbcTemplate backendJdbcTemplate;
+
+    @Autowired
+    LogManager logManager;
 
     @Override
     public int[] callStoredProcedureForEodMerchantPayment() throws SQLException {
@@ -93,10 +89,10 @@ public class MerchantPaymentRepo implements MerchantPaymentDao {
             }
 
         } catch (SQLException e){
-            errorLogger.error(String.valueOf(e));
+            logManager.logError(String.valueOf(e),errorLogger);
             throw e;
         } catch (Exception ex) {
-            errorLogger.error("Call StoredProcedure For EodMerchantPayment Error", ex);
+            logManager.logError("Call StoredProcedure For EodMerchantPayment Error", errorLogger);
             throw ex;
         }
     }

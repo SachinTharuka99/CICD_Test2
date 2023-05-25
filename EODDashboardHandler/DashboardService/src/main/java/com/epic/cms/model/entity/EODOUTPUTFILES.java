@@ -11,20 +11,16 @@ import java.sql.Date;
 @Table(name = "EODOUTPUTFILES")
 public class EODOUTPUTFILES implements Serializable {
 
-    @Column(name = "FILETYPE", nullable = false)
+    @EmbeddedId
+    private EODOUTPUTFILESPK eodoutputfilesPk;
+
+    @Column(name = "FILETYPE")
     private String FILETYPE;
-
-    @Id
-    @Column(name = "FILENAME", nullable = false)
-    private String FILENAME;
-
-    @Column(name = "EODID", unique = true)
-    private Long EODID;
 
     @Column(name = "NOOFRECORDS")
     private Integer NOOFRECORDS;
 
-    @Column(name = "CREATEDTIME", nullable = false)
+    @Column(name = "CREATEDTIME")
     private Date CREATEDTIME;
 
     @Column(name = "SUBFOLDER")

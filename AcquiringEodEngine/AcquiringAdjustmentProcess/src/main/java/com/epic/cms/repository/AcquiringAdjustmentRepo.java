@@ -10,6 +10,7 @@ package com.epic.cms.repository;
 import com.epic.cms.dao.AcquiringAdjustmentDao;
 import com.epic.cms.model.bean.*;
 import com.epic.cms.util.Configurations;
+import com.epic.cms.util.LogManager;
 import com.epic.cms.util.QueryParametersList;
 import com.epic.cms.util.StatusVarList;
 import org.jpos.iso.ISOUtil;
@@ -23,7 +24,6 @@ import java.math.RoundingMode;
 import java.sql.Date;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
-import java.sql.SQLException;
 import java.text.DateFormat;
 import java.text.DecimalFormat;
 import java.text.SimpleDateFormat;
@@ -37,6 +37,8 @@ public class AcquiringAdjustmentRepo implements AcquiringAdjustmentDao {
     StatusVarList status;
     @Autowired
     private JdbcTemplate backendJdbcTemplate;
+    @Autowired
+    LogManager logManager;
 
     @Override
     public ArrayList<AcqAdjustmentBean> getConfirmedAjustments() throws Exception {
@@ -98,7 +100,6 @@ public class AcquiringAdjustmentRepo implements AcquiringAdjustmentDao {
 
     @Override
     public int insertToEodMerchantPayment(MerchantPayBean merchantPaymentBean, String adjustmentFlag) throws Exception {
-        PreparedStatement stmt = null;
         String query = null;
         int count = 0;
         SimpleDateFormat sdf = new SimpleDateFormat("dd-MMM-yy");
@@ -361,7 +362,6 @@ public class AcquiringAdjustmentRepo implements AcquiringAdjustmentDao {
             String query = "SELECT ACCOUNTNO FROM CARDACCOUNTCUSTOMER WHERE CARDNUMBER=?";
             accNo = backendJdbcTemplate.queryForObject(query, String.class, cardNo.toString());
         } catch (Exception e) {
-//            LogFileCreator.writeErrorToLog(e);
             throw e;
         }
         return accNo;
@@ -378,7 +378,6 @@ public class AcquiringAdjustmentRepo implements AcquiringAdjustmentDao {
                     , ISOUtil.zeropadRight(cardNumber, 19)
                     , ISOUtil.zeropadRight(cardNumber, 19));
         } catch (Exception e) {
-//            LogFileCreator.writeErrorToLog(e);
             throw e;
         }
         return cardAssociation;
@@ -575,7 +574,7 @@ public class AcquiringAdjustmentRepo implements AcquiringAdjustmentDao {
                     , eodTransactionBean.getCardProduct());
 
         } catch (Exception e) {
-            errorLogger.error("Exception ", e);
+            logManager.logError("Exception ", errorLogger);
             throw e;
         }
         return count;

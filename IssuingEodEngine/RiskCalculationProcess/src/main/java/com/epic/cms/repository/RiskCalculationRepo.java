@@ -8,11 +8,12 @@
 package com.epic.cms.repository;
 
 import com.epic.cms.dao.RiskCalculationDao;
-import com.epic.cms.model.rowmapper.DelinquentAccountRowMapper;
 import com.epic.cms.model.bean.DelinquentAccountBean;
 import com.epic.cms.model.bean.RiskCalculationBean;
+import com.epic.cms.model.rowmapper.DelinquentAccountRowMapper;
 import com.epic.cms.util.CommonMethods;
 import com.epic.cms.util.Configurations;
+import com.epic.cms.util.LogManager;
 import com.epic.cms.util.StatusVarList;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
@@ -41,7 +42,8 @@ public class RiskCalculationRepo implements RiskCalculationDao {
     @Qualifier("onlineJdbcTemplate")
     private JdbcTemplate onlineJdbcTemplate;
 
-    private Object RiskCalculationBean;
+    @Autowired
+    LogManager logManager;
 
     @Override
     public ArrayList<DelinquentAccountBean> getDelinquentAccounts() throws Exception {
@@ -60,7 +62,7 @@ public class RiskCalculationRepo implements RiskCalculationDao {
                 param = new Object[]{statusVarList.getTO_RESOLVE_STATUS(), statusVarList.getONLY_MANUAL_NP_STATUS(), statusVarList.getCARD_CLOSED_STATUS(), Configurations.EOD_ID, statusVarList.getEOD_PENDING_STATUS(), Configurations.ERROR_EOD_ID, Configurations.PROCESS_STEP_ID};
             }
             delinquentCardList = (ArrayList<DelinquentAccountBean>) backendJdbcTemplate.query(query, new DelinquentAccountRowMapper(), param);
- } catch (Exception e) {
+        } catch (Exception e) {
             throw e;
         }
         return delinquentCardList;
@@ -74,10 +76,9 @@ public class RiskCalculationRepo implements RiskCalculationDao {
             String sql = "SELECT NPSTATUS FROM CARDACCOUNT WHERE ACCOUNTNO = ? ";
 
             npStatus = backendJdbcTemplate.queryForObject(sql, Integer.class, accNo);
-            isManualNp = (npStatus == 2) ? true : false;
+            isManualNp = npStatus == 2;
         } catch (Exception e) {
-            errorLogger.error(String.valueOf(e));
-            errorLogger.error(String.valueOf(e));
+            logManager.logError(String.valueOf(e),errorLogger);
             throw e;
         }
         return isManualNp;
@@ -107,7 +108,7 @@ public class RiskCalculationRepo implements RiskCalculationDao {
                     , statusVarList.getCHEQUE_RETURN_STATUS());
 
         } catch (Exception e) {
-            errorLogger.error("Exception Occurred for Risk Calculation process", e);
+            logManager.logError("Exception Occurred for Risk Calculation process", errorLogger);
             throw e;
         }
         return payment;
@@ -181,7 +182,7 @@ public class RiskCalculationRepo implements RiskCalculationDao {
         try {
             npRiskClass = backendJdbcTemplate.queryForObject(query, String.class);
         } catch (Exception e) {
-            errorLogger.error("Exception Occurred for Risk Calculation process", e);
+            logManager.logError("Exception Occurred for Risk Calculation process", errorLogger);
             throw e;
         }
         return npRiskClass;
@@ -301,7 +302,7 @@ public class RiskCalculationRepo implements RiskCalculationDao {
                     });
 
         } catch (Exception e) {
-            errorLogger.error("Exception Occurred for Risk Calculation process", e);
+            logManager.logError("Exception Occurred for Risk Calculation process", errorLogger);
             throw e;
         }
         return count;
@@ -334,7 +335,6 @@ public class RiskCalculationRepo implements RiskCalculationDao {
             flag = backendJdbcTemplate.update(query, npstatus, accNo);
 
         } catch (Exception e) {
-//            LogFileCreator.writeErrorToLog(e);
             throw e;
         }
         return flag;//If updated return number of updated rows
@@ -365,9 +365,9 @@ public class RiskCalculationRepo implements RiskCalculationDao {
             );
 
         } catch (NullPointerException ex) {
-            errorLogger.error("Null for risk calsulation total payment ", ex);
+            logManager.logError("Null for risk calsulation total payment ", ex,errorLogger);
         } catch (Exception e) {
-            errorLogger.error("Risk calculation getTotalPaymentSinceLAstDue " + e);
+            logManager.logError("Risk calculation getTotalPaymentSinceLAstDue " ,errorLogger);
             throw e;
         }
         return payment;
@@ -382,9 +382,9 @@ public class RiskCalculationRepo implements RiskCalculationDao {
         try {
             String sql = "SELECT DELINQSTATUS FROM DELINQUENTACCOUNT WHERE CARDNUMBER = ?";
 
-            String result = backendJdbcTemplate.queryForObject(sql,String.class,
+            String result = backendJdbcTemplate.queryForObject(sql, String.class,
                     delinquentAccountBean.getCardNumber().toString());
-            if(result == null){
+            if (result == null) {
             } else {
                 ststus = true;
             }
@@ -454,7 +454,7 @@ public class RiskCalculationRepo implements RiskCalculationDao {
                 );
             }
         } catch (Exception e) {
-            errorLogger.error("Exception Occurred for Risk Calculation process", e);
+            logManager.logError("Exception Occurred for Risk Calculation process", errorLogger);
             throw e;
         }
         return count;
@@ -469,7 +469,7 @@ public class RiskCalculationRepo implements RiskCalculationDao {
         try {
             flag = backendJdbcTemplate.update(sql, cardNumber.toString(), accNo, remark, Configurations.EOD_USER);
         } catch (Exception e) {
-            errorLogger.error("Exception Occurred for Risk Calculation process", e);
+            logManager.logError("Exception Occurred for Risk Calculation process", errorLogger);
             throw e;
         }
         return flag;
@@ -489,7 +489,7 @@ public class RiskCalculationRepo implements RiskCalculationDao {
         try {
 
             RiskCalculationBean riskCalculationBean = new RiskCalculationBean();
-           backendJdbcTemplate.query(sql
+            backendJdbcTemplate.query(sql
                     , (ResultSet rs) -> {
                         while (rs.next()) {
                             riskCalculationBean.setCardNo(new StringBuffer(rs.getString("CARDNO")));
@@ -503,10 +503,9 @@ public class RiskCalculationRepo implements RiskCalculationDao {
             );
 
         } catch (NullPointerException ex) {
-            ex.printStackTrace();
-            errorLogger.error("Null for card list", ex);
+            logManager.logError("Null for card list", errorLogger);
         } catch (Exception e) {
-            errorLogger.error(String.valueOf(e));
+            logManager.logError(String.valueOf(e),errorLogger);
             throw e;
         }
         return cardList;
@@ -522,7 +521,7 @@ public class RiskCalculationRepo implements RiskCalculationDao {
             count = backendJdbcTemplate.update(query, provisionAmount.toString(), accNo);
 
         } catch (Exception e) {
-            errorLogger.error("Exception Occurred for Risk Calculation process", e);
+            logManager.logError("Exception Occurred for Risk Calculation process", errorLogger);
             throw e;
         }
         return count;
@@ -544,7 +543,7 @@ public class RiskCalculationRepo implements RiskCalculationDao {
                         return lastStmtDetails;
                     }, cardNumber.toString());
         } catch (Exception e) {
-            errorLogger.error("Exception Occurred for Risk Calculation process", e);
+            logManager.logError("Exception Occurred for Risk Calculation process", errorLogger);
             throw e;
         }
         return lastStmtDetails;
@@ -568,7 +567,7 @@ public class RiskCalculationRepo implements RiskCalculationDao {
                         return dueDateList;
                     }, cardNumber.toString());
         } catch (Exception e) {
-            errorLogger.error("Exception Occurred for Risk Calculation process", e);
+            logManager.logError("Exception Occurred for Risk Calculation process", errorLogger);
             throw e;
         }
         return dueDateList;
@@ -616,11 +615,11 @@ public class RiskCalculationRepo implements RiskCalculationDao {
             );
             if (Configurations.ONLINE_LOG_LEVEL == 1) {
                 //Only for troubleshoot
-                infoLogger.info("================ updateOnlineAccountStatus ===================" + Integer.toString(Configurations.EOD_ID));
-                infoLogger.info(sql);
-                infoLogger.info(Integer.toString(status));
-                infoLogger.info(accNo);
-                infoLogger.info("================ updateOnlineAccountStatus END ===================");
+                logManager.logInfo("================ updateOnlineAccountStatus ===================" + Configurations.EOD_ID, infoLogger);
+                logManager.logInfo(sql, infoLogger);
+                logManager.logInfo(Integer.toString(status), infoLogger);
+                logManager.logInfo(accNo, infoLogger);
+                logManager.logInfo("================ updateOnlineAccountStatus END ===================", infoLogger);
             }
         } catch (Exception e) {
             throw e;
@@ -656,7 +655,7 @@ public class RiskCalculationRepo implements RiskCalculationDao {
             String query = "SELECT M1 FROM MINIMUMPAYMENT WHERE CARDNO IN (SELECT CARDNUMBER FROM CARDACCOUNT WHERE ACCOUNTNO = ?)";
             payment = backendJdbcTemplate.queryForObject(query, Double.class, accNo);
         } catch (EmptyResultDataAccessException e) {
-            infoLogger.info("--result not found--");
+            logManager.logError("--result not found--",errorLogger);
             return 0;
         } catch (Exception e) {
             throw e;
@@ -691,7 +690,7 @@ public class RiskCalculationRepo implements RiskCalculationDao {
                 Double value = entrySet.getValue();
                 String Query = "UPDATE MINIMUMPAYMENT SET " + key + "=?,  " + key + "DATE=?, COUNT=? WHERE CARDNO =?";
 
-                count = backendJdbcTemplate.update(Query, value, (java.sql.Date) dueDateList.get(key), dueCount, cardNo.toString());
+                count = backendJdbcTemplate.update(Query, value, dueDateList.get(key), dueCount, cardNo.toString());
 
             }
 
@@ -718,7 +717,6 @@ public class RiskCalculationRepo implements RiskCalculationDao {
     public DelinquentAccountBean setDelinquentAccountDetails(StringBuffer cardNo) throws Exception {
 
         DelinquentAccountBean delinquentAccountBean = new DelinquentAccountBean();
-        String cardCategoryCode = null;
         try {
             String sql = "SELECT C.CARDCATEGORYCODE,"
                     + " C.NAMEONCARD,"
@@ -814,8 +812,7 @@ public class RiskCalculationRepo implements RiskCalculationDao {
     @Override
     public double getMinPaymentFromBilling(String accNumber) throws Exception {
         double minPayment = 0;
-        PreparedStatement pst = null;
-        ResultSet rs = null;
+
         try {
             String sql = "SELECT BLS.MINAMOUNT "
                     + "FROM BILLINGLASTSTATEMENTSUMMARY BLS "

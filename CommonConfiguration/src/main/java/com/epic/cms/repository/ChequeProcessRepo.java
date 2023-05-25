@@ -4,6 +4,7 @@ import com.epic.cms.dao.ChequeProcessDao;
 import com.epic.cms.model.bean.EODCardTransactionDetail;
 import com.epic.cms.model.bean.EodInterestBean;
 import com.epic.cms.util.Configurations;
+import com.epic.cms.util.LogManager;
 import com.epic.cms.util.StatusVarList;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.jdbc.core.JdbcTemplate;
@@ -14,6 +15,7 @@ import java.sql.ResultSet;
 import java.util.Date;
 
 import static com.epic.cms.util.LogManager.errorLogger;
+import static com.epic.cms.util.LogManager.errorLoggerCOM;
 
 @Repository
 public class ChequeProcessRepo implements ChequeProcessDao {
@@ -22,10 +24,10 @@ public class ChequeProcessRepo implements ChequeProcessDao {
     private JdbcTemplate backendJdbcTemplate;
 
     @Autowired
-    private JdbcTemplate onlineJdbcTemplate;
+    StatusVarList statusList;
 
     @Autowired
-    StatusVarList statusList;
+    LogManager logManager;
 
     @Override
     @Transactional("backendDb")
@@ -75,7 +77,7 @@ public class ChequeProcessRepo implements ChequeProcessDao {
         try {
             dueDate = backendJdbcTemplate.queryForObject(sqlDueDate, Date.class, accountNo, accountNo);
         } catch (Exception e) {
-            errorLogger.error("CalculateDueDate Exception ", e);
+            logManager.logError("CalculateDueDate Exception", errorLoggerCOM);
             throw e;
         }
         return dueDate;

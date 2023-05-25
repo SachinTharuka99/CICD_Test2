@@ -14,6 +14,7 @@ import com.epic.cms.model.bean.RecATMFileIptRowDataBean;
 import com.epic.cms.model.rowmapper.ProcessBeanRowMapper;
 import com.epic.cms.model.rowmapper.RecATMFileIptRowDataRowMapper;
 import com.epic.cms.util.Configurations;
+import com.epic.cms.util.LogManager;
 import com.epic.cms.util.QueryParametersList;
 import com.epic.cms.util.StatusVarList;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -38,6 +39,8 @@ public class ATMFileClearingRepo implements ATMFileClearingDao {
     StatusVarList status;
     @Autowired
     private JdbcTemplate backendJdbcTemplate;
+    @Autowired
+    LogManager logManager;
 
     @Override
     public FileBean getATMFileInfo(String fileId) throws Exception {
@@ -58,7 +61,7 @@ public class ATMFileClearingRepo implements ATMFileClearingDao {
             );
 
         } catch (EmptyResultDataAccessException ex) {
-            infoLogger.info(ex.getMessage());
+            logManager.logError(ex.getMessage(),errorLoggerEFPE);
         } catch (Exception ex) {
             throw ex;
         }

@@ -48,7 +48,6 @@ public class CardTemporaryBlockService {
                     //insert the card details with old card status in card block table
                     if (status.equals(statusList.getCARD_TEMPORARY_BLOCK_Status())) {
                         details.put("Process Status", "Passed");
-                        infoLogger.info(logManager.processDetailsStyles(details));
                     }
                     cardTemporaryBlockRepo.deactivateCardBlock(blockCardBean.getCardNo());
                     count = cardTemporaryBlockRepo.insertIntoCardBlock(blockCardBean.getCardNo(), statusList.getCARD_TEMPORARY_BLOCK_Status(), status, Configurations.TEMP_BLOCK_REASON + Configurations.NO_OF_MONTHS_FOR_TEMPORARY_BLOCK + "_months");

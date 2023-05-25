@@ -28,13 +28,10 @@ public class Status implements Serializable {
     @Column(name = "ONLINECODE")
     private Long onlinecode;
 
-    @Column(name = "CREATEDTIME")
-    private Date createdtime;
+    @Column(name = "CREATETIME")
+    private Date createtime;
 
     @Column(name = "LASTUPDATEDTIME")
     private Date lastupdatedtime;
-
-    @Column(name = "LASTUPDATEDUSER")
-    private String lastupdateduser;
 
 }

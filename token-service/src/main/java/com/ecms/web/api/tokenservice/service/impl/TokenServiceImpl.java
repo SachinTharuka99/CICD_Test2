@@ -242,9 +242,9 @@ public class TokenServiceImpl implements TokenService {
             systemuserBean.setLastloggeddate(systemuser.get().getLastloggeddate());
             systemuserBean.setPasswordstatus(systemuser.get().getPasswordstatus().getStatuscode());
             systemuserBean.setStatus(systemuser.get().getStatus().getStatuscode());
-            systemuserBean.setCreatedtime(systemuser.get().getStatus().getCreatedtime());
+            systemuserBean.setCreatedtime(systemuser.get().getStatus().getCreatetime());
             systemuserBean.setLastupdatedtime(systemuser.get().getStatus().getLastupdatedtime());
-            systemuserBean.setLastupdateduser(systemuser.get().getStatus().getStatuscode());
+            systemuserBean.setLastupdateduser(systemuser.get().getChecker().getLastupdateduser());
         }
         return systemuserBean;
     }

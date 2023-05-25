@@ -11,6 +11,7 @@ import com.epic.cms.dao.MerchantEasyPaymentRequestDao;
 import com.epic.cms.model.bean.MerchantEasyPaymentRequestBean;
 import com.epic.cms.util.CommonMethods;
 import com.epic.cms.util.Configurations;
+import com.epic.cms.util.LogManager;
 import com.epic.cms.util.StatusVarList;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.jdbc.core.JdbcTemplate;
@@ -31,6 +32,9 @@ public class MerchantEasyPaymentRequestRepo implements MerchantEasyPaymentReques
 
     @Autowired
     private JdbcTemplate backendJdbcTemplate;
+
+    @Autowired
+    LogManager logManager;
 
     @Override
     public ArrayList<MerchantEasyPaymentRequestBean> getAllEasypaymentTransactions() throws Exception {
@@ -67,7 +71,7 @@ public class MerchantEasyPaymentRequestRepo implements MerchantEasyPaymentReques
                     Configurations.EOD_ID
             );
         } catch (Exception e) {
-            errorLogger.error("Get All Easy Payment Transactions Error", e);
+            logManager.logError("Get All Easy Payment Transactions Error", errorLogger);
             throw e;
         }
         return easyPaymentTranList;
@@ -127,7 +131,7 @@ public class MerchantEasyPaymentRequestRepo implements MerchantEasyPaymentReques
                     value16
             );
         } catch (Exception e) {
-            errorLogger.error("Insert Easy Payment Request Error", e);
+            logManager.logError("Insert Easy Payment Request Error", errorLogger);
             throw e;
         }
         return count;
@@ -144,7 +148,7 @@ public class MerchantEasyPaymentRequestRepo implements MerchantEasyPaymentReques
             count = backendJdbcTemplate.update(query, txnid);
 
         } catch (Exception e) {
-            errorLogger.error("Update Eod Transaction For Easy Payment Status Error", e);
+            logManager.logError("Update Eod Transaction For Easy Payment Status Error", errorLogger);
             throw e;
         }
         return count;
@@ -161,7 +165,7 @@ public class MerchantEasyPaymentRequestRepo implements MerchantEasyPaymentReques
             count = backendJdbcTemplate.update(query, txnid);
 
         } catch (Exception e) {
-            errorLogger.error("Update Eod Merchant Transaction For EasyPayment Status Error", e);
+            logManager.logError("Update Eod Merchant Transaction For EasyPayment Status Error", errorLogger);
             throw e;
         }
         return count;
@@ -224,7 +228,7 @@ public class MerchantEasyPaymentRequestRepo implements MerchantEasyPaymentReques
             );
 
         } catch (Exception e) {
-            errorLogger.error("Insert Easy Payment Reject Request Error", e);
+            logManager.logError("Insert Easy Payment Reject Request Error", errorLogger);
             throw e;
         }
         return count;

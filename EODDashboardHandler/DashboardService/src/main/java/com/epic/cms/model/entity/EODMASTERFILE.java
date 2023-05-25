@@ -15,7 +15,7 @@ import java.util.Date;
 public class EODMASTERFILE implements Serializable {
 
     @Id
-    @Column(name = "FILEID", nullable = false)
+    @Column(name = "FILEID")
     private String FILEID;
 
     @Column(name = "EODID")
@@ -33,7 +33,7 @@ public class EODMASTERFILE implements Serializable {
     @Column(name = "STATUS")
     private String STATUS;
 
-    @Column(name = "LASTUPDATEDUSER", nullable = false)
+    @Column(name = "LASTUPDATEDUSER")
     private String LASTUPDATEDUSER;
 
     @Column(name = "LASTUPDATEDDATE")

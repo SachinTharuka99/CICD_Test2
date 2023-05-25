@@ -12,14 +12,13 @@ import java.sql.Date;
 public class RECATMFILEINVALID implements Serializable {
 
     @Id
-    @GeneratedValue(strategy = GenerationType.AUTO)
     @Column(name = "ID")
     private Integer id;
 
-    @Column(name = "FILEID", nullable = false)
+    @Column(name = "FILEID")
     private String FILEID;
 
-    @Column(name = "EODID", nullable = false)
+    @Column(name = "EODID")
     private Long EODID;
 
     @Column(name = "LINENUMBER")
@@ -32,5 +31,8 @@ public class RECATMFILEINVALID implements Serializable {
     private Date CREATEDTIME;
     @Column(name = "LASTUPDATEDDATE")
     private Date LASTUPDATEDDATE;
+
+    @Column(name = "LASTUPDATEDUSER")
+    private String LASTUPDATEDUSER;
 
 }

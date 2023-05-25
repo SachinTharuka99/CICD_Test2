@@ -27,8 +27,7 @@ import java.util.Map;
 import java.util.Objects;
 
 import static com.epic.cms.util.CommonMethods.validateLength;
-import static com.epic.cms.util.LogManager.errorLogger;
-import static com.epic.cms.util.LogManager.infoLogger;
+import static com.epic.cms.util.LogManager.*;
 
 @Repository
 public class AutoSettlementRepo implements AutoSettlementDao {
@@ -48,7 +47,7 @@ public class AutoSettlementRepo implements AutoSettlementDao {
         Map<String, Object> details = new LinkedHashMap<String, Object>();
 
         int count = 0;
-        infoLogger.info("  STEP 01 - Check Received Payments");
+        logManager.logInfo("  STEP 01 - Check Received Payments",infoLoggerEFGE);
         try {
             SimpleDateFormat format = new SimpleDateFormat("dd-MMM-yy");
             String dateEID = format.format(Configurations.EOD_DATE);
@@ -78,7 +77,7 @@ public class AutoSettlementRepo implements AutoSettlementDao {
                         details.put("Outsanding After Payment", Double.toString(newRemainingAmount));
                         details.put("Status", "Successfull");
 
-                        infoLogger.info(logManager.processDetailsStyles(details));
+                        logManager.logDetails(details, infoLoggerEFGE);
                     }
                     return temp;
 
@@ -105,7 +104,7 @@ public class AutoSettlementRepo implements AutoSettlementDao {
                                 details.put("Outsanding After Payment", Double.toString(newRemainingAmount));
                                 details.put("Status", "Successfull");
 
-                                infoLogger.info(logManager.processDetailsStyles(details));
+                                logManager.logDetails(details, infoLoggerEFGE);
                             }
                             return temp;
 
@@ -114,10 +113,10 @@ public class AutoSettlementRepo implements AutoSettlementDao {
 
             }
         } catch (Exception e) {
-            infoLogger.info("    Status - Payment Update fails");
+            logManager.logError("    Status - Payment Update fails",errorLoggerEFGE);
             throw e;
         }
-        infoLogger.info("  STEP 01 - Successfull with " + count + " Payment Updates");
+        logManager.logInfo("  STEP 01 - Successfull with " + count + " Payment Updates",infoLoggerEFGE);
         return count;
     }
 
@@ -170,7 +169,7 @@ public class AutoSettlementRepo implements AutoSettlementDao {
                         try {
                             addCardFeeCount(cardNo, Configurations.UNSUCCESSFUL_STANDING_INSTRUCTION_CHARGE_FEE, 0.00);
                         } catch (Exception e) {
-                            errorLogger.error("Exception in Add Card Fee Count ", e);
+                            logManager.logError("Exception in Add Card Fee Count ", errorLoggerEFGE);
                         }
                     }
                 }, statusVarList.getEOD_PENDING_STATUS());
@@ -183,7 +182,7 @@ public class AutoSettlementRepo implements AutoSettlementDao {
                         try {
                             addCardFeeCount(cardNo, Configurations.UNSUCCESSFUL_STANDING_INSTRUCTION_CHARGE_FEE, 0.00);
                         } catch (Exception e) {
-                            errorLogger.error("Exception in Add Card Fee Count ", e);
+                            logManager.logError("Exception in Add Card Fee Count ", errorLoggerEFGE);
                         }
                     }
                 }, statusVarList.getEOD_PENDING_STATUS(), Configurations.ERROR_EOD_ID, Configurations.PROCESS_STEP_ID);
@@ -257,7 +256,7 @@ public class AutoSettlementRepo implements AutoSettlementDao {
     public String[] generatePartialAutoSettlementFile(String fileDirectory, String fileName, String sequence, String fieldDelimeter) throws Exception {
         String[] partialList = new String[3];
         try {
-            infoLogger.info("  STEP 02 - Creating Partial Auto Settlement File");
+            logManager.logInfo("  STEP 02 - Creating Partial Auto Settlement File",infoLoggerEFGE);
 
             String query = "SELECT AST.*,CU.CURRENCYALPHACODE FROM AUTOSETTLEMENT AST, CURRENCY CU WHERE AST.PROCESSINGCOUNT >0 AND AST.RUNNINGSTATUS =? AND AST.AUTOSETTLEMENTSTATUS =? AND AST.STATUS =? AND AST.CURRENCYNUMCODE = CU.CURRENCYNUMCODE ";
 
@@ -352,10 +351,9 @@ public class AutoSettlementRepo implements AutoSettlementDao {
                                     details.put("Amount", remainingAmountRoundOff.toString());
                                     details.put("Debit Acc No", result.getString("DEBITACCOUNTNO"));
                                     details.put("Collection Acc No", Configurations.COLLECTION_ACCOUNT);
-                                    infoLogger.info(logManager.processDetailsStyles(details));
-
+                                    logManager.logDetails(details, infoLoggerEFGE);
                                 } catch (Exception e) {
-                                    errorLogger.error("Exception in creating partial file content ", e);
+                                    logManager.logError("Exception in creating partial file content ", errorLoggerEFGE);
                                 }
 
                             }
@@ -455,10 +453,10 @@ public class AutoSettlementRepo implements AutoSettlementDao {
                                     details.put("Amount", remainingAmountRoundOff.toString());
                                     details.put("Debit Acc No", result.getString("DEBITACCOUNTNO"));
                                     details.put("Collection Acc No", Configurations.COLLECTION_ACCOUNT);
-                                    infoLogger.info(logManager.processDetailsStyles(details));
+                                    logManager.logDetails(details, infoLoggerEFGE);
 
                                 } catch (Exception e) {
-                                    errorLogger.error("Exception in creating partial file content ", e);
+                                    logManager.logError("Exception in creating partial file content ", errorLoggerEFGE);
                                 }
 
                             }
@@ -506,7 +504,7 @@ public class AutoSettlementRepo implements AutoSettlementDao {
                 backendJdbcTemplate.update(query, processingCount, runningStatus, 0.00, cardNo.toString());
             }
         } catch (Exception e) {
-            errorLogger.error("updateAutoSettlementTable Failed ", e);
+            logManager.logError("updateAutoSettlementTable Failed ", errorLoggerEFGE);
         }
     }
 
@@ -519,7 +517,7 @@ public class AutoSettlementRepo implements AutoSettlementDao {
             DecimalFormat df = new DecimalFormat("#.00");
             df.setRoundingMode(RoundingMode.FLOOR);
 
-            infoLogger.info("  STEP 03 - Creating Auto Settlement File");//2 spaces
+            logManager.logInfo("  STEP 03 - Creating Auto Settlement File",infoLoggerEFGE);//2 spaces
 
             String query = "SELECT AST.* ,BLS.DUEDATE AS SETTLEMENTDUEDATE ,BLS.STATEMENTENDDATE AS SETTLEMENTENDDATE ,BLS.CLOSINGBALANCE,CU.CURRENCYALPHACODE,BLS.MINAMOUNT  FROM autosettlement AST , BILLINGLASTSTATEMENTSUMMARY BLS ,CURRENCY CU  WHERE ast.cardno = bls.cardno AND  CU.CURRENCYNUMCODE = AST.CURRENCYNUMCODE AND  BLS.DUEDATE = to_date(?, 'dd-MM-yy')+1 AND  BLS.CLOSINGBALANCE > 0 AND  AST.STATUS = ? AND  AST.AUTOSETTLEMENTSTATUS = ? AND  AST.RUNNINGSTATUS IN ( ? , ?) ";
 
@@ -649,10 +647,10 @@ public class AutoSettlementRepo implements AutoSettlementDao {
                                     details.put("Debit Acc No", result.getString("DEBITACCOUNTNO"));
                                     details.put("Collection Acc No", Configurations.COLLECTION_ACCOUNT);
 
-                                    infoLogger.info(logManager.processDetailsStyles(details));
+                                    logManager.logDetails(details, infoLoggerEFGE);
                                     Configurations.PROCESS_SUCCESS_COUNT++;
                                 } catch (Exception e) {
-                                    errorLogger.error("Exception in Creating Full File Content ", e);
+                                    logManager.logError("Exception in Creating Full File Content ", errorLoggerEFGE);
                                 }
                             }
                             return partialList;
@@ -789,10 +787,10 @@ public class AutoSettlementRepo implements AutoSettlementDao {
                                     details.put("Debit Acc No", result.getString("DEBITACCOUNTNO"));
                                     details.put("Collection Acc No", Configurations.COLLECTION_ACCOUNT);
 
-                                    infoLogger.info(logManager.processDetailsStyles(details));
+                                    logManager.logDetails(details, infoLoggerEFGE);
                                     Configurations.PROCESS_SUCCESS_COUNT++;
                                 } catch (Exception e) {
-                                    errorLogger.error("Exception in Creating Full File Content ", e);
+                                    logManager.logError("Exception in Creating Full File Content ", errorLoggerEFGE);
                                 }
                             }
                             return partialList;
@@ -807,7 +805,7 @@ public class AutoSettlementRepo implements AutoSettlementDao {
             }
 
         } catch (Exception e) {
-            infoLogger.error("  STEP 03 Fail to Create File");
+            logManager.logError("  STEP 03 Fail to Create File",errorLoggerEFGE);
             throw e;
         }
         return partialList;
@@ -841,7 +839,7 @@ public class AutoSettlementRepo implements AutoSettlementDao {
         } catch (EmptyResultDataAccessException e) {
             return new BigDecimal("0.0");
         } catch (Exception e) {
-            errorLogger.error(String.valueOf(e));
+            logManager.logError(String.valueOf(e),errorLoggerEFGE);
             throw e;
         }
 

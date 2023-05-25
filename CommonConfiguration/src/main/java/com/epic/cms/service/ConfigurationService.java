@@ -1,6 +1,7 @@
 package com.epic.cms.service;
 
 import com.epic.cms.repository.ConfigurationsRepo;
+import com.epic.cms.repository.InitialEodIdRepo;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.ComponentScan;
 import org.springframework.stereotype.Service;
@@ -14,12 +15,16 @@ public class ConfigurationService {
     @Autowired
     ConfigurationsRepo configurationsRepo;
 
+    @Autowired
+    InitialEodIdRepo initialEodIdRepo;
+
     @PostConstruct
     public void setPreConfigurations() throws Exception {
         this.setConfigurations();
         this.loadTxnTypeConfigurations();
         this.loadFilePath();// this depend on server run platform (configuration data)
         this.loadBaseCurrency();
+        this.initialEodId();
     }
 
     public void setConfigurations() throws Exception {
@@ -36,6 +41,10 @@ public class ConfigurationService {
 
     public void loadBaseCurrency() throws Exception {
         configurationsRepo.loadBaseCurrency();
+    }
+
+    public void initialEodId() throws Exception {
+        initialEodIdRepo.setInitialEodId();
     }
 
 }

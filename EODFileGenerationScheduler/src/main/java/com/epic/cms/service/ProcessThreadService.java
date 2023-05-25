@@ -31,6 +31,7 @@ public class ProcessThreadService {
                 processBuilder.startProcess(processId, uniqueId);
             }else {
                 logManager.logError("Invalid Process Id ", errorLoggerEFGE);
+                logManager.logError("Invalid Process Id ",errorLogger);
             }
         }catch (Exception e){
             throw e;

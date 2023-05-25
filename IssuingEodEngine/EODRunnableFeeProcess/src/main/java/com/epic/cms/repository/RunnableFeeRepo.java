@@ -16,6 +16,7 @@ import org.springframework.transaction.annotation.Isolation;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 
+import static com.epic.cms.util.LogManager.errorLogger;
 import static com.epic.cms.util.LogManager.infoLogger;
 
 import java.sql.Date;
@@ -157,7 +158,7 @@ public class RunnableFeeRepo implements RunnableFeeDao {
                 forward = true;
             }
         } catch (EmptyResultDataAccessException e) {
-            infoLogger.info("--fees not found--" + cardNumber);
+            logManager.logError("--fees not found--" + cardNumber,errorLogger);
         } catch (Exception e) {
             throw e;
         }
@@ -188,7 +189,7 @@ public class RunnableFeeRepo implements RunnableFeeDao {
 
             return lastStmtSummeryBean;
         } catch (EmptyResultDataAccessException e) {
-            infoLogger.info("last statement summery not found for " + cardNo);
+            logManager.logError("last statement summery not found for " + cardNo,errorLogger);
             return null;
         } catch (Exception e) {
             throw e;
@@ -202,7 +203,7 @@ public class RunnableFeeRepo implements RunnableFeeDao {
             String query = "SELECT NEXTBILLINGDATE FROM CARDACCOUNT WHERE CARDNUMBER = (SELECT MAINCARDNO FROM CARD WHERE CARDNUMBER =?)";
             nextBillingDate = backendJdbcTemplate.queryForObject(query, java.sql.Date.class, cardNo.toString());
         } catch (EmptyResultDataAccessException e) {
-            infoLogger.info("--next billing date not found--");
+            logManager.logError("--next billing date not found--",errorLogger);
         } catch (Exception e) {
             throw e;
         }
@@ -233,8 +234,7 @@ public class RunnableFeeRepo implements RunnableFeeDao {
                     new Object[]{cardNumber.toString(), feeCode, "CACL"}
             );
         } catch (EmptyResultDataAccessException e) {
-            e.printStackTrace();
-            infoLogger.info("--fee profile not found--");
+            logManager.logError("--fee profile not found--",errorLogger);
         } catch (Exception e) {
             throw e;
         }

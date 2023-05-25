@@ -4,6 +4,7 @@ import com.epic.cms.dao.TxnDropRequestDao;
 import com.epic.cms.model.bean.DropRequestBean;
 import com.epic.cms.util.CommonMethods;
 import com.epic.cms.util.Configurations;
+import com.epic.cms.util.LogManager;
 import com.epic.cms.util.StatusVarList;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
@@ -31,6 +32,9 @@ public class TxnDropRequestRepo implements TxnDropRequestDao {
     @Autowired
     StatusVarList statusList;
 
+    @Autowired
+    LogManager logManager;
+
     @Override
     public int getTransactionValidityPeriod() throws Exception {
         int txnValidPeriod = 0;
@@ -44,7 +48,7 @@ public class TxnDropRequestRepo implements TxnDropRequestDao {
             return 0;
 
         } catch (Exception e) {
-            errorLogger.error("Exception ",e);
+            logManager.logError(String.valueOf(e),errorLogger);
             throw e;
         }
         return txnValidPeriod;
@@ -80,7 +84,7 @@ public class TxnDropRequestRepo implements TxnDropRequestDao {
                     , Configurations.EOD_CONSIDER_STATUS
             );
         } catch (Exception e) {
-            errorLogger.error("Exception ",e);
+            logManager.logError(String.valueOf(e),errorLogger);
             throw e;
         }
         return dropTransactionList;
@@ -110,7 +114,7 @@ public class TxnDropRequestRepo implements TxnDropRequestDao {
             return false;
 
         } catch (Exception e) {
-            errorLogger.error("Exception ",e);
+            logManager.logError(String.valueOf(e),errorLogger);
             throw e;
         }
         return isReversed;
@@ -130,7 +134,7 @@ public class TxnDropRequestRepo implements TxnDropRequestDao {
                     Configurations.EOD_USER
                     );
         } catch (Exception e) {
-            errorLogger.error("Exception ",e);
+            logManager.logError(String.valueOf(e),errorLogger);
             throw e;
         }
     }

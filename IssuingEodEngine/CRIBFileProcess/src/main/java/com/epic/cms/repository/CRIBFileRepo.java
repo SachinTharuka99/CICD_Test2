@@ -1,6 +1,7 @@
 package com.epic.cms.repository;
 
 import com.epic.cms.dao.CRIBFileDao;
+import com.epic.cms.util.LogManager;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.core.simple.SimpleJdbcCall;
@@ -17,6 +18,9 @@ public class CRIBFileRepo implements CRIBFileDao {
 
     @Autowired
     private JdbcTemplate backendJdbcTemplate;
+
+    @Autowired
+    LogManager logManager;
 
     @Override
     public int[] callStoredProcedureCribFileGeneration() throws Exception {
@@ -60,10 +64,10 @@ public class CRIBFileRepo implements CRIBFileDao {
                     throw new SQLException();
             }
         } catch (SQLException e) {
-            errorLogger.error("Sql Exception",e);
+            logManager.logError("Sql Exception",errorLogger);
             throw e;
         } catch (Exception ex) {
-            errorLogger.error("Exception",ex);
+            logManager.logError("Exception",errorLogger);
             throw ex;
         }
     }

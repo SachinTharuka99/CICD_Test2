@@ -15,7 +15,7 @@ import java.sql.Date;
 public class STATUSCATEGORY implements Serializable {
 
     @Id
-    @Column(name = "STATUSCATEGORYCODE", nullable = false)
+    @Column(name = "STATUSCATEGORYCODE")
     private String STATUSCATEGORYCODE;
 
     @Column(name = "DESCRIPTION")
@@ -23,9 +23,6 @@ public class STATUSCATEGORY implements Serializable {
 
     @Column(name = "SORTKEY")
     private String SORTKEY;
-
-    @Column(name = "LASTUPDATEDUSER")
-    private String LASTUPDATEDUSER;
 
     @Column(name = "LASTUPDATEDTIME")
     private Date LASTUPDATEDTIME;

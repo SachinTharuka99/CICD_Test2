@@ -17,7 +17,6 @@ import org.springframework.data.repository.PagingAndSortingRepository;
 
 @Repository
 public interface EodErrorCardListRepo extends PagingAndSortingRepository<EODERRORCARDS, Integer>{
-    //Page<EODERRORCARDS> findEODERRORCARDSByEODID(Long eodId, Pageable pageable);
 
     Page<EODERRORCARDS> findAllByEODID(long EODID,Pageable pageable);
 }

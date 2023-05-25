@@ -12,6 +12,7 @@ import com.epic.cms.model.bean.FileBean;
 import com.epic.cms.model.bean.RecPaymentFileIptRowDataBean;
 import com.epic.cms.model.rowmapper.RecPaymentFileIptRowDataRowMapper;
 import com.epic.cms.util.Configurations;
+import com.epic.cms.util.LogManager;
 import com.epic.cms.util.QueryParametersList;
 import com.epic.cms.util.StatusVarList;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -36,11 +37,11 @@ import static com.epic.cms.util.LogManager.*;
 @Repository
 public class PaymentFileClearingRepo implements PaymentFileClearingDao {
     @Autowired
-    private QueryParametersList queryParametersList;
-    @Autowired
     private StatusVarList status;
     @Autowired
     private JdbcTemplate backendJdbcTemplate;
+    @Autowired
+    LogManager logManager;
 
     @Override
     public FileBean getPaymentFileInfo(String fileId) throws Exception {
@@ -61,7 +62,7 @@ public class PaymentFileClearingRepo implements PaymentFileClearingDao {
             );
 
         } catch (EmptyResultDataAccessException ex) {
-            infoLoggerEFPE.info(ex.getMessage());
+            logManager.logError(ex.getMessage(),errorLoggerEFPE);
         } catch (Exception ex) {
             throw ex;
         }
@@ -100,7 +101,7 @@ public class PaymentFileClearingRepo implements PaymentFileClearingDao {
                     });
 
         } catch (Exception e) {
-            errorLoggerEFPE.error(String.valueOf(e));
+            logManager.logError(String.valueOf(e),errorLoggerEFPE);
             throw e;
         }
 
