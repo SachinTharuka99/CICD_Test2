@@ -11,6 +11,7 @@ import com.epic.cms.service.EODFileProcessingEngineMainService;
 import com.epic.cms.util.Configurations;
 import com.epic.cms.util.LogManager;
 import com.epic.cms.util.StatusVarList;
+import com.epic.cms.util.Util;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -40,13 +41,15 @@ public class EODFileProcessingEngineHandler {
             Configurations.STARTING_EOD_STATUS = "INIT";
             if (Configurations.STARTING_EOD_STATUS.equals(status.getINITIAL_STATUS())) {
                 eodFileProcessingEngineMainService.startProcess();//eod-file-processing-engine
+                response.put(Util.STATUS_VALUE, Util.STATUS_SUCCESS);
             } else {
                 System.out.println("eod is not in init status");
             }
-        } catch (Exception ex) {
 
+        } catch (Exception ex) {
+            response.put(Util.STATUS_VALUE, Util.STATUS_FAILED);
         }
-        return null;
+        return response;
     }
 
     @GetMapping("/start/{fileType}/{fileId}")
@@ -56,12 +59,13 @@ public class EODFileProcessingEngineHandler {
             Configurations.STARTING_EOD_STATUS = "INIT";
             if (Configurations.STARTING_EOD_STATUS.equals(status.getINITIAL_STATUS())) {
                 eodFileProcessingEngineMainService.startProcess(fileType, fileId);
+                response.put(Util.STATUS_VALUE, Util.STATUS_SUCCESS);
             } else {
                 System.out.println("eod is not in init status");
             }
         } catch (Exception ex) {
-
+            response.put(Util.STATUS_VALUE, Util.STATUS_FAILED);
         }
-        return null;
+        return response;
     }
 }

@@ -7,7 +7,7 @@
 
 package com.epic.cms.connector;
 
-import com.epic.cms.common.ProcessBuilder;
+import com.epic.cms.common.FileGenProcessBuilder;
 import com.epic.cms.model.bean.ErrorCardBean;
 import com.epic.cms.repository.CardApplicationRejectLetterRepo;
 import com.epic.cms.repository.CommonRepo;
@@ -27,7 +27,7 @@ import java.util.ArrayList;
 import static com.epic.cms.util.LogManager.*;
 
 @Service
-public class CardApplicationRejectLetterConnector extends ProcessBuilder {
+public class CardApplicationRejectLetterConnector extends FileGenProcessBuilder {
 
     @Autowired
     LogManager logManager;
