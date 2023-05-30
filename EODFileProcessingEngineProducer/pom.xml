@@ -39,7 +39,7 @@
         </dependencies>
     </dependencyManagement>
     <build>
-        <finalName>eod-file_processing-producer</finalName>
+        <finalName>eod-file-processing-producer</finalName>
         <plugins>
             <plugin>
                 <groupId>org.springframework.boot</groupId>

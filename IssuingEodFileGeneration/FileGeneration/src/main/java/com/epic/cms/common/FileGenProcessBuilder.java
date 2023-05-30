@@ -55,6 +55,7 @@ public abstract class FileGenProcessBuilder extends ProcessBuilder{
             boolean isErrorProcess = processBuilderRepo.isErrorProcess(processId);
             this.processHeader = processBean.getProcessDes();
             setupProcessDescriptions();
+            StartEodStatus = Configurations.STARTING_EOD_STATUS;
 
             if(eodEngineStatus.equals("COMP")){
                 if (StartEodStatus.equals("EROR")) { //starteodstatus - File Generation Eod status
@@ -86,7 +87,7 @@ public abstract class FileGenProcessBuilder extends ProcessBuilder{
                      * Add any failed cards at EOD
                      */
                     insertFailedEODCards();
-                    commonRepo.updateEodProcessSummery(Configurations.ERROR_EOD_ID, statusVarList.SUCCES_STATUS, processId, Configurations.PROCESS_SUCCESS_COUNT, Configurations.PROCESS_FAILD_COUNT, eodDashboardProcessProgress(Configurations.PROCESS_SUCCESS_COUNT, Configurations.PROCESS_TOTAL_NOOF_TRABSACTIONS));
+                    commonRepo.updateEodProcessSummery(Configurations.ERROR_EOD_ID, statusVarList.getSUCCES_STATUS(), processId, Configurations.PROCESS_SUCCESS_COUNT, Configurations.PROCESS_FAILD_COUNT, eodDashboardProcessProgress(Configurations.PROCESS_SUCCESS_COUNT, Configurations.PROCESS_TOTAL_NOOF_TRABSACTIONS));
                 } else if (hasErrorEODandProcess == 2 && processBean != null) {
                     System.out.println("Skipping this process since Process not under error: " + processBean.getProcessDes());
                     commonRepo.updateEODProcessCount(uniqueId);

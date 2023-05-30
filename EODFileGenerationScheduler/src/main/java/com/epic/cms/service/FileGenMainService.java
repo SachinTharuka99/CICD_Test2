@@ -79,6 +79,9 @@ public class FileGenMainService {
     RB36FileGenerationConnector rb36FileGenerationConnector;
 
     @Autowired
+    CustomerStatementConnector customerStatementConnector;
+
+    @Autowired
     CreateEodId createEodId;
 
     public void startEODFileGenEngine(int categoryId, int issuingOrAcquiring, int eodId) throws Exception {
@@ -365,6 +368,7 @@ public class FileGenMainService {
             connectorList.put(Configurations.PROCESS_EXPOSURE_FILE, exposureFileConnector);
             connectorList.put(Configurations.PROCESS_ID_GL_FILE_CREATION, glSummaryFileConnector);
             connectorList.put(Configurations.PROCESS_RB36_FILE_CREATION, rb36FileGenerationConnector);
+            connectorList.put(Configurations.PROCESS_MONTHLY_STATEMENT_FILE_CREATION, customerStatementConnector);
             Configurations.processConnectorList = connectorList;
 
         } catch (Exception e) {
