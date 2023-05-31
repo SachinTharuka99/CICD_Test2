@@ -84,7 +84,7 @@ public class EODEngineProducerRepo implements EODEngineProducerDao {
                     + "EP.MULTIPLECYCLESTATUS,EF.PROCESSCATEGORYID,EP.DEPENDANCYSTATUS,EP.RUNNINGONMAIN,EP.RUNNINGONSUB,"
                     + "EP.PROCESSTYPE,EP.STATUS,EP.SHEDULEDATETIME, EP.HOLIDAYACTION, EP.KAFKATOPICNAME, EP.KAFKAGROUPID, EP.EODMODULE"
                     + " FROM EODPROCESSFLOW EF, EODPROCESS EP WHERE"
-                    + " EF.PROCESSCATEGORYID = ? AND EF.PROCESSID=EP.PROCESSID";
+                    + " EF.PROCESSCATEGORYID = ? AND EF.PROCESSID=EP.PROCESSID ORDER BY STEPID ASC";
 
             processList = backendJdbcTemplate.query(query, new ProcessBeanRowMapper(), categoryId);
         } catch (Exception ex) {

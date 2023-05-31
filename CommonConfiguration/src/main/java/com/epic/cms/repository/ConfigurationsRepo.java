@@ -138,11 +138,11 @@ public class ConfigurationsRepo implements ConfigurationsDao {
         try {
             Configurations.SERVER_RUN_PLATFORM = "WINDOWS";
             Configurations.STARTING_EOD_STATUS = "INIT";
-            Configurations.EOD_ID = createEodId.getCurrentEodId("INIT", "EROR"); // Current EOD Id
+            /**Configurations.EOD_ID = createEodId.getCurrentEodId("INIT", "EROR"); // Current EOD Id
             Configurations.ERROR_EOD_ID = Configurations.EOD_ID;
             Configurations.EOD_DATE = getDateFromEODID(Configurations.EOD_ID);
-            Configurations.EOD_DATE_String = sdf.format(Configurations.EOD_DATE);
-
+            Configurations.EOD_DATE_String = sdf.format(Configurations.EOD_DATE);*/
+            System.out.println("TEST Status"+Configurations.STARTING_EOD_STATUS + "eod id "+Configurations.EOD_ID);
             Configurations.TXN_TYPE_ONLINE_SIGN_ON = configVarList.getTXN_TYPE_ONLINE_SIGN_ON();
             Configurations.TXN_TYPE_ONLINE_KEY_EXCHANGE = configVarList.getTXN_TYPE_ONLINE_KEY_EXCHANGE();
             Configurations.TXN_TYPE_ONLINE_ECHO = configVarList.getTXN_TYPE_ONLINE_ECHO();

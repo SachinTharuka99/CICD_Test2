@@ -52,7 +52,7 @@ public class VisaBaseIIFileClearingRepo implements VisaBaseIIFileClearingDao {
     public FileBean getVisaFileInfo(String fileId) throws Exception {
         FileBean fileDataBean = new FileBean();
         try {
-            String query = "SELECT FILEID,FILENAME,STATUS FROM EODVISAFILE WHERE FILEID=? AND STATUS IN(?,?)";
+            String query = "SELECT FILEID,FILENAME,STATUS FROM EODVISAFILE WHERE FILEID=? ";
             fileDataBean = backendJdbcTemplate.queryForObject(query, new RowMapper<>() {
                         @Override
                         public FileBean mapRow(ResultSet rs, int rowNum) throws SQLException {
@@ -63,9 +63,7 @@ public class VisaBaseIIFileClearingRepo implements VisaBaseIIFileClearingDao {
                             return bean;
                         }
                     },
-                    fileId,
-                    DatabaseStatus.STATUS_FILE_INIT,
-                    DatabaseStatus.STATUS_FILE_REPT
+                    fileId
             );
 
         } catch (EmptyResultDataAccessException ex) {

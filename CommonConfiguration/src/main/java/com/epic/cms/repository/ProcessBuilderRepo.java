@@ -14,6 +14,7 @@ import com.epic.cms.util.Configurations;
 import com.epic.cms.util.QueryParametersList;
 import com.epic.cms.util.StatusVarList;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Repository;
 
@@ -41,6 +42,8 @@ public class ProcessBuilderRepo implements ProcessBuilderDao {
         ProcessBean processDetails = new ProcessBean();
         try {
             processDetails = backendJdbcTemplate.queryForObject(queryParametersList.getCommonSelectGetProcessDetails(), new ProcessBeanRowMapper(), processId);
+        }catch (EmptyResultDataAccessException ex){
+            return null;
         } catch (Exception e) {
             throw e;
         }
@@ -65,5 +68,20 @@ public class ProcessBuilderRepo implements ProcessBuilderDao {
         }
 
         return isErrorProcess;
+    }
+
+    @Override
+    public int getRuninngEODId(String inprogress_status, String error_inpr_status) {
+        int eodId = 0;
+        String query ="select max(eodid) from eod where status in (?, ?) order by eodid desc";
+        try {
+            eodId = backendJdbcTemplate.queryForObject(query, Integer.class, inprogress_status, error_inpr_status);
+
+        }catch (EmptyResultDataAccessException ex){
+            return 0;
+        }catch (Exception e){
+            throw e;
+        }
+        return eodId;
     }
 }

@@ -111,7 +111,7 @@ public class MasterFileClearingRepo implements MasterFileClearingDao {
     public FileBean getMasterFileInfo(String fileId) throws Exception {
         FileBean fileBean = new FileBean();
         try {
-            String query = "SELECT FILEID,FILENAME FROM EODMASTERFILE WHERE FILEID=? AND STATUS=?";
+            String query = "SELECT FILEID,FILENAME FROM EODMASTERFILE WHERE FILEID=? ";
             fileBean = backendJdbcTemplate.queryForObject(query, new RowMapper<>() {
                         @Override
                         public FileBean mapRow(ResultSet rs, int rowNum) throws SQLException {
@@ -121,8 +121,7 @@ public class MasterFileClearingRepo implements MasterFileClearingDao {
                             return bean;
                         }
                     },
-                    fileId,
-                    status.getINITIAL_STATUS()
+                    fileId
             );
 
         } catch (EmptyResultDataAccessException ex) {

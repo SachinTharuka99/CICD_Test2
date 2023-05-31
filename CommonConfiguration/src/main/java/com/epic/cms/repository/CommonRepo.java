@@ -59,7 +59,7 @@ public class CommonRepo implements CommonDao {
     public void insertToEodProcessSumery(int processId) throws Exception {
         try {
             backendJdbcTemplate.update(queryParametersList.getCommonInsertToEodProcessSumery(), Configurations.ERROR_EOD_ID, processId, statusList.getINITIAL_STATUS(), Configurations.EOD_USER);
-            System.out.println("EOD ID :"+Configurations.ERROR_EOD_ID);
+            System.out.println("EOD ID :"+Configurations.ERROR_EOD_ID +" - "+Configurations.EOD_ID);
         } catch (Exception e) {
             //logManager.logError(e,errorLoggerCOM);
         }

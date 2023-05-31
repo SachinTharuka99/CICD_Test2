@@ -47,7 +47,7 @@ public class PaymentFileClearingRepo implements PaymentFileClearingDao {
     public FileBean getPaymentFileInfo(String fileId) throws Exception {
         FileBean fileBean = new FileBean();
         try {
-            String query = "SELECT FILEID,FILENAME FROM EODPAYMENTFILE WHERE FILEID=? AND STATUS=?";
+            String query = "SELECT FILEID,FILENAME FROM EODPAYMENTFILE WHERE FILEID=? ";
             fileBean = backendJdbcTemplate.queryForObject(query, new RowMapper<>() {
                         @Override
                         public FileBean mapRow(ResultSet rs, int rowNum) throws SQLException {
@@ -57,8 +57,7 @@ public class PaymentFileClearingRepo implements PaymentFileClearingDao {
                             return bean;
                         }
                     },
-                    fileId,
-                    status.getINITIAL_STATUS()
+                    fileId
             );
 
         } catch (EmptyResultDataAccessException ex) {

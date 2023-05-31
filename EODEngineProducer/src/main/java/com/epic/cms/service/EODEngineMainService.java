@@ -18,7 +18,6 @@ import org.springframework.stereotype.Service;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.concurrent.ExecutionException;
 
 import static com.epic.cms.util.LogManager.errorLogger;
 import static com.epic.cms.util.LogManager.infoLogger;
@@ -46,13 +45,13 @@ public class EODEngineMainService {
 
     public SimpleDateFormat sdf = new SimpleDateFormat("dd-MM-yyyy");
     //@Async
-    public synchronized void EODEngineMain(String eodID, int categoryId) throws InterruptedException {
+    public void EODEngineMain(String eodID, int categoryId) throws InterruptedException {
         System.out.println("Main Method Started");
         try {
             logManager.logStartEnd("EOD-Engine main service started for EODID:" + eodID, infoLogger);
             Configurations.EOD_ID =Integer.parseInt(eodID);
             Configurations.ERROR_EOD_ID = Configurations.EOD_ID;
-            System.out.println("EOD ID :"+Configurations.ERROR_EOD_ID);
+            Configurations.Str_EOD_ID = eodID;
             //update eodid to inprogress
             producerRepo.updateEodStatus(Configurations.ERROR_EOD_ID, statusVarList.getINPROGRESS_STATUS());
 

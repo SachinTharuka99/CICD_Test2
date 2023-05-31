@@ -1284,4 +1284,5 @@ public class Configurations {
 //    public static String PAYMENT_FILE_VALIDATE_PROCESS_PROGRESS = "N/A";
 //
 //    public static HashMap<Integer, Object> fileProcessingConnectorList = new HashMap<>();
+      public static volatile String Str_EOD_ID;
 }

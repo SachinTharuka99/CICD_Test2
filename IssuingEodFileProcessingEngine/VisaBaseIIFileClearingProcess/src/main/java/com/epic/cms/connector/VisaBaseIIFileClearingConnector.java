@@ -135,7 +135,7 @@ public class VisaBaseIIFileClearingConnector extends FileProcessingProcessBuilde
             if (fileBean.getFileId() != null) {
                 //file status is INIT or FREPT,so it can proceed.
                 //update file status to intermediate status FPROS
-                visaBaseIIFileClearingRepo.updateVisaFileStatus(DatabaseStatus.STATUS_FILE_PROS, fileId);
+                //visaBaseIIFileClearingRepo.updateVisaFileStatus(DatabaseStatus.STATUS_FILE_PROS, fileId);
             } else {
                 fileBean = null;
             }

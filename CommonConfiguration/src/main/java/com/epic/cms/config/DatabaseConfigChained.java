@@ -45,11 +45,15 @@ public class DatabaseConfigChained {
         hikariConfig.setJdbcUrl(commonBackendDbVarList.getBackendUrl());
         hikariConfig.setUsername(commonBackendDbVarList.getBackendUsername());
         hikariConfig.setPassword(commonBackendDbVarList.getBackendPassword());
-        hikariConfig.setMaximumPoolSize(20);
+        /*hikariConfig.setMaximumPoolSize(20);
         hikariConfig.setMinimumIdle(10);
         //hikariConfig.setIdleTimeout(200000);
-        hikariConfig.setConnectionTimeout(100000);
-        //hikariConfig.setMaxLifetime(1800000);
+        hikariConfig.setConnectionTimeout(10000);
+        hikariConfig.setMaxLifetime(1800000);*/
+        hikariConfig.setMaximumPoolSize(20);
+        hikariConfig.setConnectionTimeout(300000);
+        //hikariConfig.setIdleTimeout(120000);
+        hikariConfig.setLeakDetectionThreshold(300000);
         hikariConfig.addDataSourceProperty("socketTimeout", "120");
         hikariConfig.addDataSourceProperty("oracle.jdbc.javaNetNio", "false");
         return new HikariDataSource(hikariConfig);
@@ -75,8 +79,8 @@ public class DatabaseConfigChained {
         hikariConfig.setMaximumPoolSize(10);
         //hikariConfig.setIdleTimeout(200000);
         hikariConfig.setMinimumIdle(10);
-        hikariConfig.setConnectionTimeout(100000);
-        //hikariConfig.setMaxLifetime(1800000);
+        hikariConfig.setConnectionTimeout(10000);
+        hikariConfig.setMaxLifetime(1800000);
         hikariConfig.addDataSourceProperty("socketTimeout", "120");
         hikariConfig.addDataSourceProperty("oracle.jdbc.javaNetNio", "false");
         return new HikariDataSource(hikariConfig);

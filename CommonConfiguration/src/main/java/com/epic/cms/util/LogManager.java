@@ -15,9 +15,6 @@ import org.springframework.stereotype.Component;
 
 import javax.annotation.PostConstruct;
 import java.io.File;
-import java.text.SimpleDateFormat;
-import java.time.LocalDateTime;
-import java.time.format.DateTimeFormatter;
 import java.util.Map;
 
 @Component
@@ -36,20 +33,6 @@ public class LogManager {
 
     @PostConstruct
     public static void init() {
-
-//        Logger logger = getLogger(logTypeInfo, "combined_logs", Configurations.LOG_FILE_PREFIX_COMMON);
-//
-//        // Set the same logger for all loggers
-//        infoLoggerCOM = logger;
-//        infoLogger = logger;
-//        infoLoggerEFPE = logger;
-//        infoLoggerEFGE = logger;
-//        dashboardInfoLogger = logger;
-//        errorLoggerCOM = logger;
-//        errorLogger = logger;
-//        errorLoggerEFPE = logger;
-//        errorLoggerEFGE = logger;
-//        dashboardErrorLogger = logger;
 
         //info loggers
         infoLoggerCOM = getLogger(logTypeInfo, "common_info");
@@ -84,13 +67,11 @@ public class LogManager {
 
         LoggerContext lc = (LoggerContext) LoggerFactory.getILoggerFactory();
         String path = Configurations.EOD_LOGS_FILE_PATH;
-        String subDirectory = new SimpleDateFormat("dd-MMM-yy").format(Configurations.EOD_DATE);
         String fileName = "eod_log.log";
 
         // Rename previous log file
         String previousFileName = path + "/" + fileName;
-        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyyMMdd"); // Format for the new file name
-        String newFileName = path + "/" + "Backup_" + Configurations.EOD_ID + "_" + fileName;
+        String newFileName = path + "/" + "Backup_" + fileName;
         File previousFile = new File(previousFileName);
         if (previousFile.exists()) {
             previousFile.renameTo(new File(newFileName));
@@ -153,7 +134,8 @@ public class LogManager {
                 }
             }
         }
-        style = Configurations.EOD_DATE_String + style + System.lineSeparator();
+        //style = Configurations.EOD_DATE_String + style + System.lineSeparator();
+         style = style + System.lineSeparator();
 
         return style;
     }
@@ -165,9 +147,10 @@ public class LogManager {
      * @return
      */
     public static String processStartEndStyle(String name) {
-        String curDate = new SimpleDateFormat("dd-MMM-yy HH:mm:ss").format(Configurations.EOD_DATE);
+        //String curDate = new SimpleDateFormat("dd-MMM-yy HH:mm:ss").format(Configurations.EOD_DATE);
 
-        String temp = "[" + curDate + "]" + "  " + name + System.lineSeparator();
+        //String temp = "[" + curDate + "]" + "  " + name + System.lineSeparator();
+        String temp =  name + System.lineSeparator();
         return temp;
     }
 
@@ -300,7 +283,8 @@ public class LogManager {
                 }
             }
         }
-        formattedMsg = Configurations.EOD_DATE_String + formattedMsg + System.lineSeparator();
+        //formattedMsg = Configurations.EOD_DATE_String + formattedMsg + System.lineSeparator();
+        formattedMsg =  formattedMsg + System.lineSeparator();
 
         //write into a log
         logger.info(formattedMsg);
@@ -313,9 +297,10 @@ public class LogManager {
     }
 
     public void logStartEnd(String msg, Logger logger) {
-        String curDate = new SimpleDateFormat("dd-MMM-yy HH:mm:ss").format(Configurations.EOD_DATE);
+        //String curDate = new SimpleDateFormat("dd-MMM-yy HH:mm:ss").format(Configurations.EOD_DATE);
 
-        String formattedMsg = "[" + curDate + "]" + "  " + msg + System.lineSeparator();
+        //String formattedMsg = "[" + curDate + "]" + "  " + msg + System.lineSeparator();
+        String formattedMsg =  msg + System.lineSeparator();
         //write into a log
         logger.info(formattedMsg);
         //pass into a kafka topic

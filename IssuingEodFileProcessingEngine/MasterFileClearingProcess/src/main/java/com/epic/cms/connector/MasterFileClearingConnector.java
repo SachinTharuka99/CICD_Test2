@@ -82,7 +82,7 @@ public class MasterFileClearingConnector extends FileProcessingProcessBuilder {
             if (fileBean.getFileId() != null) {
                 //file status is INIT,so it can proceed.
                 //update file status to intermediate status FPROS
-                masterFileClearingDao.updateFileStatus(fileId, DatabaseStatus.STATUS_FILE_PROS);
+                //masterFileClearingDao.updateFileStatus(fileId, DatabaseStatus.STATUS_FILE_PROS);
             } else {
                 fileBean = null;
             }

@@ -147,7 +147,7 @@ public class ATMFileClearingConnector extends FileProcessingProcessBuilder {
             if (fileBean.getFileId() != null) {
                 //file status is INIT,so it can proceed.
                 //update file status to intermediate status FPROS
-                atmFileClearingRepo.updateATMFileStatus(DatabaseStatus.STATUS_FILE_PROS, fileId);
+                //atmFileClearingRepo.updateATMFileStatus(DatabaseStatus.STATUS_FILE_PROS, fileId);
             } else {
                 fileBean = null;
             }

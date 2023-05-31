@@ -13,10 +13,8 @@ import com.epic.cms.util.StatusVarList;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.LinkedHashMap;
-import java.util.List;
+import java.text.SimpleDateFormat;
+import java.util.*;
 
 import static com.epic.cms.util.LogManager.infoLogger;
 import static com.epic.cms.util.LogManager.errorLogger;
@@ -53,10 +51,16 @@ public abstract class ProcessBuilder {
     @Autowired
     LogManager logManager;
 
+
     public void startProcess(int processId, String uniqueId) throws Exception {
+        SimpleDateFormat sdf = new SimpleDateFormat("dd-MM-yyyy");
         try {
             ProcessBean processBean = processBuilderRepo.getProcessDetails(processId);
+            Configurations.EOD_ID = processBuilderRepo.getRuninngEODId(statusVarList.getINPROGRESS_STATUS(), statusVarList.getERROR_INPR_STATUS());
+            Configurations.ERROR_EOD_ID = Configurations.EOD_ID;
             System.out.println("EOD ID :"+Configurations.ERROR_EOD_ID);
+            Configurations.EOD_DATE = getDateFromEODID(Configurations.EOD_ID);
+            Configurations.EOD_DATE_String = sdf.format(Configurations.EOD_DATE);
             StartEodStatus = Configurations.STARTING_EOD_STATUS;
             boolean isErrorProcess = processBuilderRepo.isErrorProcess(processId);
             this.processHeader = processBean.getProcessDes();
@@ -156,4 +160,23 @@ public abstract class ProcessBuilder {
     public abstract void concreteProcess() throws Exception;
 
     public abstract void addSummaries();
+
+    public Date getDateFromEODID(int eodId) {
+        Date parsedDate = null;
+        String streodID = "";
+        try {
+            if (eodId > 10000000) {
+                streodID = eodId + "";
+                SimpleDateFormat sdf = new SimpleDateFormat("yyMMdd");
+                String eodIDsubs = streodID.substring(0, streodID.length() - 2);
+                parsedDate = sdf.parse(eodIDsubs);
+            }
+
+        } catch (Exception e) {
+            e.printStackTrace();
+            throw e;
+        } finally {
+            return parsedDate;
+        }
+    }
 }
