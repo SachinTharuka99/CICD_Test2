@@ -14,7 +14,10 @@ import org.springframework.kafka.core.KafkaTemplate;
 import org.springframework.stereotype.Component;
 
 import javax.annotation.PostConstruct;
+import java.io.File;
 import java.text.SimpleDateFormat;
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.Map;
 
 @Component
@@ -33,18 +36,33 @@ public class LogManager {
 
     @PostConstruct
     public static void init() {
+
+//        Logger logger = getLogger(logTypeInfo, "combined_logs", Configurations.LOG_FILE_PREFIX_COMMON);
+//
+//        // Set the same logger for all loggers
+//        infoLoggerCOM = logger;
+//        infoLogger = logger;
+//        infoLoggerEFPE = logger;
+//        infoLoggerEFGE = logger;
+//        dashboardInfoLogger = logger;
+//        errorLoggerCOM = logger;
+//        errorLogger = logger;
+//        errorLoggerEFPE = logger;
+//        errorLoggerEFGE = logger;
+//        dashboardErrorLogger = logger;
+
         //info loggers
-        infoLoggerCOM = getLogger(logTypeInfo, "common_info", Configurations.LOG_FILE_PREFIX_COMMON);
-        infoLogger = getLogger(logTypeInfo, "engine_info", Configurations.LOG_FILE_PREFIX_EOD_ENGINE);
-        infoLoggerEFPE = getLogger(logTypeInfo, "file_pro_engine_info", Configurations.LOG_FILE_PREFIX_EOD_FILE_PROCESSING_ENGINE);
-        infoLoggerEFGE = getLogger(logTypeInfo, "file_gen_engine_info", Configurations.LOG_FILE_PREFIX_EOD_FILE_GENERATION_ENGINE);
-        dashboardInfoLogger = getLogger(logTypeInfo, "dashboard_info", Configurations.LOG_FILE_PREFIX_COMMON);
+        infoLoggerCOM = getLogger(logTypeInfo, "common_info");
+        infoLogger = getLogger(logTypeInfo, "engine_info");
+        infoLoggerEFPE = getLogger(logTypeInfo, "file_pro_engine_info");
+        infoLoggerEFGE = getLogger(logTypeInfo, "file_gen_engine_info");
+        dashboardInfoLogger = getLogger(logTypeInfo, "dashboard_info");
         //error loggers
-        errorLoggerCOM = getLogger(logTypeError, "common_error", Configurations.LOG_FILE_PREFIX_COMMON);
-        errorLogger = getLogger(logTypeError, "engine_error", Configurations.LOG_FILE_PREFIX_EOD_ENGINE);
-        errorLoggerEFPE = getLogger(logTypeError, "file_pro_engine_error", Configurations.LOG_FILE_PREFIX_EOD_FILE_PROCESSING_ENGINE);
-        errorLoggerEFGE = getLogger(logTypeError, "file_gen_engine_error", Configurations.LOG_FILE_PREFIX_EOD_FILE_GENERATION_ENGINE);
-        dashboardErrorLogger = getLogger(logTypeError, "dashboard_error", Configurations.LOG_FILE_PREFIX_COMMON);
+        errorLoggerCOM = getLogger(logTypeError, "common_error");
+        errorLogger = getLogger(logTypeError, "engine_error");
+        errorLoggerEFPE = getLogger(logTypeError, "file_pro_engine_error");
+        errorLoggerEFGE = getLogger(logTypeError, "file_gen_engine_error");
+        dashboardErrorLogger = getLogger(logTypeError, "dashboard_error");
     }
 
 
@@ -53,23 +71,30 @@ public class LogManager {
      *
      * @param logType
      * @param loggerName
-     * @param fileNamePrefix
      * @return
      */
-    public static Logger getLogger(String logType, String loggerName, String fileNamePrefix) {
-        String fileNamePostfix = null;
+
+    public static Logger getLogger(String logType, String loggerName) {
         String logPattern = null;
         if (logType.equals(Configurations.LOG_TYPE_INFO)) {
-            fileNamePostfix = "_info.log";
             logPattern = Configurations.INFO_LOG_PATTERN;
         } else {
-            fileNamePostfix = "_error.log";
             logPattern = Configurations.ERROR_LOG_PATTERN;
         }
 
         LoggerContext lc = (LoggerContext) LoggerFactory.getILoggerFactory();
         String path = Configurations.EOD_LOGS_FILE_PATH;
         String subDirectory = new SimpleDateFormat("dd-MMM-yy").format(Configurations.EOD_DATE);
+        String fileName = "eod_log.log";
+
+        // Rename previous log file
+        String previousFileName = path + "/" + fileName;
+        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyyMMdd"); // Format for the new file name
+        String newFileName = path + "/" + "Backup_" + Configurations.EOD_ID + "_" + fileName;
+        File previousFile = new File(previousFileName);
+        if (previousFile.exists()) {
+            previousFile.renameTo(new File(newFileName));
+        }
 
         PatternLayoutEncoder ple = new PatternLayoutEncoder();
         ple.setPattern(logPattern);
@@ -82,9 +107,9 @@ public class LogManager {
         consoleAppender.setContext(lc);
         consoleAppender.start();
 
-        //file appender
+        // File appender
         FileAppender<ILoggingEvent> fileAppender = new FileAppender<>();
-        fileAppender.setFile(path + subDirectory + "/" + fileNamePrefix + fileNamePostfix);
+        fileAppender.setFile(path + "/" + fileName);
         fileAppender.setEncoder(ple);
         fileAppender.setContext(lc);
         fileAppender.start();

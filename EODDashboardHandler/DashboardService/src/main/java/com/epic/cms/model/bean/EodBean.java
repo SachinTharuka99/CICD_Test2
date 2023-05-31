@@ -23,4 +23,5 @@ public class EodBean {
     private Integer noOfSuccessProcess;
     private Integer noOfErrorProcess;
     private Integer totalProcessCount;
+    private String fileGenStatus;
 }
