@@ -87,6 +87,39 @@ public class EODEngineDashboardService {
         return nextRunningEodBean;
     }
 
+    public EodBean getCurrentDashboardEodId () {
+        EodBean eodInfoList = new EodBean();
+        int count = 0;
+        Long eodId = 0L;
+        Long currentEodId = 0L;
+
+        try {
+            List<EOD> byEODIDDesc = eodIdInfoRepo.findAllByOrderByEODIDDesc();
+
+            for (EOD eod:byEODIDDesc) {
+                count++;
+                eodId = eod.getEODID();
+                String status = eod.getSTATUS();
+
+                if (status.equals("INPR")) {
+                    currentEodId = eodId;
+                    break;
+                } else {
+                    if (count == 2) { // get the privious finished eod id..
+                        currentEodId = eodId;
+                        break;
+                    }
+                }
+
+            }
+            eodInfoList = getEodInfoList(currentEodId);
+
+        } catch (Exception e) {
+            throw e;
+        }
+        return eodInfoList;
+    }
+
     public List<ProcessSummeryBean> getEodProcessSummeryList(Long eodID) {
         List<ProcessSummeryBean> processSummeryList = new ArrayList<>();
         try {

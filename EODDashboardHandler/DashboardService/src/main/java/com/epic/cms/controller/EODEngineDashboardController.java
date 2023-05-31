@@ -56,6 +56,30 @@ public class EODEngineDashboardController {
         return responseBean;
     }
 
+    @PostMapping("/currenteod")
+    public ResponseBean getCurrentEodDetails() {
+        try {
+            logManager.logHeader("EOD-Engine Dashboard Get CurrentEodDetails", dashboardInfoLogger);
+            EodBean currentDashboardEodId = engineDashboardService.getCurrentDashboardEodId();
+
+            if (currentDashboardEodId != null) {
+                responseBean.setContent(currentDashboardEodId);
+                responseBean.setResponseCode(ResponseCodes.SUCCESS);
+                responseBean.setResponseMsg(MessageVarList.SUCCESS);
+            } else {
+                responseBean.setResponseCode(ResponseCodes.NO_DATA_FOUND);
+                responseBean.setContent(null);
+                responseBean.setResponseMsg(MessageVarList.NO_DATA_FOUND);
+            }
+        } catch (Exception e) {
+            responseBean.setResponseCode(ResponseCodes.UNEXPECTED_ERROR);
+            responseBean.setContent(null);
+            responseBean.setResponseMsg(MessageVarList.NULL_POINTER);
+            logManager.logError("Failed Current Eod Details ", e, dashboardErrorLogger);
+        }
+        return responseBean;
+    }
+
     @PostMapping("/processsummery/{eodid}")
     public ResponseBean getProcessSummeryByEodId(@PathVariable("eodid") final Long eodId) {
         try {

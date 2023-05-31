@@ -13,6 +13,7 @@ import org.springframework.data.jpa.repository.JpaSpecificationExecutor;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.stereotype.Repository;
 
+import java.util.List;
 import java.util.Optional;
 
 @Repository
@@ -21,5 +22,7 @@ public interface EodIdInfoRepo extends JpaRepository<EOD, Long>, JpaSpecificatio
 
     @Query("SELECT EODID FROM EOD WHERE STATUS ='INIT' OR STATUS = 'EROR'")
     Long findByNextRunnindEodId();
+
+    List<EOD> findAllByOrderByEODIDDesc();
 
 }
