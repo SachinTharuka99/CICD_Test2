@@ -56,7 +56,7 @@ public class EODEngineDashboardController {
         return responseBean;
     }
 
-    @PostMapping("/currenteod")
+    @PostMapping("/currenteodinfo")
     public ResponseBean getCurrentEodDetails() {
         try {
             logManager.logHeader("EOD-Engine Dashboard Get CurrentEodDetails", dashboardInfoLogger);
@@ -105,7 +105,7 @@ public class EODEngineDashboardController {
     }
 
     @PostMapping("/eodinfo/{eodid}")
-    public ResponseBean getEodInfo(@PathVariable("eodid") final Long eodId) {
+    public ResponseBean getSearchEodInfo(@PathVariable("eodid") final Long eodId) {
         try {
             logManager.logHeader("EOD-Engine Dashboard EOD info by EODID:" + eodId, dashboardInfoLogger);
             EodBean eodInfo = engineDashboardService.getEodInfoList(eodId);
