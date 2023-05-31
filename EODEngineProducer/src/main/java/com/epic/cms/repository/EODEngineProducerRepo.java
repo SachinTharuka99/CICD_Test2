@@ -276,4 +276,18 @@ public class EODEngineProducerRepo implements EODEngineProducerDao {
             throw e;
         }
     }
+
+    @Override
+    public int getNextRunningEodId() {
+        int eodId =0;
+        try {
+            String sql = "SELECT EODID FROM EOD WHERE STATUS IN ('INIT' , 'EROR')";
+            eodId = backendJdbcTemplate.queryForObject(sql, Integer.class);
+        }catch (EmptyResultDataAccessException ex){
+            return 0;
+        }catch (Exception e){
+            throw e;
+        }
+        return eodId;
+    }
 }

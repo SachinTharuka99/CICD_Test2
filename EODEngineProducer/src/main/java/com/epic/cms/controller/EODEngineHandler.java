@@ -31,23 +31,26 @@ public class EODEngineHandler {
     @Autowired
     EODEngineMainService eodEngineMainService;
 
-    @GetMapping("/start/{eodid}")
-    public Map<String, Object> startEODEngine(@PathVariable("eodid") final String eodId) throws Exception {
+    @GetMapping("/start")
+    public Map<String, Object> startEODEngine() throws Exception {
         Map<String, Object> response = new HashMap<>();
         int categoryId = 2;
+        int eodId =0;
         try {
+            eodId =producerRepo.getNextRunningEodId();
+            String EodIdString = String.valueOf(eodId);
             LogManager.processStartEndStyle("EOD-Engine Start for EODID:" + eodId);
-            Configurations.STARTING_EOD_STATUS = producerRepo.getEODStatusFromEODID(eodId)
+            Configurations.STARTING_EOD_STATUS = producerRepo.getEODStatusFromEODID(EodIdString)
                     .stream()
                     .findFirst()
-                    .orElseThrow(() -> new InvalidEodId("Invalid EOD ID:" + eodId));
+                    .orElseThrow(() -> new InvalidEodId("Invalid EOD ID:" + EodIdString));
 
             boolean isFilesCompleted = producerRepo.checkUploadedFileStatus();
 
             isFilesCompleted = true;
             if (isFilesCompleted) {
                 //run the main service thread
-                eodEngineMainService.EODEngineMain(eodId, categoryId);
+                eodEngineMainService.EODEngineMain(EodIdString, categoryId);
                 response.put(Util.STATUS_VALUE, Util.STATUS_SUCCESS);
             } else {
                 throw new UploadedFileNotCompleted("Uploaded file not completed.");

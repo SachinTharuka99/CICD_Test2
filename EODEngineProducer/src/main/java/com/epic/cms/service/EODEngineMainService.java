@@ -10,14 +10,19 @@ package com.epic.cms.service;
 import com.epic.cms.model.bean.ProcessBean;
 import com.epic.cms.repository.EODEngineProducerRepo;
 import com.epic.cms.util.*;
+import com.fasterxml.jackson.databind.JsonNode;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.boot.web.client.RestTemplateBuilder;
 import org.springframework.context.annotation.ComponentScan;
 import org.springframework.stereotype.Service;
+import org.springframework.web.client.RestTemplate;
 
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import static com.epic.cms.util.LogManager.errorLogger;
 import static com.epic.cms.util.LogManager.infoLogger;
@@ -43,6 +48,12 @@ public class EODEngineMainService {
     @Autowired
     CreateEodId createEodId;
 
+    final RestTemplate restTemplate;
+
+    public EODEngineMainService(RestTemplateBuilder restTemplateBuilder){
+        this.restTemplate = restTemplateBuilder.build();
+    }
+
     public SimpleDateFormat sdf = new SimpleDateFormat("dd-MM-yyyy");
     //@Async
     public void EODEngineMain(String eodID, int categoryId) throws InterruptedException {
@@ -54,6 +65,12 @@ public class EODEngineMainService {
             Configurations.Str_EOD_ID = eodID;
             //update eodid to inprogress
             producerRepo.updateEodStatus(Configurations.ERROR_EOD_ID, statusVarList.getINPROGRESS_STATUS());
+
+            Map<String, Object> requestBody = new HashMap<>();
+            requestBody.put("eodid", Configurations.EOD_ID);
+
+            String url = "http://localhost:7778/eod-dashboard/eod-engine/currenteodinfo";
+            restTemplate.postForObject(url, requestBody, JsonNode.class);
 
             List<ProcessBean> processList = new ArrayList<ProcessBean>();
             String uniqueId = generateUniqueId();

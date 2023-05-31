@@ -43,4 +43,6 @@ public interface EODEngineProducerDao {
     boolean hasErrorforLastEOD() throws Exception;
 
     void updateEodEndStatus(int errorEodId, String status) throws Exception;
+
+    int getNextRunningEodId();
 }
