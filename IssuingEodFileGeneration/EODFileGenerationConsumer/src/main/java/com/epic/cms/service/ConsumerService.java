@@ -120,9 +120,9 @@ public class ConsumerService {
     @KafkaListener(topics = "cardApplicationRejectLetter", groupId = "group_cardApplicationRejectLetter")
     public void cardApplicationRejectLetterConsumer(String uniqueID) throws Exception {
         Configurations.eodUniqueId = uniqueID;
-        System.out.println("Start Collection And Recovery Notification Process");
+        System.out.println("Card Application Reject Letter Process");
         cardApplicationRejectLetterConnector.startProcess(Configurations.PROCESS_ID_CARDAPPLICATION_LETTER_REJECT, uniqueID);
-        System.out.println("Complete Collection And Recovery Notification Process");
+        System.out.println("Complete Card Application Reject Letter Process");
     }
 
     @KafkaListener(topics = "autoSettlement", groupId = "group_autoSettlement")

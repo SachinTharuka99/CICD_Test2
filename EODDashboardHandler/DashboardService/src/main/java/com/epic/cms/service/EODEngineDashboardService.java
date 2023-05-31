@@ -64,6 +64,7 @@ public class EODEngineDashboardService {
                 eodBean.setStartTime(eod.getSTARTTIME());
                 eodBean.setEndTime(eod.getENDTIME());
                 eodBean.setStatus(eod.getSTATUS());
+                eodBean.setFileGenStatus(eod.getFILEGENERATIONSTATUS());
                 eodBean.setSubEodStatus(eod.getSUBEODSTATUS());
                 eodBean.setNoOfSuccessProcess(eod.getNOOFSUCCESSPROCESS());
                 eodBean.setNoOfErrorProcess(eod.getNOOFERRORPAROCESS());
