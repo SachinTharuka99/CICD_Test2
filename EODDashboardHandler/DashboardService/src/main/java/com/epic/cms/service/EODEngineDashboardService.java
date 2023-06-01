@@ -19,10 +19,8 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
-import java.util.Optional;
+import java.math.BigDecimal;
+import java.util.*;
 
 @Service
 public class EODEngineDashboardService {
@@ -51,10 +49,36 @@ public class EODEngineDashboardService {
     @Autowired
     EodProcessFlowRepo eodProcessFlowRepo;
 
+    @Autowired
+    EodOutputFileRepo eodOutputFileRepo;
+
+    @Autowired
+    StatementGenSummeryListRepo genSummeryListRepo;
+
+    @Autowired
+    EodAtmInputFileRepo eodAtmInputFileRepo;
+
+    @Autowired
+    EodMasterInputFileRepo eodMasterInputFileRepo;
+
+    @Autowired
+    EodVisaInputFileRepo eodVisaInputFileRepo;
+
+    @Autowired
+    EodPaymentInputFileRepo eodPaymentInputFileRepo;
+
+    @Autowired
+    FileProcessingSummeryListRepo processingSummeryListRepo;
+
+
+    public Long dashboardCurrentEodId = 0L;
 
     public EodBean getEodInfoList(Long eodId) {
         EodBean eodBean = new EodBean();
         try {
+            if (eodId == 0) {
+                eodId = dashboardCurrentEodId;
+            }
             Optional<EOD> eodInfo = eodIdInfoRepo.findById(eodId);
 
             int count1 = eodProcessFlowRepo.countByPROCESSCATEGORYIDNotIn(Collections.singletonList(90));
@@ -87,8 +111,7 @@ public class EODEngineDashboardService {
         return nextRunningEodBean;
     }
 
-    public EodBean getCurrentDashboardEodId () {
-        EodBean eodInfoList = new EodBean();
+    public void getCurrentDashboardEodId () {
         int count = 0;
         Long eodId = 0L;
         Long currentEodId = 0L;
@@ -112,17 +135,23 @@ public class EODEngineDashboardService {
                 }
 
             }
-            eodInfoList = getEodInfoList(currentEodId);
+           // eodInfoList = getEodInfoList(currentEodId);
 
+            dashboardCurrentEodId = currentEodId;
         } catch (Exception e) {
             throw e;
         }
-        return eodInfoList;
+        //return eodInfoList;
     }
 
     public List<ProcessSummeryBean> getEodProcessSummeryList(Long eodID) {
         List<ProcessSummeryBean> processSummeryList = new ArrayList<>();
         try {
+
+            if (eodID == 0) {
+                eodID = dashboardCurrentEodId;
+            }
+
             processSummeryList = processSummeryRepo.findProcessSummeryListById(eodID, Configurations.EOD_ENGINE);
         } catch (Exception e) {
             throw e;
@@ -134,6 +163,11 @@ public class EODEngineDashboardService {
         List<Object> invalidTransactionBeanList = new ArrayList<>();
         DataTableBean dataTableBean = new DataTableBean();
         try {
+
+            if (eodId == 0) {
+                eodId = dashboardCurrentEodId;
+            }
+
             int fixSize = requestBean.getSize() / 2;
             Pageable paging = PageRequest.of(requestBean.getPage(), fixSize, Sort.by("FILEID").ascending());
             //Pageable paging = PageRequest.of(requestBean.getPage(), requestBean.getSize(), Sort.by("FILEID").ascending());
@@ -185,6 +219,11 @@ public class EODEngineDashboardService {
         DataTableBean dataTableBean = new DataTableBean();
 
         try {
+
+            if (eodId == 0) {
+                eodId = dashboardCurrentEodId;
+            }
+
             Pageable paging = PageRequest.of(requestBean.getPage(), requestBean.getSize());
 
             Page<EODERRORCARDS> eoderrorcards = eodErrorCardListRepo.findAllByEODID(eodId, paging);
@@ -217,6 +256,11 @@ public class EODEngineDashboardService {
         List<Object> errorMerchantBeans = new ArrayList<>();
         DataTableBean dataTableBean = new DataTableBean();
         try {
+
+            if (eodId == 0) {
+                eodId = dashboardCurrentEodId;
+            }
+
             Pageable paging = PageRequest.of(requestBean.getPage(), requestBean.getSize());
 
             Page<EODERRORMERCHANT> eoderrormerchant = eodErrorMerchantListRepo.findEODERRORMERCHANTByEODID(eodId, paging);
@@ -246,4 +290,131 @@ public class EODEngineDashboardService {
         }
         return dataTableBean;
     }
+
+    //File Generation
+    public List<EodOutputFileBean> getEodOutputFIleList(Long eodId) {
+        List<EodOutputFileBean> outputFileBeanList = new ArrayList<>();
+
+        try {
+
+            if (eodId == 0) {
+                eodId = dashboardCurrentEodId;
+            }
+
+            List<Object[]> eodOutputFilesList = eodOutputFileRepo.findEODOUTPUTFILESByEODID(eodId);
+
+            Long finalEodId = eodId;
+            eodOutputFilesList.forEach(eod -> {
+                EodOutputFileBean eodBean = new EodOutputFileBean();
+                eodBean.setEodId(finalEodId);
+                eodBean.setCreatedTime((Date) eod[0]);
+                eodBean.setFileType((String) eod[1]);
+                eodBean.setNoOfRecords((int) ((BigDecimal) eod[3]).doubleValue());
+                eodBean.setFileName((String) eod[4]);
+                eodBean.setSubFolder((String) eod[5]);
+
+                outputFileBeanList.add(eodBean);
+            });
+        } catch (Exception e) {
+            throw e;
+        }
+        return outputFileBeanList;
+    }
+
+    public List<StatementGenSummeryBean> getStatementGenSummeryList(Long eodId) {
+        List<StatementGenSummeryBean> stmtGenSummeryList = new ArrayList<>();
+
+        try {
+
+            if (eodId == 0) {
+                eodId = dashboardCurrentEodId;
+            }
+
+            stmtGenSummeryList = genSummeryListRepo.findStmtGenSummeryListByEodId(eodId, Configurations.EOD_FILE_GENERATION);
+        } catch (Exception e) {
+            throw e;
+        }
+        return stmtGenSummeryList;
+    }
+
+    //File Processing
+    public List<Object> getEodInputFIleList(Long eodId) {
+        List<Object> eodInputFileObjectList = new ArrayList<>();
+
+        try {
+
+            if (eodId == 0) {
+                eodId = dashboardCurrentEodId;
+            }
+
+            List<EODATMFILE> atmInputFileList = eodAtmInputFileRepo.findEODATMFILEByEODID(eodId);
+            List<EODPAYMENTFILE> paymentInputFileList = eodPaymentInputFileRepo.findEODPAYMENTFILEByEODID(eodId);
+            List<EODMASTERFILE> masterInputFileList = eodMasterInputFileRepo.findEODMASTERFILEByEODID(eodId);
+            List<EODVISAFILE> visaInputFileList = eodVisaInputFileRepo.findEODVISAFILEByEODID(eodId);
+
+
+            atmInputFileList.forEach(eod -> {
+                EodInputFileBean inputFileBean = new EodInputFileBean();
+                inputFileBean.setUploadTime(eod.getUPLOADTIME());
+                inputFileBean.setFileType("ATM");
+                inputFileBean.setFileId(eod.getFILEID());
+                inputFileBean.setFileName(eod.getFILENAME());
+                inputFileBean.setStatus(eod.getSTATUS());
+
+                eodInputFileObjectList.add(inputFileBean);
+            });
+
+            paymentInputFileList.forEach(eod -> {
+                EodInputFileBean inputFileBean = new EodInputFileBean();
+                inputFileBean.setUploadTime(eod.getUPLOADTIME());
+                inputFileBean.setFileType("PAYMENT");
+                inputFileBean.setFileId(eod.getFILEID());
+                inputFileBean.setFileName(eod.getFILENAME());
+                inputFileBean.setStatus(eod.getSTATUS());
+
+                eodInputFileObjectList.add(inputFileBean);
+            });
+
+            masterInputFileList.forEach(eod -> {
+                EodInputFileBean inputFileBean = new EodInputFileBean();
+                inputFileBean.setUploadTime(eod.getUPLOADTIME());
+                inputFileBean.setFileType("VISA");
+                inputFileBean.setFileId(eod.getFILEID());
+                inputFileBean.setFileName(eod.getFILENAME());
+                inputFileBean.setStatus(eod.getSTATUS());
+
+                eodInputFileObjectList.add(inputFileBean);
+            });
+
+            visaInputFileList.forEach(eod -> {
+                EodInputFileBean inputFileBean = new EodInputFileBean();
+                inputFileBean.setUploadTime(eod.getUPLOADTIME());
+                inputFileBean.setFileType("MASTER");
+                inputFileBean.setFileId(eod.getFILEID());
+                inputFileBean.setFileName(eod.getFILENAME());
+                inputFileBean.setStatus(eod.getSTATUS());
+
+                eodInputFileObjectList.add(inputFileBean);
+            });
+        } catch (Exception e) {
+            throw e;
+        }
+        return eodInputFileObjectList;
+    }
+
+    public List<StatementGenSummeryBean> getProcessingSummeryList(Long eodID) {
+        List<StatementGenSummeryBean> processingSummeryBeans = new ArrayList<>();
+        try {
+
+            if (eodID == 0) {
+                eodID = dashboardCurrentEodId;
+            }
+
+            processingSummeryBeans = processingSummeryListRepo.findProcessingSummeryListByEodId(eodID, Configurations.EOD_FILE_PROCESSING);
+        } catch (Exception e) {
+            throw e;
+        }
+        return processingSummeryBeans;
+    }
+
 }

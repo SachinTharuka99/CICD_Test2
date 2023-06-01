@@ -56,32 +56,14 @@ public class EODEngineDashboardController {
         return responseBean;
     }
 
-    @PostMapping("/currenteodinfo")
-    public ResponseBean getCurrentEodDetails() {
-        try {
-            logManager.logHeader("EOD-Engine Dashboard Get CurrentEodDetails", dashboardInfoLogger);
-            EodBean currentDashboardEodId = engineDashboardService.getCurrentDashboardEodId();
-
-            if (currentDashboardEodId != null) {
-                responseBean.setContent(currentDashboardEodId);
-                responseBean.setResponseCode(ResponseCodes.SUCCESS);
-                responseBean.setResponseMsg(MessageVarList.SUCCESS);
-            } else {
-                responseBean.setResponseCode(ResponseCodes.NO_DATA_FOUND);
-                responseBean.setContent(null);
-                responseBean.setResponseMsg(MessageVarList.NO_DATA_FOUND);
-            }
-        } catch (Exception e) {
-            responseBean.setResponseCode(ResponseCodes.UNEXPECTED_ERROR);
-            responseBean.setContent(null);
-            responseBean.setResponseMsg(MessageVarList.NULL_POINTER);
-            logManager.logError("Failed Current Eod Details ", e, dashboardErrorLogger);
-        }
-        return responseBean;
+    @PostMapping("/load-eod-data")
+    public void loadDashboardEod() {
+        logManager.logHeader("EOD-Engine Dashboard Get CurrentEodDetails", dashboardInfoLogger);
+        engineDashboardService.getCurrentDashboardEodId();
     }
 
     @PostMapping("/processsummery/{eodid}")
-    public ResponseBean getProcessSummeryByEodId(@PathVariable("eodid") final Long eodId) {
+    public ResponseBean getEodEngineProcessSummery(@PathVariable("eodid") final Long eodId) {
         try {
             logManager.logHeader("EOD-Engine Dashboard Get ProcessSummery By EodId :" + eodId, dashboardInfoLogger);
             List<ProcessSummeryBean> eodProcessSummeryList = engineDashboardService.getEodProcessSummeryList(eodId);
@@ -105,7 +87,7 @@ public class EODEngineDashboardController {
     }
 
     @PostMapping("/eodinfo/{eodid}")
-    public ResponseBean getSearchEodInfo(@PathVariable("eodid") final Long eodId) {
+    public ResponseBean getEodInfo(@PathVariable("eodid") final Long eodId) {
         try {
             logManager.logHeader("EOD-Engine Dashboard EOD info by EODID:" + eodId, dashboardInfoLogger);
             EodBean eodInfo = engineDashboardService.getEodInfoList(eodId);

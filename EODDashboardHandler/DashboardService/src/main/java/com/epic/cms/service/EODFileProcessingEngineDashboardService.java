@@ -47,83 +47,80 @@ public class EODFileProcessingEngineDashboardService {
     private KafkaTemplate<String, String> kafkaTemplate;
 
     @Autowired
-    KafkaMessageUpdator kafkaMessageUpdator;
-
-    @Autowired
     CommonRepo commonRepo;
 
     @Autowired
     LogManager logManager;
 
 
-    public List<Object> getEodInputFIleList(Long eodId) {
-        List<Object> eodInputFileObjectList = new ArrayList<>();
-
-        try {
-            List<EODATMFILE> atmInputFileList = eodAtmInputFileRepo.findEODATMFILEByEODID(eodId);
-            List<EODPAYMENTFILE> paymentInputFileList = eodPaymentInputFileRepo.findEODPAYMENTFILEByEODID(eodId);
-            List<EODMASTERFILE> masterInputFileList = eodMasterInputFileRepo.findEODMASTERFILEByEODID(eodId);
-            List<EODVISAFILE> visaInputFileList = eodVisaInputFileRepo.findEODVISAFILEByEODID(eodId);
-
-
-            atmInputFileList.forEach(eod -> {
-                EodInputFileBean inputFileBean = new EodInputFileBean();
-                inputFileBean.setUploadTime(eod.getUPLOADTIME());
-                inputFileBean.setFileType("ATM");
-                inputFileBean.setFileId(eod.getFILEID());
-                inputFileBean.setFileName(eod.getFILENAME());
-                inputFileBean.setStatus(eod.getSTATUS());
-
-                eodInputFileObjectList.add(inputFileBean);
-            });
-
-            paymentInputFileList.forEach(eod -> {
-                EodInputFileBean inputFileBean = new EodInputFileBean();
-                inputFileBean.setUploadTime(eod.getUPLOADTIME());
-                inputFileBean.setFileType("PAYMENT");
-                inputFileBean.setFileId(eod.getFILEID());
-                inputFileBean.setFileName(eod.getFILENAME());
-                inputFileBean.setStatus(eod.getSTATUS());
-
-                eodInputFileObjectList.add(inputFileBean);
-            });
-
-            masterInputFileList.forEach(eod -> {
-                EodInputFileBean inputFileBean = new EodInputFileBean();
-                inputFileBean.setUploadTime(eod.getUPLOADTIME());
-                inputFileBean.setFileType("VISA");
-                inputFileBean.setFileId(eod.getFILEID());
-                inputFileBean.setFileName(eod.getFILENAME());
-                inputFileBean.setStatus(eod.getSTATUS());
-
-                eodInputFileObjectList.add(inputFileBean);
-            });
-
-            visaInputFileList.forEach(eod -> {
-                EodInputFileBean inputFileBean = new EodInputFileBean();
-                inputFileBean.setUploadTime(eod.getUPLOADTIME());
-                inputFileBean.setFileType("MASTER");
-                inputFileBean.setFileId(eod.getFILEID());
-                inputFileBean.setFileName(eod.getFILENAME());
-                inputFileBean.setStatus(eod.getSTATUS());
-
-                eodInputFileObjectList.add(inputFileBean);
-            });
-        } catch (Exception e) {
-            throw e;
-        }
-        return eodInputFileObjectList;
-    }
-
-    public List<StatementGenSummeryBean> getProcessingSummeryList(Long eodID) {
-        List<StatementGenSummeryBean> processingSummeryBeans = new ArrayList<>();
-        try {
-            processingSummeryBeans = processingSummeryListRepo.findProcessingSummeryListByEodId(eodID, Configurations.EOD_FILE_PROCESSING);
-        } catch (Exception e) {
-            throw e;
-        }
-        return processingSummeryBeans;
-    }
+//    public List<Object> getEodInputFIleList(Long eodId) {
+//        List<Object> eodInputFileObjectList = new ArrayList<>();
+//
+//        try {
+//            List<EODATMFILE> atmInputFileList = eodAtmInputFileRepo.findEODATMFILEByEODID(eodId);
+//            List<EODPAYMENTFILE> paymentInputFileList = eodPaymentInputFileRepo.findEODPAYMENTFILEByEODID(eodId);
+//            List<EODMASTERFILE> masterInputFileList = eodMasterInputFileRepo.findEODMASTERFILEByEODID(eodId);
+//            List<EODVISAFILE> visaInputFileList = eodVisaInputFileRepo.findEODVISAFILEByEODID(eodId);
+//
+//
+//            atmInputFileList.forEach(eod -> {
+//                EodInputFileBean inputFileBean = new EodInputFileBean();
+//                inputFileBean.setUploadTime(eod.getUPLOADTIME());
+//                inputFileBean.setFileType("ATM");
+//                inputFileBean.setFileId(eod.getFILEID());
+//                inputFileBean.setFileName(eod.getFILENAME());
+//                inputFileBean.setStatus(eod.getSTATUS());
+//
+//                eodInputFileObjectList.add(inputFileBean);
+//            });
+//
+//            paymentInputFileList.forEach(eod -> {
+//                EodInputFileBean inputFileBean = new EodInputFileBean();
+//                inputFileBean.setUploadTime(eod.getUPLOADTIME());
+//                inputFileBean.setFileType("PAYMENT");
+//                inputFileBean.setFileId(eod.getFILEID());
+//                inputFileBean.setFileName(eod.getFILENAME());
+//                inputFileBean.setStatus(eod.getSTATUS());
+//
+//                eodInputFileObjectList.add(inputFileBean);
+//            });
+//
+//            masterInputFileList.forEach(eod -> {
+//                EodInputFileBean inputFileBean = new EodInputFileBean();
+//                inputFileBean.setUploadTime(eod.getUPLOADTIME());
+//                inputFileBean.setFileType("VISA");
+//                inputFileBean.setFileId(eod.getFILEID());
+//                inputFileBean.setFileName(eod.getFILENAME());
+//                inputFileBean.setStatus(eod.getSTATUS());
+//
+//                eodInputFileObjectList.add(inputFileBean);
+//            });
+//
+//            visaInputFileList.forEach(eod -> {
+//                EodInputFileBean inputFileBean = new EodInputFileBean();
+//                inputFileBean.setUploadTime(eod.getUPLOADTIME());
+//                inputFileBean.setFileType("MASTER");
+//                inputFileBean.setFileId(eod.getFILEID());
+//                inputFileBean.setFileName(eod.getFILENAME());
+//                inputFileBean.setStatus(eod.getSTATUS());
+//
+//                eodInputFileObjectList.add(inputFileBean);
+//            });
+//        } catch (Exception e) {
+//            throw e;
+//        }
+//        return eodInputFileObjectList;
+//    }
+//
+//    public List<StatementGenSummeryBean> getProcessingSummeryList(Long eodID) {
+//        List<StatementGenSummeryBean> processingSummeryBeans = new ArrayList<>();
+//        try {
+//            processingSummeryBeans = processingSummeryListRepo.findProcessingSummeryListByEodId(eodID, Configurations.EOD_FILE_PROCESSING);
+//        } catch (Exception e) {
+//            throw e;
+//        }
+//        return processingSummeryBeans;
+//    }
 
     public void sendInputFileUploadListener(String fileId, int processId) throws Exception {
         try {

@@ -9,6 +9,7 @@ package com.epic.cms.controller;
 
 import com.epic.cms.model.bean.ResponseBean;
 import com.epic.cms.model.bean.StatementGenSummeryBean;
+import com.epic.cms.service.EODEngineDashboardService;
 import com.epic.cms.service.EODFileProcessingEngineDashboardService;
 import com.epic.cms.util.*;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -29,16 +30,17 @@ public class EODFileProcessingEngineDashboardController {
     EODFileProcessingEngineDashboardService processingEngineDashboardService;
 
     @Autowired
-    LogManager logManager;
+    EODEngineDashboardService eodEngineDashboardService;
 
     @Autowired
-    private KafkaTemplate<String, String> kafkaTemplate;
+    LogManager logManager;
+
 
     @PostMapping("/inputfile/{eodid}")
     public ResponseBean getEodInputFIleList(@PathVariable("eodid") final Long eodId) {
         try {
             logManager.logHeader("EOD-File-Processing Dashboard Get Eod Input FIleList EodId :" + eodId, dashboardInfoLogger);
-            List<Object> eodInputFIleList = processingEngineDashboardService.getEodInputFIleList(eodId);
+            List<Object> eodInputFIleList = eodEngineDashboardService.getEodInputFIleList(eodId);
 
             if (eodInputFIleList.size() > 0) {
                 responseBean.setContent(eodInputFIleList);
@@ -62,7 +64,7 @@ public class EODFileProcessingEngineDashboardController {
     public ResponseBean getProcessingSummeryList(@PathVariable("eodid") final Long eodId) {
         try {
             logManager.logHeader("EOD-File-Processing Dashboard Get Processing SummeryList EodId :" + eodId, dashboardInfoLogger);
-            List<StatementGenSummeryBean> processingSummeryList = processingEngineDashboardService.getProcessingSummeryList(eodId);
+            List<StatementGenSummeryBean> processingSummeryList = eodEngineDashboardService.getProcessingSummeryList(eodId);
 
             if (processingSummeryList.size() > 0) {
                 responseBean.setContent(processingSummeryList);

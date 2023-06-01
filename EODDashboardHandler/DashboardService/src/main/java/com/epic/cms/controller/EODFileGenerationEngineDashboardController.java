@@ -11,6 +11,7 @@ package com.epic.cms.controller;
 import com.epic.cms.model.bean.EodOutputFileBean;
 import com.epic.cms.model.bean.ResponseBean;
 import com.epic.cms.model.bean.StatementGenSummeryBean;
+import com.epic.cms.service.EODEngineDashboardService;
 import com.epic.cms.service.EODFileGenerationEngineDashboardService;
 import com.epic.cms.util.LogManager;
 import com.epic.cms.util.MessageVarList;
@@ -32,13 +33,17 @@ public class EODFileGenerationEngineDashboardController {
     EODFileGenerationEngineDashboardService engineDashboardService;
 
     @Autowired
+    EODEngineDashboardService eodEngineDashboardService;
+
+
+    @Autowired
     LogManager logManager;
 
     @PostMapping("/outputfile/{eodid}")
     public ResponseBean getEodOutputFIleList(@PathVariable("eodid") final Long eodId) {
         try {
             logManager.logHeader("EOD-File-Generation Dashboard Get Eod Output FIleList EodId :" + eodId, dashboardInfoLogger);
-            List<EodOutputFileBean> eodOutputFIleList = engineDashboardService.getEodOutputFIleList(eodId);
+            List<EodOutputFileBean> eodOutputFIleList = eodEngineDashboardService.getEodOutputFIleList(eodId);
 
             if (eodOutputFIleList.size() > 0) {
                 responseBean.setContent(eodOutputFIleList);
@@ -62,7 +67,7 @@ public class EODFileGenerationEngineDashboardController {
     public ResponseBean getStatementGenSummeryList(@PathVariable("eodid") final Long eodId) {
         try {
             logManager.logHeader("EOD-File-Generation Dashboard Get Statement GenSummery List EodId :" + eodId, dashboardInfoLogger);
-            List<StatementGenSummeryBean> genSummeryBeanList = engineDashboardService.getStatementGenSummeryList(eodId);
+            List<StatementGenSummeryBean> genSummeryBeanList = eodEngineDashboardService.getStatementGenSummeryList(eodId);
 
             if (genSummeryBeanList.size() > 0) {
                 responseBean.setContent(genSummeryBeanList);

@@ -48,12 +48,6 @@ public class EODEngineMainService {
     @Autowired
     CreateEodId createEodId;
 
-    final RestTemplate restTemplate;
-
-    public EODEngineMainService(RestTemplateBuilder restTemplateBuilder){
-        this.restTemplate = restTemplateBuilder.build();
-    }
-
     public SimpleDateFormat sdf = new SimpleDateFormat("dd-MM-yyyy");
     //@Async
     public void EODEngineMain(String eodID, int categoryId) throws InterruptedException {
@@ -69,8 +63,7 @@ public class EODEngineMainService {
             Map<String, Object> requestBody = new HashMap<>();
             requestBody.put("eodid", Configurations.EOD_ID);
 
-            String url = "http://localhost:7778/eod-dashboard/eod-engine/currenteodinfo";
-            restTemplate.postForObject(url, requestBody, JsonNode.class);
+            kafkaMessageUpdator.producerWithNoReturn(eodID,"loadEodInfo");
 
             List<ProcessBean> processList = new ArrayList<ProcessBean>();
             String uniqueId = generateUniqueId();
