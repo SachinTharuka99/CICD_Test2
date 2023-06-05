@@ -136,7 +136,7 @@ public class ConfigurationsRepo implements ConfigurationsDao {
     @Override
     public void setConfigurations() throws Exception {
         try {
-            Configurations.SERVER_RUN_PLATFORM = "WINDOWS";
+            Configurations.SERVER_RUN_PLATFORM = "LINUX";
             Configurations.STARTING_EOD_STATUS = "INIT";
             /**Configurations.EOD_ID = createEodId.getCurrentEodId("INIT", "EROR"); // Current EOD Id
             Configurations.ERROR_EOD_ID = Configurations.EOD_ID;
