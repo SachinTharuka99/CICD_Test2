@@ -74,6 +74,7 @@ public class EODFileProcessingEngineHandler {
                 response.put(Util.STATUS_VALUE, Util.STATUS_SUCCESS);
             } else {
                 System.out.println("eod is not in init status");
+                response.put(Util.STATUS_VALUE, "FAILED - eod is not in init status");
             }
         } catch (Exception ex) {
             response.put(Util.STATUS_VALUE, Util.STATUS_FAILED);
