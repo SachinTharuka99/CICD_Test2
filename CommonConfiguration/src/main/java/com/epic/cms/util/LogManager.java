@@ -15,6 +15,8 @@ import org.springframework.stereotype.Component;
 
 import javax.annotation.PostConstruct;
 import java.io.File;
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.Map;
 
 @Component
@@ -68,10 +70,12 @@ public class LogManager {
         LoggerContext lc = (LoggerContext) LoggerFactory.getILoggerFactory();
         String path = Configurations.EOD_LOGS_FILE_PATH;
         String fileName = "eod_log.log";
+        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyyMMdd"); // Format for the new file name
+
 
         // Rename previous log file
         String previousFileName = path + "/" + fileName;
-        String newFileName = path + "/" + "Backup_" + fileName;
+        String newFileName = path + "/" + LocalDateTime.now().format(formatter) + "_" + fileName;
         File previousFile = new File(previousFileName);
         if (previousFile.exists()) {
             previousFile.renameTo(new File(newFileName));
