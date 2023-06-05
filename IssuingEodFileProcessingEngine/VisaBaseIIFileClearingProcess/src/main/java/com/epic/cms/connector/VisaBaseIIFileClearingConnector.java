@@ -60,7 +60,7 @@ public class VisaBaseIIFileClearingConnector extends FileProcessingProcessBuilde
             //get VISA file info
             fileBean = this.getVisaFileInfo(fileId);
             if (fileBean != null) {
-                if (fileBean.getFileStatus().equals(DatabaseStatus.STATUS_FILE_INIT)) {// Fresh file
+                //if (fileBean.getFileStatus().equals(DatabaseStatus.STATUS_FILE_INIT)) {// Fresh file
                     File file = new File(filepath + File.separator + fileBean.getFileName());
                     //Make sure the file exist and can read
                     if (file.isFile() && file.exists() && file.canRead()) {
@@ -75,9 +75,9 @@ public class VisaBaseIIFileClearingConnector extends FileProcessingProcessBuilde
                         //update file status to ERROR
                         visaBaseIIFileClearingRepo.updateRecVisaFileStatus(fileBean.getFileId(), DatabaseStatus.STATUS_FILE_ERROR);
                     }
-                } else {// Repeat file, File reading already completed
+                /*} else {// Repeat file, File reading already completed
                     fileReadStatus = true;
-                }
+                }*/
                 if (fileReadStatus) {//File read completed, Proceed validation and composing parts
                     try {
                         //create a session id

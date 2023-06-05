@@ -103,4 +103,5 @@ public interface CommonDao {
 
     String getEodStatusByEodID(int eodId) throws Exception;
 
+    int getRuninngEODId(String initial_status) throws Exception;
 }

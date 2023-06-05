@@ -46,4 +46,10 @@ public class ConsumerService {
         masterFileClearingConnector.startProcess(fileId, Configurations.PROCESS_ID_MASTER_CLEARING);
         System.out.println("Complete Visa File Clearing Process");
     }
+    @KafkaListener(topics = "eodIdUpdator", groupId = "group_eodIdUpdator")
+    public void eodIdUpdator(String eodId) throws Exception {
+        Configurations.EOD_ID = Integer.parseInt(eodId);
+        Configurations.ERROR_EOD_ID = Configurations.EOD_ID;
+        Configurations.STARTING_EOD_STATUS = "INIT";
+    }
 }

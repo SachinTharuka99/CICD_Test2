@@ -1271,5 +1271,19 @@ public class CommonRepo implements CommonDao {
         return null;
     }
 
+    @Override
+    public int getRuninngEODId(String initial_status) throws Exception {
+        int eodId =0;
+        try {
+            String sql = "SELECT EODID FROM EOD WHERE STATUS = ? ";
+            eodId = backendJdbcTemplate.queryForObject(sql, Integer.class , initial_status);
+        }catch (EmptyResultDataAccessException ex){
+            return 0;
+        }catch (Exception e){
+            throw e;
+        }
+        return eodId;
+    }
+
 
 }

@@ -7,7 +7,10 @@
 
 package com.epic.cms.controller;
 
+import com.epic.cms.repository.CommonRepo;
+import com.epic.cms.repository.EODFileProcessingEngineProducerRepo;
 import com.epic.cms.service.EODFileProcessingEngineMainService;
+import com.epic.cms.service.KafkaMessageUpdator;
 import com.epic.cms.util.Configurations;
 import com.epic.cms.util.LogManager;
 import com.epic.cms.util.StatusVarList;
@@ -32,6 +35,12 @@ public class EODFileProcessingEngineHandler {
     @Autowired
     EODFileProcessingEngineMainService eodFileProcessingEngineMainService;
 
+    @Autowired
+    CommonRepo commonRepo;
+
+    @Autowired
+    KafkaMessageUpdator kafkaMessageUpdator;
+
     int processCategory = 3;
 
     @GetMapping("/start")
@@ -55,9 +64,12 @@ public class EODFileProcessingEngineHandler {
     @GetMapping("/start/{fileType}/{fileId}")
     public Map<String, Object> startFileProcessingEngine(@PathVariable("fileType") final String fileType, @PathVariable("fileId") final String fileId) throws Exception {
         Map<String, Object> response = new HashMap<>();
+        int eodId = 0;
         try {
-            Configurations.STARTING_EOD_STATUS = "INIT";
-            if (Configurations.STARTING_EOD_STATUS.equals(status.getINITIAL_STATUS())) {
+            //Configurations.STARTING_EOD_STATUS = "INIT";
+            eodId = commonRepo.getRuninngEODId(status.getINITIAL_STATUS());
+            if (eodId != 0) {
+                kafkaMessageUpdator.producerWithNoReturn(eodId, "eodIdUpdator");
                 eodFileProcessingEngineMainService.startProcess(fileType, fileId);
                 response.put(Util.STATUS_VALUE, Util.STATUS_SUCCESS);
             } else {
