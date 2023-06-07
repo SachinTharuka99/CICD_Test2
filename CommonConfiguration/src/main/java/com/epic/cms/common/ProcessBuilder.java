@@ -112,7 +112,7 @@ public abstract class ProcessBuilder {
             logManager.logError(failedHeader, ex, errorLogger);
             //add updateeodprocesssummary
             if (ex instanceof FailedCardException) {
-
+                commonRepo.updateEodProcessSummery(Configurations.ERROR_EOD_ID, statusVarList.getERROR_STATUS(), processId, Configurations.PROCESS_SUCCESS_COUNT, Configurations.PROCESS_FAILD_COUNT, eodDashboardProcessProgress(Configurations.PROCESS_SUCCESS_COUNT, Configurations.PROCESS_TOTAL_NOOF_TRABSACTIONS));
             }
         } finally {
             addSummaries();
