@@ -7,6 +7,9 @@ import org.springframework.context.annotation.ComponentScan;
 import org.springframework.kafka.annotation.KafkaListener;
 import org.springframework.stereotype.Service;
 
+import java.text.SimpleDateFormat;
+import java.util.Date;
+
 @Service
 @ComponentScan(basePackages = {"com.epic.cms.*"})
 public class ConsumerService {
@@ -48,8 +51,30 @@ public class ConsumerService {
     }
     @KafkaListener(topics = "eodIdUpdator", groupId = "group_eodIdUpdator")
     public void eodIdUpdator(String eodId) throws Exception {
+        SimpleDateFormat sdf = new SimpleDateFormat("dd-MM-yyyy");
         Configurations.EOD_ID = Integer.parseInt(eodId);
         Configurations.ERROR_EOD_ID = Configurations.EOD_ID;
         Configurations.STARTING_EOD_STATUS = "INIT";
+        Configurations.EOD_DATE = getDateFromEODID(Configurations.EOD_ID);
+        Configurations.EOD_DATE_String = sdf.format(Configurations.EOD_DATE);
+    }
+
+    public Date getDateFromEODID(int eodId) {
+        Date parsedDate = null;
+        String streodID = "";
+        try {
+            if (eodId > 10000000) {
+                streodID = eodId + "";
+                SimpleDateFormat sdf = new SimpleDateFormat("yyMMdd");
+                String eodIDsubs = streodID.substring(0, streodID.length() - 2);
+                parsedDate = sdf.parse(eodIDsubs);
+            }
+
+        } catch (Exception e) {
+            e.printStackTrace();
+            throw e;
+        } finally {
+            return parsedDate;
+        }
     }
 }

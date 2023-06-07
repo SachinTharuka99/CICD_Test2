@@ -280,22 +280,24 @@ public class VisaBaseIIFileClearingRepo implements VisaBaseIIFileClearingDao {
                     //update in backend CURRENCYEXCHANGERATE table
                     try {
                         query = "UPDATE CURRENCYEXCHANGERATE SET BUYINGRATE=?,SELLINGRATE=?,EFFECTIVEDATE =?,"
-                                + "LASTUPDATEDUSER=?,LASTUPDATEDTIME=SYSDATE WHERE CURRENCYCODE=?";
+                                + "MAKER=?,CHECKER=?,LASTUPDATEDTIME=SYSDATE WHERE CURRENCYCODE=?";
                         int updateRecordCount = backendJdbcTemplate.update(query,
                                 calculatedBuyingRate,
                                 calculatedSellingRate,
                                 effectiveDate,
                                 Configurations.EOD_USER,
+                                Configurations.EOD_USER,
                                 visaTC56CurrencyEntryBean.getCounterCurrencyCode());
 
                         if (updateRecordCount == 0) { //if currency code not in CURRENCYEXCHANGERATE table, insert a new record
                             try {
-                                query = "INSERT INTO CURRENCYEXCHANGERATE(CURRENCYCODE,BUYINGRATE,SELLINGRATE,EFFECTIVEDATE,LASTUPDATEDUSER) VALUES(?,?,?,?,?) ";
+                                query = "INSERT INTO CURRENCYEXCHANGERATE(CURRENCYCODE,BUYINGRATE,SELLINGRATE,EFFECTIVEDATE,MAKER,CHECKER) VALUES(?,?,?,?,?,?) ";
                                 int insertRecordCount = backendJdbcTemplate.update(query,
                                         visaTC56CurrencyEntryBean.getCounterCurrencyCode(),
                                         calculatedBuyingRate,
                                         calculatedSellingRate,
                                         effectiveDate,
+                                        Configurations.EOD_USER,
                                         Configurations.EOD_USER);
                             } catch (Exception ee) {
                                 logManager.logError("Currency not defined in CURRENCY table: " + visaTC56CurrencyEntryBean.getCounterCurrencyCode(), errorLoggerEFPE);
@@ -304,42 +306,7 @@ public class VisaBaseIIFileClearingRepo implements VisaBaseIIFileClearingDao {
                     } catch (Exception ee) {
                         logManager.logError("Unable to update CURRENCYEXCHANGERATE table for currency: " + visaTC56CurrencyEntryBean.getCounterCurrencyCode(), errorLoggerEFPE);
                     }
-                    //update in wallet schema CURRENCY table
-                    try {
-                        query = "UPDATE " + Configurations.WALLET_SCHEMA_NAME + ".WALLET_CURRENCY SET BUYING_RATE = ?,SELLING_RATE = ?,"
-                                + "   LASTUPDATEDTIME=SYSDATE,LASTUPDATEDUSER=? WHERE CODE = ?";
-                        int insertRecordCount = backendJdbcTemplate.update(query,
-                                calculatedBuyingRate,
-                                calculatedSellingRate,
-                                Configurations.EOD_USER,
-                                visaTC56CurrencyEntryBean.getCounterCurrencyCode());
-                    } catch (Exception ee) {
-                        logManager.logError("Unable to update WALLET_CURRENCY table in  " + Configurations.WALLET_SCHEMA_NAME + " for currency: " + visaTC56CurrencyEntryBean.getCounterCurrencyCode(), errorLoggerEFPE);
-                    }
-                    //add to online side ECMS_ONLINE_EXCHANGE_RATE table
-                    try {
-                        query = "UPDATE ECMS_ONLINE_EXCHANGE_RATE@" + Configurations.ONLINE_DB_VIEW_NAME + " SET FROMRATE=?,TORATE=? "
-                                + "  WHERE CURRENCYNOCODE=?";
-                        int insertRecordCount = backendJdbcTemplate.update(query,
-                                calculatedSellingRate,
-                                calculatedBuyingRate,
-                                visaTC56CurrencyEntryBean.getCounterCurrencyCode());
 
-                        if (insertRecordCount == 0) { //if currency code not in ECMS_ONLINE_EXCHANGE_RATE table, insert a new record
-                            try {
-                                query = "INSERT INTO ECMS_ONLINE_EXCHANGE_RATE@" + Configurations.ONLINE_DB_VIEW_NAME + " (CURRENCYNOCODE,FROMRATE,TORATE) "
-                                        + "  VALUES(?,?,?) ";
-                                insertRecordCount = backendJdbcTemplate.update(query,
-                                        visaTC56CurrencyEntryBean.getCounterCurrencyCode(),
-                                        calculatedSellingRate,
-                                        calculatedBuyingRate);
-                            } catch (Exception ee) {
-                                logManager.logError("Unable to insert ECMS_ONLINE_EXCHANGE_RATE table in  " + Configurations.ONLINE_DB_VIEW_NAME + " for currency: " + visaTC56CurrencyEntryBean.getCounterCurrencyCode(), errorLoggerEFPE);
-                            }
-                        }
-                    } catch (Exception ee) {
-                        logManager.logError("Unable to update ECMS_ONLINE_EXCHANGE_RATE table in  " + Configurations.ONLINE_DB_VIEW_NAME + " for currency: " + visaTC56CurrencyEntryBean.getCounterCurrencyCode(), errorLoggerEFPE);
-                    }
                 } catch (Exception ex) {
                     throw ex;
                 }

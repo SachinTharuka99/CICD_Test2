@@ -264,9 +264,16 @@ public class StatusVarList {
     public String CREDIT_LIMIT_ENHANCEMENT_ACTIVE;
 
     /*Card renewal status*/
+    @Value("${card_renewal_initiate}")
     public String CARD_RENEWAL_INITIATE;
+
+    @Value("${card_renewal_accepted}")
     public String CARD_RENEWAL_ACCEPTED;
+
+    @Value("${card_renewal_rejected}")
     public String CARD_RENEWAL_REJECTED;
+
+    @Value("${card_renewal_complete}")
     public String CARD_RENEWAL_COMPLETE;
 
 

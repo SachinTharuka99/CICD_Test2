@@ -45,12 +45,18 @@ public class MasterExtractElementService {
         try {
             System.out.println("--initialize completed--");
             GenericValidatingPackager packager = new GenericValidatingPackager(); //create a packager
+            String rootPath = "";
+            if (Configurations.SERVER_RUN_PLATFORM.equals("LINUX")){
+                rootPath ="/app/config";
+            }else{
+                rootPath ="classpath:config";
+            }
             if (Configurations.INCOMMING_IPM_FILE_ENCODING_FORMAT == 1) {
-                System.out.println("--ASCII Path--" + ResourceUtils.getFile("classpath:config" + File.separator + "iso8583MasterCardASCII.xml").getAbsolutePath());
-                packager.readFile(ResourceUtils.getFile("classpath:config" + File.separator + "iso8583MasterCardASCII.xml").getAbsolutePath()); // set ASCII xml configuration file to packager
+                System.out.println("--ASCII Path--" + ResourceUtils.getFile(rootPath + File.separator + "iso8583MasterCardASCII.xml").getAbsolutePath());
+                packager.readFile(ResourceUtils.getFile(rootPath + File.separator + "iso8583MasterCardASCII.xml").getAbsolutePath()); // set ASCII xml configuration file to packager
             } else {
-                System.out.println("--EBCIDIC Path updated--" + ResourceUtils.getFile("classpath:config" + File.separator + "iso8583MasterCardEBCIDIC.xml").getAbsolutePath());
-                packager.readFile(ResourceUtils.getFile("classpath:config" + File.separator + "iso8583MasterCardEBCIDIC.xml").getAbsolutePath()); // set EBCIDIC xml configuration file to packager
+                System.out.println("--EBCIDIC Path updated--" + ResourceUtils.getFile(rootPath + File.separator + "iso8583MasterCardEBCIDIC.xml").getAbsolutePath());
+                packager.readFile(ResourceUtils.getFile(rootPath + File.separator + "iso8583MasterCardEBCIDIC.xml").getAbsolutePath()); // set EBCIDIC xml configuration file to packager
             }
 
             ISO_MSG_PACK = packager;
