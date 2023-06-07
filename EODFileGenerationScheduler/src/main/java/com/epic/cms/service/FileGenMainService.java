@@ -165,8 +165,9 @@ public class FileGenMainService {
         List<String> errorProcessList;
 
         for (String s : str) {
+            String trimId = s.trim();
             if (!s.trim().equals("")) {
-                int processID = Integer.parseInt(s);
+                int processID = Integer.parseInt(trimId);
                 try {
                     if (processID == Configurations.AUTO_SETTLEMENT_PROCESS) {
                         if (Configurations.AUTO_SETTLEMENT_PROCESS_SUCCESS_COUNT != 0 && Configurations.AUTO_SETTLEMENT_PROCESS_TOTAL_NO_OF_TRANSACTIONS != 0) {
