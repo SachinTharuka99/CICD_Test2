@@ -55,7 +55,7 @@ public class ClearMinAmountAndTempBlockService {
             try {
                 cardNo = lastStatement.getCardno();
                 // Check daily payments. try to clear from min payment table.
-                details.put("Checking card for payment", CommonMethods.cardNumberMask(cardNo));
+                //details.put("Checking card for payment", CommonMethods.cardNumberMask(cardNo));
 
                 /**
                  *Check the payment from the payment table and if the total payment done after

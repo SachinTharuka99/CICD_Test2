@@ -283,9 +283,9 @@ public class ConsumerService {
     @KafkaListener(topics = "stampDutyFee", groupId = "group_stampDutyFee")
     public void StampDutyFeeConsumer(String uniqueID) throws Exception {
         Configurations.eodUniqueId = uniqueID;
-        System.out.println("Start Collection And Recovery Notification Process");
+        System.out.println("Start Stamp Duty Fee Process");
         stampDutyFeeConnector.startProcess(Configurations.PROCESS_STAMP_DUTY_FEE, uniqueID);
-        System.out.println("Complete Collection And Recovery Notification Process");
+        System.out.println("Complete  Stamp Duty Fee Process");
     }
 
     @KafkaListener(topics = "cardExpire", groupId = "group_cardExpire")
@@ -378,17 +378,17 @@ public class ConsumerService {
 
     @KafkaListener(topics = "cashBack", groupId = "group_cashBack")
     public void cashBackConsumer(String uniqueID) throws Exception {
-        System.out.println("Start EOD Runnable Fee Process");
+        System.out.println("Start EOD Cashback Process");
         cashBackConnector.startProcess(Configurations.PROCESS_CASHBACK, uniqueID);
-        System.out.println("Complete EOD Runnable Fee Process");
+        System.out.println("Complete EOD Cashback Process");
     }
 
     @KafkaListener(topics = "knockOff", groupId = "group_knockOff")
     public void knockOffConsumer(String uniqueID) throws Exception {
         Configurations.eodUniqueId = uniqueID;
-        System.out.println("Start EOD Runnable Fee Process");
+        System.out.println("Start EOD Knockoff Process");
         knockOffConnector.startProcess(Configurations.PROCESS_ID_KNOCK_OFF, uniqueID);
-        System.out.println("Complete EOD Runnable Fee Process");
+        System.out.println("Complete EOD Knockoff Process");
     }
 
     @KafkaListener(topics = "manualNpProcess", groupId = "group_manualNpProcess")

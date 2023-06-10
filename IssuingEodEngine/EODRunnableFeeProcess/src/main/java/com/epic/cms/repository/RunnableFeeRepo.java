@@ -189,8 +189,7 @@ public class RunnableFeeRepo implements RunnableFeeDao {
 
             return lastStmtSummeryBean;
         } catch (EmptyResultDataAccessException e) {
-            logManager.logError("last statement summery not found for " + cardNo,errorLogger);
-            return null;
+            return lastStmtSummeryBean;
         } catch (Exception e) {
             throw e;
         }
@@ -301,7 +300,7 @@ public class RunnableFeeRepo implements RunnableFeeDao {
     public double getTotalPayment(String accNo, int startEodId, int endEodId) throws Exception {
         double payment = 0;
         try {
-            String query = "SELECT SUM(TRANSACTIONAMOUNT) AS TOTAL " +
+            String query = "SELECT NVL(SUM(TRANSACTIONAMOUNT),0) AS TOTAL " +
                     " FROM EODTRANSACTION " +
                     " WHERE ACCOUNTNO      = ? " +
                     " AND TRANSACTIONTYPE IN (?) " +
@@ -309,7 +308,9 @@ public class RunnableFeeRepo implements RunnableFeeDao {
                     " AND EODID           <= ? " +
                     " AND STATUS NOT      IN (?) ";
             payment = backendJdbcTemplate.queryForObject(query, Double.class, accNo, Configurations.TXN_TYPE_PAYMENT, startEodId, endEodId, status.getCHEQUE_RETURN_STATUS());
-        } catch (Exception e) {
+        }catch (EmptyResultDataAccessException ex) {
+            return payment;
+        }catch (Exception e) {
             throw e;
         }
         return payment;

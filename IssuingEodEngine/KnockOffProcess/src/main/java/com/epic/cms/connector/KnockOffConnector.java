@@ -119,14 +119,8 @@ public class KnockOffConnector extends ProcessBuilder {
 
     @Override
     public void addSummaries() {
-        if (custAccList != null) {
-            summery.put("Number of transaction to sync", custAccList.size());
-            summery.put("Number of success transaction", custAccList.size() - failedCount);
-            summery.put("Number of failure transaction", failedCount);
-        } else {
-            summery.put("Number of transaction to sync", 0);
-            summery.put("Number of success transaction", 0);
-            summery.put("Number of failure transaction", 0);
-        }
+        summery.put("Number of transaction to sync", Configurations.PROCESS_TOTAL_NOOF_TRABSACTIONS);
+        summery.put("Number of success transaction", Configurations.PROCESS_SUCCESS_COUNT);
+        summery.put("Number of failure transaction", Configurations.PROCESS_FAILD_COUNT);
     }
 }

@@ -91,7 +91,7 @@ public class EasyPaymentConnector extends ProcessBuilder {
              variables handling card data should be nullified by replacing the value of variable with zero and call NULL function */
             if (txnList != null && txnList.size() != 0) {
                 for (InstallmentBean installmentBean : txnList) {
-                    CommonMethods.clearStringBuffer(installmentBean.getCardNumber());
+                    CommonMethods.clearStringBuffer(new StringBuffer(installmentBean.getCardNumber()));
                 }
                 txnList = null;
             }

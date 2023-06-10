@@ -985,7 +985,7 @@ public class CommonRepo implements CommonDao {
     public double getPaymentAmount(String accNo, int statementDayEODID, String initial_status) throws Exception {
         double paymentAmount = 0;
         try {
-            String query = "SELECT SUM(TRANSACTIONAMOUNT) AS TOTALPAY "
+            String query = "SELECT NVL(SUM(TRANSACTIONAMOUNT),0) AS TOTALPAY "
                     + "FROM EODTRANSACTION "
                     + "WHERE TRANSACTIONTYPE =? "
                     + "AND EODID > ? AND EODID <= ? AND STATUS IN(?,?) "

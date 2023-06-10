@@ -73,7 +73,7 @@ public class CheckPaymentForMinimumAmountConnector extends ProcessBuilder {
             try {
                 if (cardList != null && cardList.size() != 0) {
                     for (LastStatementSummeryBean lastStatementSummeryBean : cardList) {
-                        CommonMethods.clearStringBuffer(lastStatementSummeryBean.getCardno());
+                        CommonMethods.clearStringBuffer(new StringBuffer(lastStatementSummeryBean.getCardno()));
                     }
                     cardList = null;
                 }

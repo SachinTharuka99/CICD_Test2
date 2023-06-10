@@ -103,14 +103,10 @@ public class MerchantEasyPaymentRequestConnector extends ProcessBuilder {
 
     @Override
     public void addSummaries() {
-        if (merchantErrorList != null) {
-            summery.put("Number of transaction to sync", easyPaymentTranList.size());
-            summery.put("Number of success transaction", easyPaymentTranList.size() - failedCount);
-            summery.put("Number of failure transaction", failedCount);
-        } else {
-            summery.put("Number of transaction to sync", 0);
-            summery.put("Number of success transaction", 0);
-            summery.put("Number of failure transaction", 0);
-        }
+
+            summery.put("Number of transaction to sync", Configurations.PROCESS_TOTAL_NOOF_TRABSACTIONS);
+            summery.put("Number of success transaction", Configurations.PROCESS_SUCCESS_COUNT);
+            summery.put("Number of failure transaction", Configurations.PROCESS_FAILD_COUNT);
+
     }
 }

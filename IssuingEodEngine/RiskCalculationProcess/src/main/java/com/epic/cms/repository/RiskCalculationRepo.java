@@ -34,16 +34,13 @@ import static com.epic.cms.util.LogManager.infoLogger;
 public class RiskCalculationRepo implements RiskCalculationDao {
     @Autowired
     StatusVarList statusVarList;
-
+    @Autowired
+    LogManager logManager;
     @Autowired
     private JdbcTemplate backendJdbcTemplate;
-
     @Autowired
     @Qualifier("onlineJdbcTemplate")
     private JdbcTemplate onlineJdbcTemplate;
-
-    @Autowired
-    LogManager logManager;
 
     @Override
     public ArrayList<DelinquentAccountBean> getDelinquentAccounts() throws Exception {
@@ -78,7 +75,7 @@ public class RiskCalculationRepo implements RiskCalculationDao {
             npStatus = backendJdbcTemplate.queryForObject(sql, Integer.class, accNo);
             isManualNp = npStatus == 2;
         } catch (Exception e) {
-            logManager.logError(String.valueOf(e),errorLogger);
+            logManager.logError(String.valueOf(e), errorLogger);
             throw e;
         }
         return isManualNp;
@@ -91,7 +88,7 @@ public class RiskCalculationRepo implements RiskCalculationDao {
         SimpleDateFormat sdf = new SimpleDateFormat("dd-MMM-yy");
 
         try {
-            String sql = "SELECT SUM(TRANSACTIONAMOUNT) AS TOTAL "
+            String sql = "SELECT NVL(SUM(TRANSACTIONAMOUNT), 0) AS TOTAL "
                     + " FROM EODTRANSACTION "
                     + " WHERE ACCOUNTNO = ? "
                     + " AND TRANSACTIONTYPE IN (?,?,?,?) "
@@ -107,6 +104,8 @@ public class RiskCalculationRepo implements RiskCalculationDao {
                     , sdf.format(EOD_DATE)
                     , statusVarList.getCHEQUE_RETURN_STATUS());
 
+        } catch (EmptyResultDataAccessException ex) {
+            return payment;
         } catch (Exception e) {
             logManager.logError("Exception Occurred for Risk Calculation process", errorLogger);
             throw e;
@@ -345,7 +344,7 @@ public class RiskCalculationRepo implements RiskCalculationDao {
         double payment = 0;
         SimpleDateFormat sdf = new SimpleDateFormat("dd-MMM-yy");
         try {
-            String sql = "SELECT SUM(TRANSACTIONAMOUNT) AS TOTAL "
+            String sql = "SELECT NVL(SUM(TRANSACTIONAMOUNT),0) AS TOTAL "
                     + " FROM EODTRANSACTION "
                     + " WHERE ACCOUNTNO = ? "
                     + " AND TRANSACTIONTYPE IN (?,?,?,?) "
@@ -364,10 +363,10 @@ public class RiskCalculationRepo implements RiskCalculationDao {
                     , statusVarList.getCHEQUE_RETURN_STATUS()
             );
 
-        } catch (NullPointerException ex) {
-            logManager.logError("Null for risk calsulation total payment ", ex,errorLogger);
+        } catch (EmptyResultDataAccessException ex) {
+            return payment;
         } catch (Exception e) {
-            logManager.logError("Risk calculation getTotalPaymentSinceLAstDue " ,errorLogger);
+            logManager.logError("Risk calculation getTotalPaymentSinceLAstDue ", errorLogger);
             throw e;
         }
         return payment;
@@ -505,7 +504,7 @@ public class RiskCalculationRepo implements RiskCalculationDao {
         } catch (NullPointerException ex) {
             logManager.logError("Null for card list", errorLogger);
         } catch (Exception e) {
-            logManager.logError(String.valueOf(e),errorLogger);
+            logManager.logError(String.valueOf(e), errorLogger);
             throw e;
         }
         return cardList;
@@ -655,7 +654,7 @@ public class RiskCalculationRepo implements RiskCalculationDao {
             String query = "SELECT M1 FROM MINIMUMPAYMENT WHERE CARDNO IN (SELECT CARDNUMBER FROM CARDACCOUNT WHERE ACCOUNTNO = ?)";
             payment = backendJdbcTemplate.queryForObject(query, Double.class, accNo);
         } catch (EmptyResultDataAccessException e) {
-            logManager.logError("--result not found--",errorLogger);
+            logManager.logError("--result not found--", errorLogger);
             return 0;
         } catch (Exception e) {
             throw e;

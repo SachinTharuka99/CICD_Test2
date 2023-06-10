@@ -137,7 +137,6 @@ public class ManualNpConnector extends ProcessBuilder {
         summery.put("No of Success Accounts", successCounts);
         summery.put("No of Failed Accounts", FailedCounts);
         summery.put("Process Status for Manual NP", "Passed");
-
         summery.put("Selected Acc for manual NP De-classified ", Configurations.PROCESS_TOTAL_NOOF_TRABSACTIONS);
         summery.put("No of Success Accounts ", Configurations.PROCESS_SUCCESS_COUNT);
         summery.put("No of Failed Accounts ", Configurations.PROCESS_FAILD_COUNT);

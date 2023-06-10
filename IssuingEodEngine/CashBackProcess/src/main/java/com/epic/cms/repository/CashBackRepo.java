@@ -453,7 +453,7 @@ public class CashBackRepo implements CashBackDao {
 
         try {
             //no previous statement dates for given last cashback date
-            String query = "SELECT SUM(REQUESTEDAMOUNT) AS TOTALREDEEMAMOUNT FROM CASHBACKREQUEST WHERE ACCOUNTNO=? AND STATUS='RQAC' AND EODSTATUS=?";
+            String query = "SELECT NVL(SUM(REQUESTEDAMOUNT),0) AS TOTALREDEEMAMOUNT FROM CASHBACKREQUEST WHERE ACCOUNTNO=? AND STATUS='RQAC' AND EODSTATUS=?";
 
             redeemAmount = Objects.requireNonNull(backendJdbcTemplate.query(query,
                     (ResultSet rs) -> {
@@ -657,10 +657,10 @@ public class CashBackRepo implements CashBackDao {
 
     @Override
     public BigDecimal getCashbackAmountToBeExpireForAccount(String accountNumber) {
-        BigDecimal expireAmount = null;
+        BigDecimal expireAmount = new BigDecimal(0);
 
         try {
-            String query = "SELECT SUM(CASHBACKAMOUNT-REDEEMAMOUNT) AS TOTALEXPIREAMOUNT FROM CASHBACK WHERE ACCOUNTNUMBER=? AND  ISEXPIRED='0' AND (CASHBACKAMOUNT-REDEEMAMOUNT)>0";
+            String query = "SELECT NVL(SUM(CASHBACKAMOUNT - REDEEMAMOUNT), 0) AS TOTALEXPIREAMOUNT FROM CASHBACK WHERE ACCOUNTNUMBER=? AND  ISEXPIRED='0' AND (CASHBACKAMOUNT-REDEEMAMOUNT)>0";
 
             double cashBackExpireAmount = backendJdbcTemplate.queryForObject(query, Double.class,
                     accountNumber
@@ -669,7 +669,7 @@ public class CashBackRepo implements CashBackDao {
             expireAmount = new BigDecimal(cashBackExpireAmount);
 
         } catch (EmptyResultDataAccessException e) {
-            return new BigDecimal(0);
+            return expireAmount;
         } catch (Exception e) {
             logManager.logError("Get Cashback Amount To BeExpire For Account Error", errorLogger);
             throw e;
@@ -765,7 +765,7 @@ public class CashBackRepo implements CashBackDao {
         try {
             BigDecimal expireAmount = null;
 
-            String query = "SELECT SUM(CASHBACKAMOUNT-REDEEMAMOUNT) AS TOTALEXPIREAMOUNT FROM CASHBACK WHERE ACCOUNTNUMBER=? AND  ISEXPIRED='0' AND TRUNC(ADD_MONTHS(EODDATE,?))<=TRUNC(?) AND (CASHBACKAMOUNT-REDEEMAMOUNT)>0";
+            String query = "SELECT NVL(SUM(CASHBACKAMOUNT-REDEEMAMOUNT),0) AS TOTALEXPIREAMOUNT FROM CASHBACK WHERE ACCOUNTNUMBER=? AND  ISEXPIRED='0' AND TRUNC(ADD_MONTHS(EODDATE,?))<=TRUNC(?) AND (CASHBACKAMOUNT-REDEEMAMOUNT)>0";
 
             //count = backendJdbcTemplate.queryForObject(query, Integer.class, expireAmount);
 

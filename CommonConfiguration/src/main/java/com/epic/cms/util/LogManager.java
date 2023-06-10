@@ -5,8 +5,11 @@ import ch.qos.logback.classic.Logger;
 import ch.qos.logback.classic.LoggerContext;
 import ch.qos.logback.classic.encoder.PatternLayoutEncoder;
 import ch.qos.logback.classic.spi.ILoggingEvent;
+import ch.qos.logback.core.Appender;
 import ch.qos.logback.core.ConsoleAppender;
 import ch.qos.logback.core.FileAppender;
+import ch.qos.logback.core.Layout;
+import ch.qos.logback.core.rolling.RollingFileAppender;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.DependsOn;
@@ -15,9 +18,15 @@ import org.springframework.stereotype.Component;
 
 import javax.annotation.PostConstruct;
 import java.io.File;
+import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.attribute.PosixFilePermission;
+import java.nio.file.attribute.PosixFilePermissions;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
+import java.util.HashSet;
 import java.util.Map;
+import java.util.Set;
 
 @Component
 @DependsOn("ConfigurationService")
@@ -50,7 +59,6 @@ public class LogManager {
         dashboardErrorLogger = getLogger(logTypeError, "dashboard_error");
     }
 
-
     /**
      * Config Logger Instances
      *
@@ -74,8 +82,8 @@ public class LogManager {
 
 
         // Rename previous log file
-        String previousFileName = path + "/" + fileName;
-        String newFileName = path + "/" + LocalDateTime.now().format(formatter) + "_" + fileName;
+        String previousFileName = path + fileName;
+        String newFileName = path + LocalDateTime.now().format(formatter) + "_" + fileName;
         File previousFile = new File(previousFileName);
         if (previousFile.exists()) {
             previousFile.renameTo(new File(newFileName));
@@ -94,7 +102,7 @@ public class LogManager {
 
         // File appender
         FileAppender<ILoggingEvent> fileAppender = new FileAppender<>();
-        fileAppender.setFile(path + "/" + fileName);
+        fileAppender.setFile(path + fileName);
         fileAppender.setEncoder(ple);
         fileAppender.setContext(lc);
         fileAppender.start();

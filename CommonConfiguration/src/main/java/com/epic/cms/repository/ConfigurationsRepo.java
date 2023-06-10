@@ -136,7 +136,7 @@ public class ConfigurationsRepo implements ConfigurationsDao {
     @Override
     public void setConfigurations() throws Exception {
         try {
-            Configurations.SERVER_RUN_PLATFORM = "LINUX";
+            Configurations.SERVER_RUN_PLATFORM = Configurations.getOS_Type();
             Configurations.STARTING_EOD_STATUS = "INIT";
             /**Configurations.EOD_ID = createEodId.getCurrentEodId("INIT", "EROR"); // Current EOD Id
             Configurations.ERROR_EOD_ID = Configurations.EOD_ID;
@@ -205,6 +205,8 @@ public class ConfigurationsRepo implements ConfigurationsDao {
             Configurations.PROCESS_ID_LOAN_ON_CARD = configVarList.getLoanOnCardProcess();
             Configurations.PROCESS_CHEQUERETURN = configVarList.getChequeReturnProcess();
             Configurations.PROCESS_EOD_RUNNABLE_FEE = configVarList.getEodRunnableFeeProcess();
+            Configurations.PROCESS_ID_KNOCK_OFF = configVarList.getProcess_knock_off();
+            Configurations.PROCESS_STAMP_DUTY_FEE = configVarList.getProcess_stamp_duty_fee();
 
             //adjustment types
             Configurations.LOYALTY_ADJUSTMENT_TYPE = configVarList.getLOYALTY_ADJUSTMENT_TYPE();

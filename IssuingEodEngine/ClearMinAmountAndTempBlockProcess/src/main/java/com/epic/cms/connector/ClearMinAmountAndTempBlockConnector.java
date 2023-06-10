@@ -63,7 +63,7 @@ public class ClearMinAmountAndTempBlockConnector extends ProcessBuilder {
             try {
                 if (cardList != null && cardList.size() != 0) {
                     for (LastStatementSummeryBean lastStatement : cardList) {
-                        CommonMethods.clearStringBuffer(lastStatement.getCardno());
+                        CommonMethods.clearStringBuffer(new StringBuffer(lastStatement.getCardno()));
                     }
                     cardList = null;
                 }

@@ -195,7 +195,7 @@ public class CheckPaymentForMinimumAmountRepo implements CheckPaymentForMinimumA
         double paymentAmount = 0;
 
         try {
-            String query = "SELECT SUM(TRANSACTIONAMOUNT) AS TOTALPAY FROM EODTRANSACTION WHERE TRANSACTIONTYPE IN (?,?,?,?) AND EODID > ? AND EODID <= ? AND STATUS NOT IN(?) AND ACCOUNTNO IN (?) ";
+            String query = "SELECT NVL(SUM(TRANSACTIONAMOUNT),0) AS TOTALPAY FROM EODTRANSACTION WHERE TRANSACTIONTYPE IN (?,?,?,?) AND EODID > ? AND EODID <= ? AND STATUS NOT IN(?) AND ACCOUNTNO IN (?) ";
 
             paymentAmount = backendJdbcTemplate.queryForObject(query, Double.class,
                     Configurations.TXN_TYPE_PAYMENT,
@@ -222,7 +222,7 @@ public class CheckPaymentForMinimumAmountRepo implements CheckPaymentForMinimumA
         double paymentAmount = 0;
 
         try {
-            String query = "SELECT SUM(TRANSACTIONAMOUNT) AS TOTALPAY FROM EODTRANSACTION WHERE TRANSACTIONTYPE IN (?,?,?,?) AND EODID > ? AND EODID < ? AND STATUS NOT IN(?) AND ACCOUNTNO IN (?) ";
+            String query = "SELECT NVL(SUM(TRANSACTIONAMOUNT),0) AS TOTALPAY FROM EODTRANSACTION WHERE TRANSACTIONTYPE IN (?,?,?,?) AND EODID > ? AND EODID < ? AND STATUS NOT IN(?) AND ACCOUNTNO IN (?) ";
 
             paymentAmount = backendJdbcTemplate.queryForObject(query, Double.class,
                     Configurations.TXN_TYPE_PAYMENT,

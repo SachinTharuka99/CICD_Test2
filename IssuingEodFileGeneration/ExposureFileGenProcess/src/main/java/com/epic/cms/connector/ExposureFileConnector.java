@@ -97,6 +97,6 @@ public class ExposureFileConnector extends FileGenProcessBuilder {
 
     @Override
     public void addSummaries() {
-        summery.put("Number of Exposure File Records ", exposureFileDetails.size());
+        summery.put("Number of Exposure File Records ", Configurations.PROCESS_TOTAL_NOOF_TRABSACTIONS);
     }
 }

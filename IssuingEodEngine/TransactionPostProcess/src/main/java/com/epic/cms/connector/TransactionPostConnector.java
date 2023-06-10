@@ -59,6 +59,7 @@ public class TransactionPostConnector extends ProcessBuilder {
             } else if (Configurations.STARTING_EOD_STATUS.equals(statusList.getERROR_STATUS())) {
                 custAccList = transactionPostDao.getErrorEodTxnPostCustAcc();
             }
+            Configurations.PROCESS_TOTAL_NOOF_TRABSACTIONS = custAccList.size();
 
             for (OtbBean bean : custAccList) {
                 transactionPostService.transactionList(bean);
@@ -99,8 +100,8 @@ public class TransactionPostConnector extends ProcessBuilder {
 
     @Override
     public void addSummaries() {
-        summery.put("Number of accounts to fee post ", custAccList.size());
-        summery.put("Number of success fee post ", custAccList.size() - Configurations.PROCESS_FAILD_COUNT);
+        summery.put("Number of accounts to fee post ", Configurations.PROCESS_TOTAL_NOOF_TRABSACTIONS);
+        summery.put("Number of success fee post ", Configurations.PROCESS_TOTAL_NOOF_TRABSACTIONS - Configurations.PROCESS_FAILD_COUNT);
         summery.put("Number of failure fee post ", Configurations.PROCESS_FAILD_COUNT);
     }
 }

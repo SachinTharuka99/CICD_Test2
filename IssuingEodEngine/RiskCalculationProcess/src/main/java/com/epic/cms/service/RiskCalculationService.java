@@ -308,7 +308,6 @@ public class RiskCalculationService {
 
                 details.put("Process Status", "Failed");
                 Configurations.errorCardList.add(new ErrorCardBean(Configurations.ERROR_EOD_ID, Configurations.EOD_DATE, new StringBuffer(delinquentAccountBean.getCardNumber()), e.getMessage(), Configurations.RUNNING_PROCESS_ID, Configurations.RUNNING_PROCESS_DESCRIPTION, 0, CardAccount.CARD));
-                logManager.logInfo("RISK_CALCULATION_PROCESS Process for existing cards failed for cardnumber " + CommonMethods.cardInfo(maskedCardNumber, processBean), infoLogger);
                 logManager.logError("RISK_CALCULATION_PROCESS Process for existing cards failed for cardnumber " + CommonMethods.cardInfo(maskedCardNumber, processBean), e, errorLogger);
                 Configurations.PROCESS_FAILD_COUNT++;
             } finally {

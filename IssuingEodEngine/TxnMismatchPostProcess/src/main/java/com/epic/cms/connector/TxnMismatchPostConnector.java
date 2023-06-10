@@ -101,8 +101,8 @@ public class TxnMismatchPostConnector extends ProcessBuilder {
 
     @Override
     public void addSummaries() {
-        summery.put("Number of accounts to fee post ", custAccList.size());
-        summery.put("Number of success fee post ", custAccList.size() - failedCount);
+        summery.put("Number of accounts to fee post ", Configurations.PROCESS_TOTAL_NOOF_TRABSACTIONS);
+        summery.put("Number of success fee post ", Configurations.PROCESS_TOTAL_NOOF_TRABSACTIONS - failedCount);
         summery.put("Number of failure fee post ", failedCount);
     }
 }

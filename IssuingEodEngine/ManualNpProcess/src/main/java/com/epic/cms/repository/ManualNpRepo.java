@@ -273,7 +273,7 @@ public class ManualNpRepo implements ManualNpDao {
         double payment = 0;
         SimpleDateFormat sdf = new SimpleDateFormat("dd-MMM-yy");
         try {
-            String sql = "SELECT SUM(TRANSACTIONAMOUNT) AS TOTAL FROM EODTRANSACTION WHERE ACCOUNTNO = ? AND TRANSACTIONTYPE IN (?,?,?,?)  AND SETTLEMENTDATE > TO_DATE(?, 'DD-MM-YY')  AND SETTLEMENTDATE <= TO_DATE(?, 'DD-MM-YY')  AND STATUS NOT IN (?)";
+            String sql = "SELECT NVL(SUM(TRANSACTIONAMOUNT),0) AS TOTAL FROM EODTRANSACTION WHERE ACCOUNTNO = ? AND TRANSACTIONTYPE IN (?,?,?,?)  AND SETTLEMENTDATE > TO_DATE(?, 'DD-MM-YY')  AND SETTLEMENTDATE <= TO_DATE(?, 'DD-MM-YY')  AND STATUS NOT IN (?)";
             payment = Objects.requireNonNull(backendJdbcTemplate.query(sql,
                     (ResultSet rs) -> {
                         double temp = 0;

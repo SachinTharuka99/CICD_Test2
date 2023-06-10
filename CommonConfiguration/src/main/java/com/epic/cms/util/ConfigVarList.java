@@ -569,7 +569,7 @@ public class ConfigVarList {
     @Value("${process_cashback}")
     public int process_cashback;
 
-    //Card temorary block process
+
     @Value("${process_knock_off}")
     public int process_knock_off;
 
@@ -1069,5 +1069,8 @@ public class ConfigVarList {
 
     @Value("${statement_batch_size}")
     public int STATEMENT_BATCH_SIZE;
+
+    @Value("${process_stamp_duty_fee}")
+    public int process_stamp_duty_fee;
 
 }

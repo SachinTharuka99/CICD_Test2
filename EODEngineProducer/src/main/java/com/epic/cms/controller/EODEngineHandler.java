@@ -47,7 +47,7 @@ public class EODEngineHandler {
 
             boolean isFilesCompleted = producerRepo.checkUploadedFileStatus();
 
-            isFilesCompleted = true;
+            //isFilesCompleted = true;
             if (isFilesCompleted) {
                 //run the main service thread
                 eodEngineMainService.EODEngineMain(EodIdString, categoryId);
