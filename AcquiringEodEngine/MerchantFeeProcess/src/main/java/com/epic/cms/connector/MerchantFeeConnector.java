@@ -58,7 +58,7 @@ public class MerchantFeeConnector extends ProcessBuilder {
 
         try {
             processBean = commonRepo.getProcessDetails(Configurations.PROCESS_ID_MERCHANT_FEE);
-            Configurations.RUNNING_PROCESS_ID=Configurations.PROCESS_ID_MERCHANT_FEE;
+            Configurations.RUNNING_PROCESS_ID = Configurations.PROCESS_ID_MERCHANT_FEE;
             CommonMethods.eodDashboardProgressParametersReset();
 
             if (processBean != null) {
@@ -69,7 +69,7 @@ public class MerchantFeeConnector extends ProcessBuilder {
 
                 if (merchantFeeCountList != null && merchantFeeCountList.size() > 0) {
                     summery.put("No of fee to be processed: ", merchantFeeCountList.size() + "");
-                    Configurations.PROCESS_TOTAL_NOOF_TRABSACTIONS =merchantFeeCountList.size();
+                    Configurations.PROCESS_TOTAL_NOOF_TRABSACTIONS = merchantFeeCountList.size();
 
                     for (MerchantFeeBean merchantFeeBean : merchantFeeCountList) {
                         merchantFeeService.MerchantFee(merchantFeeBean);
@@ -83,7 +83,7 @@ public class MerchantFeeConnector extends ProcessBuilder {
                     Configurations.PROCESS_TOTAL_NOOF_TRABSACTIONS = merchantFeeCountList.size();
                     Configurations.PROCESS_SUCCESS_COUNT = (merchantFeeCountList.size() - failedCount);
                     Configurations.PROCESS_FAILD_COUNT = failedCount;
-                }else {
+                } else {
                     summery.put("Accounts eligible for Merchant Fee process ", 0 + "");
                 }
             }
@@ -97,14 +97,8 @@ public class MerchantFeeConnector extends ProcessBuilder {
 
     @Override
     public void addSummaries() {
-        if (merchantErrorList != null) {
-            summery.put("Number of transaction to sync", merchantErrorList.size());
-            summery.put("Number of success transaction", merchantErrorList.size() - failedCount);
-            summery.put("Number of failure transaction", failedCount);
-        } else {
-            summery.put("Number of transaction to sync", 0);
-            summery.put("Number of success transaction", 0);
-            summery.put("Number of failure transaction", 0);
-        }
+        summery.put("Number of transaction to sync", Configurations.PROCESS_TOTAL_NOOF_TRABSACTIONS);
+        summery.put("Number of success transaction", Configurations.PROCESS_SUCCESS_COUNT);
+        summery.put("Number of failure transaction", Configurations.PROCESS_FAILD_COUNT);
     }
 }

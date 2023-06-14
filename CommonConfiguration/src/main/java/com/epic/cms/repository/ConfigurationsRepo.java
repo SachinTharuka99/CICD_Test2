@@ -475,7 +475,7 @@ public class ConfigurationsRepo implements ConfigurationsDao {
             Configurations.AUTOSETTLEMENT_FILE_PREFIX = configVarList.getAUTOSETTLEMENT_FILE_PREFIX();
             Configurations.CASHBACK_FILE_PREFIX_F2 = configVarList.getCASHBACK_FILE_PREFIX_F2();
             Configurations.MERCHANT_PAYMENT_FILE_DIRECT_PREFIX_F2 = configVarList.getMERCHANT_PAYMENT_FILE_DIRECT_PREFIX_F2();
-            Configurations.PROCESS_ID_TXN_POST = configVarList.getProcess_txnmismatch_post();
+            Configurations.PROCESS_ID_TXN_POST = configVarList.getProcess_txn_post();
             Configurations.PROCESS_ID_FEE_POST = configVarList.getProcess_fee_post();
             Configurations.REPORT_ID = configVarList.getReport_id();
             Configurations.SUBJECT_TYPE = configVarList.getSubject_type();

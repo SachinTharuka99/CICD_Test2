@@ -7,6 +7,7 @@ import org.springframework.context.annotation.ComponentScan;
 import org.springframework.kafka.annotation.KafkaListener;
 import org.springframework.stereotype.Service;
 
+import java.text.SimpleDateFormat;
 import java.util.logging.Logger;
 
 @Service
@@ -495,8 +496,8 @@ public class ConsumerService {
         System.out.println("Complete EOM Supplementary Card Reset Process");
     }
 
-//    @KafkaListener(topics = "logTopic", groupId = "group_id_logs", containerFactory = "kafkaListenerContainerFactory")
-//    public void LoggerConsumer(Logger message) throws Exception {
-//        System.out.println("log Topic Message..........");
-//    }
+    @KafkaListener(topics = "eodStartStatus", groupId = "group_eodStartStatus")
+    public void eodStartStatus(String status) throws Exception {
+        Configurations.STARTING_EOD_STATUS = status;
+    }
 }

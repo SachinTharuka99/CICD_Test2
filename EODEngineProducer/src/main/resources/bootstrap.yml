@@ -6,3 +6,4 @@ spring:
 
   profiles:
     active: db,query,status
+    #active: db,query,status,qa

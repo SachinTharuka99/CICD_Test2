@@ -69,13 +69,14 @@ public class CommonRepo implements CommonDao {
     @Transactional(value = "transactionManager", propagation = Propagation.REQUIRES_NEW)
     public void updateEodProcessSummery(int eodId, String status, int processId, int successCount, int failedCount, String progress) throws Exception {
         try {
-            backendJdbcTemplate.update(queryParametersList.getCommonUpdateEodProcessSummery(), status, Configurations.EOD_USER, successCount, failedCount, progress, eodId, processId);
+            System.out.println("------------------updateEodProcessSummery---------------Status- "+status +",----- eodid- "+eodId+",----- processId- "+processId);
+            backendJdbcTemplate.update(queryParametersList.getCommonUpdateEodProcessSummery(), status, "admin", successCount, failedCount, progress, eodId, processId);
         } catch (Exception e) {
             //logManager.logError(e,errorLoggerCOM);
         }
     }
 
-    @Override
+  /*  @Override
     public int updateEodProcessSummery(int eodId, String status, int processId) throws Exception {
         int count = 0;
 
@@ -93,7 +94,7 @@ public class CommonRepo implements CommonDao {
             throw e;
         }
         return count;
-    }
+    }*/
 
     @Override
     public StringBuffer getMainCardNumber(StringBuffer cardNo) throws Exception {
@@ -699,16 +700,17 @@ public class CommonRepo implements CommonDao {
         try {
 
             String query = "select CC.CUSTOMERID,ca.accountno,c.cardnumber, c.maincardno from cardaccount ca,card c,CARDCUSTOMER cc,CARDACCOUNTCUSTOMER CAC where C.CARDNUMBER = CAC.CARDNUMBER and CA.ACCOUNTNO = CAC.ACCOUNTNO and  CC.CUSTOMERID = CAC.CUSTOMERID and c.cardnumber =?";
-
-            cardBean = (CardAccountCustomerBean) backendJdbcTemplate.query(query, new RowMapperResultSetExtractor<>((rs, rowNum) -> {
-                        CardAccountCustomerBean bean = new CardAccountCustomerBean();
-                        bean.setAccountNumber(rs.getString("ACCOUNTNO"));
-                        bean.setCustomerId(rs.getString("CUSTOMERID"));
-                        bean.setMaincardNumber(new StringBuffer(rs.getString("maincardno")));
-                        return bean;
-                    }),
-                    cardNo.toString()
-            );
+            cardBean = backendJdbcTemplate.queryForObject(query,
+                    new RowMapper<>() {
+                        @Override
+                        public CardAccountCustomerBean mapRow(ResultSet rs, int rowNum) throws SQLException {
+                            CardAccountCustomerBean bean = new CardAccountCustomerBean();
+                            bean.setAccountNumber(rs.getString("ACCOUNTNO"));
+                            bean.setCustomerId(rs.getString("CUSTOMERID"));
+                            bean.setMaincardNumber(new StringBuffer(rs.getString("maincardno")));
+                            return bean;
+                        }
+                    },  cardNo.toString());
         } catch (Exception e) {
             throw e;
         }
@@ -742,9 +744,9 @@ public class CommonRepo implements CommonDao {
                         cardBean.getCustomerId(),
                         eBean.getProcessId(),
                         eBean.getProcessName(),
-                        eBean.getRemark(),
+                        eBean.getRemark().length() < 270 ? eBean.getRemark() : eBean.getRemark().substring(0,270),
                         DateUtil.getSqldate(Configurations.EOD_DATE),
-                        statusList.EOD_PENDING_STATUS,
+                        Configurations.EOD_PENDING_STATUS,
                         Configurations.EOD_USER,
                         eBean.getIsProcessFails(),
                         Configurations.PROCESS_STEP_ID

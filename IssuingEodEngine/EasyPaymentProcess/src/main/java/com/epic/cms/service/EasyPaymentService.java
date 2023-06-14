@@ -391,7 +391,6 @@ public class EasyPaymentService {
                     logManager.logInfo("Easy Payment process failed for cardnumber " + CommonMethods.cardInfo(maskedCardNumber, processBean), infoLogger);
                     logManager.logError("Easy Payment  process failed for cardnumber " + CommonMethods.cardInfo(maskedCardNumber, processBean), e, errorLogger);
                     details.put("Process Status", "Failed");
-                    throw e;
                 }
 
             } catch (Exception e) {

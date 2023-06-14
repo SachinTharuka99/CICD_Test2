@@ -14,7 +14,7 @@ public interface CommonDao {
 
     void updateEodProcessSummery(int eodId, String status, int processId, int successCount, int failedCount, String progress) throws Exception;
 
-    int updateEodProcessSummery(int eodId, String status, int processId) throws Exception;
+    //int updateEodProcessSummery(int eodId, String status, int processId) throws Exception;
 
     StringBuffer getMainCardNumber(StringBuffer cardNo) throws Exception;
 

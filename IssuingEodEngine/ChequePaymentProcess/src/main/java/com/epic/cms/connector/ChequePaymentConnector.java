@@ -55,7 +55,7 @@ public class ChequePaymentConnector extends ProcessBuilder {
                      * If any card failed while in looping the db tables, get those
                      * cards from the backend and add it to the errorList.
                      */
-                    cardErrorList.addAll(CommonMethods.getFailedCardsFromDB());
+                    Configurations.errorCardList.addAll(CommonMethods.getFailedCardsFromDB());
                     //Finally remove the cards in the common Failed Card List.
                     CommonMethods.resetFailedCardList();
                 }

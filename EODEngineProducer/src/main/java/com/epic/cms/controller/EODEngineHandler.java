@@ -9,6 +9,7 @@ package com.epic.cms.controller;
 
 import com.epic.cms.repository.EODEngineProducerRepo;
 import com.epic.cms.service.EODEngineMainService;
+import com.epic.cms.service.KafkaMessageUpdator;
 import com.epic.cms.util.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
@@ -31,6 +32,9 @@ public class EODEngineHandler {
     @Autowired
     EODEngineMainService eodEngineMainService;
 
+    @Autowired
+    KafkaMessageUpdator kafkaMessageUpdator;
+
     @GetMapping("/start")
     public Map<String, Object> startEODEngine() throws Exception {
         Map<String, Object> response = new HashMap<>();
@@ -49,6 +53,7 @@ public class EODEngineHandler {
 
             //isFilesCompleted = true;
             if (isFilesCompleted) {
+                kafkaMessageUpdator.producerWithNoReturn(Configurations.STARTING_EOD_STATUS, "eodStartStatus");
                 //run the main service thread
                 eodEngineMainService.EODEngineMain(EodIdString, categoryId);
                 response.put(Util.STATUS_VALUE, Util.STATUS_SUCCESS);

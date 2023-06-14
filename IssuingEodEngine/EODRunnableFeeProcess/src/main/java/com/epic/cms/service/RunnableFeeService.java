@@ -42,8 +42,8 @@ public class RunnableFeeService {
             SimpleDateFormat format = new SimpleDateFormat("yyyy-MM-dd");
 
             try {
-                System.out.println("Checking EOD fee for card" + CommonMethods.cardNumberMask(cardBean.getCardnumber()));
-                details.put("Checking EOD fee for card", CommonMethods.cardNumberMask(cardBean.getCardnumber()));
+                //System.out.println("Checking EOD fee for card" + CommonMethods.cardNumberMask(cardBean.getCardnumber()));
+                //details.put("Checking EOD fee for card", CommonMethods.cardNumberMask(cardBean.getCardnumber()));
                 addAnniversaryFee(cardBean, format, details);
                 addCashAdvanceFee(cardBean, details);
                 addLatePaymentFee(cardBean, format, details);

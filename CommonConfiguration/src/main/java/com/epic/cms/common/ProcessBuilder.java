@@ -25,8 +25,8 @@ public abstract class ProcessBuilder {
     public LinkedHashMap summery = new LinkedHashMap();
     public ProcessBean processBean = null;
 
-    public List<ErrorCardBean> cardErrorList = Collections.synchronizedList(new ArrayList<ErrorCardBean>());
-    public List<ErrorMerchantBean> merchantErrorList = Collections.synchronizedList(new ArrayList<ErrorMerchantBean>());
+    //public List<ErrorCardBean> cardErrorList = Collections.synchronizedList(new ArrayList<ErrorCardBean>());
+    //public List<ErrorMerchantBean> merchantErrorList = Collections.synchronizedList(new ArrayList<ErrorMerchantBean>());
 
     public String startHeader = null;
     public String endHeader = null;
@@ -58,7 +58,7 @@ public abstract class ProcessBuilder {
             ProcessBean processBean = processBuilderRepo.getProcessDetails(processId);
             Configurations.EOD_ID = processBuilderRepo.getRuninngEODId(statusVarList.getINPROGRESS_STATUS(), statusVarList.getERROR_INPR_STATUS());
             Configurations.ERROR_EOD_ID = Configurations.EOD_ID;
-            System.out.println("EOD ID :"+Configurations.ERROR_EOD_ID);
+            System.out.println("EOD ID :" + Configurations.ERROR_EOD_ID);
             Configurations.EOD_DATE = getDateFromEODID(Configurations.EOD_ID);
             Configurations.EOD_DATE_String = sdf.format(Configurations.EOD_DATE);
             StartEodStatus = Configurations.STARTING_EOD_STATUS;
@@ -99,21 +99,27 @@ public abstract class ProcessBuilder {
                 /**
                  * Add any failed cards at EOD
                  */
-                insertFailedEODCards();
-                commonRepo.updateEodProcessSummery(Configurations.ERROR_EOD_ID, statusVarList.getSUCCES_STATUS(), processId, Configurations.PROCESS_SUCCESS_COUNT, Configurations.PROCESS_FAILD_COUNT, eodDashboardProcessProgress(Configurations.PROCESS_SUCCESS_COUNT, Configurations.PROCESS_TOTAL_NOOF_TRABSACTIONS));
+                insertFailedEODCards(processId);
+                //commonRepo.updateEodProcessSummery(Configurations.ERROR_EOD_ID, statusVarList.getSUCCES_STATUS(), processId, Configurations.PROCESS_SUCCESS_COUNT, Configurations.PROCESS_FAILD_COUNT, eodDashboardProcessProgress(Configurations.PROCESS_SUCCESS_COUNT, Configurations.PROCESS_TOTAL_NOOF_TRABSACTIONS));
             } else if (hasErrorEODandProcess == 2 && processBean != null) {
                 System.out.println("Skipping this process since Process not under error: " + processBean.getProcessDes());
                 commonRepo.updateEODProcessCount(uniqueId);
                 return;
             }
 
+        } catch (FailedCardException ex) {
+            System.out.println(" --------------------- Failed card exception 1------------------");
+            logManager.logStartEnd(failedHeader, infoLogger);
+            logManager.logError(failedHeader, ex, errorLogger);
+            commonRepo.updateEodProcessSummery(Configurations.ERROR_EOD_ID, "EROR", processId, Configurations.PROCESS_SUCCESS_COUNT, Configurations.PROCESS_FAILD_COUNT, eodDashboardProcessProgress(Configurations.PROCESS_SUCCESS_COUNT, Configurations.PROCESS_TOTAL_NOOF_TRABSACTIONS));
         } catch (Exception ex) {
+            System.out.println(" --------------------- Failed card exception 2------------------");
             logManager.logStartEnd(failedHeader, infoLogger);
             logManager.logError(failedHeader, ex, errorLogger);
             //add updateeodprocesssummary
-            if (ex instanceof FailedCardException) {
-                commonRepo.updateEodProcessSummery(Configurations.ERROR_EOD_ID, statusVarList.getERROR_STATUS(), processId, Configurations.PROCESS_SUCCESS_COUNT, Configurations.PROCESS_FAILD_COUNT, eodDashboardProcessProgress(Configurations.PROCESS_SUCCESS_COUNT, Configurations.PROCESS_TOTAL_NOOF_TRABSACTIONS));
-            }
+//            if (ex instanceof FailedCardException) {
+//                commonRepo.updateEodProcessSummery(Configurations.ERROR_EOD_ID, statusVarList.getERROR_STATUS(), processId, Configurations.PROCESS_SUCCESS_COUNT, Configurations.PROCESS_FAILD_COUNT, eodDashboardProcessProgress(Configurations.PROCESS_SUCCESS_COUNT, Configurations.PROCESS_TOTAL_NOOF_TRABSACTIONS));
+//            }
         } finally {
             addSummaries();
             logManager.logSummery(summery, infoLogger);
@@ -125,14 +131,18 @@ public abstract class ProcessBuilder {
         }
     }
 
-    void insertFailedEODCards() throws Exception {
-        int failedCardListSize = cardErrorList.size();
-        for (int i = 0; i < cardErrorList.size(); i++) {
-            commonRepo.insertErrorEODCard(cardErrorList.get(i));
-        }
-        if (failedCardListSize > 0) {
-            cardErrorList.clear();
-            throw new FailedCardException(processHeader);
+    void insertFailedEODCards(int processId) throws Exception {
+        int failedCardListSize = Configurations.errorCardList.size();
+        if (failedCardListSize == 0) {
+            commonRepo.updateEodProcessSummery(Configurations.ERROR_EOD_ID, statusVarList.getSUCCES_STATUS(), processId, Configurations.PROCESS_SUCCESS_COUNT, Configurations.PROCESS_FAILD_COUNT, eodDashboardProcessProgress(Configurations.PROCESS_SUCCESS_COUNT, Configurations.PROCESS_TOTAL_NOOF_TRABSACTIONS));
+        } else {
+            for (int i = 0; i < failedCardListSize; i++) {
+                commonRepo.insertErrorEODCard(Configurations.errorCardList.get(i));
+            }
+            if (failedCardListSize > 0) {
+                Configurations.errorCardList.clear();
+                throw new FailedCardException(processHeader);
+            }
         }
     }
 

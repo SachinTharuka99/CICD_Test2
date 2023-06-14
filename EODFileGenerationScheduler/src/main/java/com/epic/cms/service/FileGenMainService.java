@@ -25,8 +25,7 @@ import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 
-import static com.epic.cms.util.LogManager.errorLogger;
-import static com.epic.cms.util.LogManager.infoLogger;
+import static com.epic.cms.util.LogManager.*;
 
 
 @Service
@@ -150,6 +149,7 @@ public class FileGenMainService {
 
 
             System.out.println("EOD File Generation process completed..");
+            logManager.logInfo("EOD File Generation Process completed ", infoLoggerEFGE);
         } catch (Exception e) {
             throw e;
         }
