@@ -14,6 +14,9 @@ import com.epic.cms.model.bean.CardBean;
 import com.epic.cms.model.bean.CardTransactionBean;
 import com.epic.cms.model.bean.StatementBean;
 import com.epic.cms.util.*;
+import lombok.extern.slf4j.Slf4j;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Repository;
@@ -22,11 +25,10 @@ import java.sql.ResultSet;
 import java.text.SimpleDateFormat;
 import java.util.*;
 
-import static com.epic.cms.util.LogManager.errorLogger;
-import static com.epic.cms.util.LogManager.infoLogger;
-
 @Repository
 public class MonthlyStatementRepo implements MonthlyStatementDao {
+    private static final Logger logInfo = LoggerFactory.getLogger("logInfo");
+    private static final Logger logError = LoggerFactory.getLogger("logError");
     @Autowired
     StatusVarList statusList;
     @Autowired
@@ -135,7 +137,6 @@ public class MonthlyStatementRepo implements MonthlyStatementDao {
             }
 
         } catch (Exception e) {
-            logManager.logError("Exception in Get Card Account List for Billing ", errorLogger);
             throw e;
         }
         return hMap;
@@ -168,7 +169,6 @@ public class MonthlyStatementRepo implements MonthlyStatementDao {
 
         try {
             accountNo = CardBeanList.get(0).getAccountno();
-            logManager.logInfo("Account No - " + accountNo,infoLogger);
             statementID = new SimpleDateFormat("yyMMHHmmssSSS").format(new java.util.Date()) + accountNum;
 
             for (int i = 0; i < CardBeanList.size(); i++) {
@@ -280,7 +280,6 @@ public class MonthlyStatementRepo implements MonthlyStatementDao {
             }
 
             int updatedRows = updateStatementIDByAccNoInEODTxn(statementID, startEodID, endEodID, accountNo);
-            logManager.logInfo("Updated in eodtransaction table for statementId - " + statementID + " from:" + startEodID + " end:" + endEodID + " count:" + updatedRows,infoLogger);
             mainStBean = getLastStatementDetails(mainStBean);
             isInsertedBillingStatement = insertBillingStatement(mainStBean);
 
@@ -292,7 +291,6 @@ public class MonthlyStatementRepo implements MonthlyStatementDao {
             updateNextBillingDate(mainStBean);
 
         } catch (Exception e) {
-            logManager.logError("Exception in Update Statement Details ", errorLogger);
             throw e;
         }
     }
@@ -315,7 +313,6 @@ public class MonthlyStatementRepo implements MonthlyStatementDao {
             }, cardNo.toString()));
 
         } catch (Exception e) {
-            logManager.logError("Exception in Check Replace Status ", errorLogger);
             throw e;
         }
         return hasReplaceCards;
@@ -341,7 +338,7 @@ public class MonthlyStatementRepo implements MonthlyStatementDao {
                     }
                 }
                 return stBean;
-                }, accNo, "RQAC", statusList.getBILLING_DONE_STATUS());
+            }, accNo, "RQAC", statusList.getBILLING_DONE_STATUS());
 
             if (!stBean.getHasBillingCycleChangeRequest()) {
                 query = "SELECT LAST_DAY((NEXTBILLINGDATE))+ BILLINGDATE AS NEWNEXTBILLINGDATE,NEXTBILLINGDATE,BILLINGDATE FROM CARDACCOUNT WHERE ACCOUNTNO=?";
@@ -354,7 +351,6 @@ public class MonthlyStatementRepo implements MonthlyStatementDao {
             }
 
         } catch (Exception e) {
-            logManager.logError("Exception in Check Billing Cycle Change Request ", errorLogger);
             throw e;
         }
         return stBean;
@@ -379,7 +375,6 @@ public class MonthlyStatementRepo implements MonthlyStatementDao {
             }, cardNo));
 
         } catch (Exception e) {
-            logManager.logError("Exception in Get All Old Cards ", errorLogger);
             throw e;
         }
         return oldCards;
@@ -393,7 +388,6 @@ public class MonthlyStatementRepo implements MonthlyStatementDao {
             backendJdbcTemplate.update(query, statusList.getNO_STATUS_0(), CardNumbers.toString(), statusList.getYES_STATUS_1());
 
         } catch (Exception e) {
-            logManager.logError("Exception in Update Close Card Flag ", errorLogger);
             throw e;
         }
     }
@@ -408,7 +402,6 @@ public class MonthlyStatementRepo implements MonthlyStatementDao {
             backendJdbcTemplate.update(query, statusList.getBILLING_DONE_STATUS(), "RPBC", eodDate, AccNo, reqID);
 
         } catch (Exception e) {
-            logManager.logError("Exception in Update Billing Cycle Request BCCP ", errorLogger);
             throw e;
         }
     }
@@ -429,7 +422,6 @@ public class MonthlyStatementRepo implements MonthlyStatementDao {
             }, AccNo, AccNo));
 
         } catch (Exception e) {
-            logManager.logError("Exception in Calculate Due Date ", errorLogger);
             throw e;
         }
         return DueDate;
@@ -463,7 +455,6 @@ public class MonthlyStatementRepo implements MonthlyStatementDao {
                     String.valueOf(today.getDate())));
 
         } catch (Exception e) {
-            logManager.logError("Exception in Is Holiday ", errorLogger);
             return false;
         }
         return isHoliday;
@@ -485,7 +476,6 @@ public class MonthlyStatementRepo implements MonthlyStatementDao {
             }, cardNo.toString()));
 
         } catch (Exception e) {
-            logManager.logError("Exception in Get This Statement Start and End Eod Id ", errorLogger);
             throw e;
         }
         return startEODId;
@@ -516,7 +506,6 @@ public class MonthlyStatementRepo implements MonthlyStatementDao {
             }, Configurations.TXN_TYPE_SALE, Configurations.TXN_TYPE_MVISA_ORIGINATOR, Configurations.TXN_TYPE_INSTALLMENT, Configurations.TXN_TYPE_FEE_INSTALLMENT, Configurations.TXN_TYPE_DEBIT_PAYMENT, StartEODID, EndEODID, cardNo.toString(), Configurations.NO_STATUS, cardNo.toString(), Configurations.TXN_TYPE_PAYMENT, Configurations.TXN_TYPE_REVERSAL, Configurations.TXN_TYPE_REFUND, Configurations.TXN_TYPE_MVISA_REFUND, Configurations.TXN_TYPE_REVERSAL_INSTALLMENT, StartEODID, EndEODID, cardNo.toString(), Configurations.NO_STATUS, cardNo.toString(), statusList.getEOD_DONE_STATUS(), Configurations.TXN_TYPE_CASH_ADVANCE, StartEODID, EndEODID, cardNo.toString(), Configurations.NO_STATUS, cardNo.toString(), statusList.getEOD_DONE_STATUS(), Configurations.CREDIT, Configurations.LOYALTY_ADJUSTMENT_TYPE, Configurations.CASHBACK_ADJUSTMENT_TYPE, cardNo.toString(), statusList.getEOD_DONE_STATUS(), Configurations.DEBIT, Configurations.LOYALTY_ADJUSTMENT_TYPE, Configurations.CASHBACK_ADJUSTMENT_TYPE, Configurations.TXN_TYPE_REVERSAL, Configurations.TXN_TYPE_REVERSAL_INSTALLMENT, StartEODID, EndEODID, cardNo.toString(), Configurations.NO_STATUS);
 
         } catch (Exception e) {
-            logManager.logError("Exception in Get Card Transaction Summery Bean ", errorLogger);
             throw e;
         }
         return cardTransactionBean;
@@ -532,7 +521,6 @@ public class MonthlyStatementRepo implements MonthlyStatementDao {
             count = backendJdbcTemplate.update(query, statementId, endEodId, startEodId, accountNo);
 
         } catch (Exception e) {
-            logManager.logError("Exceptions in Update Statement ID By Account No In EOD Txn ", errorLogger);
             throw e;
         }
         return count;
@@ -627,7 +615,6 @@ public class MonthlyStatementRepo implements MonthlyStatementDao {
             stBean.setLastOperationSucessful(true);
 
         } catch (Exception e) {
-            logManager.logError("Exception in Get Last Statement Details ", errorLogger);
             throw e;
         }
         return stBean;
@@ -656,9 +643,9 @@ public class MonthlyStatementRepo implements MonthlyStatementDao {
             details.put("Total Payments", Double.toString(stBean.getPaymentAndCredit()));
             details.put("Total Sales", Double.toString(stBean.getTotalPurchases()));
             details.put("Due Date", stBean.getStatementDueDate().toString());
-            logManager.logDetails(details, infoLogger);
+
+            logInfo.info(logManager.logDetails(details));
         } catch (Exception e) {
-            logManager.logError("Exception in Insert Billing Statement ", errorLogger);
             throw e;
         }
         return flag;
@@ -681,7 +668,6 @@ public class MonthlyStatementRepo implements MonthlyStatementDao {
             }, accNo, Configurations.EOD_DONE_STATUS, Configurations.STAMP_DUTY_FEE));
 
         } catch (Exception e) {
-            logManager.logError("Exception in Get Total Stamp Duty ", errorLogger);
             throw e;
         }
         return stampDuty;
@@ -704,7 +690,6 @@ public class MonthlyStatementRepo implements MonthlyStatementDao {
             }, accNo);
 
         } catch (Exception e) {
-            logManager.logError("Exception in Get Bucket Id and NODIA ", errorLogger);
             throw e;
         }
         return details;
@@ -725,7 +710,6 @@ public class MonthlyStatementRepo implements MonthlyStatementDao {
             }
 
         } catch (Exception e) {
-            logManager.logError("Exception in Update Next Billing Date ", errorLogger);
             throw e;
         }
     }
@@ -747,7 +731,7 @@ public class MonthlyStatementRepo implements MonthlyStatementDao {
                     tempCalculateMinPaymentBean.setPermenantBlockPeriod(result_temp.getInt("PERMENANTBLKTHRESHOLD"));
                 }
                 return tempCalculateMinPaymentBean;
-                }, AccNo));
+            }, AccNo));
 
             int minPaymentDueCount = checkMinPaymentDueCount(AccNo);
             double tempMinPayment;
@@ -782,7 +766,6 @@ public class MonthlyStatementRepo implements MonthlyStatementDao {
             }
 
         } catch (Exception e) {
-            logManager.logError("Exception in Calculate In Min Payment ", errorLogger);
             throw e;
         }
         return MinPayment;
@@ -804,7 +787,6 @@ public class MonthlyStatementRepo implements MonthlyStatementDao {
             }, accNo));
 
         } catch (Exception e) {
-            logManager.logError("Exception in Check Min Payment Due Count ", errorLogger);
             throw e;
         }
         return minPaymentDueCount;
@@ -819,7 +801,6 @@ public class MonthlyStatementRepo implements MonthlyStatementDao {
             backendJdbcTemplate.update(query, stBean.getCardNo().toString(), stBean.getOpenBalance(), stBean.getClosingBalance(), stBean.getTotalMinPayment(), stBean.getPaymentAndCredit(), stBean.getStatementDueDate(), stBean.getStatementStartDate(), stBean.getStatementEndDate(), "", stBean.getStatementID());
 
         } catch (Exception e) {
-            logManager.logError("Exception in Insert Billing Last Statement Summery ", errorLogger);
             throw e;
         }
         return flag;
@@ -834,7 +815,6 @@ public class MonthlyStatementRepo implements MonthlyStatementDao {
 
             backendJdbcTemplate.update(query, StBean.getOpenBalance(), StBean.getClosingBalance(), StBean.getTotalMinPayment(), StBean.getPaymentAndCredit(), StBean.getStatementDueDate(), StBean.getStatementStartDate(), StBean.getStatementEndDate(), "", StBean.getStatementID(), StBean.getCardNo().toString());
         } catch (Exception e) {
-            logManager.logError("Exception in Update Billing Last Statement Summery ", errorLogger);
             throw e;
         }
         return flag;
@@ -866,10 +846,9 @@ public class MonthlyStatementRepo implements MonthlyStatementDao {
                     }
                 }
                 return tempChequeReturnAmount;
-                }, stBean.getStartEodID(), stBean.getEndEodID(), statusList.getCHEQUE_RETURN_STATUS(), Configurations.TXN_TYPE_PAYMENT, stBean.getAccountNo()));
+            }, stBean.getStartEodID(), stBean.getEndEodID(), statusList.getCHEQUE_RETURN_STATUS(), Configurations.TXN_TYPE_PAYMENT, stBean.getAccountNo()));
 
         } catch (Exception e) {
-            logManager.logError("Exception in Check Cheque Returns ", errorLogger);
             throw e;
         }
         return chequeReturnAmount;

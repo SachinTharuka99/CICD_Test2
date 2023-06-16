@@ -10,7 +10,6 @@ import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.core.RowMapperResultSetExtractor;
 import org.springframework.stereotype.Repository;
-import org.springframework.transaction.annotation.Transactional;
 
 import java.util.ArrayList;
 
@@ -19,10 +18,6 @@ public class TxnMismatchPostRepo implements TxnMismatchPostDao {
 
     @Autowired
     private JdbcTemplate backendJdbcTemplate;
-
-    @Autowired
-    @Qualifier("onlineJdbcTemplate")
-    private JdbcTemplate onlineJdbcTemplate;
 
     @Autowired
     QueryParametersList query;

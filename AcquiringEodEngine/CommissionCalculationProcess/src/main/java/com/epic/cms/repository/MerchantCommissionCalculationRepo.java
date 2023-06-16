@@ -12,7 +12,6 @@ import com.epic.cms.model.bean.CommissionProfileBean;
 import com.epic.cms.model.bean.CommissionTxnBean;
 import com.epic.cms.model.bean.MerchantLocationBean;
 import com.epic.cms.util.Configurations;
-import com.epic.cms.util.LogManager;
 import com.epic.cms.util.StatusVarList;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.jdbc.core.JdbcTemplate;
@@ -29,19 +28,13 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Queue;
 
-import static com.epic.cms.util.LogManager.errorLogger;
-
 @Repository
 public class MerchantCommissionCalculationRepo implements MerchantCommissionCalculationDao {
 
     @Autowired
-    private JdbcTemplate backendJdbcTemplate;
-
-    @Autowired
     StatusVarList statusList;
-
     @Autowired
-    LogManager logManager;
+    private JdbcTemplate backendJdbcTemplate;
 
     @Override
     public List<MerchantLocationBean> getAllMerchants() throws Exception {
@@ -90,15 +83,10 @@ public class MerchantCommissionCalculationRepo implements MerchantCommissionCalc
         try {
             commissionCalStatus = backendJdbcTemplate.queryForObject(query, String.class, merchantCustomerNo);
 
-            if (commissionCalStatus != null && commissionCalStatus.equalsIgnoreCase(Configurations.YES_STATUS)) {
-                return true;
-            } else {
-                return false;
-            }
+            return commissionCalStatus != null && commissionCalStatus.equalsIgnoreCase(Configurations.YES_STATUS);
         } catch (Exception e) {
-            logManager.logError(String.valueOf(e),errorLogger);
+            throw e;
         }
-        return false;
     }
 
     @Override
@@ -108,7 +96,7 @@ public class MerchantCommissionCalculationRepo implements MerchantCommissionCalc
             String query = "SELECT COMMISSIONPROFILE FROM MERCHANTCUSTOMER WHERE MERCHANTCUSTOMERNO=?";
             commissionProfile = backendJdbcTemplate.queryForObject(query, String.class, merchantCustomerNo);
         } catch (Exception e) {
-            logManager.logError(String.valueOf(e),errorLogger);
+            throw e;
         }
         return commissionProfile;
     }
@@ -120,7 +108,7 @@ public class MerchantCommissionCalculationRepo implements MerchantCommissionCalc
             String query = "SELECT CALMETHOD FROM COMMISSIONPROFILE WHERE COMMISSIONPROFILECODE=?";
             calMethod = backendJdbcTemplate.queryForObject(query, String.class, profileCode);
         } catch (Exception e) {
-            logManager.logError(String.valueOf(e),errorLogger);
+            throw e;
         }
         return calMethod;
     }
@@ -470,7 +458,7 @@ public class MerchantCommissionCalculationRepo implements MerchantCommissionCalc
 
                     }, commissionProfile, "PDEF"
             );
-        }catch (Exception e){
+        } catch (Exception e) {
             throw e;
         }
         return commProfileList;
@@ -520,7 +508,7 @@ public class MerchantCommissionCalculationRepo implements MerchantCommissionCalc
                     }, Integer.parseInt(binType), productCode, commissionProfile, volumeId
             );
 
-            if(commissionProfileBean1 ==null){
+            if (commissionProfileBean1 == null) {
                 query = " SELECT  FLATVALUE, PERCENTAGE,COMBINATION, CRDR,BINTYPE,CARDPRODUCT, VOLUMEID,COMMISSIONPROFILECODE "
                         + "FROM COMMISSIONVOLUME "
                         + "WHERE BINTYPE=? "
@@ -565,7 +553,7 @@ public class MerchantCommissionCalculationRepo implements MerchantCommissionCalc
             if (!(cardProduct.equalsIgnoreCase("PDEF"))) {
                 if (cardProduct.equalsIgnoreCase(statusList.getPRODUCT_CODE_VISA_ALL()) || cardProduct.equalsIgnoreCase(statusList.getPRODUCT_CODE_MASTER_ALL())
                         || cardProduct.equalsIgnoreCase(statusList.getPRODUCT_CODE_QR_ALL()) || cardProduct.equalsIgnoreCase(statusList.getPRODUCT_CODE_CUP_ALL())
-                        || cardProduct.equalsIgnoreCase(statusList.getPRODUCT_CODE_IPG_VISA())|| cardProduct.equalsIgnoreCase(statusList.getPRODUCT_CODE_IPG_MASTER())) {
+                        || cardProduct.equalsIgnoreCase(statusList.getPRODUCT_CODE_IPG_VISA()) || cardProduct.equalsIgnoreCase(statusList.getPRODUCT_CODE_IPG_MASTER())) {
                     query += " AND CARDPRODUCT = ?";
 
                     backendJdbcTemplate.query(query,
@@ -665,7 +653,7 @@ public class MerchantCommissionCalculationRepo implements MerchantCommissionCalc
                         }, merchantId, statusList.getEOD_PENDING_STATUS()
                 );
             }
-        }catch (Exception e){
+        } catch (Exception e) {
             throw e;
         }
         return commissionTxnList;

@@ -2,7 +2,10 @@ package com.epic.cms.repository;
 
 import com.epic.cms.dao.ChequePaymentDao;
 import com.epic.cms.model.bean.*;
-import com.epic.cms.util.*;
+import com.epic.cms.util.CommonMethods;
+import com.epic.cms.util.Configurations;
+import com.epic.cms.util.CreateEodId;
+import com.epic.cms.util.StatusVarList;
 import org.joda.time.DateTime;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.EmptyResultDataAccessException;
@@ -17,28 +20,20 @@ import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.List;
 
-import static com.epic.cms.util.LogManager.errorLogger;
 
 @Repository
 public class ChequePaymentRepo implements ChequePaymentDao {
 
     @Autowired
-    private JdbcTemplate backendJdbcTemplate;
-
-    @Autowired
     StatusVarList statusList;
-
     @Autowired
     CommonRepo commonRepo;
-
     @Autowired
     LastStatementSummaryRepo lastStatementSummaryRepo;
-
     @Autowired
     ChequeProcessRepo chequeProcessRepo;
-
     @Autowired
-    LogManager logManager;
+    private JdbcTemplate backendJdbcTemplate;
 
     @Override
     public List<ReturnChequePaymentDetailBean> getChequePaymentsBackup() throws Exception {
@@ -155,7 +150,7 @@ public class ChequePaymentRepo implements ChequePaymentDao {
                                 chqBeanList.add(bean);
 
                             } catch (Exception e) {
-                                logManager.logError("Exception ", errorLogger);
+
                             }
                         }
                         return chqBeanList;
@@ -185,7 +180,6 @@ public class ChequePaymentRepo implements ChequePaymentDao {
                     }, cardNo.toString());
 
         } catch (Exception e) {
-            //LogFileCreator.writeErrorToLog(e);
             throw e;
         }
         return delinqStatus;

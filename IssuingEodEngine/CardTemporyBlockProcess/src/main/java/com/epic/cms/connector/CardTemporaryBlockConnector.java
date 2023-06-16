@@ -10,6 +10,9 @@ import com.epic.cms.util.CommonMethods;
 import com.epic.cms.util.Configurations;
 import com.epic.cms.util.LogManager;
 import com.epic.cms.util.StatusVarList;
+import lombok.extern.slf4j.Slf4j;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.scheduling.concurrent.ThreadPoolTaskExecutor;
@@ -17,31 +20,25 @@ import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
 
-import static com.epic.cms.util.LogManager.errorLogger;
-import static com.epic.cms.util.LogManager.infoLogger;
 
 @Service
 public class CardTemporaryBlockConnector extends ProcessBuilder {
 
+    private static final Logger logInfo = LoggerFactory.getLogger("logInfo");
+    private static final Logger logError = LoggerFactory.getLogger("logError");
     @Autowired
     @Qualifier("taskExecutor2")
     ThreadPoolTaskExecutor taskExecutor;
-
     @Autowired
     CommonRepo commonRepo;
-
     @Autowired
     StatusVarList statusList;
-
     @Autowired
     CardBlockRepo cardTemporaryBlockRepo;
-
     @Autowired
     CardTemporaryBlockService cardTemporaryBlockService;
-
     @Autowired
     LogManager logManager;
-
     ArrayList<BlockCardBean> cardList = null;
     ProcessBean processBean = new ProcessBean();
     private int failedCount = 0;
@@ -75,7 +72,7 @@ public class CardTemporaryBlockConnector extends ProcessBuilder {
             Configurations.IS_PROCESS_COMPLETELY_FAILED = true;
             throw ex;
         } finally {
-            logManager.logSummery(summery, infoLogger);
+            logInfo.info(logManager.logSummery(summery));
             try {
                 /** PADSS Change -
                  variables handling card data should be nullified by replacing the value of variable with zero and call NULL function */
@@ -86,17 +83,17 @@ public class CardTemporaryBlockConnector extends ProcessBuilder {
                     cardList = null;
                 }
             } catch (Exception e2) {
-                logManager.logError("Card Temporary Block process Error ", e2, errorLogger);
+                logError.error("Card Temporary Block process Error ", e2);
             }
         }
     }
 
     public void addSummaries() {
 
-            summery.put("Started Date", Configurations.EOD_DATE.toString());
-            summery.put("No of Card effected", Configurations.PROCESS_TOTAL_NOOF_TRABSACTIONS);
-            summery.put("No of Success Card", Configurations.PROCESS_SUCCESS_COUNT);
-            summery.put("No of fail Card", Configurations.PROCESS_FAILD_COUNT);
+        summery.put("Started Date", Configurations.EOD_DATE.toString());
+        summery.put("No of Card effected", Configurations.PROCESS_TOTAL_NOOF_TRABSACTIONS);
+        summery.put("No of Success Card", Configurations.PROCESS_SUCCESS_COUNT);
+        summery.put("No of fail Card", Configurations.PROCESS_FAILD_COUNT);
 
     }
 }

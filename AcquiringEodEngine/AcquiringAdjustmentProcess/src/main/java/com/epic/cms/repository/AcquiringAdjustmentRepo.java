@@ -29,7 +29,6 @@ import java.text.DecimalFormat;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 
-import static com.epic.cms.util.LogManager.errorLogger;
 
 @Repository
 public class AcquiringAdjustmentRepo implements AcquiringAdjustmentDao {
@@ -37,8 +36,6 @@ public class AcquiringAdjustmentRepo implements AcquiringAdjustmentDao {
     StatusVarList status;
     @Autowired
     private JdbcTemplate backendJdbcTemplate;
-    @Autowired
-    LogManager logManager;
 
     @Override
     public ArrayList<AcqAdjustmentBean> getConfirmedAjustments() throws Exception {
@@ -574,7 +571,6 @@ public class AcquiringAdjustmentRepo implements AcquiringAdjustmentDao {
                     , eodTransactionBean.getCardProduct());
 
         } catch (Exception e) {
-            logManager.logError("Exception ", errorLogger);
             throw e;
         }
         return count;

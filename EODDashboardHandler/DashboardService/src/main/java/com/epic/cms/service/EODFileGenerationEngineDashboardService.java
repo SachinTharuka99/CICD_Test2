@@ -7,21 +7,12 @@
 
 package com.epic.cms.service;
 
-import com.epic.cms.model.bean.EodOutputFileBean;
-import com.epic.cms.model.bean.StatementGenSummeryBean;
-import com.epic.cms.model.entity.EODOUTPUTFILES;
+
 import com.epic.cms.repository.EodOutputFileRepo;
 import com.epic.cms.repository.StatementGenSummeryListRepo;
-import com.epic.cms.util.Configurations;
 import com.epic.cms.util.LogManager;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-
-import java.math.BigDecimal;
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.List;
-
 
 @Service
 public class EODFileGenerationEngineDashboardService {
@@ -31,9 +22,6 @@ public class EODFileGenerationEngineDashboardService {
 
     @Autowired
     StatementGenSummeryListRepo genSummeryListRepo;
-
-    @Autowired
-    LogManager logManager;
 
 //    public List<EodOutputFileBean> getEodOutputFIleList(Long eodId) {
 //        List<EodOutputFileBean> outputFileBeanList = new ArrayList<>();

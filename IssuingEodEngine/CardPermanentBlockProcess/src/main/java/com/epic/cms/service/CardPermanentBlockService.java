@@ -6,6 +6,9 @@ import com.epic.cms.model.bean.ProcessBean;
 import com.epic.cms.repository.CardBlockRepo;
 import com.epic.cms.repository.CommonRepo;
 import com.epic.cms.util.*;
+import lombok.extern.slf4j.Slf4j;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
@@ -14,8 +17,6 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.util.LinkedHashMap;
 
-import static com.epic.cms.util.LogManager.errorLogger;
-import static com.epic.cms.util.LogManager.infoLogger;
 
 @Service
 public class CardPermanentBlockService {
@@ -31,6 +32,9 @@ public class CardPermanentBlockService {
 
     @Autowired
     LogManager logManager;
+
+    private static final Logger logInfo = LoggerFactory.getLogger("logInfo");
+    private static final Logger logError = LoggerFactory.getLogger("logError");
 
     @Async("taskExecutor2")
     @Transactional(value = "transactionManager", propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
@@ -77,12 +81,11 @@ public class CardPermanentBlockService {
                 Configurations.PROCESS_SUCCESS_COUNT++;
             } catch (Exception ex) {
                 Configurations.errorCardList.add(new ErrorCardBean(Configurations.ERROR_EOD_ID, Configurations.EOD_DATE, new StringBuffer(blockCardBean.getCardNo()), ex.getMessage(), Configurations.RUNNING_PROCESS_ID, Configurations.RUNNING_PROCESS_DESCRIPTION, 0, CardAccount.CARD));
-                logManager.logInfo("Card Permanent block process failed for cardnumber " + CommonMethods.cardInfo(maskedCardNumber, processBean), infoLogger);
-                logManager.logError("Card Permanent block process failed for cardnumber " + CommonMethods.cardInfo(maskedCardNumber, processBean), ex, errorLogger);
+                logError.error("Card Permanent block process failed for cardnumber " + CommonMethods.cardInfo(maskedCardNumber, processBean), ex);
                 details.put("Process Status", "Failed");
                 Configurations.PROCESS_FAILD_COUNT++;
             } finally {
-                logManager.logDetails(details, infoLogger);
+                logInfo.info(logManager.logDetails(details));
             }
         }
     }

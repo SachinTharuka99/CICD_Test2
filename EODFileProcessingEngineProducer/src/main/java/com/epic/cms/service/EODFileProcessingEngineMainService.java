@@ -18,7 +18,6 @@ import org.springframework.stereotype.Service;
 
 import java.util.*;
 
-import static com.epic.cms.util.LogManager.errorLogger;
 
 @Service
 @ComponentScan(basePackages = {"com.epic.cms.*"})
@@ -28,8 +27,6 @@ public class EODFileProcessingEngineMainService {
     EODFileProcessingEngineProducerRepo producerRepo;
     @Autowired
     CommonRepo commonRepo;
-    @Autowired
-    LogManager logManager;
     @Autowired
     StatusVarList status;
     @Autowired

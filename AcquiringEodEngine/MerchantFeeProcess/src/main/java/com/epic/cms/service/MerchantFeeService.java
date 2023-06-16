@@ -13,6 +13,9 @@ import com.epic.cms.model.bean.MerchantFeeBean;
 import com.epic.cms.repository.CommonRepo;
 import com.epic.cms.repository.MerchantFeeRepo;
 import com.epic.cms.util.*;
+import lombok.extern.slf4j.Slf4j;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
@@ -23,8 +26,6 @@ import java.util.Date;
 import java.util.LinkedHashMap;
 
 import static com.epic.cms.util.Configurations.merchantErrorList;
-import static com.epic.cms.util.LogManager.errorLogger;
-import static com.epic.cms.util.LogManager.infoLogger;
 
 @Service
 public class MerchantFeeService {
@@ -39,6 +40,9 @@ public class MerchantFeeService {
 
     @Autowired
     CommonRepo commonRepo;
+
+    private static final Logger logInfo = LoggerFactory.getLogger("logInfo");
+    private static final Logger logError = LoggerFactory.getLogger("logError");
 
     @Async("ThreadPool_100")
     @Transactional(value="transactionManager",propagation = Propagation.REQUIRED,rollbackFor = Exception.class)
@@ -64,12 +68,12 @@ public class MerchantFeeService {
                 details.put("final amount", feeAmount);
                 Configurations.PROCESS_SUCCESS_COUNT++;
             } catch (Exception e) {
-               logManager.logError("Commission calculation process failed for merchantId:" + merchantFeeBean.getMID(), e, errorLogger);
+               logError.error("Commission calculation process failed for merchantId:" + merchantFeeBean.getMID(), e);
                 merchantErrorList.add(new ErrorMerchantBean());
                 Configurations.merchantErrorList.add(new ErrorMerchantBean(Configurations.ERROR_EOD_ID, Configurations.EOD_DATE, merchantFeeBean.getMID(), e.getMessage(), Configurations.RUNNING_PROCESS_ID, Configurations.RUNNING_PROCESS_DESCRIPTION, 0, MerchantCustomer.MERCHANTLOCATION));
                 Configurations.PROCESS_FAILD_COUNT++;
             } finally {
-                logManager.logDetails(details, infoLogger);
+                logInfo.info(logManager.logDetails(details));
             }
         }
     }

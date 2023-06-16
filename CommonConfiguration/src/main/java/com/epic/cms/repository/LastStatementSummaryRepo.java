@@ -18,7 +18,6 @@ import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
 
-import static com.epic.cms.util.LogManager.errorLogger;
 
 @Repository
 public class LastStatementSummaryRepo implements LastStatmentSummaryDao {
@@ -27,9 +26,6 @@ public class LastStatementSummaryRepo implements LastStatmentSummaryDao {
 
     @Autowired
     StatusVarList statusList;
-
-    @Autowired
-    LogManager logManager;
 
     @Override
     public List<LastStatementSummeryBean> getStatementCardList() throws Exception {
@@ -49,7 +45,6 @@ public class LastStatementSummaryRepo implements LastStatmentSummaryDao {
                     statusList.getCARD_PRODUCT_CHANGE_STATUS());
 
         } catch (Exception e) {
-            logManager.logError("Get Statement Card List Error", errorLogger);
             throw e;
         }
         return cardList;
@@ -80,7 +75,6 @@ public class LastStatementSummaryRepo implements LastStatmentSummaryDao {
                         }
                     },cardNo.toString());
         } catch (Exception e) {
-            logManager.logError("Get Last Statement Summary Info Error", errorLogger);
             throw e;
         }
         return lastStatementSummeryBean;
@@ -110,7 +104,6 @@ public class LastStatementSummaryRepo implements LastStatmentSummaryDao {
                         return stmtBean;
                     }, cardNumber.toString());
         } catch (Exception e) {
-            logManager.logError("Get Last Statement Details Error", errorLogger);
             throw e;
         }
         return statementBean;

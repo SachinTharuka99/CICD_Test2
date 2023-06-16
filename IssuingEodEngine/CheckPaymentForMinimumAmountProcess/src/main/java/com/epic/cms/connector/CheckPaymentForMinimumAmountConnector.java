@@ -6,6 +6,9 @@ import com.epic.cms.repository.CheckPaymentForMinimumAmountRepo;
 import com.epic.cms.repository.CommonRepo;
 import com.epic.cms.service.CheckPaymentForMinimumAmountService;
 import com.epic.cms.util.*;
+import lombok.extern.slf4j.Slf4j;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.scheduling.concurrent.ThreadPoolTaskExecutor;
@@ -14,31 +17,25 @@ import org.springframework.stereotype.Service;
 import java.util.ArrayList;
 import java.util.List;
 
-import static com.epic.cms.util.LogManager.errorLogger;
-import static com.epic.cms.util.LogManager.infoLogger;
 
 @Service
 public class CheckPaymentForMinimumAmountConnector extends ProcessBuilder {
 
+    private static final Logger logInfo = LoggerFactory.getLogger("logInfo");
+    private static final Logger logError = LoggerFactory.getLogger("logError");
     @Autowired
     StatusVarList statusVarList;
-
     @Autowired
     LogManager logManager;
-
     @Autowired
     @Qualifier("ThreadPool_100")
     ThreadPoolTaskExecutor taskExecutor;
-
     @Autowired
     CheckPaymentForMinimumAmountRepo checkPaymentForMinimumAmountRepo;
-
     @Autowired
     CheckPaymentForMinimumAmountService checkPaymentForMinimumAmountService;
-
     @Autowired
     CommonRepo commonRepo;
-
     List<LastStatementSummeryBean> cardList = new ArrayList<LastStatementSummeryBean>();
     int failedCount = 0;
 
@@ -67,9 +64,9 @@ public class CheckPaymentForMinimumAmountConnector extends ProcessBuilder {
 
         } catch (Exception e) {
             Configurations.IS_PROCESS_COMPLETELY_FAILED = true;
-            logManager.logError("Check Payment For Minimum Amount process ended with", e, errorLogger);
+            logError.error("Check Payment For Minimum Amount process ended with", e);
         } finally {
-            logManager.logSummery(summery, infoLogger);
+            logInfo.info(logManager.logSummery(summery));
             try {
                 if (cardList != null && cardList.size() != 0) {
                     for (LastStatementSummeryBean lastStatementSummeryBean : cardList) {
@@ -78,7 +75,7 @@ public class CheckPaymentForMinimumAmountConnector extends ProcessBuilder {
                     cardList = null;
                 }
             } catch (Exception e) {
-                logManager.logError("Check Payment For Minimum Amount process Error ", e, errorLogger);
+                logError.error("Check Payment For Minimum Amount process Error ", e);
             }
         }
     }

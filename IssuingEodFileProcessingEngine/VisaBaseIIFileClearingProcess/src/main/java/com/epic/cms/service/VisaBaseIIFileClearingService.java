@@ -15,6 +15,9 @@ import com.epic.cms.repository.VisaBaseIIFileClearingRepo;
 import com.epic.cms.util.Configurations;
 import com.epic.cms.util.LogManager;
 import com.epic.cms.util.QueryParametersList;
+import lombok.extern.slf4j.Slf4j;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.batch.core.*;
 import org.springframework.batch.core.launch.JobLauncher;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -27,24 +30,24 @@ import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.List;
 
-import static com.epic.cms.util.LogManager.*;
 
 @Service
 public class VisaBaseIIFileClearingService {
-    @Autowired
-    private VisaBaseIIFileClearingRepo visaBaseIIFileClearingRepo;
+    private static final Logger logInfo = LoggerFactory.getLogger("logInfo");
+    private static final Logger logError = LoggerFactory.getLogger("logError");
     @Autowired
     LogManager logManager;
     @Autowired
-    private QueryParametersList queryParametersList;
-    @Autowired
     JobLauncher jobLauncher;
+    @Autowired
+    CommonRepo commonRepo;
+    @Autowired
+    private VisaBaseIIFileClearingRepo visaBaseIIFileClearingRepo;
+    @Autowired
+    private QueryParametersList queryParametersList;
     @Autowired
     @Qualifier("file_read_job")
     private Job visaFileReadJob;
-    @Autowired
-    CommonRepo commonRepo;
-
     //TC 56 Currency records compose related variables
     private String fileBaseCurrency; // base currency code of currency update file
     private BigDecimal eodBaseCurrencyBuyingRate; // eg: how much USD amount needed to buy 1 LKR (USD - file base currency, LKR - EOD base currency)
@@ -76,7 +79,7 @@ public class VisaBaseIIFileClearingService {
                 final List<Throwable> exceptions = execution
                         .getAllFailureExceptions();
                 for (final Throwable throwable : exceptions) {
-                    logManager.logError(throwable.getMessage(), throwable,errorLoggerEFPE);
+                    logError.error(throwable.getMessage(), throwable);
                 }
             }
         } catch (Exception ex) {
@@ -91,7 +94,7 @@ public class VisaBaseIIFileClearingService {
      * @param fileId
      * @throws Exception
      */
-    @Transactional(value="transactionManager",propagation = Propagation.REQUIRED,rollbackFor = Exception.class)
+    @Transactional(value = "transactionManager", propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
     public void composeCurrencyUpdateRecords(String fileId) throws Exception {
         String txnIDToCompose, tcr = "", firstCurrencyEntry = "", secondCurrencyEntry = "", thirdCurrencyEntry = "", fourthCurrencyEntry = "", fifthCurrencyEntry = "",
                 sixthCurrencyEntry = "", seventhCurrencyEntry = "", eighthCurrencyEntry = "", ninthCurrencyEntry = "", tenthcurrencyEntry = "", eleventhCurrencyEntry = "";
@@ -130,7 +133,7 @@ public class VisaBaseIIFileClearingService {
                             eleventhCurrencyEntry = visaComposingDataBean.getField9();
                         }
                     } catch (Exception e) {
-                        logManager.logError(e.getMessage(),errorLoggerEFPE);
+                        logError.error(e.getMessage());
                     }
                 }
                 //store all 11 currency entries contained in TCR0 and TCR 1 records
@@ -216,7 +219,7 @@ public class VisaBaseIIFileClearingService {
                 }
             }
         } catch (Exception ex) {
-            logManager.logError(ex.getMessage(),errorLoggerEFPE);
+            logError.error(ex.getMessage());
             return null;
         }
     }

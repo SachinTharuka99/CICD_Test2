@@ -13,6 +13,9 @@ import com.epic.cms.util.CommonMethods;
 import com.epic.cms.util.Configurations;
 import com.epic.cms.util.LogManager;
 import com.epic.cms.util.StatusVarList;
+import lombok.extern.slf4j.Slf4j;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Propagation;
@@ -34,6 +37,11 @@ public class CardApplicationConfirmationLetterService {
     StatusVarList statusVarList;
     @Autowired
     LetterService letterService;
+
+    private static final Logger logInfo = LoggerFactory.getLogger("logInfo");
+    private static final Logger logError = LoggerFactory.getLogger("logError");
+
+
     @Autowired
     CardApplicationConfirmationLetterRepo cardApplicationConfirmationLetterRepo;
     @Transactional(value="transactionManager",propagation = Propagation.REQUIRED,rollbackFor = Exception.class)
@@ -59,7 +67,7 @@ public class CardApplicationConfirmationLetterService {
 
         } catch (Exception e) {
             Configurations.PROCESS_FAILD_COUNT++;
-            logManager.logError("Card Application Confirmation Letter Process Failed for cardnumber: " + maskedCardNo, e, errorLoggerEFGE);
+            logError.error("Card Application Confirmation Letter Process Failed for cardnumber: " + maskedCardNo, e);
         }
 
         return fileNameAndPath;

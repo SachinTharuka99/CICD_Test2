@@ -9,16 +9,12 @@ import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.core.RowMapperResultSetExtractor;
 import org.springframework.stereotype.Repository;
-import org.springframework.transaction.annotation.Isolation;
-import org.springframework.transaction.annotation.Propagation;
-import org.springframework.transaction.annotation.Transactional;
 
 import java.sql.ResultSet;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.Objects;
 
-import static com.epic.cms.util.LogManager.errorLogger;
 
 @Repository
 public class StampDutyFeeRepo implements StampDutyFeeDao {
@@ -32,8 +28,6 @@ public class StampDutyFeeRepo implements StampDutyFeeDao {
     @Autowired
     private JdbcTemplate backendJdbcTemplate;
 
-    @Autowired
-    LogManager logManager;
 
     @Override
     public ArrayList<StampDutyBean> getInitStatementAccountList() throws Exception {
@@ -52,7 +46,6 @@ public class StampDutyFeeRepo implements StampDutyFeeDao {
             );
 
         } catch (Exception e) {
-            logManager.logError("GetInit Statement Account List Error", errorLogger);
             throw e;
         }
         return statementCardList;
@@ -78,7 +71,6 @@ public class StampDutyFeeRepo implements StampDutyFeeDao {
             );
 
         } catch (Exception e) {
-            logManager.logError("Get Error Statement Account List Error",errorLogger);
             throw e;
         }
         return statementCardList;
@@ -104,7 +96,6 @@ public class StampDutyFeeRepo implements StampDutyFeeDao {
             );
 
         } catch (Exception e) {
-            logManager.logError("Get Old Card Numbers Error" ,errorLogger);
             throw e;
         }
         return cardList;
@@ -130,7 +121,6 @@ public class StampDutyFeeRepo implements StampDutyFeeDao {
         } catch (EmptyResultDataAccessException e) {
             return 0;
         } catch (Exception e) {
-            logManager.logError("Get Total Foreign Txns Error" ,errorLogger);
             throw e;
         }
         return totalForeignTxns;
@@ -167,7 +157,6 @@ public class StampDutyFeeRepo implements StampDutyFeeDao {
                 );
             }
         } catch (Exception e) {
-            logManager.logError("Insert To EODcard Fee Error" ,errorLogger);
             throw e;
         }
     }
@@ -182,7 +171,6 @@ public class StampDutyFeeRepo implements StampDutyFeeDao {
             startEodId = backendJdbcTemplate.queryForObject(query, Integer.class, accountNo);
 
         } catch (Exception e) {
-            logManager.logError("Error startEodId ", errorLogger);
             throw e;
         }
         return startEodId;
@@ -209,7 +197,6 @@ public class StampDutyFeeRepo implements StampDutyFeeDao {
                     statusVarList.getCARD_PRODUCT_CHANGE_STATUS() //CAPC
             );
         } catch (Exception e) {
-            logManager.logError("Get Statement Card List Error" ,errorLogger);
             throw e;
         }
         return statementCardList;
@@ -237,7 +224,6 @@ public class StampDutyFeeRepo implements StampDutyFeeDao {
                     feeCode
             ));
         } catch (Exception e) {
-            logManager.logError("Check Fee Exixt For Card Error",errorLogger);
             throw e;
         }
         return forward;

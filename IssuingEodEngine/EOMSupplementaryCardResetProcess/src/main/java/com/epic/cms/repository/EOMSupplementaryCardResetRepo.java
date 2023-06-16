@@ -8,18 +8,21 @@
 package com.epic.cms.repository;
 
 import com.epic.cms.dao.EOMSupplementaryCardResetDao;
+import com.epic.cms.model.bean.CalculateOTBsDto;
 import com.epic.cms.model.bean.EomCardBalanceDto;
 import com.epic.cms.util.CommonMethods;
 import com.epic.cms.util.Configurations;
 import com.epic.cms.util.LogManager;
 import com.epic.cms.util.StatusVarList;
+import lombok.extern.slf4j.Slf4j;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.core.RowMapper;
 import org.springframework.stereotype.Repository;
 import org.springframework.transaction.annotation.Transactional;
-import com.epic.cms.model.bean.CalculateOTBsDto;
 
 import java.sql.ResultSet;
 import java.sql.SQLException;
@@ -28,20 +31,16 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
 
-import static com.epic.cms.util.LogManager.errorLogger;
-import static com.epic.cms.util.LogManager.infoLogger;
-
 @Repository
 public class EOMSupplementaryCardResetRepo implements EOMSupplementaryCardResetDao {
+    private static final Logger logInfo = LoggerFactory.getLogger("logInfo");
+    private static final Logger logError = LoggerFactory.getLogger("logError");
     @Autowired
     StatusVarList statusVarList;
-
     @Autowired
     LogManager logManager;
-
     @Autowired
     private JdbcTemplate backendJdbcTemplate;
-
     @Autowired
     private JdbcTemplate onlineJdbcTemplate;
 
@@ -105,7 +104,7 @@ public class EOMSupplementaryCardResetRepo implements EOMSupplementaryCardResetD
 
         try {
             backendJdbcTemplate.query(sql
-                    ,(ResultSet rs) -> {
+                    , (ResultSet rs) -> {
                         while (rs.next()) {
                             cardList.add(new StringBuffer(rs.getString("CARDNUMBER")));
                         }
@@ -369,7 +368,7 @@ public class EOMSupplementaryCardResetRepo implements EOMSupplementaryCardResetD
                     , Configurations.INITIAL_STATUS);
         } catch (EmptyResultDataAccessException ex) {
             return 0;
-        }catch (Exception e) {
+        } catch (Exception e) {
             throw e;
         }
         return amount;
@@ -387,7 +386,7 @@ public class EOMSupplementaryCardResetRepo implements EOMSupplementaryCardResetD
             backendJdbcTemplate.update(query
                     , totalSupTempCredit
                     , totalSupTempCash
-                    ,totalSupTempCredit
+                    , totalSupTempCredit
                     , totalSupTempCash
                     , mainCardNumber.toString());
         } catch (Exception e) {
@@ -413,15 +412,15 @@ public class EOMSupplementaryCardResetRepo implements EOMSupplementaryCardResetD
 
             if (Configurations.ONLINE_LOG_LEVEL == 1) {
                 //Only for troubleshoot
-                logManager.logInfo("================ updateMainCardBalOnline ===================" + Integer.toString(Configurations.EOD_ID),infoLogger);
-                logManager.logInfo(query,infoLogger);
-                logManager.logInfo(Double.toString(totalSupTempCredit),infoLogger);
-                logManager.logInfo(Double.toString(supFowardPayments),infoLogger);
-                logManager.logInfo(Double.toString(totalSupTempCash),infoLogger);
-                logManager.logInfo(Double.toString(totalSupTempCredit),infoLogger);
-                logManager.logInfo(Double.toString(totalSupTempCash),infoLogger);
-                logManager.logInfo(CommonMethods.cardNumberMask(mainCardNumber),infoLogger);
-                logManager.logInfo("================ updateMainCardBalOnline END ===================",infoLogger);
+                logInfo.info("================ updateMainCardBalOnline ===================" + Configurations.EOD_ID);
+                logInfo.info(query);
+                logInfo.info(Double.toString(totalSupTempCredit));
+                logInfo.info(Double.toString(supFowardPayments));
+                logInfo.info(Double.toString(totalSupTempCash));
+                logInfo.info(Double.toString(totalSupTempCredit));
+                logInfo.info(Double.toString(totalSupTempCash));
+                logInfo.info(CommonMethods.cardNumberMask(mainCardNumber));
+                logInfo.info("================ updateMainCardBalOnline END ===================");
             }
         } catch (Exception e) {
             throw e;
@@ -604,13 +603,13 @@ public class EOMSupplementaryCardResetRepo implements EOMSupplementaryCardResetD
 
                     if (Configurations.ONLINE_LOG_LEVEL == 1) {
                         //Only for troubleshoot
-                        logManager.logInfo("================ resetSuplimentryBalanceInOnlineCardTable ===================" + Integer.toString(Configurations.EOD_ID),infoLogger);
-                        logManager.logInfo(query,infoLogger);
-                        logManager.logInfo(Double.toString(values[0]),infoLogger);
-                        logManager.logInfo(Double.toString(values[1]),infoLogger);
-                        logManager.logInfo("0,0",infoLogger);
-                        logManager.logInfo(CommonMethods.cardNumberMask(cardnumber),infoLogger);
-                        logManager.logInfo("================ resetSuplimentryBalanceInOnlineCardTable END ===================",infoLogger);
+                        logInfo.info("================ resetSuplimentryBalanceInOnlineCardTable ===================" + Configurations.EOD_ID);
+                        logInfo.info(query);
+                        logInfo.info(Double.toString(values[0]));
+                        logInfo.info(Double.toString(values[1]));
+                        logInfo.info("0,0");
+                        logInfo.info(CommonMethods.cardNumberMask(cardnumber));
+                        logInfo.info("================ resetSuplimentryBalanceInOnlineCardTable END ===================");
                     }
                 }
             }

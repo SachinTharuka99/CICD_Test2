@@ -19,7 +19,10 @@ import com.epic.cms.service.MerchantGLSummaryFileService;
 import com.epic.cms.util.CommonMethods;
 import com.epic.cms.util.Configurations;
 import com.epic.cms.util.LogManager;
+import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.io.FileUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.scheduling.concurrent.ThreadPoolTaskExecutor;
@@ -34,8 +37,6 @@ import java.text.SimpleDateFormat;
 import java.util.*;
 
 import static com.epic.cms.util.CommonMethods.*;
-import static com.epic.cms.util.LogManager.errorLogger;
-import static com.epic.cms.util.LogManager.infoLogger;
 
 /**
  * 1- Consider commission,payment,eodmerchanttxn,eodmerchantfee and update
@@ -70,6 +71,8 @@ public class MerchantGLSummaryFileConnector extends ProcessBuilder {
     @Qualifier("ThreadPool_100")
     ThreadPoolTaskExecutor taskExecutor;
 
+    private static final Logger logInfo = LoggerFactory.getLogger("logInfo");
+    private static final Logger logError = LoggerFactory.getLogger("logError");
 
     @Override
     public void concreteProcess() throws Exception {
@@ -179,7 +182,7 @@ public class MerchantGLSummaryFileConnector extends ProcessBuilder {
 
                     merchantGLSummaryFileDao.insertOutputFiles(eodoutputfilebean, "MERCHANTGL");
                 } else {
-                    logManager.logInfo("Merchant GL File doesn't created. ", infoLogger);
+                    logInfo.info("Merchant GL File doesn't created. ");
                 }
             } catch (Exception e) {
                 Configurations.IS_PROCESS_COMPLETELY_FAILED = true;
@@ -191,7 +194,7 @@ public class MerchantGLSummaryFileConnector extends ProcessBuilder {
                         Configurations.MAIN_EOD_STATUS = false;
                     }
                 } catch (Exception e2) {
-                    logManager.logError("Exception in Merchant GL File Process", e2, errorLogger);
+                    logError.error("Exception in Merchant GL File Process", e2);
                 }
             }
         }
@@ -682,7 +685,7 @@ public class MerchantGLSummaryFileConnector extends ProcessBuilder {
             summery.put("File Name", fileName);
             summery.put("No of records ", Configurations.PROCESS_SUCCESS_COUNT);
             summery.put("Created Date ", Configurations.EOD_DATE.toString());
-            logManager.logSummery(summery, infoLogger);
+            logInfo.info(logManager.logSummery(summery));
         } catch (Exception e) {
             throw e;
         } finally {

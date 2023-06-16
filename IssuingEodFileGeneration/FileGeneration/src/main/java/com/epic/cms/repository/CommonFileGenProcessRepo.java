@@ -33,9 +33,6 @@ public class CommonFileGenProcessRepo implements CommonFileGenProcessDao {
     @Autowired
     StatusVarList statusList;
 
-    @Autowired
-    LogManager logManager;
-
     @Override
     public List<String> getCardProductCardType(StringBuffer cardNo) throws Exception {
         List<String> cardDetails = new ArrayList<>();
@@ -81,7 +78,6 @@ public class CommonFileGenProcessRepo implements CommonFileGenProcessDao {
             ,cardDetails.get(2)
             ,statusList.getEOD_DONE_STATUS());
         } catch (Exception e) {
-            logManager.logError("Exception in Insert into Download Table " + e.getMessage(),errorLoggerEFGE);
             throw e;
         }
     }
@@ -100,8 +96,6 @@ public class CommonFileGenProcessRepo implements CommonFileGenProcessDao {
                 return cardDetails;
             }, applicationId);
         } catch (Exception e) {
-            e.printStackTrace();
-            logManager.logError("Exception in Get Card Product Type Method ", errorLoggerEFGE);
             throw e;
         }
         return cardDetails;

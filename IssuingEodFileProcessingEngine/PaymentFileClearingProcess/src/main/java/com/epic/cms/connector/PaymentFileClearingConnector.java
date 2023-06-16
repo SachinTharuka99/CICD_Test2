@@ -15,6 +15,9 @@ import com.epic.cms.repository.PaymentFileClearingRepo;
 import com.epic.cms.service.PaymentFileClearingService;
 import com.epic.cms.util.*;
 import com.epic.cms.validation.PaymentValidations;
+import lombok.extern.slf4j.Slf4j;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.scheduling.concurrent.ThreadPoolTaskExecutor;
@@ -23,10 +26,10 @@ import org.springframework.stereotype.Service;
 import java.io.File;
 import java.util.ArrayList;
 
-import static com.epic.cms.util.LogManager.*;
-
 @Service
 public class PaymentFileClearingConnector extends FileProcessingProcessBuilder {
+    private static final Logger logInfo = LoggerFactory.getLogger("logInfo");
+    private static final Logger logError = LoggerFactory.getLogger("logError");
     @Autowired
     PaymentFileClearingService paymentFileClearingService;
     @Autowired
@@ -102,35 +105,35 @@ public class PaymentFileClearingConnector extends FileProcessingProcessBuilder {
                             summery.put("Number of invalid payments ", Configurations.PROCESS_PAYMENT_FILE_CLEARING_INVALID_COUNT);
                             summery.put("Number of failure payments ", Configurations.PROCESS_PAYMENT_FILE_CLEARING_FAILD_COUNT);
 
-                            logManager.logSummery(summery, infoLoggerEFPE);
+                            logInfo.info(logManager.logSummery(summery));
                         } else {
-                            logManager.logError("Payment file reading failed for file " + fileId,errorLoggerEFPE);
+                            logError.error("Payment file reading failed for file " + fileId);
                             //update file read status to FAIL
                             paymentFileClearingRepo.updatePaymentFileStatus(Configurations.FAIL_STATUS, fileId);
                         }
                     } else {
-                        logManager.logInfo("Payment file not found..."
+                        logInfo.info("Payment file not found..."
                                 + "\nFile Name : " + fileBean.getFileName()
-                                + "\nFile ID   : " + fileBean.getFileId(), infoLoggerEFPE);
+                                + "\nFile ID   : " + fileBean.getFileId());
                         //update file read status to fail
                         paymentFileClearingRepo.updatePaymentFileStatus(Configurations.FAIL_STATUS, fileId);
                     }
                 } else {
-                    logManager.logError("Payment file clearing process failed for file " + fileId + " , " + isFileNameValid, errorLoggerEFPE);
+                    logInfo.info("Payment file clearing process failed for file " + fileId + " , " + isFileNameValid);
                     //update file read status to fail
                     paymentFileClearingRepo.updatePaymentFileStatus(Configurations.FAIL_STATUS, fileId);
                 }
             } else {
                 //file cannot proceed due to invalid status
-                logManager.logError("Cannot read, Payment file " + fileId + " is not in the initial status", errorLoggerEFPE);
+                logError.error("Cannot read, Payment file " + fileId + " is not in the initial status");
             }
         } catch (Exception ex) {
-            logManager.logError("Payment file clearing process failed for file " + fileId, ex, errorLoggerEFPE);
+            logError.error("Payment file clearing process failed for file " + fileId, ex);
             //update file status to FAIL
             try {
                 paymentFileClearingRepo.updatePaymentFileStatus(Configurations.FAIL_STATUS, fileId);
             } catch (Exception e) {
-                logManager.logError("", e, errorLoggerEFPE);
+                logError.error("", e);
             }
         }
     }

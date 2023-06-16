@@ -41,9 +41,6 @@ public class TestController {
         Configurations.PROCESS_STEP_ID = 6;
         Configurations.COMMIT_STATUS = true;
 
-        //config loggers
-        LogManager.init();
-
         kafkaTemplate.send(topic, fileId);
         return "Published successfully" + fileId + " to the topic:" + topic;
     }

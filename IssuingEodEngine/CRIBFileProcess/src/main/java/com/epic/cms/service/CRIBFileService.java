@@ -3,6 +3,9 @@ package com.epic.cms.service;
 import com.epic.cms.repository.CRIBFileRepo;
 import com.epic.cms.util.Configurations;
 import com.epic.cms.util.LogManager;
+import lombok.extern.slf4j.Slf4j;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Propagation;
@@ -13,20 +16,18 @@ import java.util.Calendar;
 import java.util.Date;
 import java.util.LinkedHashMap;
 
-import static com.epic.cms.util.LogManager.infoLogger;
-import static com.epic.cms.util.LogManager.errorLogger;
 
 @Service
 public class CRIBFileService {
 
+    private static final Logger logInfo = LoggerFactory.getLogger("logInfo");
+    private static final Logger logError = LoggerFactory.getLogger("logError");
     @Autowired
     LogManager logManager;
-
     @Autowired
     CRIBFileRepo cribFileRepo;
-
-    private int[] cardCount;
     LinkedHashMap summery = new LinkedHashMap();
+    private int[] cardCount;
 
     @Transactional(value = "transactionManager", propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
     public void startCribFileProcess() throws Exception {
@@ -54,7 +55,7 @@ public class CRIBFileService {
                     try {
                         cardCount = cribFileRepo.callStoredProcedureCribFileGeneration();
                     } catch (Exception ex) {
-                        logManager.logError("CRIB file process exception for stored procedure", ex, errorLogger);
+                        logError.error("CRIB file process exception for stored procedure", ex);
                         throw ex;
                     }
                 } else {
@@ -63,10 +64,10 @@ public class CRIBFileService {
 
             } catch (Exception e) {
                 Configurations.IS_PROCESS_COMPLETELY_FAILED = true;
-                logManager.logError("Failed crib file process:", e, errorLogger);
+                logError.error("Failed crib file process:", e);
             } finally {
                 addSummaries();
-                logManager.logSummery(summery, infoLogger);
+                logInfo.info(logManager.logSummery(summery));
             }
         }
     }

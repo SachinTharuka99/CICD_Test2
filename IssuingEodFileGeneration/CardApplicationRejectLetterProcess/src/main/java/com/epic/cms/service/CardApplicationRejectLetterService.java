@@ -14,15 +14,15 @@ import com.epic.cms.repository.CommonFileGenProcessRepo;
 import com.epic.cms.repository.CommonRepo;
 import com.epic.cms.util.Configurations;
 import com.epic.cms.util.LogManager;
+import lombok.extern.slf4j.Slf4j;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
-
-import static com.epic.cms.util.LogManager.errorLogger;
-import static com.epic.cms.util.LogManager.errorLoggerEFGE;
 
 @Service
 public class CardApplicationRejectLetterService {
@@ -41,6 +41,10 @@ public class CardApplicationRejectLetterService {
 
     @Autowired
     LogManager logManager;
+
+    private static final Logger logInfo = LoggerFactory.getLogger("logInfo");
+    private static final Logger logError = LoggerFactory.getLogger("logError");
+
 
     @Transactional(value="transactionManager",propagation = Propagation.REQUIRED,rollbackFor = Exception.class)
     public String[] processCardApplicationReject(String aplicationId, int sequenceNo) throws Exception {
@@ -72,7 +76,7 @@ public class CardApplicationRejectLetterService {
             errorBean.setIsProcessFails(0);
 
             Configurations.PROCESS_FAILD_COUNT++;
-            logManager.logError("Card Application Rejected Letter Process Failed " +  e, errorLoggerEFGE);
+            logError.error("Card Application Rejected Letter Process Failed " +  e);
 
         }
         return fileNameAndPath;

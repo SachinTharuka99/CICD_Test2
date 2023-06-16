@@ -15,6 +15,9 @@ import com.epic.cms.util.CommonMethods;
 import com.epic.cms.util.Configurations;
 import com.epic.cms.util.LogManager;
 import com.epic.cms.util.StatusVarList;
+import lombok.extern.slf4j.Slf4j;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.scheduling.concurrent.ThreadPoolTaskExecutor;
@@ -24,27 +27,22 @@ import java.util.ArrayList;
 import java.util.LinkedHashMap;
 import java.util.List;
 
-import static com.epic.cms.util.LogManager.errorLogger;
-import static com.epic.cms.util.LogManager.infoLogger;
 
 @Service
 public class FeePostConnector extends ProcessBuilder {
+    private static final Logger logInfo = LoggerFactory.getLogger("logInfo");
+    private static final Logger logError = LoggerFactory.getLogger("logError");
     @Autowired
     LogManager logManager;
-
     @Autowired
     @Qualifier("ThreadPool_100")
     ThreadPoolTaskExecutor taskExecutor;
-
     @Autowired
     StatusVarList status;
-
     @Autowired
     FeePostRepo feePostRepo;
-
     @Autowired
     FeePostService feePostService;
-
     List<OtbBean> custAccList = new ArrayList<>();
 
     @Override
@@ -86,15 +84,15 @@ public class FeePostConnector extends ProcessBuilder {
                 int success = feePostRepo.expireFeePromotionProfile();
                 details.put("Fee promotion profile expire success for : " + success, "Finished");
             } catch (Exception ex) {
-                logManager.logError("Fee post process failed when expiring the fee promotion profile ", ex, errorLogger);
+                logError.error("Fee post process failed when expiring the fee promotion profile ", ex);
                 details.put("Fee promotion profile expire ", "Failed");
             }
         } catch (Exception ex) {
             Configurations.IS_PROCESS_COMPLETELY_FAILED = true;
-            logManager.logError("--Error occurred--", ex, errorLogger);
+            logError.error("--Error occurred--", ex);
         } finally {
-            logManager.logDetails(details, infoLogger);
-            logManager.logSummery(summery, infoLogger);
+            logInfo.info(logManager.logDetails(details));
+            logInfo.info(logManager.logSummery(summery));
              /* PADSS Change -
             variables handling card data should be nullified by replacing the value of variable with zero and call NULL function */
             for (OtbBean bean : custAccList) {

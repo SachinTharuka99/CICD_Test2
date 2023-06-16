@@ -11,6 +11,9 @@ import com.epic.cms.repository.EODEngineProducerRepo;
 import com.epic.cms.service.EODEngineMainService;
 import com.epic.cms.service.KafkaMessageUpdator;
 import com.epic.cms.util.*;
+import lombok.extern.slf4j.Slf4j;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -35,6 +38,12 @@ public class EODEngineHandler {
     @Autowired
     KafkaMessageUpdator kafkaMessageUpdator;
 
+    @Autowired
+    LogManager logManager;
+
+    private static final Logger logInfo = LoggerFactory.getLogger("logInfo");
+    private static final Logger logError = LoggerFactory.getLogger("logError");
+
     @GetMapping("/start")
     public Map<String, Object> startEODEngine() throws Exception {
         Map<String, Object> response = new HashMap<>();
@@ -43,7 +52,7 @@ public class EODEngineHandler {
         try {
             eodId =producerRepo.getNextRunningEodId();
             String EodIdString = String.valueOf(eodId);
-            LogManager.processStartEndStyle("EOD-Engine Start for EODID:" + eodId);
+            logInfo.info(logManager.processStartEndStyle("EOD-Engine Start for EODID:" + eodId));
             Configurations.STARTING_EOD_STATUS = producerRepo.getEODStatusFromEODID(EodIdString)
                     .stream()
                     .findFirst()

@@ -22,9 +22,6 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.util.Date;
 
-import static com.epic.cms.util.LogManager.errorLoggerCOM;
-import static com.epic.cms.util.LogManager.infoLoggerCOM;
-
 @Repository
 public class InitialEodIdRepo implements InitialEodIdDao {
 

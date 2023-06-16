@@ -19,6 +19,9 @@ import com.epic.cms.util.CommonMethods;
 import com.epic.cms.util.Configurations;
 import com.epic.cms.util.LogManager;
 import com.epic.cms.util.StatusVarList;
+import lombok.extern.slf4j.Slf4j;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.scheduling.concurrent.ThreadPoolTaskExecutor;
@@ -30,30 +33,23 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
-import static com.epic.cms.util.LogManager.errorLogger;
-import static com.epic.cms.util.LogManager.infoLogger;
-
 
 @Service
 public class CardRenewConnector extends ProcessBuilder {
+    private static final Logger logInfo = LoggerFactory.getLogger("logInfo");
+    private static final Logger logError = LoggerFactory.getLogger("logError");
     @Autowired
     CardRenewService cardRenewService;
-
     @Autowired
     CardRenewDao cardRenewDao;
-
     @Autowired
     CommonRepo commonRepo;
-
     @Autowired
     StatusVarList statusVarList;
-
     @Autowired
     CardRenewRepo cardRenewRepo;
-
     @Autowired
     LogManager logManager;
-
     @Autowired
     @Qualifier("ThreadPool_100")
     ThreadPoolTaskExecutor taskExecutor;
@@ -62,38 +58,39 @@ public class CardRenewConnector extends ProcessBuilder {
     int noOfEarlyRenewals = 0;
     int noOfNormalRenewals = 0;
     int NoOfFailCards = 0;
+
     /**
- * @author  Malinda_R
- * @since   2016-10-12
- *
- ********************************************************************************
- *
- *  This will renew all cards which are having approval for renewal process.
- *  For this purpose, picked up the cards from backend database( card table) , which are
- *  in renewal threshhold period.
- *
- *  If there are cards in renewal threshhold period,
- *   1.insert those cards into renewal table.(with the status - RNIN) - by eod
- *
- *   2.Once early renewal request comes,that card also inserted into
- the renewal table by the web users(with the status - RNAC) - by web users
- *                                                                              *
- *   3.then backend users will give approval for those cards(Status with RNIN) in renewal table
- *     (Status change as RNAC)- by web users
- *                                                                              *
- *   4.In next eod it will pickup all card which have the approval(status - RNAC)
- and calculate new expiry date and update only card table and back end card table
- *
- *   4.exp date calculation -
- -> early renew --> exp date=current date+validity period
- *       -> normal renew --> exp date=current exp date+validity period
- *
- * ----NOTE----
- * When insert to card renewal tble, it will only inserted which are not in the
- renewal table with the status all status. So that this card renewal table
- should flush atleast within 4 years.
- ********************************************************************************
- */
+     * @author Malinda_R
+     * @since 2016-10-12
+     * <p>
+     * *******************************************************************************
+     * <p>
+     * This will renew all cards which are having approval for renewal process.
+     * For this purpose, picked up the cards from backend database( card table) , which are
+     * in renewal threshhold period.
+     * <p>
+     * If there are cards in renewal threshhold period,
+     * 1.insert those cards into renewal table.(with the status - RNIN) - by eod
+     * <p>
+     * 2.Once early renewal request comes,that card also inserted into
+     * the renewal table by the web users(with the status - RNAC) - by web users
+     * *
+     * 3.then backend users will give approval for those cards(Status with RNIN) in renewal table
+     * (Status change as RNAC)- by web users
+     * *
+     * 4.In next eod it will pickup all card which have the approval(status - RNAC)
+     * and calculate new expiry date and update only card table and back end card table
+     * <p>
+     * 4.exp date calculation -
+     * -> early renew --> exp date=current date+validity period
+     * -> normal renew --> exp date=current exp date+validity period
+     * <p>
+     * ----NOTE----
+     * When insert to card renewal tble, it will only inserted which are not in the
+     * renewal table with the status all status. So that this card renewal table
+     * should flush atleast within 4 years.
+     * *******************************************************************************
+     */
 
     @Override
     public void concreteProcess() throws Exception {
@@ -142,13 +139,13 @@ public class CardRenewConnector extends ProcessBuilder {
                 if (approvedCardBeanList.size() != 0) {
                     /**iterate card list one by one*/
                     for (CardRenewBean CRBean : approvedCardBeanList) {
-                        cardRenewService.cardRenewProcess(CRBean,noOfEarlyRenewals,noOfNormalRenewals,NoOfFailCards);
+                        cardRenewService.cardRenewProcess(CRBean, noOfEarlyRenewals, noOfNormalRenewals, NoOfFailCards);
                     }
                 }
             }
         } catch (Exception e) {
             Configurations.IS_PROCESS_COMPLETELY_FAILED = true;
-            logManager.logStartEnd("Card Renew Process Fails", infoLogger);
+            logInfo.info(logManager.logStartEnd("Card Renew Process Fails"));
 
             try {
                 if (processBean.getCriticalStatus() == 1) {
@@ -158,20 +155,20 @@ public class CardRenewConnector extends ProcessBuilder {
                     Configurations.MAIN_EOD_STATUS = false;
                 }
             } catch (Exception e2) {
-                logManager.logError("", e2, errorLogger);
+                logError.error("", e2);
             }
 
         } finally {
-            logManager.logSummery(summery, infoLogger);
+            logInfo.info(logManager.logSummery(summery));
             try {
                 int NoOfFailCards = Configurations.PROCESS_FAILD_COUNT;
                 if (approvedCardBeanList.size() == 0) {
-                    logManager.logInfo("No Cards in Aprroved List", infoLogger);
+                    logInfo.info("No Cards in Aprroved List");
                 }
 
-                Configurations.PROCESS_TOTAL_NOOF_TRABSACTIONS=approvedCardBeanList.size();
-                Configurations.PROCESS_SUCCESS_COUNT=(approvedCardBeanList.size()-NoOfFailCards);
-                Configurations.PROCESS_FAILD_COUNT=NoOfFailCards;
+                Configurations.PROCESS_TOTAL_NOOF_TRABSACTIONS = approvedCardBeanList.size();
+                Configurations.PROCESS_SUCCESS_COUNT = (approvedCardBeanList.size() - NoOfFailCards);
+                Configurations.PROCESS_FAILD_COUNT = NoOfFailCards;
 
                 if (approvedCardBeanList != null && approvedCardBeanList.size() != 0) {
                     /* PADSS Change -
@@ -182,7 +179,7 @@ public class CardRenewConnector extends ProcessBuilder {
                     approvedCardBeanList = null;
                 }
             } catch (Exception e2) {
-                logManager.logError("", e2,errorLogger);
+                logError.error("", e2);
             }
         }
     }

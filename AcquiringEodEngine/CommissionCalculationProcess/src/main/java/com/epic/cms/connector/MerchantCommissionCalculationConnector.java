@@ -15,6 +15,9 @@ import com.epic.cms.service.MerchantCommissionCalculationService;
 import com.epic.cms.util.CommonMethods;
 import com.epic.cms.util.Configurations;
 import com.epic.cms.util.LogManager;
+import lombok.extern.slf4j.Slf4j;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.scheduling.concurrent.ThreadPoolTaskExecutor;
@@ -23,7 +26,6 @@ import org.springframework.stereotype.Service;
 import java.util.ArrayList;
 import java.util.List;
 
-import static com.epic.cms.util.LogManager.*;
 
 @Service
 public class MerchantCommissionCalculationConnector extends ProcessBuilder {
@@ -43,6 +45,9 @@ public class MerchantCommissionCalculationConnector extends ProcessBuilder {
 
     @Autowired
     MerchantCommissionCalculationRepo commissionCalculationRepo;
+
+    private static final Logger logInfo = LoggerFactory.getLogger("logInfo");
+    private static final Logger logError = LoggerFactory.getLogger("logError");
 
     List<MerchantLocationBean> merchantList = new ArrayList<>();
     int merchantCount = 0;
@@ -70,10 +75,10 @@ public class MerchantCommissionCalculationConnector extends ProcessBuilder {
             Configurations.PROCESS_SUCCESS_COUNT = (merchantCount - Configurations.PROCESS_FAILD_COUNT);
 
         } catch (Exception e) {
-            logManager.logStartEnd("Commission Calculation Process Terminated Because of Error", infoLogger);
-            logManager.logError("Commission Calculation Process Terminated Because of Error", e, errorLogger);
+            logInfo.info(logManager.logStartEnd("Commission Calculation Process Terminated Because of Error"));
+            logError.error("Commission Calculation Process Terminated Because of Error", e);
         } finally {
-            logManager.logSummery(summery, infoLogger);
+            logInfo.info(logManager.logSummery(summery));
         }
     }
 

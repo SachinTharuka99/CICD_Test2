@@ -1,44 +1,36 @@
 package com.epic.cms.repository;
 
 import com.epic.cms.dao.AtmCashAdvanceUpdateDao;
-import com.epic.cms.util.*;
+import com.epic.cms.util.Configurations;
+import com.epic.cms.util.DateUtil;
+import com.epic.cms.util.QueryParametersList;
+import com.epic.cms.util.StatusVarList;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.core.namedparam.MapSqlParameterSource;
 import org.springframework.jdbc.core.namedparam.SqlParameterSource;
 import org.springframework.jdbc.core.simple.SimpleJdbcCall;
 import org.springframework.stereotype.Repository;
-import org.springframework.transaction.annotation.Isolation;
-import org.springframework.transaction.annotation.Propagation;
-import org.springframework.transaction.annotation.Transactional;
 
 import java.math.BigDecimal;
 import java.sql.SQLException;
 import java.util.Map;
-import static com.epic.cms.util.LogManager.errorLogger;
+
 @Repository
 public class AtmCashAdvanceUpdateRepo implements AtmCashAdvanceUpdateDao {
 
     @Autowired
-    private JdbcTemplate backendJdbcTemplate;
-
-    @Autowired
-    private JdbcTemplate onlineJdbcTemplate;
-
-    @Autowired
     QueryParametersList queryParametersList;
-
     @Autowired
     StatusVarList status;
-
     @Autowired
-    LogManager logManager;
+    private JdbcTemplate backendJdbcTemplate;
 
     @Override
     public int[] callStoredProcedureForCashAdvUpdate() throws SQLException {
         int output;
 
-        int txnCounts[] = new int[4];
+        int[] txnCounts = new int[4];
         int failCount = -1;
         int totalCount = -1;
         int isProcessError = -1;
@@ -57,7 +49,7 @@ public class AtmCashAdvanceUpdateRepo implements AtmCashAdvanceUpdateDao {
                     .addValue("NUMBEROFTXN", totalCount)
                     .addValue("FAILTXNCOUNT", failCount)
                     .addValue("ISPROCESSERROR", isProcessError);
-            Map<String, Object> out =  simpleJdbcCall.execute(in);
+            Map<String, Object> out = simpleJdbcCall.execute(in);
 
             BigDecimal out1 = (BigDecimal) out.get("OUTPUTDATA");
             BigDecimal out2 = (BigDecimal) out.get("NUMBEROFTXN");
@@ -68,7 +60,7 @@ public class AtmCashAdvanceUpdateRepo implements AtmCashAdvanceUpdateDao {
             totalCount = out2.intValue();
             failCount = out3.intValue();
             isProcessError = out4.intValue();//0:process success, 1: process error
-            Configurations.IS_PROCESS_ERROR = ((isProcessError == 0) ? false : true);
+            Configurations.IS_PROCESS_ERROR = (isProcessError != 0);
 
             txnCounts[0] = (totalCount - failCount);
             txnCounts[1] = failCount;
@@ -83,10 +75,9 @@ public class AtmCashAdvanceUpdateRepo implements AtmCashAdvanceUpdateDao {
                     throw new SQLException();
             }
 
-        }catch (SQLException e){
+        } catch (SQLException e) {
             throw e;
         } catch (Exception ex) {
-            logManager.logError("Call StoredProcedure For CashAdvUpdate Error", errorLogger);
             throw ex;
         }
     }

@@ -23,7 +23,6 @@ import java.math.BigDecimal;
 import java.sql.SQLException;
 import java.util.Map;
 
-import static com.epic.cms.util.LogManager.errorLogger;
 
 @Repository
 public class MerchantPaymentRepo implements MerchantPaymentDao {
@@ -32,9 +31,6 @@ public class MerchantPaymentRepo implements MerchantPaymentDao {
 
     @Autowired
     private JdbcTemplate backendJdbcTemplate;
-
-    @Autowired
-    LogManager logManager;
 
     @Override
     public int[] callStoredProcedureForEodMerchantPayment() throws SQLException {
@@ -89,10 +85,8 @@ public class MerchantPaymentRepo implements MerchantPaymentDao {
             }
 
         } catch (SQLException e){
-            logManager.logError(String.valueOf(e),errorLogger);
             throw e;
         } catch (Exception ex) {
-            logManager.logError("Call StoredProcedure For EodMerchantPayment Error", errorLogger);
             throw ex;
         }
     }

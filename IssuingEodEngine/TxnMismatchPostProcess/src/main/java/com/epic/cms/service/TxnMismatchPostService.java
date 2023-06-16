@@ -7,15 +7,14 @@ import com.epic.cms.util.CardAccount;
 import com.epic.cms.util.CommonMethods;
 import com.epic.cms.util.Configurations;
 import com.epic.cms.util.LogManager;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
 import java.util.LinkedHashMap;
-
-import static com.epic.cms.util.LogManager.infoLogger;
-import static com.epic.cms.util.LogManager.errorLogger;
 
 @Service
 public class TxnMismatchPostService {
@@ -25,6 +24,9 @@ public class TxnMismatchPostService {
 
     @Autowired
     CommonRepo commonRepo;
+
+    private static final Logger logInfo = LoggerFactory.getLogger("logInfo");
+    private static final Logger logError = LoggerFactory.getLogger("logError");
 
     @Async("taskExecutor2")
     public void processTxnMismatch(ArrayList<OtbBean> txnList, OtbBean bean, int iterator) throws Exception {
@@ -90,15 +92,15 @@ public class TxnMismatchPostService {
                         Configurations.PROCESS_SUCCESS_COUNT++;
                     } catch (Exception ex) {
                         Configurations.errorCardList.add(new ErrorCardBean(Configurations.ERROR_EOD_ID, Configurations.EOD_DATE, cardBean.getCardnumber(), ex.getMessage(), Configurations.RUNNING_PROCESS_ID, Configurations.RUNNING_PROCESS_DESCRIPTION, 0, CardAccount.CARD));
-                        logManager.logError("Transaction mismatch post process failed for account " + bean.getAccountnumber(), ex, errorLogger);
+                        logError.error("Transaction mismatch post process failed for account " + bean.getAccountnumber(), ex);
                         failedCount++;
                         Configurations.PROCESS_FAILD_COUNT++;
                     }
                 }
             } catch (Exception e) {
-                logManager.logError("Transaction mismatch post process failed", e, errorLogger);
+                logError.error("Transaction mismatch post process failed", e);
             } finally {
-                logManager.logDetails(details, infoLogger);
+                logInfo.info(logManager.logDetails(details));
             }
             Configurations.failedCount_TxnMisMatchProcess = failedCount;
         }

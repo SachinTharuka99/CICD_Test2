@@ -34,12 +34,9 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
-import static com.epic.cms.util.LogManager.*;
 
 @Repository
 public class MasterFileClearingRepo implements MasterFileClearingDao {
-    @Autowired
-    LogManager logManager;
 
     @Autowired
     QueryParametersList queryParametersList;
@@ -65,7 +62,6 @@ public class MasterFileClearingRepo implements MasterFileClearingDao {
                 return false;
             }
         } catch (Exception ex) {
-            logManager.logError(ex.toString(),errorLoggerEFPE);
             return false;
         }
     }
@@ -86,7 +82,6 @@ public class MasterFileClearingRepo implements MasterFileClearingDao {
             );
             return fileNames;
         } catch (Exception ex) {
-            logManager.logError(ex.getMessage(),errorLoggerEFPE);
             return null;
         }
     }
@@ -125,7 +120,6 @@ public class MasterFileClearingRepo implements MasterFileClearingDao {
             );
 
         } catch (EmptyResultDataAccessException ex) {
-            logManager.logError(ex.getMessage(),errorLoggerEFPE);
         } catch (Exception ex) {
             throw ex;
         }

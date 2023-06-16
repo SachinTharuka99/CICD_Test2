@@ -15,7 +15,10 @@ import com.epic.cms.util.CommonMethods;
 import com.epic.cms.util.Configurations;
 import com.epic.cms.util.LogManager;
 import com.epic.cms.util.StatusVarList;
+import lombok.extern.slf4j.Slf4j;
 import org.jpos.iso.ISOUtil;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -41,11 +44,15 @@ public class ExposureFileConnector extends FileGenProcessBuilder {
 
     List<ExposureFileBean> exposureFileDetails;
 
+    private static final Logger logInfo = LoggerFactory.getLogger("logInfo");
+    private static final Logger logError = LoggerFactory.getLogger("logError");
+
+
     @Override
     public void concreteProcess() throws Exception {
         try {
-            logManager.logStartEnd("Exposure File Process", infoLoggerEFGE);
-            logManager.logStartEnd("Exposure File Process Started", infoLoggerEFGE);
+            logInfo.info(logManager.logStartEnd("Exposure File Process"));
+            logInfo.info(logManager.logStartEnd("Exposure File Process Started"));
 
             Configurations.RUNNING_PROCESS_ID = Configurations.PROCESS_EXPOSURE_FILE;
             CommonMethods.eodDashboardProgressParametersReset();
@@ -80,18 +87,18 @@ public class ExposureFileConnector extends FileGenProcessBuilder {
                         Configurations.PROCESS_SUCCESS_COUNT++;
                     } catch (Exception e) {
                         Configurations.PROCESS_FAILD_COUNT++;
-                        logManager.logError("Exception in File generating ", e, errorLoggerEFGE);
+                        logError.error("Exception in File generating ", e);
                     }
                 }
                 fileGenerationService.generateFile( fileContent.toString(), filePath, backUpFilePath);
-                logManager.logInfo(" Successfully Created Exposure File in: " + filePath, infoLogger);
+               logError.error(" Successfully Created Exposure File in: " + filePath);
             } catch (Exception e) {
-                logManager.logError("Exposure File Gen Process Failed", e, errorLoggerEFGE);
+                logError.error("Exposure File Gen Process Failed", e);
             }
         } catch (Exception e) {
-            logManager.logError("Exposure File Process Failed", e, errorLoggerEFGE);
+            logError.error("Exposure File Process Failed", e);
         } finally {
-            logManager.logSummery(summery, infoLoggerEFGE);
+            logInfo.info(logManager.logSummery(summery));
         }
     }
 

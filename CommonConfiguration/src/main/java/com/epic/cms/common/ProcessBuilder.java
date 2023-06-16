@@ -10,14 +10,15 @@ import com.epic.cms.service.KafkaMessageUpdator;
 import com.epic.cms.util.Configurations;
 import com.epic.cms.util.LogManager;
 import com.epic.cms.util.StatusVarList;
+import lombok.extern.slf4j.Slf4j;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import java.text.SimpleDateFormat;
 import java.util.*;
 
-import static com.epic.cms.util.LogManager.infoLogger;
-import static com.epic.cms.util.LogManager.errorLogger;
 
 public abstract class ProcessBuilder {
 
@@ -35,6 +36,9 @@ public abstract class ProcessBuilder {
     public String processHeader = "Define Process";
     public String StartEodStatus = null;
     public int hasErrorEODandProcess = 0;
+
+    private static final Logger logInfo = LoggerFactory.getLogger("logInfo");
+    private static final Logger logError = LoggerFactory.getLogger("logError");
 
     @Autowired
     KafkaMessageUpdator kafkaMessageUpdator;
@@ -85,8 +89,8 @@ public abstract class ProcessBuilder {
             }
 
             if (hasErrorEODandProcess == 1 && processBean != null || hasErrorEODandProcess == 0 && processBean != null) {
-                logManager.logHeader(processHeader, infoLogger);
-                logManager.logStartEnd(startHeader, infoLogger);
+                logInfo.info(logManager.logHeader(processHeader));
+                logInfo.info(logManager.logStartEnd(startHeader));
                 commonRepo.insertToEodProcessSumery(processId);
                 /**
                  * Abstract method call.
@@ -109,24 +113,24 @@ public abstract class ProcessBuilder {
 
         } catch (FailedCardException ex) {
             System.out.println(" --------------------- Failed card exception 1------------------");
-            logManager.logStartEnd(failedHeader, infoLogger);
-            logManager.logError(failedHeader, ex, errorLogger);
+            logInfo.info(logManager.logStartEnd(failedHeader));
+            logInfo.error(failedHeader);
             commonRepo.updateEodProcessSummery(Configurations.ERROR_EOD_ID, "EROR", processId, Configurations.PROCESS_SUCCESS_COUNT, Configurations.PROCESS_FAILD_COUNT, eodDashboardProcessProgress(Configurations.PROCESS_SUCCESS_COUNT, Configurations.PROCESS_TOTAL_NOOF_TRABSACTIONS));
         } catch (Exception ex) {
             System.out.println(" --------------------- Failed card exception 2------------------");
-            logManager.logStartEnd(failedHeader, infoLogger);
-            logManager.logError(failedHeader, ex, errorLogger);
+            logInfo.info(logManager.logStartEnd(failedHeader));
+            logInfo.error(failedHeader);
             //add updateeodprocesssummary
 //            if (ex instanceof FailedCardException) {
 //                commonRepo.updateEodProcessSummery(Configurations.ERROR_EOD_ID, statusVarList.getERROR_STATUS(), processId, Configurations.PROCESS_SUCCESS_COUNT, Configurations.PROCESS_FAILD_COUNT, eodDashboardProcessProgress(Configurations.PROCESS_SUCCESS_COUNT, Configurations.PROCESS_TOTAL_NOOF_TRABSACTIONS));
 //            }
         } finally {
             addSummaries();
-            logManager.logSummery(summery, infoLogger);
+            logInfo.info(logManager.logSummery(summery));
             kafkaMessageUpdator.producerWithNoReturn("true", "processStatus");
             kafkaMessageUpdator.producerWithNoReturn(!Configurations.IS_PROCESS_COMPLETELY_FAILED, "eodEngineConsumerStatus");
             System.out.println("Send the process success status");
-            logManager.logStartEnd(completedHeader, infoLogger);
+            logInfo.info(logManager.logStartEnd(completedHeader));
             commonRepo.updateEODProcessCount(Configurations.eodUniqueId);
         }
     }

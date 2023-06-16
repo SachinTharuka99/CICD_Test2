@@ -26,7 +26,6 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
-import static com.epic.cms.util.LogManager.errorLogger;
 
 @Repository
 public class MerchantFeeRepo implements MerchantFeeDao {
@@ -35,9 +34,6 @@ public class MerchantFeeRepo implements MerchantFeeDao {
 
     @Autowired
     private JdbcTemplate backendJdbcTemplate;
-
-    @Autowired
-    LogManager logManager;
 
     @Override
     public List<MerchantFeeBean> getMerchantFeeCountList() throws Exception {
@@ -74,7 +70,6 @@ public class MerchantFeeRepo implements MerchantFeeDao {
                     statusList.getEOD_PENDING_STATUS()
             );
         } catch (Exception e) {
-            logManager.logError("Get Merchant Fee Count List Error", errorLogger);
             throw e;
         }
         return merchantFeeCountList;
@@ -99,7 +94,6 @@ public class MerchantFeeRepo implements MerchantFeeDao {
                     Configurations.EOD_USER
             );
         } catch (Exception e) {
-            logManager.logError("Insert To EOD Merchant Fee Error", errorLogger);
             throw e;
         }
     }
@@ -115,7 +109,6 @@ public class MerchantFeeRepo implements MerchantFeeDao {
                     merchantFeeBean.getFeeCode()
             );
         } catch (Exception e) {
-            logManager.logError("Update Merchant Feecount Error", errorLogger);
             throw e;
         }
     }
@@ -155,7 +148,6 @@ public class MerchantFeeRepo implements MerchantFeeDao {
             );
 
         } catch (Exception e) {
-            logManager.logError("Insert Error EOD Merchant Error", errorLogger);
             throw e;
         }
         return count;
@@ -184,7 +176,6 @@ public class MerchantFeeRepo implements MerchantFeeDao {
         } catch (EmptyResultDataAccessException ex) {
             return merchantCusDetails;
         } catch (Exception ex) {
-            logManager.logError("Get MerchanCus Details Error", errorLogger);
             throw ex;
         }
         return merchantCusDetails;

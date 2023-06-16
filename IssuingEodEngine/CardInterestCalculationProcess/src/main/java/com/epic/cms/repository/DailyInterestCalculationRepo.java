@@ -29,7 +29,6 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.Objects;
 
-import static com.epic.cms.util.LogManager.errorLogger;
 
 @Repository
 public class DailyInterestCalculationRepo implements DailyInterestCalculationDao {
@@ -39,9 +38,6 @@ public class DailyInterestCalculationRepo implements DailyInterestCalculationDao
 
     @Autowired
     private JdbcTemplate backendJdbcTemplate;
-
-    @Autowired
-    LogManager logManager;
 
     @Override
     public ArrayList<StatementBean> getLatestStatementAccountList() throws Exception {
@@ -65,7 +61,6 @@ public class DailyInterestCalculationRepo implements DailyInterestCalculationDao
                     }),
                     statusList.getCARD_CLOSED_STATUS()); //CACL
         } catch (Exception e) {
-            logManager.logError("Get Latest Statement AccountList Error ", errorLogger);
             throw e;
         }
         return accountList;
@@ -90,7 +85,6 @@ public class DailyInterestCalculationRepo implements DailyInterestCalculationDao
             ));
 
         } catch (Exception e) {
-            logManager.logError("Get IntProf Error ", errorLogger);
             throw e;
         }
         return interestDetailBean;
@@ -189,7 +183,6 @@ public class DailyInterestCalculationRepo implements DailyInterestCalculationDao
                     lastBillEndEodId
             );
         } catch (Exception e) {
-            logManager.logError("Get Txn Or Payment Detail ByAccount Error ", errorLogger);
             throw e;
         }
         return txnList;
@@ -236,7 +229,6 @@ public class DailyInterestCalculationRepo implements DailyInterestCalculationDao
         } catch (EmptyResultDataAccessException ex) {
             return 0;
         } catch (Exception e) {
-            logManager.logError("Update EodInterest Error ", errorLogger);
             throw e;
         }
         return count;

@@ -26,8 +26,6 @@ public class LoyaltyPointsCalculationRepo implements LoyaltyPointsCalculationDao
     StatusVarList statusList;
     @Autowired
     private JdbcTemplate backendJdbcTemplate;
-    @Autowired
-    private JdbcTemplate onlineJdbcTemplate;
 
     @Override
     @Transactional("backendDb")

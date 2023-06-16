@@ -16,7 +16,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.core.RowMapperResultSetExtractor;
 import org.springframework.stereotype.Repository;
-import org.springframework.transaction.annotation.Transactional;
 
 import java.sql.ResultSet;
 import java.util.ArrayList;
@@ -27,12 +26,6 @@ public class CashBackFileGenRepo implements CashBackFileGenDao {
 
     @Autowired
     private JdbcTemplate backendJdbcTemplate;
-
-    @Autowired
-    private StatusVarList statusVarList;
-
-    @Autowired
-    LogManager logManager;
 
     @Override
     public ArrayList<GlAccountBean> getCahsBackRedeemList() throws Exception {

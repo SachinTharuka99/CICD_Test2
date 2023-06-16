@@ -12,12 +12,16 @@ import com.epic.cms.dao.MasterFileClearingDao;
 import com.epic.cms.model.bean.FileBean;
 import com.epic.cms.service.MasterFileClearingService;
 import com.epic.cms.util.*;
+import lombok.extern.slf4j.Slf4j;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-import static com.epic.cms.util.LogManager.*;
 
 @Service
 public class MasterFileClearingConnector extends FileProcessingProcessBuilder {
+    private static final Logger logInfo = LoggerFactory.getLogger("logInfo");
+    private static final Logger logError = LoggerFactory.getLogger("logError");
     @Autowired
     MasterFileClearingService masterFileClearingService;
     @Autowired
@@ -56,16 +60,16 @@ public class MasterFileClearingConnector extends FileProcessingProcessBuilder {
                 masterFileClearingService.processFile(fileBean);
             } else {
                 //file cannot proceed due to invalid status
-                logManager.logError("Cannot read, Master file " + fileId + " is not in the initial status", errorLoggerEFPE);
+                logError.error("Cannot read, Master file " + fileId + " is not in the initial status");
             }
 
         } catch (Exception ex) {
-            logManager.logError("Master File clearing process failed for file " + fileId, ex, errorLoggerEFPE);
+            logError.error("Master File clearing process failed for file " + fileId, ex);
             //update file status to FEROR
             try {
                 masterFileClearingDao.updateFileStatus(fileId, DatabaseStatus.STATUS_FILE_ERROR);
             } catch (Exception e) {
-                logManager.logError("", e, errorLoggerEFPE);
+                logError.error("", e);
             }
         }
     }

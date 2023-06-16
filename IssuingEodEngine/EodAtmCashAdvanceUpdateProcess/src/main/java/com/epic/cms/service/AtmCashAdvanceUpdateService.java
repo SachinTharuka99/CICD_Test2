@@ -6,6 +6,9 @@ import com.epic.cms.util.CommonMethods;
 import com.epic.cms.util.Configurations;
 import com.epic.cms.util.LogManager;
 import com.epic.cms.util.StatusVarList;
+import lombok.extern.slf4j.Slf4j;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Propagation;
@@ -14,25 +17,21 @@ import org.springframework.transaction.annotation.Transactional;
 import java.sql.SQLException;
 import java.util.LinkedHashMap;
 
-import static com.epic.cms.util.LogManager.infoLogger;
-import static com.epic.cms.util.LogManager.errorLogger;
-
 @Service
-public class AtmCashAdvanceUpdateService{
+public class AtmCashAdvanceUpdateService {
 
+    private static final Logger logInfo = LoggerFactory.getLogger("logInfo");
+    private static final Logger logError = LoggerFactory.getLogger("logError");
     @Autowired
     AtmCashAdvanceUpdateRepo atmCashAdvanceUpdateRepo;
-
     @Autowired
     LogManager logManager;
-
     @Autowired
     StatusVarList status;
-
     @Autowired
     CommonRepo commonRepo;
 
-    @Transactional(value = "transactionManager", propagation = Propagation.REQUIRED,rollbackFor = Exception.class)
+    @Transactional(value = "transactionManager", propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
     public void startEodAtmCashAdvanceUpdate() throws Exception {
         try {
             CommonMethods.eodDashboardProgressParametersReset();
@@ -42,18 +41,18 @@ public class AtmCashAdvanceUpdateService{
             //call procedure TRANSACTIONSYNCPROC
             txnCounts = atmCashAdvanceUpdateRepo.callStoredProcedureForCashAdvUpdate();
 
-            Configurations.PROCESS_TOTAL_NOOF_TRABSACTIONS=txnCounts[2];
-            Configurations.PROCESS_SUCCESS_COUNT=txnCounts[0];
-            Configurations.PROCESS_FAILD_COUNT=txnCounts[1];
+            Configurations.PROCESS_TOTAL_NOOF_TRABSACTIONS = txnCounts[2];
+            Configurations.PROCESS_SUCCESS_COUNT = txnCounts[0];
+            Configurations.PROCESS_FAILD_COUNT = txnCounts[1];
 
             summery.put("Started Date", Configurations.EOD_DATE.toString());
             summery.put("No of Card effected", Configurations.PROCESS_TOTAL_NOOF_TRABSACTIONS);
             summery.put("No of Success Card ", Integer.toString(Configurations.PROCESS_SUCCESS_COUNT));
             summery.put("No of fail Card ", Configurations.PROCESS_FAILD_COUNT);
 
-            logManager.logSummery(summery, infoLogger);
+            logInfo.info(logManager.logSummery(summery));
         } catch (SQLException e) {
-            logManager.logError("ATM Cash Advance Update Process process failed ", e, errorLogger);
+            logError.error("ATM Cash Advance Update Process process failed ", e);
         }
     }
 

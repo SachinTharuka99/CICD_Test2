@@ -19,6 +19,9 @@ import com.epic.cms.util.CommonMethods;
 import com.epic.cms.util.Configurations;
 import com.epic.cms.util.LogManager;
 import com.epic.cms.util.StatusVarList;
+import lombok.extern.slf4j.Slf4j;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -28,26 +31,22 @@ import java.util.ArrayList;
 import java.util.Date;
 
 import static com.epic.cms.util.CommonMethods.validate;
-import static com.epic.cms.util.LogManager.*;
 
 @Service
 public class CashBackFileGenConnector extends FileGenProcessBuilder {
 
+    private static final Logger logInfo = LoggerFactory.getLogger("logInfo");
+    private static final Logger logError = LoggerFactory.getLogger("logError");
     @Autowired
     LogManager logManager;
-
     @Autowired
     StatusVarList statusVarList;
-
     @Autowired
     CommonFileGenProcessRepo commonFileGenProcessRepo;
-
     @Autowired
     CashBackFileGenRepo cashBackFileGenRepo;
-
     @Autowired
     CashBackFileGenService cashBackFileGenService;
-
     String filePathF1 = null, filePathF2 = null;
     int recordCount = 0;
     BigDecimal totalAmountBig = BigDecimal.valueOf(0.0);
@@ -69,7 +68,7 @@ public class CashBackFileGenConnector extends FileGenProcessBuilder {
             processBean = commonRepo.getProcessDetails(Configurations.PROCESS_ID_CASHBACK_FILE_GENERATION);
 
             if (processBean != null) {
-                logManager.logHeader(processHeader, infoLoggerEFGE);
+                logInfo.info(logManager.logHeader(processHeader));
 
                 Configurations.RUNNING_PROCESS_ID = Configurations.PROCESS_ID_CASHBACK_FILE_GENERATION;
                 CommonMethods.eodDashboardProgressParametersReset();
@@ -141,7 +140,7 @@ public class CashBackFileGenConnector extends FileGenProcessBuilder {
                                 headerCreditBig = headerCreditBig.add(cashBackRedeem);
                                 headerCreditCount++;
 
-                                String seqNo = "99" + Integer.toString(Configurations.EOD_ID) + validate(Integer.toString(noofBatches), 6, '0');
+                                String seqNo = "99" + Configurations.EOD_ID + validate(Integer.toString(noofBatches), 6, '0');
 
                                 content = cashBackFileGenService.addFirstFileContent(glAccountBean, cashBackRedeem, seqNo, today3, sdf5, nextWorkingDay);
 
@@ -167,8 +166,7 @@ public class CashBackFileGenConnector extends FileGenProcessBuilder {
 
                             toDeleteStatus = false;
                         } else {
-                            logManager.logInfo("Empty line in body. Hence No header section.", infoLoggerEFGE);
-                            logManager.logError("Empty line in body. Hence No header section.", errorLoggerEFGE);
+                            logInfo.info("Empty line in body. Hence No header section.");
                         }
 
                         EodOuputFileBean eodoutputfilebean2 = new EodOuputFileBean();
@@ -183,7 +181,7 @@ public class CashBackFileGenConnector extends FileGenProcessBuilder {
                         }
                     }
                 } catch (Exception e) {
-                    logManager.logError("Error while writing Cash back file--->", e, errorLoggerEFGE);
+                    logError.error("Error while writing Cash back file--->", e);
                 } finally {
                     if (toDeleteStatus) {
                         //delete first file
@@ -204,7 +202,7 @@ public class CashBackFileGenConnector extends FileGenProcessBuilder {
         } catch (Exception e) {
             try {
                 Configurations.IS_PROCESS_COMPLETELY_FAILED = true;
-                logManager.logError(processHeader + " process failed", e, errorLoggerEFGE);
+                logError.error(processHeader + " process failed", e);
                 commonRepo.updateEodProcessSummery(Configurations.EOD_ID, statusVarList.getERROR_STATUS(), Configurations.PROCESS_ID_CASHBACK_FILE_GENERATION, Configurations.PROCESS_SUCCESS_COUNT, Configurations.PROCESS_FAILD_COUNT, CommonMethods.eodDashboardProcessProgress(Configurations.PROCESS_SUCCESS_COUNT, Configurations.PROCESS_TOTAL_NOOF_TRABSACTIONS));
 
                 if (processBean.getCriticalStatus() == 1) {
@@ -214,10 +212,10 @@ public class CashBackFileGenConnector extends FileGenProcessBuilder {
                     Configurations.MAIN_EOD_STATUS = false;
                 }
             } catch (Exception ex) {
-                logManager.logError("Exception", ex, errorLoggerEFGE);
+                logError.error("Exception", ex);
             }
         } finally {
-            logManager.logSummery(summery, infoLoggerEFGE);
+            logInfo.info(logManager.logSummery(summery));
             if (cashBackList != null && cashBackList.size() != 0) {
                 //nullify cashBackList
                 for (GlAccountBean glAccountBean : cashBackList) {

@@ -14,6 +14,9 @@ import com.epic.cms.util.Configurations;
 import com.epic.cms.util.LogManager;
 import com.epic.cms.util.MerchantCustomer;
 import com.epic.cms.util.StatusVarList;
+import lombok.extern.slf4j.Slf4j;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
@@ -24,8 +27,6 @@ import java.math.BigDecimal;
 import java.math.MathContext;
 import java.util.LinkedHashMap;
 
-import static com.epic.cms.util.LogManager.errorLogger;
-import static com.epic.cms.util.LogManager.infoLogger;
 
 @Service
 public class MerchantEasyPaymentRequestService {
@@ -37,6 +38,10 @@ public class MerchantEasyPaymentRequestService {
 
     @Autowired
     MerchantEasyPaymentRequestRepo merchantEasyPaymentRequestRepo;
+
+    private static final Logger logInfo = LoggerFactory.getLogger("logInfo");
+    private static final Logger logError = LoggerFactory.getLogger("logError");
+
 
     @Async("taskExecutor2")
     @Transactional(value = "transactionManager", propagation = Propagation.REQUIRED,rollbackFor = Exception.class)
@@ -60,7 +65,7 @@ public class MerchantEasyPaymentRequestService {
                 } else {
                     rejectedTxn++;
                     Configurations.PROCESS_FAILD_COUNT++;
-                    logManager.logError("easypayment transaction min-max conditions failed for txnid: " + tranBean.getTxnId(), errorLogger);
+                    logError.error("easypayment transaction min-max conditions failed for txnid: " + tranBean.getTxnId());
                     tranBean.setFirstInstallmentAmount(getFirstInstallmentAmount(tranBean.getBackendTxnAmount(), tranBean.getDuration(), tranBean.getInterestRateOrFee(), tranBean.getProcessingFeeType(), tranBean.getFeeApplyInFirstMonth()));
                     tranBean.setNextInstallmentAmount(getNextInstallmentAmount(tranBean.getBackendTxnAmount(), tranBean.getDuration(), tranBean.getInterestRateOrFee(), tranBean.getProcessingFeeType(), tranBean.getFeeApplyInFirstMonth()));
                     merchantEasyPaymentRequestRepo.insertEasyPaymentRejectRequest(tranBean); // insert request as reject (RQRJ)
@@ -70,10 +75,9 @@ public class MerchantEasyPaymentRequestService {
                 Configurations.PROCESS_FAILD_COUNT++;
                 Configurations.merchantErrorList.add(new ErrorMerchantBean(Configurations.ERROR_EOD_ID, Configurations.EOD_DATE, tranBean.getMid(), e.getMessage(), Configurations.RUNNING_PROCESS_ID, Configurations.RUNNING_PROCESS_DESCRIPTION, 0, MerchantCustomer.MERCHANTLOCATION));
                 details.put("Process Status", "Failed");
-                logManager.logInfo(Configurations.RUNNING_PROCESS_DESCRIPTION + " failed for txnid " + tranBean.getTxnId(), infoLogger);
-                logManager.logError(Configurations.RUNNING_PROCESS_DESCRIPTION + " failed for txnid " + tranBean.getTxnId(), e, errorLogger);
+                logError.error(Configurations.RUNNING_PROCESS_DESCRIPTION + " failed for txnid " + tranBean.getTxnId(), e);
             } finally {
-                logManager.logDetails(details, infoLogger);
+                logInfo.info(logManager.logDetails(details));
             }
         }
     }

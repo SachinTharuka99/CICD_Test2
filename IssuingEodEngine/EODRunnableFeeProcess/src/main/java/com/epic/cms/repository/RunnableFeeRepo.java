@@ -1,10 +1,12 @@
 package com.epic.cms.repository;
 
 import com.epic.cms.dao.RunnableFeeDao;
-import com.epic.cms.model.bean.*;
+import com.epic.cms.model.bean.CardBean;
+import com.epic.cms.model.bean.CardFeeBean;
+import com.epic.cms.model.bean.CashAdvanceBean;
+import com.epic.cms.model.bean.LastStmtSummeryBean;
 import com.epic.cms.model.rowmapper.CashAdvanceRowMapper;
 import com.epic.cms.util.Configurations;
-import com.epic.cms.util.LogManager;
 import com.epic.cms.util.QueryParametersList;
 import com.epic.cms.util.StatusVarList;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -12,12 +14,6 @@ import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.core.RowMapper;
 import org.springframework.stereotype.Repository;
-import org.springframework.transaction.annotation.Isolation;
-import org.springframework.transaction.annotation.Propagation;
-import org.springframework.transaction.annotation.Transactional;
-
-import static com.epic.cms.util.LogManager.errorLogger;
-import static com.epic.cms.util.LogManager.infoLogger;
 
 import java.sql.Date;
 import java.sql.ResultSet;
@@ -29,19 +25,13 @@ import java.util.List;
 @Repository
 public class RunnableFeeRepo implements RunnableFeeDao {
     @Autowired
-    private JdbcTemplate backendJdbcTemplate;
-
-    @Autowired
     QueryParametersList queryParametersList;
-
     @Autowired
     StatusVarList status;
-
     @Autowired
     CommonRepo commonRepo;
-
     @Autowired
-    LogManager logManager;
+    private JdbcTemplate backendJdbcTemplate;
 
     @Override
     public List<CardBean> getAllActiveCards() throws Exception {
@@ -158,7 +148,7 @@ public class RunnableFeeRepo implements RunnableFeeDao {
                 forward = true;
             }
         } catch (EmptyResultDataAccessException e) {
-            logManager.logError("--fees not found--" + cardNumber,errorLogger);
+            return forward;
         } catch (Exception e) {
             throw e;
         }
@@ -202,7 +192,7 @@ public class RunnableFeeRepo implements RunnableFeeDao {
             String query = "SELECT NEXTBILLINGDATE FROM CARDACCOUNT WHERE CARDNUMBER = (SELECT MAINCARDNO FROM CARD WHERE CARDNUMBER =?)";
             nextBillingDate = backendJdbcTemplate.queryForObject(query, java.sql.Date.class, cardNo.toString());
         } catch (EmptyResultDataAccessException e) {
-            logManager.logError("--next billing date not found--",errorLogger);
+            return nextBillingDate;
         } catch (Exception e) {
             throw e;
         }
@@ -233,7 +223,7 @@ public class RunnableFeeRepo implements RunnableFeeDao {
                     new Object[]{cardNumber.toString(), feeCode, "CACL"}
             );
         } catch (EmptyResultDataAccessException e) {
-            logManager.logError("--fee profile not found--",errorLogger);
+            return cardFeeBean;
         } catch (Exception e) {
             throw e;
         }
@@ -308,9 +298,9 @@ public class RunnableFeeRepo implements RunnableFeeDao {
                     " AND EODID           <= ? " +
                     " AND STATUS NOT      IN (?) ";
             payment = backendJdbcTemplate.queryForObject(query, Double.class, accNo, Configurations.TXN_TYPE_PAYMENT, startEodId, endEodId, status.getCHEQUE_RETURN_STATUS());
-        }catch (EmptyResultDataAccessException ex) {
+        } catch (EmptyResultDataAccessException ex) {
             return payment;
-        }catch (Exception e) {
+        } catch (Exception e) {
             throw e;
         }
         return payment;

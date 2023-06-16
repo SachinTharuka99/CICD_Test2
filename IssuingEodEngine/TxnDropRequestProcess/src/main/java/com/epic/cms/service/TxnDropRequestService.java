@@ -5,6 +5,9 @@ import com.epic.cms.model.bean.ErrorCardBean;
 import com.epic.cms.model.bean.ProcessBean;
 import com.epic.cms.repository.TxnDropRequestRepo;
 import com.epic.cms.util.*;
+import lombok.extern.slf4j.Slf4j;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
@@ -14,23 +17,21 @@ import org.springframework.transaction.annotation.Transactional;
 import java.util.HashSet;
 import java.util.LinkedHashMap;
 import java.util.Set;
-import static com.epic.cms.util.LogManager.errorLogger;
-import static com.epic.cms.util.LogManager.infoLogger;
 
 @Service
 public class TxnDropRequestService {
 
+    private static final Logger logInfo = LoggerFactory.getLogger("logInfo");
+    private static final Logger logError = LoggerFactory.getLogger("logError");
     @Autowired
     TxnDropRequestRepo txnDropRequestRepo;
-
     @Autowired
     StatusVarList statusList;
-
     @Autowired
     LogManager logManager;
 
     @Async("ThreadPool_100")
-    @Transactional(value="transactionManager",propagation = Propagation.REQUIRED,rollbackFor = Exception.class)
+    @Transactional(value = "transactionManager", propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
     public void processTxnDropRequest(DropRequestBean bean, ProcessBean processBean) {
 
         if (!Configurations.isInterrupted) {
@@ -57,11 +58,11 @@ public class TxnDropRequestService {
                 Configurations.FailedCards_TxnDropRequest++;
                 Configurations.FailedCount_TxnDropRequest++;
                 Configurations.PROCESS_FAILD_COUNT++;
-                logManager.logError("Transaction Drop Request process failed for card number " + CommonMethods.cardInfo(maskedCardNumber, processBean) + " txnid: " + bean.getTxnId(), e, errorLogger);
+                logError.error("Transaction Drop Request process failed for card number " + CommonMethods.cardInfo(maskedCardNumber, processBean) + " txnid: " + bean.getTxnId(), e);
                 details.put("Process Status", "Failed");
                 Configurations.errorCardList.add(new ErrorCardBean(Configurations.ERROR_EOD_ID, Configurations.EOD_DATE, new StringBuffer(bean.getCardNumber()), e.getMessage(), Configurations.RUNNING_PROCESS_ID, Configurations.RUNNING_PROCESS_DESCRIPTION, 0, CardAccount.CARD));
             } finally {
-                logManager.logDetails(details, infoLogger);
+                logInfo.info(logManager.logDetails(details));
             }
         }
     }

@@ -12,8 +12,6 @@ import java.sql.ResultSet;
 import java.util.ArrayList;
 import java.util.HashMap;
 
-import static com.epic.cms.util.LogManager.errorLogger;
-
 @Repository
 public class CashBackAlertRepo implements CashBackAlertDao {
 
@@ -22,9 +20,6 @@ public class CashBackAlertRepo implements CashBackAlertDao {
 
     @Autowired
     StatusVarList statusList;
-
-    @Autowired
-    LogManager logManager;
 
     @Override
     public HashMap<String, ArrayList<CashBackAlertBean>> getConfirmedAccountToAlert() throws Exception {
@@ -62,7 +57,6 @@ public class CashBackAlertRepo implements CashBackAlertDao {
                 return confirmAccountList;
             }, 0);
         } catch (Exception e) {
-            logManager.logError("Exception ", errorLogger);
             throw e;
         }
         return confirmAccountList;
@@ -75,7 +69,6 @@ public class CashBackAlertRepo implements CashBackAlertDao {
 
             backendJdbcTemplate.update(updatePay, 1, reqId);
         } catch (Exception e) {
-            logManager.logError("Exception ", errorLogger);
             throw e;
         }
     }
@@ -87,7 +80,6 @@ public class CashBackAlertRepo implements CashBackAlertDao {
 
             backendJdbcTemplate.update(updatePay, 1, statementId);
         }catch (Exception e){
-            logManager.logError("Exception ", errorLogger);
             throw e;
         }
     }

@@ -8,6 +8,9 @@ import com.epic.cms.util.CommonMethods;
 import com.epic.cms.util.Configurations;
 import com.epic.cms.util.LogManager;
 import com.epic.cms.util.Statusts;
+import lombok.extern.slf4j.Slf4j;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.scheduling.concurrent.ThreadPoolTaskExecutor;
@@ -16,11 +19,10 @@ import org.springframework.stereotype.Service;
 import java.util.ArrayList;
 import java.util.List;
 
-import static com.epic.cms.util.LogManager.infoLogger;
-import static com.epic.cms.util.LogManager.errorLogger;
-
 @Service
 public class ChequePaymentConnector extends ProcessBuilder {
+    private static final Logger logInfo = LoggerFactory.getLogger("logInfo");
+    private static final Logger logError = LoggerFactory.getLogger("logError");
     /**
      * This process syncs the cheque payments and backs up all the current EOD sales,
      * charges and payments.
@@ -28,14 +30,11 @@ public class ChequePaymentConnector extends ProcessBuilder {
 
     @Autowired
     LogManager logManager;
-
     @Autowired
     @Qualifier("ThreadPool_100")
     ThreadPoolTaskExecutor taskExecutor;
-
     @Autowired
     ChequePaymentRepo chequePaymentRepo;
-
     @Autowired
     ChequePaymentService chequePaymentService;
 
@@ -66,18 +65,18 @@ public class ChequePaymentConnector extends ProcessBuilder {
                     }
                 }
             } catch (Exception e) {
-                logManager.logError("Failed Cheque Payment Process ", e, errorLogger);
+                logError.error("Failed Cheque Payment Process ", e);
                 throw e;
             }
         } catch (Exception e) {
             Configurations.IS_PROCESS_COMPLETELY_FAILED = true;
-            logManager.logError("Failed Cheque Payment Process Exception ", e, errorLogger);
+            logError.error("Failed Cheque Payment Process Exception ", e);
         } finally {
-            logManager.logSummery(summery, infoLogger);
+            logInfo.info(logManager.logSummery(summery));
             try {
                 if (chqList != null && chqList.size() != 0) {
                     /** PADSS Change -
-                       variables handling card data should be nullified by replacing the value of variable with zero and call NULL function */
+                     variables handling card data should be nullified by replacing the value of variable with zero and call NULL function */
                     for (ReturnChequePaymentDetailBean bean : chqList) {
                         CommonMethods.clearStringBuffer(bean.getCardnumber());
                         CommonMethods.clearStringBuffer(bean.getMaincardno());
@@ -86,7 +85,7 @@ public class ChequePaymentConnector extends ProcessBuilder {
                     chqList = null;
                 }
             } catch (Exception e) {
-                logManager.logError("Cheque Payment Process Exception ", e, errorLogger);
+                logError.error("Cheque Payment Process Exception ", e);
             }
         }
     }

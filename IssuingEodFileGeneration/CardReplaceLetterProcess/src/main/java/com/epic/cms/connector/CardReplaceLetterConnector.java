@@ -14,27 +14,27 @@ import com.epic.cms.util.CommonMethods;
 import com.epic.cms.util.Configurations;
 import com.epic.cms.util.LogManager;
 import com.epic.cms.util.StatusVarList;
+import lombok.extern.slf4j.Slf4j;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
 
-import static com.epic.cms.util.LogManager.*;
 
 @Service
 public class CardReplaceLetterConnector extends FileGenProcessBuilder {
+    private static final Logger logInfo = LoggerFactory.getLogger("logInfo");
+    private static final Logger logError = LoggerFactory.getLogger("logError");
     @Autowired
     LogManager logManager;
-
     @Autowired
     StatusVarList statusVarList;
-
     @Autowired
     CardReplaceLetterRepo cardReplaceLetterRepo;
-
     @Autowired
     CardReplaceLetterService cardReplaceLetterService;
-
     String[] fileNameAndPath = null;
 
     @Override
@@ -68,14 +68,14 @@ public class CardReplaceLetterConnector extends FileGenProcessBuilder {
 
             } catch (Exception e) {
                 Configurations.IS_PROCESS_COMPLETELY_FAILED = true;
-                logManager.logError("Error in Card Replace Letter Process ", e, errorLoggerEFGE);
+                logError.error("Error in Card Replace Letter Process ", e);
                 if (fileNameAndPath != null) {
                     fileGenerationService.deleteExistFile(fileNameAndPath[0]);
                 }
             }
 
         } finally {
-            logManager.logSummery(summery, infoLoggerEFGE);
+            logInfo.info(logManager.logSummery(summery));
             try {
                 if (productChangeCardList != null && productChangeCardList.size() != 0) {
                     for (StringBuffer sb : productChangeCardList) {
@@ -90,7 +90,7 @@ public class CardReplaceLetterConnector extends FileGenProcessBuilder {
                     replaceCardList = null;
                 }
             } catch (Exception e) {
-                logManager.logError("Exception in Card Number Clearing ", e, errorLoggerEFGE);
+                logError.error("Exception in Card Number Clearing ", e);
             }
         }
     }
@@ -101,6 +101,5 @@ public class CardReplaceLetterConnector extends FileGenProcessBuilder {
         summery.put("Total No of Effected Letters ", Configurations.PROCESS_TOTAL_NOOF_TRABSACTIONS);
         summery.put("Letter Success Count ", Configurations.PROCESS_SUCCESS_COUNT);
         summery.put("Letter Failed Count ", Configurations.PROCESS_FAILD_COUNT);
-        //summery.put("File Name and Path ", fileNameAndPath);
     }
 }

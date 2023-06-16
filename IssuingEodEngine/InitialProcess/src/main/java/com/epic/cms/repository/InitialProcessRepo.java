@@ -10,7 +10,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Repository;
-import static com.epic.cms.util.LogManager.errorLogger;
 
 
 @Repository
@@ -106,7 +105,7 @@ public class InitialProcessRepo implements InitialProcessDao {
         try {
             processDetails = backendJdbcTemplate.queryForObject(queryParametersList.getCommonSelectGetProcessDetails(), new ProcessBeanRowMapper(),processId);
         }catch (Exception e){
-            logManager.logError(String.valueOf(e),errorLogger);
+            throw e;
         }
         return processDetails;
     }

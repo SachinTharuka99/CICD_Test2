@@ -1,6 +1,5 @@
 package com.epic.cms.aop;
 
-import static com.epic.cms.util.LogManager.infoLogger;
 
 import org.aspectj.lang.ProceedingJoinPoint;
 import org.aspectj.lang.annotation.Around;

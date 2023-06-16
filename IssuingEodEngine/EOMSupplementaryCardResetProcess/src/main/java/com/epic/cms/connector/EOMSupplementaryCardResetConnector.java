@@ -16,6 +16,9 @@ import com.epic.cms.util.CommonMethods;
 import com.epic.cms.util.Configurations;
 import com.epic.cms.util.LogManager;
 import com.epic.cms.util.StatusVarList;
+import lombok.extern.slf4j.Slf4j;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.scheduling.concurrent.ThreadPoolTaskExecutor;
@@ -23,27 +26,22 @@ import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
 
-import static com.epic.cms.util.LogManager.errorLogger;
-import static com.epic.cms.util.LogManager.infoLogger;
 
 @Service
 public class EOMSupplementaryCardResetConnector extends ProcessBuilder {
 
+    private static final Logger logInfo = LoggerFactory.getLogger("logInfo");
+    private static final Logger logError = LoggerFactory.getLogger("logError");
     @Autowired
     CommonRepo commonRepo;
-
     @Autowired
     LogManager logManager;
-
     @Autowired
     EOMSupplementaryCardResetDao eomSupplementaryCardResetDao;
-
     @Autowired
     EOMSupplementaryCardResetService eomSupplementaryCardResetService;
-
     @Autowired
     StatusVarList statusVarList;
-
     @Autowired
     @Qualifier("ThreadPool_100")
     ThreadPoolTaskExecutor taskExecutor;
@@ -57,12 +55,12 @@ public class EOMSupplementaryCardResetConnector extends ProcessBuilder {
         int configProcess = Configurations.PROCESS_EOM_SUP_CARD_RESET;
 
         try {
-            logManager.logHeader("Supplementary Reset Process", infoLogger);
+            logInfo.info(logManager.logHeader("Supplementary Reset Process"));
             processBean = new ProcessBean();
             processBean = commonRepo.getProcessDetails(Configurations.PROCESS_EOM_SUP_CARD_RESET);
 
             if (processBean != null) {
-                logManager.logStartEnd("Supplementary Reset Process started", infoLogger);
+                logInfo.info(logManager.logStartEnd("Supplementary Reset Process started"));
 
                 ArrayList accList = eomSupplementaryCardResetDao.getEligibleAccounts();
                 Configurations.PROCESS_TOTAL_NOOF_TRABSACTIONS = accList.size();
@@ -78,7 +76,7 @@ public class EOMSupplementaryCardResetConnector extends ProcessBuilder {
         } catch (Exception e) {
             try {
                 Configurations.IS_PROCESS_COMPLETELY_FAILED = true;
-                logManager.logError("Supplementary Reset Process", e, errorLogger);
+                logError.error("Supplementary Reset Process", e);
 
                 if (processBean.getCriticalStatus() == 1) {
                     Configurations.COMMIT_STATUS = false;
@@ -87,10 +85,10 @@ public class EOMSupplementaryCardResetConnector extends ProcessBuilder {
                     Configurations.MAIN_EOD_STATUS = false;
                 }
             } catch (Exception e2) {
-                logManager.logError("Supplementary Reset Process", e2, errorLogger);
+                logError.error("Supplementary Reset Process", e2);
             }
         } finally {
-            logManager.logSummery(summery, infoLogger);
+            logInfo.info(logManager.logSummery(summery));
         }
     }
 

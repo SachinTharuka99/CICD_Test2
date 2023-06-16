@@ -4,6 +4,9 @@ import com.epic.cms.repository.SnapShotRepo;
 import com.epic.cms.util.CommonMethods;
 import com.epic.cms.util.Configurations;
 import com.epic.cms.util.LogManager;
+import lombok.extern.slf4j.Slf4j;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Propagation;
@@ -11,35 +14,34 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.util.LinkedHashMap;
 
-import static com.epic.cms.util.LogManager.errorLogger;
-import static com.epic.cms.util.LogManager.infoLogger;
 
 @Service
 public class SnapShotService {
 
+    private static final Logger logInfo = LoggerFactory.getLogger("logInfo");
+    private static final Logger logError = LoggerFactory.getLogger("logError");
     @Autowired
     LogManager logManager;
-
     @Autowired
     SnapShotRepo snapShotRepo;
 
-    @Transactional(value = "transactionManager", propagation = Propagation.REQUIRED,rollbackFor = Exception.class)
+    @Transactional(value = "transactionManager", propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
     public void startDailySnapShotProcess() {
         LinkedHashMap details = new LinkedHashMap();
         try {
-            Configurations.RUNNING_PROCESS_ID=Configurations.PROCESS_ID_SNAPSHOT;
+            Configurations.RUNNING_PROCESS_ID = Configurations.PROCESS_ID_SNAPSHOT;
             CommonMethods.eodDashboardProgressParametersReset();
-            Configurations.PROCESS_TOTAL_NOOF_TRABSACTIONS=4;
+            Configurations.PROCESS_TOTAL_NOOF_TRABSACTIONS = 4;
 
             /**
-            Check whether the eod processes are complete
+             Check whether the eod processes are complete
              */
 
             int status = snapShotRepo.checkEodComplete();
 
             if (status > 0) {
                 details.put("EOD processes are not completed", "FAILED");
-                logManager.logDetails(details, infoLogger);
+                logInfo.info(logManager.logDetails(details));
 
             } else {
                 try {
@@ -53,7 +55,7 @@ public class SnapShotService {
                     Configurations.PROCESS_SUCCESS_COUNT++;
                 } catch (Exception e) {
                     Configurations.PROCESS_FAILD_COUNT++;
-                    logManager.logError("Exception ",e, errorLogger);
+                    logError.error("Exception ", e);
                 }
                 try {
                     /**
@@ -66,7 +68,7 @@ public class SnapShotService {
                     Configurations.PROCESS_SUCCESS_COUNT++;
                 } catch (Exception e) {
                     Configurations.PROCESS_FAILD_COUNT++;
-                    logManager.logError("Exception ",e, errorLogger);
+                    logError.error("Exception ", e);
                 }
                 try {
                     /**
@@ -79,7 +81,7 @@ public class SnapShotService {
                     Configurations.PROCESS_SUCCESS_COUNT++;
                 } catch (Exception e) {
                     Configurations.PROCESS_FAILD_COUNT++;
-                    logManager.logError("Exception ",e, errorLogger);
+                    logError.error("Exception ", e);
                 }
                 try {
                     /**
@@ -92,13 +94,13 @@ public class SnapShotService {
                     Configurations.PROCESS_SUCCESS_COUNT++;
                 } catch (Exception e) {
                     Configurations.PROCESS_FAILD_COUNT++;
-                    logManager.logError("Exception ",e, errorLogger);
+                    logError.error("Exception ", e);
                 }
             }
-            logManager.logDetails(details,infoLogger);
+            logInfo.info(logManager.logDetails(details));
 
-        }catch (Exception e){
-            logManager.logError("Exception ",e,infoLogger);
+        } catch (Exception e) {
+            logError.error("Exception ", e);
         }
     }
 }

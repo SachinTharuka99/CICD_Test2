@@ -2,31 +2,21 @@ package com.epic.cms.repository;
 
 import com.epic.cms.dao.CollectionAndRecoveryAlertDao;
 import com.epic.cms.util.Configurations;
-import com.epic.cms.util.LogManager;
-import com.epic.cms.util.QueryParametersList;
 import com.epic.cms.util.StatusVarList;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Repository;
-import org.springframework.transaction.annotation.Isolation;
-import org.springframework.transaction.annotation.Propagation;
-import org.springframework.transaction.annotation.Transactional;
 
 import java.sql.ResultSet;
 import java.util.HashMap;
-import static com.epic.cms.util.LogManager.errorLogger;
 
 @Repository
 public class CollectionAndRecoveryAlertRepo implements CollectionAndRecoveryAlertDao {
 
     @Autowired
-    private JdbcTemplate backendJdbcTemplate;
-
-    @Autowired
     StatusVarList statusList;
-
     @Autowired
-    LogManager logManager;
+    private JdbcTemplate backendJdbcTemplate;
 
     @Override
     public HashMap<StringBuffer, String> getConfirmedCardToAlert() throws Exception {
@@ -42,7 +32,7 @@ public class CollectionAndRecoveryAlertRepo implements CollectionAndRecoveryAler
                         confirmCardList.put(new StringBuffer(result.getString("CARDNO")), result.getString("LASTTRIGGERPOINT"));
                     }
                     return confirmCardList;
-                },0, Configurations.EOD_PENDING_STATUS);
+                }, 0, Configurations.EOD_PENDING_STATUS);
             } else {
                 query = query + "AND CARDNO IN (SELECT CARDNO FROM EODERRORCARDS WHERE PROCESSSTEPID <= (SELECT PROCESSSTEPID FROM EODERRORCARDS WHERE ERRORPROCESSID = ?) AND STATUS = ?) ";
                 backendJdbcTemplate.query(query, (ResultSet result) -> {
@@ -50,10 +40,9 @@ public class CollectionAndRecoveryAlertRepo implements CollectionAndRecoveryAler
                         confirmCardList.put(new StringBuffer(result.getString("CARDNO")), result.getString("LASTTRIGGERPOINT"));
                     }
                     return confirmCardList;
-                },0, Configurations.PROCESS_ID_CARDAPPLICATION_LETTER_APPROVE, Configurations.EOD_PENDING_STATUS);
+                }, 0, Configurations.PROCESS_ID_CARDAPPLICATION_LETTER_APPROVE, Configurations.EOD_PENDING_STATUS);
             }
-        }catch (Exception e){
-            logManager.logError("Exception ", errorLogger);
+        } catch (Exception e) {
             throw e;
         }
         return confirmCardList;
@@ -66,7 +55,6 @@ public class CollectionAndRecoveryAlertRepo implements CollectionAndRecoveryAler
 
             backendJdbcTemplate.update(updatePay, 1, cardNumber.toString(), trigger);
         } catch (Exception e) {
-            logManager.logError("Exception ", errorLogger);
             throw e;
         }
     }

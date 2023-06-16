@@ -10,13 +10,13 @@ package com.epic.cms.common;
 import com.epic.cms.model.bean.ProcessBean;
 
 
-import static com.epic.cms.util.LogManager.infoLoggerEFPE;
-import static com.epic.cms.util.LogManager.errorLoggerEFPE;
-
 import com.epic.cms.repository.CommonRepo;
 import com.epic.cms.util.Configurations;
 import com.epic.cms.util.LogManager;
 import com.epic.cms.util.StatusVarList;
+import lombok.extern.slf4j.Slf4j;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.scheduling.annotation.Async;
 
@@ -40,6 +40,9 @@ public abstract class FileProcessingProcessBuilder {
     @Autowired
     StatusVarList statusVarList;
 
+    private static final Logger logInfo = LoggerFactory.getLogger("logInfo");
+    private static final Logger logError = LoggerFactory.getLogger("logError");
+
     @Async("ThreadPool_FileHandler")
     public void startProcess(String fileId, int processId) {
         try {
@@ -47,8 +50,8 @@ public abstract class FileProcessingProcessBuilder {
             this.processHeader = processBean.getProcessDes();
             setupProcessDescriptions();
 
-            logManager.logHeader(processHeader, infoLoggerEFPE);
-            logManager.logStartEnd(startHeader, infoLoggerEFPE);
+            logInfo.info(logManager.logHeader(processHeader));
+            logInfo.info(logManager.logStartEnd(startHeader));
 
             //3 - insert to process summery table
             commonRepo.insertToEodProcessSumery(processId);
@@ -58,20 +61,20 @@ public abstract class FileProcessingProcessBuilder {
             commonRepo.updateEodProcessSummery(Configurations.ERROR_EOD_ID, statusVarList.getSUCCES_STATUS(), processId, Configurations.PROCESS_SUCCESS_COUNT, Configurations.PROCESS_FAILD_COUNT, eodDashboardProcessProgress(Configurations.PROCESS_SUCCESS_COUNT, Configurations.PROCESS_TOTAL_NOOF_TRABSACTIONS));
         } catch (Exception e) {
             try {
-                logManager.logStartEnd(failedHeader, infoLoggerEFPE);
-                logManager.logError(failedHeader, e, errorLoggerEFPE);
+                logInfo.info(logManager.logStartEnd(failedHeader));
+                logError.error(failedHeader, e);
                 //update process summery table
                 commonRepo.updateEodProcessSummery(Configurations.ERROR_EOD_ID, statusVarList.getERROR_STATUS(), processId, Configurations.PROCESS_SUCCESS_COUNT, Configurations.PROCESS_FAILD_COUNT, eodDashboardProcessProgress(Configurations.PROCESS_SUCCESS_COUNT, Configurations.PROCESS_TOTAL_NOOF_TRABSACTIONS));
             } catch (Exception e2) {
-                logManager.logError(e2, errorLoggerEFPE);
+                logError.error(String.valueOf(e2));
             }
         } finally {
             try {
                 addSummaries();
-                logManager.logSummery(summery, infoLoggerEFPE);
-                logManager.logStartEnd(completedHeader, infoLoggerEFPE);
+                logInfo.info(logManager.logSummery(summery));
+                logInfo.info(logManager.logStartEnd(completedHeader));
             } catch (Exception e2) {
-                logManager.logError(e2, errorLoggerEFPE);
+                logError.error(String.valueOf(e2));
             }
         }
 

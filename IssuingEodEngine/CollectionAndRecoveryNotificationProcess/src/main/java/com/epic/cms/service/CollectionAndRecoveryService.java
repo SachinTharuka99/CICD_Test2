@@ -7,6 +7,8 @@ import com.epic.cms.model.bean.ProcessBean;
 import com.epic.cms.repository.CollectionAndRecoveryRepo;
 import com.epic.cms.repository.CommonRepo;
 import com.epic.cms.util.*;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
@@ -15,20 +17,16 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.util.LinkedHashMap;
 
-import static com.epic.cms.util.LogManager.errorLogger;
-import static com.epic.cms.util.LogManager.infoLogger;
-
 @Service
 public class CollectionAndRecoveryService {
+    private static final Logger logInfo = LoggerFactory.getLogger("logInfo");
+    private static final Logger logError = LoggerFactory.getLogger("logError");
     @Autowired
     LogManager logManager;
-
     @Autowired
     CollectionAndRecoveryRepo collectionAndRecoveryRepo;
-
     @Autowired
     StatusVarList statusList;
-
     @Autowired
     CommonRepo commonRepo;
 
@@ -60,11 +58,11 @@ public class CollectionAndRecoveryService {
                 Configurations.PROCESS_FAILD_COUNT++;
                 details.put("Process Status", "Failed");
                 Configurations.failedCardsForCollectionAndRecoveryNotification++;
-                logManager.logError("Collection and recovery process failed for card number " + CommonMethods.cardInfo(CommonMethods.cardNumberMask(collectionAndRecoveryBean.getCardNo()), processBean), e, errorLogger);
+                logError.error("Collection and recovery process failed for card number " + CommonMethods.cardInfo(CommonMethods.cardNumberMask(collectionAndRecoveryBean.getCardNo()), processBean), e);
                 Configurations.errorCardList.add(new ErrorCardBean(Configurations.ERROR_EOD_ID, Configurations.EOD_DATE, new StringBuffer(collectionAndRecoveryBean.getCardNo()), e.getMessage(), Configurations.RUNNING_PROCESS_ID, Configurations.RUNNING_PROCESS_DESCRIPTION, 0, CardAccount.CARD));
                 Configurations.checkErrorForCollectionAndRecoveryNotification = true;
             } finally {
-                logManager.logDetails(details, infoLogger);
+                logInfo.info(logManager.logDetails(details));
             }
         }
     }
@@ -92,11 +90,11 @@ public class CollectionAndRecoveryService {
                 Configurations.PROCESS_FAILD_COUNT++;
                 details.put("Process Status", "Failed");
                 Configurations.failedCardsForCollectionAndRecoveryNotification++;
-                logManager.logError("Collection and recovery process failed for card number " + CommonMethods.cardInfo(CommonMethods.cardNumberMask(collectionAndRecoveryBean.getCardNo()), processBean), e, errorLogger);
+                logError.error("Collection and recovery process failed for card number " + CommonMethods.cardInfo(CommonMethods.cardNumberMask(collectionAndRecoveryBean.getCardNo()), processBean), e);
                 Configurations.errorCardList.add(new ErrorCardBean(Configurations.ERROR_EOD_ID, Configurations.EOD_DATE, new StringBuffer(collectionAndRecoveryBean.getCardNo()), e.getMessage(), Configurations.RUNNING_PROCESS_ID, Configurations.RUNNING_PROCESS_DESCRIPTION, 0, CardAccount.CARD));
                 Configurations.checkErrorForCollectionAndRecoveryNotification = true;
             } finally {
-                logManager.logDetails(details, infoLogger);
+                logInfo.info(logManager.logDetails(details));
             }
         }
     }
@@ -123,11 +121,11 @@ public class CollectionAndRecoveryService {
                 Configurations.PROCESS_FAILD_COUNT++;
                 details.put("Process Status", "Failed");
                 Configurations.failedCardsForCollectionAndRecoveryNotification++;
-                logManager.logError("Collection and recovery process failed for card number " + CommonMethods.cardInfo(CommonMethods.cardNumberMask(collectionAndRecoveryBean.getCardNo()), processBean), e, errorLogger);
+                logError.error("Collection and recovery process failed for card number " + CommonMethods.cardInfo(CommonMethods.cardNumberMask(collectionAndRecoveryBean.getCardNo()), processBean), e);
                 Configurations.errorCardList.add(new ErrorCardBean(Configurations.ERROR_EOD_ID, Configurations.EOD_DATE, new StringBuffer(collectionAndRecoveryBean.getCardNo()), e.getMessage(), Configurations.RUNNING_PROCESS_ID, Configurations.RUNNING_PROCESS_DESCRIPTION, 0, CardAccount.CARD));
                 Configurations.checkErrorForCollectionAndRecoveryNotification = true;
             } finally {
-                logManager.logDetails(details, infoLogger);
+                logInfo.info(logManager.logDetails(details));
             }
         }
     }
@@ -154,11 +152,11 @@ public class CollectionAndRecoveryService {
                 Configurations.PROCESS_FAILD_COUNT++;
                 details.put("Process Status", "Failed");
                 Configurations.failedCardsForCollectionAndRecoveryNotification++;
-                logManager.logError("Collection and recovery process failed for card number " + CommonMethods.cardInfo(CommonMethods.cardNumberMask(collectionAndRecoveryBean.getCardNo()), processBean), e, errorLogger);
+                logError.error("Collection and recovery process failed for card number " + CommonMethods.cardInfo(CommonMethods.cardNumberMask(collectionAndRecoveryBean.getCardNo()), processBean), e);
                 Configurations.errorCardList.add(new ErrorCardBean(Configurations.ERROR_EOD_ID, Configurations.EOD_DATE, new StringBuffer(collectionAndRecoveryBean.getCardNo()), e.getMessage(), Configurations.RUNNING_PROCESS_ID, Configurations.RUNNING_PROCESS_DESCRIPTION, 0, CardAccount.CARD));
                 Configurations.checkErrorForCollectionAndRecoveryNotification = true;
             } finally {
-                logManager.logDetails(details, infoLogger);
+                logInfo.info(logManager.logDetails(details));
             }
         }
     }
@@ -193,11 +191,11 @@ public class CollectionAndRecoveryService {
                 Configurations.PROCESS_FAILD_COUNT++;
                 details.put("Process Status", "Failed");
                 Configurations.failedCardsForCollectionAndRecoveryNotification++;
-                logManager.logError("Collection and recovery process failed for card number " + CommonMethods.cardInfo(CommonMethods.cardNumberMask(collectionAndRecoveryBean.getCardNo()), processBean), e, errorLogger);
+                logError.error("Collection and recovery process failed for card number " + CommonMethods.cardInfo(CommonMethods.cardNumberMask(collectionAndRecoveryBean.getCardNo()), processBean), e);
                 Configurations.errorCardList.add(new ErrorCardBean(Configurations.ERROR_EOD_ID, Configurations.EOD_DATE, new StringBuffer(collectionAndRecoveryBean.getCardNo()), e.getMessage(), Configurations.RUNNING_PROCESS_ID, Configurations.RUNNING_PROCESS_DESCRIPTION, 0, CardAccount.CARD));
                 Configurations.checkErrorForCollectionAndRecoveryNotification = true;
             } finally {
-                logManager.logDetails(details, infoLogger);
+                logInfo.info(logManager.logDetails(details));
             }
         }
     }
@@ -224,11 +222,11 @@ public class CollectionAndRecoveryService {
                 Configurations.PROCESS_FAILD_COUNT++;
                 details.put("Process Status", "Failed");
                 Configurations.failedCardsForCollectionAndRecoveryNotification++;
-                logManager.logError("Collection and recovery process failed for card number " + CommonMethods.cardInfo(CommonMethods.cardNumberMask(collectionAndRecoveryBean.getCardNo()), processBean), e, errorLogger);
+                logError.error("Collection and recovery process failed for card number " + CommonMethods.cardInfo(CommonMethods.cardNumberMask(collectionAndRecoveryBean.getCardNo()), processBean), e);
                 Configurations.errorCardList.add(new ErrorCardBean(Configurations.ERROR_EOD_ID, Configurations.EOD_DATE, new StringBuffer(collectionAndRecoveryBean.getCardNo()), e.getMessage(), Configurations.RUNNING_PROCESS_ID, Configurations.RUNNING_PROCESS_DESCRIPTION, 0, CardAccount.CARD));
                 Configurations.checkErrorForCollectionAndRecoveryNotification = true;
             } finally {
-                logManager.logDetails(details, infoLogger);
+                logInfo.info(logManager.logDetails(details));
             }
         }
     }
@@ -256,11 +254,11 @@ public class CollectionAndRecoveryService {
                 Configurations.PROCESS_FAILD_COUNT++;
                 details.put("Process Status", "Failed");
                 Configurations.failedCardsForCollectionAndRecoveryNotification++;
-                logManager.logError("Collection and recovery process failed for card number " + CommonMethods.cardInfo(CommonMethods.cardNumberMask(collectionAndRecoveryBean.getCardNo()), processBean), e, errorLogger);
+                logError.error("Collection and recovery process failed for card number " + CommonMethods.cardInfo(CommonMethods.cardNumberMask(collectionAndRecoveryBean.getCardNo()), processBean), e);
                 Configurations.errorCardList.add(new ErrorCardBean(Configurations.ERROR_EOD_ID, Configurations.EOD_DATE, new StringBuffer(collectionAndRecoveryBean.getCardNo()), e.getMessage(), Configurations.RUNNING_PROCESS_ID, Configurations.RUNNING_PROCESS_DESCRIPTION, 0, CardAccount.CARD));
                 Configurations.checkErrorForCollectionAndRecoveryNotification = true;
             } finally {
-                logManager.logDetails(details, infoLogger);
+                logInfo.info(logManager.logDetails(details));
             }
         }
     }
@@ -287,11 +285,11 @@ public class CollectionAndRecoveryService {
                 Configurations.PROCESS_FAILD_COUNT++;
                 details.put("Process Status", "Failed");
                 Configurations.failedCardsForCollectionAndRecoveryNotification++;
-                logManager.logError("Collection and recovery process failed for card number " + CommonMethods.cardInfo(CommonMethods.cardNumberMask(collectionAndRecoveryBean.getCardNo()), processBean), e, errorLogger);
+                logError.error("Collection and recovery process failed for card number " + CommonMethods.cardInfo(CommonMethods.cardNumberMask(collectionAndRecoveryBean.getCardNo()), processBean), e);
                 Configurations.errorCardList.add(new ErrorCardBean(Configurations.ERROR_EOD_ID, Configurations.EOD_DATE, new StringBuffer(collectionAndRecoveryBean.getCardNo()), e.getMessage(), Configurations.RUNNING_PROCESS_ID, Configurations.RUNNING_PROCESS_DESCRIPTION, 0, CardAccount.CARD));
                 Configurations.checkErrorForCollectionAndRecoveryNotification = true;
             } finally {
-                logManager.logDetails(details, infoLogger);
+                logInfo.info(logManager.logDetails(details));
             }
         }
     }
@@ -326,11 +324,11 @@ public class CollectionAndRecoveryService {
                 Configurations.PROCESS_FAILD_COUNT++;
                 details.put("Process Status", "Failed");
                 Configurations.failedCardsForCollectionAndRecoveryNotification++;
-                logManager.logError("Collection and recovery process failed for card number " + CommonMethods.cardInfo(CommonMethods.cardNumberMask(collectionAndRecoveryBean.getCardNo()), processBean), e, errorLogger);
+                logError.error("Collection and recovery process failed for card number " + CommonMethods.cardInfo(CommonMethods.cardNumberMask(collectionAndRecoveryBean.getCardNo()), processBean), e);
                 Configurations.errorCardList.add(new ErrorCardBean(Configurations.ERROR_EOD_ID, Configurations.EOD_DATE, new StringBuffer(collectionAndRecoveryBean.getCardNo()), e.getMessage(), Configurations.RUNNING_PROCESS_ID, Configurations.RUNNING_PROCESS_DESCRIPTION, 0, CardAccount.CARD));
                 Configurations.checkErrorForCollectionAndRecoveryNotification = true;
             } finally {
-                logManager.logDetails(details, infoLogger);
+                logInfo.info(logManager.logDetails(details));
             }
         }
     }
@@ -357,11 +355,11 @@ public class CollectionAndRecoveryService {
                 Configurations.PROCESS_FAILD_COUNT++;
                 details.put("Process Status", "Failed");
                 Configurations.failedCardsForCollectionAndRecoveryNotification++;
-                logManager.logError("Collection and recovery process failed for card number " + CommonMethods.cardInfo(CommonMethods.cardNumberMask(collectionAndRecoveryBean.getCardNo()), processBean), e, errorLogger);
+                logError.error("Collection and recovery process failed for card number " + CommonMethods.cardInfo(CommonMethods.cardNumberMask(collectionAndRecoveryBean.getCardNo()), processBean), e);
                 Configurations.errorCardList.add(new ErrorCardBean(Configurations.ERROR_EOD_ID, Configurations.EOD_DATE, new StringBuffer(collectionAndRecoveryBean.getCardNo()), e.getMessage(), Configurations.RUNNING_PROCESS_ID, Configurations.RUNNING_PROCESS_DESCRIPTION, 0, CardAccount.CARD));
                 Configurations.checkErrorForCollectionAndRecoveryNotification = true;
             } finally {
-                logManager.logDetails(details, infoLogger);
+                logInfo.info(logManager.logDetails(details));
             }
         }
     }
@@ -389,11 +387,11 @@ public class CollectionAndRecoveryService {
                 Configurations.PROCESS_FAILD_COUNT++;
                 details.put("Process Status", "Failed");
                 Configurations.failedCardsForCollectionAndRecoveryNotification++;
-                logManager.logError("Collection and recovery process failed for card number " + CommonMethods.cardInfo(CommonMethods.cardNumberMask(collectionAndRecoveryBean.getCardNo()), processBean), e, errorLogger);
+                logError.error("Collection and recovery process failed for card number " + CommonMethods.cardInfo(CommonMethods.cardNumberMask(collectionAndRecoveryBean.getCardNo()), processBean), e);
                 Configurations.errorCardList.add(new ErrorCardBean(Configurations.ERROR_EOD_ID, Configurations.EOD_DATE, new StringBuffer(collectionAndRecoveryBean.getCardNo()), e.getMessage(), Configurations.RUNNING_PROCESS_ID, Configurations.RUNNING_PROCESS_DESCRIPTION, 0, CardAccount.CARD));
                 Configurations.checkErrorForCollectionAndRecoveryNotification = true;
             } finally {
-                logManager.logDetails(details, infoLogger);
+                logInfo.info(logManager.logDetails(details));
             }
         }
     }

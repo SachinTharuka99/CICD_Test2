@@ -14,6 +14,9 @@ import com.epic.cms.model.bean.ProcessBean;
 import com.epic.cms.model.bean.RiskCalculationBean;
 import com.epic.cms.repository.CommonRepo;
 import com.epic.cms.util.*;
+import lombok.extern.slf4j.Slf4j;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
@@ -26,28 +29,23 @@ import java.math.RoundingMode;
 import java.text.SimpleDateFormat;
 import java.util.*;
 
-import static com.epic.cms.util.LogManager.errorLogger;
-import static com.epic.cms.util.LogManager.infoLogger;
-
 @Service
 public class RiskCalculationService {
 
+    private static final Logger logInfo = LoggerFactory.getLogger("logInfo");
+    private static final Logger logError = LoggerFactory.getLogger("logError");
     @Autowired
     CommonRepo commonRepo;
-
     @Autowired
     LogManager logManager;
-
     @Autowired
     RiskCalculationDao riskCalculationDao;
-
     @Autowired
     StatusVarList statusVarList;
-
     int noOfNewCards = 0;
 
     @Async("ThreadPool_100")
-    @Transactional(value="transactionManager",propagation = Propagation.REQUIRED,rollbackFor = Exception.class)
+    @Transactional(value = "transactionManager", propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
     public void riskCalculationProcess(DelinquentAccountBean delinquentAccountBean, int configProcess, ProcessBean processBean) throws Exception {
         if (!Configurations.isInterrupted) {
             String maskedCardNumber = CommonMethods.cardNumberMask(delinquentAccountBean.getCardNumber());
@@ -242,10 +240,10 @@ public class RiskCalculationService {
                 if (delinquentAccountBean.getNDIA() >= 120) {
                     //if payment done, provision was handled by the 'this.generateProvisionGLWhenPaymentRecieved' method.
                     if (!isPaymentOnCurrentDay) {
-                        BigDecimal npOutstandingBig = new BigDecimal(delinquentAccountBean.getNpOutstanding());
-                        BigDecimal npInterestBig = new BigDecimal(delinquentAccountBean.getNpInterest());
-                        BigDecimal remainingCapitalBigDec = new BigDecimal(0.0);
-                        BigDecimal provisionAmountStrBig = new BigDecimal(0.0);
+                        BigDecimal npOutstandingBig = BigDecimal.valueOf(delinquentAccountBean.getNpOutstanding());
+                        BigDecimal npInterestBig = BigDecimal.valueOf(delinquentAccountBean.getNpInterest());
+                        BigDecimal remainingCapitalBigDec = new BigDecimal("0.0");
+                        BigDecimal provisionAmountStrBig = new BigDecimal("0.0");
                         //npCapital--> BALANCE AFTER PAYMENT KNOCKOFF
                         remainingCapitalBigDec = npOutstandingBig.subtract(npInterestBig);
 
@@ -264,12 +262,12 @@ public class RiskCalculationService {
                         BigDecimal provisionPercentageBigDec = new BigDecimal(provisionPercentage).
                                 divide(BigDecimal.valueOf(100), MathContext.DECIMAL32);
 
-                        BigDecimal calculateProvisionBigDec = new BigDecimal(0.0);
+                        BigDecimal calculateProvisionBigDec = new BigDecimal("0.0");
                         calculateProvisionBigDec = remainingCapitalBigDec.multiply(provisionPercentageBigDec, MathContext.DECIMAL64);
                         calculateProvisionBigDec = calculateProvisionBigDec.setScale(2, RoundingMode.DOWN);
                         calculateProvision = calculateProvisionBigDec.doubleValue();
 
-                        BigDecimal provisionGLAmountBigDec = new BigDecimal(0.0);
+                        BigDecimal provisionGLAmountBigDec = new BigDecimal("0.0");
                         provisionGLAmountBigDec = calculateProvisionBigDec.subtract(oldProvisionAmountBigDec);
                         provisionGLAmountBigDec = provisionGLAmountBigDec.setScale(2, RoundingMode.DOWN);
                         String provisionGLAmountString = provisionGLAmountBigDec.toString();
@@ -280,7 +278,7 @@ public class RiskCalculationService {
                         if (provisionGLAmount > 0) {
                             riskCalculationDao.insertIntoEodGLAccount(Configurations.EOD_ID, Configurations.EOD_DATE, delinquentAccountBean.getCardNumber(),
                                     Configurations.PROVISION_GL, provisionGLAmount, Configurations.DEBIT, null);
-                            logManager.logInfo("Inserted GL entries for provision amount for acc no : " + delinquentAccountBean.getAccNo(), infoLogger);
+                            logInfo.info("Inserted GL entries for provision amount for acc no : " + delinquentAccountBean.getAccNo());
                         }
                         isTrue = true;
                     }
@@ -292,7 +290,7 @@ public class RiskCalculationService {
                     detailsProvision.put("NP Capital", npCapital);
                     detailsProvision.put("Provision GL Amount", provisionGLAmount);
                     detailsProvision.put("New Provision Amount", calculateProvision);
-                    logManager.logDetails(detailsProvision, infoLogger);
+                    logInfo.info(logManager.logDetails(detailsProvision));
                     detailsProvision.clear();
                 }
                 Configurations.PROCESS_SUCCESS_COUNT++;
@@ -308,16 +306,16 @@ public class RiskCalculationService {
 
                 details.put("Process Status", "Failed");
                 Configurations.errorCardList.add(new ErrorCardBean(Configurations.ERROR_EOD_ID, Configurations.EOD_DATE, new StringBuffer(delinquentAccountBean.getCardNumber()), e.getMessage(), Configurations.RUNNING_PROCESS_ID, Configurations.RUNNING_PROCESS_DESCRIPTION, 0, CardAccount.CARD));
-                logManager.logError("RISK_CALCULATION_PROCESS Process for existing cards failed for cardnumber " + CommonMethods.cardInfo(maskedCardNumber, processBean), e, errorLogger);
+                logError.error("RISK_CALCULATION_PROCESS Process for existing cards failed for cardnumber " + CommonMethods.cardInfo(maskedCardNumber, processBean), e);
                 Configurations.PROCESS_FAILD_COUNT++;
             } finally {
-                logManager.logDetails(details, infoLogger);
+                logInfo.info(logManager.logDetails(details));
                 details.clear();
             }
             if (Configurations.PROCESS_FAILD_COUNT > 0) {
-                logManager.logStartEnd("RISK_CALCULATION_PROCESS Process completed for existing cards with errors", infoLogger);
+                logInfo.info(logManager.logStartEnd("RISK_CALCULATION_PROCESS Process completed for existing cards with errors"));
             } else {
-                logManager.logStartEnd("RISK_CALCULATION_PROCESS Process completed for existing cards without errors", infoLogger);
+                logInfo.info(logManager.logStartEnd("RISK_CALCULATION_PROCESS Process completed for existing cards without errors"));
             }
         }
     }
@@ -371,11 +369,7 @@ public class RiskCalculationService {
             }
         }
 
-        if (monthNO != 0) {
-            return false;
-        } else {
-            return true;
-        }
+        return monthNO == 0;
 
     }
 
@@ -390,11 +384,7 @@ public class RiskCalculationService {
             dueAmount = (Double) lastStmtDetails.get(1);
         }
         //according to the NP CR V1.03 minimum payment should be 5% if account get NP
-        if (payments >= dueAmount) {
-            return true;
-        } else {
-            return false;
-        }
+        return payments >= dueAmount;
     }
 
     private int getLastMinimumPaymentMonth(StringBuffer cardNumber) throws Exception {
@@ -436,26 +426,26 @@ public class RiskCalculationService {
         List<BigDecimal> balanceAfterSetOffBig = new ArrayList<BigDecimal>();
         List<BigDecimal> KnockOffListBig = new ArrayList<BigDecimal>();
         try {
-            BigDecimal remainingBalanceBig = new BigDecimal(0.0);
-            BigDecimal remainingTotalFeesBig = new BigDecimal(0.0);
+            BigDecimal remainingBalanceBig = new BigDecimal("0.0");
+            BigDecimal remainingTotalFeesBig = new BigDecimal("0.0");
 
-            BigDecimal remainingNPInterestBig = new BigDecimal(0.0);
-            BigDecimal remainingNPCapitalBig = new BigDecimal(0.0);
-            BigDecimal remainingNPOutstandingBig = new BigDecimal(0.0);
-            BigDecimal remainingAccruedInterestBig = new BigDecimal(0.0);
-            BigDecimal remainingAccruedLatePayBig = new BigDecimal(0.0);
-            BigDecimal remainingAccruedOverLimitBig = new BigDecimal(0.0);
-            BigDecimal remainingAccruedOtherFeesBig = new BigDecimal(0.0);
+            BigDecimal remainingNPInterestBig = new BigDecimal("0.0");
+            BigDecimal remainingNPCapitalBig = new BigDecimal("0.0");
+            BigDecimal remainingNPOutstandingBig = new BigDecimal("0.0");
+            BigDecimal remainingAccruedInterestBig = new BigDecimal("0.0");
+            BigDecimal remainingAccruedLatePayBig = new BigDecimal("0.0");
+            BigDecimal remainingAccruedOverLimitBig = new BigDecimal("0.0");
+            BigDecimal remainingAccruedOtherFeesBig = new BigDecimal("0.0");
 
-            BigDecimal knocOffNPInterestBig = new BigDecimal(0.0);
-            BigDecimal knocOffNPCapitalBig = new BigDecimal(0.0);
-            BigDecimal knocOffNPOutstandingBig = new BigDecimal(0.0);
-            BigDecimal knocOffAccruedInterestBig = new BigDecimal(0.0);
-            BigDecimal knocOffAccruedLatePayBig = new BigDecimal(0.0);
-            BigDecimal knocOffAccruedOverLimitBig = new BigDecimal(0.0);
-            BigDecimal knocOffAccruedOtherFeesBig = new BigDecimal(0.0);
+            BigDecimal knocOffNPInterestBig = new BigDecimal("0.0");
+            BigDecimal knocOffNPCapitalBig = new BigDecimal("0.0");
+            BigDecimal knocOffNPOutstandingBig = new BigDecimal("0.0");
+            BigDecimal knocOffAccruedInterestBig = new BigDecimal("0.0");
+            BigDecimal knocOffAccruedLatePayBig = new BigDecimal("0.0");
+            BigDecimal knocOffAccruedOverLimitBig = new BigDecimal("0.0");
+            BigDecimal knocOffAccruedOtherFeesBig = new BigDecimal("0.0");
 
-            BigDecimal totalAccruedBig = new BigDecimal(0.0);
+            BigDecimal totalAccruedBig = new BigDecimal("0.0");
 
             boolean npDeClassified = false;
 
@@ -571,8 +561,8 @@ public class RiskCalculationService {
                 delinquentAccountBean.setNpOutstanding(0.0);
 
                 details2.put("Knock Off Status", "Passed");
-                logManager.logInfo("Successfully updated remaining balance of NP Details after payment of " + paymentAmount + " for accNo : " + accNo, infoLogger);
-                logManager.logDetails(details2, infoLogger);
+                logInfo.info("Successfully updated remaining balance of NP Details after payment of " + paymentAmount + " for accNo : " + accNo);
+                logInfo.info(logManager.logDetails(details2));
                 details2.clear();
 
                 //Generate gl when receiving payment for np accounts. (NP CR 2019/09/25)
@@ -618,8 +608,8 @@ public class RiskCalculationService {
                         remainingAccruedLatePayBig, remainingAccruedOtherFeesBig, accNo);
 
                 details2.put("Knock Off Status", "Passed");
-                logManager.logInfo("Successfully updated remaining balance of NP Details after payment of " + paymentAmount + " for accNo : " + accNo, infoLogger);
-                logManager.logDetails(details2, infoLogger);
+                logInfo.info("Successfully updated remaining balance of NP Details after payment of " + paymentAmount + " for accNo : " + accNo);
+                logInfo.info(logManager.logDetails(details2));
                 details2.clear();
 
                 //Generate gl when receiving payment for np accounts. (NP CR 2019/09/25)
@@ -646,7 +636,7 @@ public class RiskCalculationService {
 
             }
 
-            logManager.logInfo("Inserted GL entries for payment knock off for accNo : " + accNo, infoLogger);
+            logInfo.info("Inserted GL entries for payment knock off for accNo : " + accNo);
         } catch (Exception ex) {
             throw ex;
         }
@@ -687,12 +677,12 @@ public class RiskCalculationService {
                     BigDecimal provisionPercentageBigDec = new BigDecimal(provisionPercentage).
                             divide(BigDecimal.valueOf(100), MathContext.DECIMAL32);
 
-                    BigDecimal calculateProvisionBigDec = new BigDecimal(0.0);
+                    BigDecimal calculateProvisionBigDec = new BigDecimal("0.0");
                     calculateProvisionBigDec = remainingCapitalBigDec.multiply(provisionPercentageBigDec, MathContext.DECIMAL64);
                     calculateProvisionBigDec = calculateProvisionBigDec.setScale(2, RoundingMode.DOWN);
                     calculateProvision = calculateProvisionBigDec.doubleValue();
 
-                    BigDecimal provisionGLAmountBigDec = new BigDecimal(0.0);
+                    BigDecimal provisionGLAmountBigDec = new BigDecimal("0.0");
                     provisionGLAmountBigDec = oldProvisionAmountBigDec.subtract(calculateProvisionBigDec);
                     provisionGLAmountBigDec = provisionGLAmountBigDec.setScale(2, RoundingMode.DOWN);
                     provisionGLAmount = provisionGLAmountBigDec.doubleValue();
@@ -702,14 +692,14 @@ public class RiskCalculationService {
                     if (provisionGLAmount > 0) {
                         riskCalculationDao.insertIntoEodGLAccount(Configurations.EOD_ID, Configurations.EOD_DATE, delinquentAccountBean.getCardNumber(),
                                 Configurations.PROVISION_KNOCK_OFF_GL, provisionGLAmount, Configurations.DEBIT, null);
-                        logManager.logInfo("Inserted GL entries for provision after payment knock off for accNo : " + accNo, infoLogger);
+                        logInfo.info("Inserted GL entries for provision after payment knock off for accNo : " + accNo);
                     }
                     isTrue = true;
                 } else {
-                    BigDecimal calculateProvisionBigDec = new BigDecimal(0.0);
+                    BigDecimal calculateProvisionBigDec = new BigDecimal("0.0");
                     calculateProvision = 0.0;
 
-                    BigDecimal provisionGLAmountBigDec = new BigDecimal(0.0);
+                    BigDecimal provisionGLAmountBigDec = new BigDecimal("0.0");
                     provisionGLAmountBigDec = oldProvisionAmountBigDec.subtract(calculateProvisionBigDec);
                     provisionGLAmountBigDec = provisionGLAmountBigDec.setScale(2, RoundingMode.DOWN);
                     provisionGLAmount = provisionGLAmountBigDec.doubleValue();
@@ -719,7 +709,7 @@ public class RiskCalculationService {
                     if (provisionGLAmount > 0) {
                         riskCalculationDao.insertIntoEodGLAccount(Configurations.EOD_ID, Configurations.EOD_DATE, delinquentAccountBean.getCardNumber(),
                                 Configurations.PROVISION_KNOCK_OFF_GL, provisionGLAmount, Configurations.DEBIT, null);
-                        logManager.logInfo("Inserted GL entries for provision after payment knock off for accNo : " + accNo, infoLogger);
+                        logInfo.info(("Inserted GL entries for provision after payment knock off for accNo : " + accNo));
                     }
                     isTrue = true;
                 }
@@ -729,8 +719,8 @@ public class RiskCalculationService {
                 details3.put("Provision GL Amount", provisionGLAmount);
                 details3.put("New Provision Amoun", calculateProvision);
                 details3.put("Knock Off Status for Provision", "Passed");
-                logManager.logInfo("Successfully updated remaining balance of Provision Amount after payment of " + paymentAmount + " for accNo : " + accNo, infoLogger);
-                logManager.logDetails(details3, infoLogger);
+                logInfo.info("Successfully updated remaining balance of Provision Amount after payment of " + paymentAmount + " for accNo : " + accNo);
+                logInfo.info(logManager.logDetails(details3));
                 details3.clear();
             }
 
@@ -832,7 +822,6 @@ public class RiskCalculationService {
 
             isSameRiskClass = this.compareRiskClass(newriskClass[1], delinquentAccountBean.getRiskClass());
             remark = "Risk class change from " + delinquentAccountBean.getRiskClass() + " to " + newriskClass[1];
-            ;
 
             //If Due date process need to change dueDate on delinquent also
             if (delinquentAccountBean.getIsdueDate() == 1) {
@@ -927,10 +916,7 @@ public class RiskCalculationService {
     }
 
     private boolean compareRiskClass(String newriskClass, String riskClass) {
-        boolean isSameRiskClass = false;
-        if (newriskClass.equals(riskClass)) {
-            isSameRiskClass = true;
-        }
+        boolean isSameRiskClass = newriskClass.equals(riskClass);
         return isSameRiskClass;
     }
 
@@ -1031,7 +1017,7 @@ public class RiskCalculationService {
     }
 
     @Async("ThreadPool_100")
-    @Transactional(value="transactionManager",propagation = Propagation.REQUIRED,rollbackFor = Exception.class)
+    @Transactional(value = "transactionManager", propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
     public void freshCardToTable(RiskCalculationBean riskCalculationBean, ProcessBean processBean) {
         if (!Configurations.isInterrupted) {
             String[] newriskClass;
@@ -1088,10 +1074,9 @@ public class RiskCalculationService {
                 Configurations.PROCESS_FAILD_COUNT++;
                 Configurations.errorCardList.add(new ErrorCardBean(Configurations.ERROR_EOD_ID, Configurations.EOD_DATE, new StringBuffer(riskCalculationBean.getCardNo()), e.getMessage(), Configurations.RUNNING_PROCESS_ID, Configurations.RUNNING_PROCESS_DESCRIPTION, 0, CardAccount.CARD));
                 details.put("Process Status", "Failed");
-                logManager.logInfo("RISK_CALCULATION_PROCESS Process for new cards failed for cardnumber " + CommonMethods.cardInfo(maskedCardNumber, processBean), infoLogger);
-                logManager.logError("RISK_CALCULATION_PROCESS Process for new cards failed for cardnumber " + CommonMethods.cardInfo(maskedCardNumber, processBean), e, errorLogger);
+                logError.error("RISK_CALCULATION_PROCESS Process for new cards failed for cardnumber " + CommonMethods.cardInfo(maskedCardNumber, processBean), e);
             } finally {
-                logManager.logDetails(details, infoLogger);
+                logInfo.info(logManager.logDetails(details));
             }
         }
     }

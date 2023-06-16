@@ -15,6 +15,9 @@ import com.epic.cms.util.Configurations;
 import com.epic.cms.util.LogManager;
 import com.epic.cms.util.MerchantCustomer;
 import com.epic.cms.util.StatusVarList;
+import lombok.extern.slf4j.Slf4j;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
@@ -28,19 +31,18 @@ import java.util.LinkedHashMap;
 import java.util.List;
 
 import static com.epic.cms.util.Configurations.merchantErrorList;
-import static com.epic.cms.util.LogManager.errorLogger;
-import static com.epic.cms.util.LogManager.infoLogger;
 
 @Service
 public class PreMerchantFeeService {
+    private static final Logger logInfo = LoggerFactory.getLogger("logInfo");
+    private static final Logger logError = LoggerFactory.getLogger("logError");
+    public LinkedHashMap details = new LinkedHashMap();
     @Autowired
     StatusVarList status;
     @Autowired
     LogManager logManager;
     @Autowired
     PreMerchantFeeDao preMerchantFeeDao;
-
-    public LinkedHashMap details = new LinkedHashMap();
 
     @Async("taskExecutor2")
     @Transactional(value = "transactionManager", propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
@@ -51,7 +53,7 @@ public class PreMerchantFeeService {
             if (feeProfileCode != null) {
                 List<String> eligibleFeeCodeList = feeCodeMap.get(feeProfileCode); //get the eligible fee code list for the merchant
                 if (eligibleFeeCodeList != null) {
-                    Configurations.PROCESS_TOTAL_NOOF_TRABSACTIONS +=eligibleFeeCodeList.size();
+                    Configurations.PROCESS_TOTAL_NOOF_TRABSACTIONS += eligibleFeeCodeList.size();
                     for (String feeCode : eligibleFeeCodeList) {
                         if (feeCode.equalsIgnoreCase(Configurations.MERCHANT_ANNUAL_FEE) || feeCode.equalsIgnoreCase(Configurations.MERCHANT_BI_MONTHLY_FEE)
                                 || feeCode.equalsIgnoreCase(Configurations.MERCHANT_QUARTERLY_FEE) || feeCode.equalsIgnoreCase(Configurations.MERCHANT_HALF_YEARLY_FEE)) { //merchant recurring fees
@@ -82,17 +84,17 @@ public class PreMerchantFeeService {
                         }
                     }
                 } else { //fee code list not found
-                    logManager.logError("No fee code list found for " + feeProfileCode,errorLogger);
+                    logError.error("No fee code list found for " + feeProfileCode);
                 }
 
             } else { //fee profile code is not defined for merchant
                 Configurations.PROCESS_FAILD_COUNT++;
-                logManager.logError("No fee profile code define for merchant" + merchantBean.getMerchantId(), errorLogger);
+                logError.error("No fee profile code define for merchant" + merchantBean.getMerchantId());
 //                merchantErrorList.add(new ErrorMerchantBean(Configurations.ERROR_EOD_ID, Configurations.EOD_DATE, merchantBean.getMerchantId(), "No fee profile code defined", configProcess, processHeader, 0, MerchantCustomer.MERCHANTLOCATION));
             }
         } catch (Exception ex) {
             Configurations.PROCESS_FAILD_COUNT++;
-            logManager.logError("Error occurred", ex, errorLogger);
+            logError.error("Error occurred", ex);
             merchantErrorList.add(new ErrorMerchantBean(Configurations.ERROR_EOD_ID, Configurations.EOD_DATE, merchantBean.getMerchantId(), ex.getMessage(), Configurations.RUNNING_PROCESS_ID, Configurations.RUNNING_PROCESS_DESCRIPTION, 0, MerchantCustomer.MERCHANTLOCATION));
         }
     }
@@ -115,7 +117,7 @@ public class PreMerchantFeeService {
             details.put("Applying merchant " + feeCode + " fee for the merchant ", merchantBean.getMerchantId());
             isApplied = preMerchantFeeDao.addMerchantFeeCount(merchantBean.getMerchantId(), feeCode);
         }
-       logManager.logDetails(details, infoLogger);
+        logInfo.info(logManager.logDetails(details));
         details.clear();
         return isApplied;
     }
@@ -142,7 +144,7 @@ public class PreMerchantFeeService {
             isApplied = preMerchantFeeDao.addMerchantFeeCount(merchantId, feeCode);
         }
 
-        logManager.logDetails(details, infoLogger);
+        logInfo.info(logManager.logDetails(details));
         details.clear();
         return isApplied;
     }

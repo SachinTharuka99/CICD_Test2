@@ -7,14 +7,17 @@
 
 package com.epic.cms.service;
 
-import com.epic.cms.dao.MasterFileClearingDao;
 import com.epic.cms.Exception.RejectException;
+import com.epic.cms.dao.MasterFileClearingDao;
 import com.epic.cms.model.bean.FileBean;
 import com.epic.cms.model.bean.MasterFieldsDataBean;
 import com.epic.cms.model.bean.MasterRejectBean;
 import com.epic.cms.repository.CommonRepo;
 import com.epic.cms.util.*;
+import lombok.extern.slf4j.Slf4j;
 import org.jpos.iso.ISOUtil;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Propagation;
@@ -26,10 +29,10 @@ import java.io.InputStream;
 import java.util.LinkedHashMap;
 import java.util.UUID;
 
-import static com.epic.cms.util.LogManager.*;
-
 @Service
 public class MasterFileClearingService {
+    private static final Logger logInfo = LoggerFactory.getLogger("logInfo");
+    private static final Logger logError = LoggerFactory.getLogger("logError");
     @Autowired
     public LogManager logManager;
     @Autowired
@@ -70,7 +73,7 @@ public class MasterFileClearingService {
                         + "\nFile Name : " + file.getName()
                         + "\nFile ID   : " + fileId;
 
-                logManager.logHeader(print, infoLoggerEFPE);
+                logInfo.info(logManager.logHeader(print));
 
                 String masterFileId = fileId;
                 String fileName = fileBean.getFileName();
@@ -84,23 +87,23 @@ public class MasterFileClearingService {
                 is = new FileInputStream(file);
 
                 if (!file.exists()) {
-                    logManager.logHeader("Error : File does not exist",infoLoggerEFPE);
+                    logInfo.info(logManager.logHeader("Error : File does not exist"));
                 } else if (!file.isFile()) {
-                    logManager.logHeader("Error : File is not a file type",infoLoggerEFPE);
+                    logInfo.info(logManager.logHeader("Error : File is not a file type"));
                 } else if (!file.canRead()) {
-                    logManager.logHeader("Error : File is unreadable",infoLoggerEFPE);
+                    logInfo.info(logManager.logHeader("Error : File is unreadable"));
                 } else {
                     long length = file.length();
-                    logManager.logHeader("File size : " + length + " ( bytes )",infoLoggerEFPE);
+                    logInfo.info(logManager.logHeader("File size : " + length + " ( bytes )"));
                     if (length <= 0) {
-                        logManager.logHeader("Error : Empty file",infoLoggerEFPE);
+                        logInfo.info(logManager.logHeader("Error : Empty file"));
                     } else if (length > Integer.MAX_VALUE) {
-                        logManager.logHeader("Error : File size too large",infoLoggerEFPE);
+                        logInfo.info(logManager.logHeader("Error : File size too large"));
                     } else {
                         //update file status to FREAD
                         masterFileClearingDao.updateFileStatus(fileId, DatabaseStatus.STATUS_FILE_READ);
                         print = "Master File [ " + fileName + " ] accepted for processing.";
-                        logManager.logHeader(print, infoLoggerEFPE);
+                        logInfo.info(logManager.logHeader(print));
 
                         byte[] bytes = new byte[(int) length];
 
@@ -112,7 +115,7 @@ public class MasterFileClearingService {
 
                         if (offset < bytes.length) {
                             details.put("Error : Could not completely read the file", "");
-                            logManager.logError("Master File Reading Process: Could not completely read the file", errorLoggerEFPE);
+                            logError.error("Master File Reading Process: Could not completely read the file");
                             return;
                         }
 
@@ -133,7 +136,7 @@ public class MasterFileClearingService {
 
                         hexString = sb.toString();
                         print = "Initialized the Master Card Extractor : " + MasterExtractElementService.initialize();
-                        logManager.logInfo(print, infoLoggerEFPE);
+                        logInfo.info(print);
                         int recordLengthInt = 0;
                         int count = 0;
 
@@ -143,12 +146,12 @@ public class MasterFileClearingService {
                                 if (hexString.length() >= 8) {
                                     recordLengthStr = hexString.substring(0, 8); //first 8 characters represents the particular record length
                                 } else {
-                                    logManager.logInfo("File reading finished", infoLoggerEFPE);
+                                    logInfo.info("File reading finished");
                                     break;
                                 }
                                 recordLengthInt = Integer.parseInt(recordLengthStr, 16); // convert record length to a integer value
                                 if (recordLengthInt == 0) {
-                                    logManager.logInfo("File reading finished", infoLoggerEFPE);
+                                    logInfo.info("File reading finished");
                                     break;
                                 }
                                 String transactionDataRecord = hexString.substring(8, ((recordLengthInt * 2) + 8)); //get the record data without the length part
@@ -188,16 +191,16 @@ public class MasterFileClearingService {
                                                     masterFieldsBean.getTxnCurrencyCode(), masterFieldsBean.getTxnDate(), masterFieldsBean.getTxnTime(), "", Configurations.EOD_USER, new java.sql.Date(System.currentTimeMillis()), masterFieldsBean.getBillingAmount(),
                                                     masterFieldsBean.getBillingCurrencyCode(), "", masterFieldsBean.getAcceptorName(), masterFieldsBean.getMerchantCity(), masterFieldsBean.getMerchantCountryCode(), masterFieldsBean.getAcceptorBusinessCode(), "", "", "", masterFieldsBean.getAcceptorTerminalId(), "", "MASTER");
                                         } catch (Exception e) {
-                                            logManager.logError("Unable to insert exceptional master transaction record: ", e, errorLoggerEFPE);
+                                            logError.error("Unable to insert exceptional master transaction record: ", e);
                                         }
                                     }
                                     presentmentTxnCount++;
                                 }
                                 count++;
                             } catch (RejectException ex) {
-                                logManager.logError("Master File Transaction Rejected: ", ex, errorLoggerEFPE);
+                                logError.error("Master File Transaction Rejected: ", ex);
                                 print = "Master file transaction rejected - ";
-                                logManager.logInfo(print, infoLoggerEFPE);
+                                logInfo.info(print);
                                 findRejectedFields(ex.getMessage(), rejectBean);
                                 try {
                                     masterFileClearingDao.insertRejectedMasterDetails(rejectBean, Configurations.EOD_USER);
@@ -213,7 +216,7 @@ public class MasterFileClearingService {
                         masterFileClearingDao.updateFileTxnCount(masterFileId, String.valueOf(masterFileClearingDao.loadMasterTransactionCount(masterFileId)));
 
                         print = "Master File processing completed... \n Total Presentments: " + presentmentTxnCount;
-                        logManager.logInfo(print, infoLoggerEFPE);
+                        logInfo.info(print);
 
                         Configurations.PROCESS_MASTER_FILE = false;
                     }
@@ -226,16 +229,16 @@ public class MasterFileClearingService {
                         + "\nFile Name : " + file.getName()
                         + "\nFile ID   : " + fileId;
 
-                logManager.logInfo(print, infoLoggerEFPE);
+                logInfo.info(print);
             }
         } catch (Exception ex) { //exception occured in considering ipm file
-            logManager.logError("Error Occured in Master transaction: ", ex, errorLoggerEFPE);
+            logError.error("Error Occured in Master transaction: ", ex);
             print = "Master File rejected...";
-            logManager.logInfo(print, infoLoggerEFPE);
+            logInfo.info(print);
             try {
                 masterFileClearingDao.updateFileStatus(fileId, DatabaseStatus.STATUS_FILE_REJECT);
             } catch (Exception e) {
-                logManager.logError("Master File Reading Process: ", e, errorLoggerEFPE);
+                logError.error("Master File Reading Process: ", e);
             }
         } finally {
             try {
@@ -251,7 +254,7 @@ public class MasterFileClearingService {
                 CommonMethods.clearStringBuffer(masterFieldsBean.getPan());
                 masterFieldsBean = null;
             } catch (Exception ex) {
-                logManager.logError("Master File Reading Process: ", ex, errorLoggerEFPE);
+                logError.error("Master File Reading Process: ", ex);
             }
         }
     }

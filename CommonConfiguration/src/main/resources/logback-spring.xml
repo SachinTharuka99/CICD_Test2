@@ -1,0 +1,63 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<configuration>
+    <springProperty scope="context" name="LOG_ROOT" source="log.root"/>
+    <springProperty scope="context" name="MODULE_NAME" source="module.name"/>
+    <property name="LOG_PATTERN" value="%d %p %c{1.} [%t] - [%F:%L] ${MODULE_NAME} %m%n" />
+
+    <appender name="CONSOLE" class="ch.qos.logback.core.ConsoleAppender">
+        <encoder>
+            <pattern>${LOG_PATTERN}</pattern>
+        </encoder>
+    </appender>
+
+    <appender name="FILE_ROLLING_INFO" class="ch.qos.logback.core.rolling.RollingFileAppender">
+        <file>${LOG_ROOT}/eod_info.log</file>
+        <encoder>
+            <pattern>${LOG_PATTERN}</pattern>
+        </encoder>
+        <rollingPolicy class="ch.qos.logback.core.rolling.SizeAndTimeBasedRollingPolicy">
+            <!-- rollover daily -->
+            <fileNamePattern>${LOG_ROOT}/archived/eod_info.%d{yyyy-MM-dd}.%i.log</fileNamePattern>
+            <!-- each archived file, size max 5KB -->
+            <maxFileSize>1GB</maxFileSize>
+            <!-- total size of all archive files, if total size > 20GB, it will delete old archived file -->
+            <totalSizeCap>20GB</totalSizeCap>
+            <!-- 60 days to keep -->
+            <maxHistory>60</maxHistory>
+        </rollingPolicy>
+    </appender>
+
+    <appender name="FILE_ROLLING_ERROR" class="ch.qos.logback.core.rolling.RollingFileAppender">
+        <file>${LOG_ROOT}/eod_error.log</file>
+        <encoder>
+             <pattern>${LOG_PATTERN}</pattern>
+        </encoder>
+        <rollingPolicy class="ch.qos.logback.core.rolling.SizeAndTimeBasedRollingPolicy">
+            <!-- rollover daily -->
+            <fileNamePattern>${LOG_ROOT}/archived/eod_error.%d{yyyy-MM-dd}.%i.log</fileNamePattern>
+            <!-- each archived file, size max 5KB -->
+            <maxFileSize>1GB</maxFileSize>
+            <!-- total size of all archive files, if total size > 20GB, it will delete old archived file -->
+            <totalSizeCap>20GB</totalSizeCap>
+            <!-- 60 days to keep -->
+            <maxHistory>60</maxHistory>
+        </rollingPolicy>
+    </appender>
+
+    <!--write info logs to eod_info file-->
+    <logger name="logInfo" level="INFO" additivity="true">
+        <appender-ref ref="CONSOLE" />
+        <appender-ref ref="FILE_ROLLING_INFO" />
+    </logger>
+
+    <!--write error logs to eod_error file-->
+    <logger name="logError" level="INFO" additivity="true">
+        <appender-ref ref="CONSOLE" />
+        <appender-ref ref="FILE_ROLLING_ERROR" />
+    </logger>
+
+    <root level="INFO">
+        <appender-ref ref="CONSOLE" />
+    </root>
+
+</configuration>

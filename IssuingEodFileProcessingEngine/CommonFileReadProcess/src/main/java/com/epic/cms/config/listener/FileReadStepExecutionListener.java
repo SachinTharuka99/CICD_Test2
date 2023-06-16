@@ -8,8 +8,10 @@
 package com.epic.cms.config.listener;
 
 import com.epic.cms.repository.CommonFileReadRepo;
-import com.epic.cms.util.Configurations;
 import com.epic.cms.util.LogManager;
+import lombok.extern.slf4j.Slf4j;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.batch.core.ExitStatus;
 import org.springframework.batch.core.StepExecution;
 import org.springframework.batch.core.StepExecutionListener;
@@ -18,16 +20,15 @@ import org.springframework.beans.factory.annotation.Value;
 
 import java.util.LinkedHashMap;
 
-import static com.epic.cms.util.LogManager.*;
-
 public class FileReadStepExecutionListener implements StepExecutionListener {
+    private static final Logger logInfo = LoggerFactory.getLogger("logInfo");
+    private static final Logger logError = LoggerFactory.getLogger("logError");
     @Value("#{jobParameters[fileId]}")
     private String fileId;
     @Value("#{jobParameters[fileName]}")
     private String fileName;
     @Value("#{jobParameters[tableName]}")
     private String tableName;
-
     @Autowired
     private CommonFileReadRepo commonFileReadRepo;
     @Autowired
@@ -38,7 +39,7 @@ public class FileReadStepExecutionListener implements StepExecutionListener {
         try {
             commonFileReadRepo.updateFileReadStartTime(tableName, fileId);
         } catch (Exception ex) {
-            logManager.logError(ex.getMessage(), ex, errorLoggerEFPE);
+            logError.error(ex.getMessage(), ex);
         }
     }
 
@@ -63,11 +64,10 @@ public class FileReadStepExecutionListener implements StepExecutionListener {
                 details.put("Rollback Count ", stepExecution.getRollbackCount());
 
             } catch (Exception ex) {
-                logManager.logError(ex.getMessage(), ex, errorLoggerEFPE);
+                logError.error(ex.getMessage(), ex);
             } finally {
-                logManager.logDetails(details, infoLoggerEFPE);
+                logInfo.info(logManager.logDetails(details));
             }
-
         }
         return stepExecution.getExitStatus();
     }

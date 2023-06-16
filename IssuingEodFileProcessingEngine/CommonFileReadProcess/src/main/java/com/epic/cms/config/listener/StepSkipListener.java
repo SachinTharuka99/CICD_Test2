@@ -11,35 +11,40 @@ import com.epic.cms.util.LogManager;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.epic.cms.model.bean.RecInputRowDataBean;
+import lombok.extern.slf4j.Slf4j;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.batch.core.SkipListener;
 import org.springframework.beans.factory.annotation.Autowired;
-
-import static com.epic.cms.util.LogManager.*;
 
 public class StepSkipListener implements SkipListener<RecInputRowDataBean, RecInputRowDataBean> {
     @Autowired
     LogManager logManager;
 
+    private static final Logger logInfo = LoggerFactory.getLogger("logInfo");
+    private static final Logger logError = LoggerFactory.getLogger("logError");
+
+
     @Override
     public void onSkipInRead(Throwable throwable) {
-        logManager.logInfo("A failure on read {}"+ throwable.getMessage(), infoLoggerEFPE);
+        logInfo.info("A failure on read {}"+ throwable.getMessage());
     }
 
     @Override
     public void onSkipInWrite(RecInputRowDataBean item, Throwable throwable) {
         try {
-            logManager.logInfo("A failure on write {},{}"+ throwable.getMessage()+ new ObjectMapper().writeValueAsString(item), infoLoggerEFPE);
+            logInfo.info("A failure on write {},{}"+ throwable.getMessage()+ new ObjectMapper().writeValueAsString(item));
         } catch (JsonProcessingException e) {
-            logManager.logError(e.getMessage(), e, errorLoggerEFPE);
+            logError.error(e.getMessage(), e);
         }
     }
 
     @Override
     public void onSkipInProcess(RecInputRowDataBean item, Throwable throwable) {
         try {
-            logManager.logInfo("Item {} was skipped due to the exception {}"+ new ObjectMapper().writeValueAsString(item)+ throwable.getMessage(), infoLoggerEFPE);
+            logInfo.info("Item {} was skipped due to the exception {}"+ new ObjectMapper().writeValueAsString(item)+ throwable.getMessage());
         } catch (JsonProcessingException e) {
-            logManager.logError(e.getMessage(), errorLoggerEFPE);
+            logError.error(e.getMessage());
         }
     }
 }

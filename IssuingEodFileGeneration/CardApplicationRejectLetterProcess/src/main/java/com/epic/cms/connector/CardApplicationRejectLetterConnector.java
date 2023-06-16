@@ -19,39 +19,34 @@ import com.epic.cms.util.CommonMethods;
 import com.epic.cms.util.Configurations;
 import com.epic.cms.util.LogManager;
 import com.epic.cms.util.StatusVarList;
+import lombok.extern.slf4j.Slf4j;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
 
-import static com.epic.cms.util.LogManager.*;
-
 @Service
 public class CardApplicationRejectLetterConnector extends FileGenProcessBuilder {
 
+    private static final Logger logInfo = LoggerFactory.getLogger("logInfo");
+    private static final Logger logError = LoggerFactory.getLogger("logError");
     @Autowired
     LogManager logManager;
-
     @Autowired
     CardApplicationRejectLetterRepo cardApplicationRejectLetterRepo;
-
     @Autowired
     CommonRepo commonRepo;
-
     @Autowired
     LetterRepo letterRepo;
-
     @Autowired
     LetterService letterService;
-
     @Autowired
     FileGenerationService fileGenerationService;
-
     @Autowired
     CardApplicationRejectLetterService cardApplicationRejectLetterService;
-
     String[] fileNameAndPath = null;
-
     @Autowired
     StatusVarList statusVarList;
 
@@ -85,13 +80,13 @@ public class CardApplicationRejectLetterConnector extends FileGenProcessBuilder 
             errorBean.setProcessId(Configurations.PROCESS_ID_CARDAPPLICATION_LETTER_REJECT);
             errorBean.setIsProcessFails(1);
 
-            logManager.logError("Card Application Rejected Letter Process Failed", e, errorLoggerEFGE);
+            logError.error("Card Application Rejected Letter Process Failed", e);
 
             if (fileNameAndPath != null) {
                 fileGenerationService.deleteExistFile(fileNameAndPath[0]);
             }
-        }finally {
-            logManager.logSummery(summery, infoLoggerEFGE);
+        } finally {
+            logInfo.info(logManager.logSummery(summery));
         }
     }
 
@@ -101,6 +96,5 @@ public class CardApplicationRejectLetterConnector extends FileGenProcessBuilder 
         summery.put("Total No of Effected Files ", Configurations.PROCESS_TOTAL_NOOF_TRABSACTIONS);
         summery.put("Process Success Count ", Configurations.PROCESS_SUCCESS_COUNT);
         summery.put("Process Failed Count ", Configurations.PROCESS_FAILD_COUNT);
-        //summery.put("File Name and Path ", fileNameAndPath);
     }
 }

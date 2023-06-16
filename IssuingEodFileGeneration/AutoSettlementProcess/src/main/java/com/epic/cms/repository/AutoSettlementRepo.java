@@ -9,11 +9,13 @@ package com.epic.cms.repository;
 
 import com.epic.cms.dao.AutoSettlementDao;
 import com.epic.cms.util.*;
+import lombok.extern.slf4j.Slf4j;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Repository;
-import org.springframework.transaction.annotation.Transactional;
 
 import java.math.BigDecimal;
 import java.math.MathContext;
@@ -27,27 +29,25 @@ import java.util.Map;
 import java.util.Objects;
 
 import static com.epic.cms.util.CommonMethods.validateLength;
-import static com.epic.cms.util.LogManager.*;
 
 @Repository
 public class AutoSettlementRepo implements AutoSettlementDao {
 
+    private static final Logger logInfo = LoggerFactory.getLogger("logInfo");
+    private static final Logger logError = LoggerFactory.getLogger("logError");
+    @Autowired
+    LogManager logManager;
     @Autowired
     private JdbcTemplate backendJdbcTemplate;
-
     @Autowired
     private StatusVarList statusVarList;
 
-    @Autowired
-    LogManager logManager;
-
     @Override
-
     public int updateAutoSettlementWithPayments() throws Exception {
         Map<String, Object> details = new LinkedHashMap<String, Object>();
 
         int count = 0;
-        logManager.logInfo("  STEP 01 - Check Received Payments",infoLoggerEFGE);
+        logInfo.info("  STEP 01 - Check Received Payments");
         try {
             SimpleDateFormat format = new SimpleDateFormat("dd-MMM-yy");
             String dateEID = format.format(Configurations.EOD_DATE);
@@ -77,7 +77,7 @@ public class AutoSettlementRepo implements AutoSettlementDao {
                         details.put("Outsanding After Payment", Double.toString(newRemainingAmount));
                         details.put("Status", "Successfull");
 
-                        logManager.logDetails(details, infoLoggerEFGE);
+                        logInfo.info(logManager.logDetails(details));
                     }
                     return temp;
 
@@ -104,7 +104,7 @@ public class AutoSettlementRepo implements AutoSettlementDao {
                                 details.put("Outsanding After Payment", Double.toString(newRemainingAmount));
                                 details.put("Status", "Successfull");
 
-                                logManager.logDetails(details, infoLoggerEFGE);
+                                logInfo.info(logManager.logDetails(details));
                             }
                             return temp;
 
@@ -113,10 +113,9 @@ public class AutoSettlementRepo implements AutoSettlementDao {
 
             }
         } catch (Exception e) {
-            logManager.logError("    Status - Payment Update fails",errorLoggerEFGE);
             throw e;
         }
-        logManager.logInfo("  STEP 01 - Successfull with " + count + " Payment Updates",infoLoggerEFGE);
+        logError.error("  STEP 01 - Successfull with " + count + " Payment Updates");
         return count;
     }
 
@@ -169,7 +168,7 @@ public class AutoSettlementRepo implements AutoSettlementDao {
                         try {
                             addCardFeeCount(cardNo, Configurations.UNSUCCESSFUL_STANDING_INSTRUCTION_CHARGE_FEE, 0.00);
                         } catch (Exception e) {
-                            logManager.logError("Exception in Add Card Fee Count ", errorLoggerEFGE);
+                            logError.error("Exception in Add Card Fee Count ");
                         }
                     }
                 }, statusVarList.getEOD_PENDING_STATUS());
@@ -182,7 +181,7 @@ public class AutoSettlementRepo implements AutoSettlementDao {
                         try {
                             addCardFeeCount(cardNo, Configurations.UNSUCCESSFUL_STANDING_INSTRUCTION_CHARGE_FEE, 0.00);
                         } catch (Exception e) {
-                            logManager.logError("Exception in Add Card Fee Count ", errorLoggerEFGE);
+                            logError.error("Exception in Add Card Fee Count ");
                         }
                     }
                 }, statusVarList.getEOD_PENDING_STATUS(), Configurations.ERROR_EOD_ID, Configurations.PROCESS_STEP_ID);
@@ -256,7 +255,7 @@ public class AutoSettlementRepo implements AutoSettlementDao {
     public String[] generatePartialAutoSettlementFile(String fileDirectory, String fileName, String sequence, String fieldDelimeter) throws Exception {
         String[] partialList = new String[3];
         try {
-            logManager.logInfo("  STEP 02 - Creating Partial Auto Settlement File",infoLoggerEFGE);
+            logInfo.info("  STEP 02 - Creating Partial Auto Settlement File");
 
             String query = "SELECT AST.*,CU.CURRENCYALPHACODE FROM AUTOSETTLEMENT AST, CURRENCY CU WHERE AST.PROCESSINGCOUNT >0 AND AST.RUNNINGSTATUS =? AND AST.AUTOSETTLEMENTSTATUS =? AND AST.STATUS =? AND AST.CURRENCYNUMCODE = CU.CURRENCYNUMCODE ";
 
@@ -264,12 +263,12 @@ public class AutoSettlementRepo implements AutoSettlementDao {
                 query += " and AST.CARDACCOUNT not in (select ec.ACCOUNTNO from eoderrorcards ec where ec.status= ? )";
 
                 backendJdbcTemplate.query(query, (ResultSet result) -> {
-                            BigDecimal totalTxnAmount = new BigDecimal(0.0);
-                            BigDecimal remainingAmount = new BigDecimal(0.0);
-                            BigDecimal remainingAmountRoundOff = new BigDecimal(0.0);
+                            BigDecimal totalTxnAmount = new BigDecimal("0.0");
+                            BigDecimal remainingAmount = new BigDecimal("0.0");
+                            BigDecimal remainingAmountRoundOff = new BigDecimal("0.0");
 
-                            BigDecimal headerCreditBig = new BigDecimal(0.0);
-                            BigDecimal headerDebitBig = new BigDecimal(0.0);
+                            BigDecimal headerCreditBig = new BigDecimal("0.0");
+                            BigDecimal headerDebitBig = new BigDecimal("0.0");
                             int headerCreditCount = 0;
                             int headerDebitCount = 0;
 
@@ -351,9 +350,9 @@ public class AutoSettlementRepo implements AutoSettlementDao {
                                     details.put("Amount", remainingAmountRoundOff.toString());
                                     details.put("Debit Acc No", result.getString("DEBITACCOUNTNO"));
                                     details.put("Collection Acc No", Configurations.COLLECTION_ACCOUNT);
-                                    logManager.logDetails(details, infoLoggerEFGE);
+                                    logInfo.info(logManager.logDetails(details));
                                 } catch (Exception e) {
-                                    logManager.logError("Exception in creating partial file content ", errorLoggerEFGE);
+                                    logError.error("Exception in creating partial file content ");
                                 }
 
                             }
@@ -366,12 +365,12 @@ public class AutoSettlementRepo implements AutoSettlementDao {
                 query += " and AST.CARDACCOUNT in (select ec.ACCOUNTNO from eoderrorcards ec where ec.status= ? and EODID < ? and PROCESSSTEPID <= ?)";
 
                 backendJdbcTemplate.query(query, (ResultSet result) -> {
-                            BigDecimal totalTxnAmount = new BigDecimal(0.0);
-                            BigDecimal remainingAmount = new BigDecimal(0.0);
-                            BigDecimal remainingAmountRoundOff = new BigDecimal(0.0);
+                            BigDecimal totalTxnAmount = new BigDecimal("0.0");
+                            BigDecimal remainingAmount = new BigDecimal("0.0");
+                            BigDecimal remainingAmountRoundOff = new BigDecimal("0.0");
 
-                            BigDecimal headerCreditBig = new BigDecimal(0.0);
-                            BigDecimal headerDebitBig = new BigDecimal(0.0);
+                            BigDecimal headerCreditBig = new BigDecimal("0.0");
+                            BigDecimal headerDebitBig = new BigDecimal("0.0");
                             int headerCreditCount = 0;
                             int headerDebitCount = 0;
 
@@ -453,12 +452,11 @@ public class AutoSettlementRepo implements AutoSettlementDao {
                                     details.put("Amount", remainingAmountRoundOff.toString());
                                     details.put("Debit Acc No", result.getString("DEBITACCOUNTNO"));
                                     details.put("Collection Acc No", Configurations.COLLECTION_ACCOUNT);
-                                    logManager.logDetails(details, infoLoggerEFGE);
+                                    logInfo.info(logManager.logDetails(details));
 
                                 } catch (Exception e) {
-                                    logManager.logError("Exception in creating partial file content ", errorLoggerEFGE);
+                                    logError.error("Exception in creating partial file content ");
                                 }
-
                             }
                             return partialList;
                         }, statusVarList.getRUNNING_STATUS()
@@ -504,7 +502,7 @@ public class AutoSettlementRepo implements AutoSettlementDao {
                 backendJdbcTemplate.update(query, processingCount, runningStatus, 0.00, cardNo.toString());
             }
         } catch (Exception e) {
-            logManager.logError("updateAutoSettlementTable Failed ", errorLoggerEFGE);
+            logError.error("updateAutoSettlementTable Failed ");
         }
     }
 
@@ -517,7 +515,7 @@ public class AutoSettlementRepo implements AutoSettlementDao {
             DecimalFormat df = new DecimalFormat("#.00");
             df.setRoundingMode(RoundingMode.FLOOR);
 
-            logManager.logInfo("  STEP 03 - Creating Auto Settlement File",infoLoggerEFGE);//2 spaces
+            logInfo.info("  STEP 03 - Creating Auto Settlement File");//2 spaces
 
             String query = "SELECT AST.* ,BLS.DUEDATE AS SETTLEMENTDUEDATE ,BLS.STATEMENTENDDATE AS SETTLEMENTENDDATE ,BLS.CLOSINGBALANCE,CU.CURRENCYALPHACODE,BLS.MINAMOUNT  FROM autosettlement AST , BILLINGLASTSTATEMENTSUMMARY BLS ,CURRENCY CU  WHERE ast.cardno = bls.cardno AND  CU.CURRENCYNUMCODE = AST.CURRENCYNUMCODE AND  BLS.DUEDATE = to_date(?, 'dd-MM-yy')+1 AND  BLS.CLOSINGBALANCE > 0 AND  AST.STATUS = ? AND  AST.AUTOSETTLEMENTSTATUS = ? AND  AST.RUNNINGSTATUS IN ( ? , ?) ";
 
@@ -532,19 +530,19 @@ public class AutoSettlementRepo implements AutoSettlementDao {
                             Configurations.PROCESS_TOTAL_NOOF_TRABSACTIONS = 0;
                             Configurations.PROCESS_SUCCESS_COUNT = 0;
                             int txnCount = 0;
-                            BigDecimal headerCreditBig = new BigDecimal(0.0);
-                            BigDecimal headerDebitBig = new BigDecimal(0.0);
+                            BigDecimal headerCreditBig = new BigDecimal("0.0");
+                            BigDecimal headerDebitBig = new BigDecimal("0.0");
                             int headerCreditCount = 0;
                             int headerDebitCount = 0;
-                            BigDecimal totalTxnAmount = new BigDecimal(0.0);
+                            BigDecimal totalTxnAmount = new BigDecimal("0.0");
                             while (result.next()) {
                                 try {
                                     recordCount++;
                                     Configurations.PROCESS_TOTAL_NOOF_TRABSACTIONS++;
                                     boolean isInsert = false;
-                                    BigDecimal txnAmount = new BigDecimal(0.0);
-                                    BigDecimal lastTxnAmount = new BigDecimal(0.0);
-                                    BigDecimal lastTxnAmountRoundOff = new BigDecimal(0.0);
+                                    BigDecimal txnAmount = new BigDecimal("0.0");
+                                    BigDecimal lastTxnAmount = new BigDecimal("0.0");
+                                    BigDecimal lastTxnAmountRoundOff = new BigDecimal("0.0");
                                     LinkedHashMap<String, Object> details = new LinkedHashMap<String, Object>();
                                     int statementDayEODID = 0;
                                     CreateEodId convertToEOD = new CreateEodId();
@@ -647,10 +645,10 @@ public class AutoSettlementRepo implements AutoSettlementDao {
                                     details.put("Debit Acc No", result.getString("DEBITACCOUNTNO"));
                                     details.put("Collection Acc No", Configurations.COLLECTION_ACCOUNT);
 
-                                    logManager.logDetails(details, infoLoggerEFGE);
+                                    logInfo.info(logManager.logDetails(details));
                                     Configurations.PROCESS_SUCCESS_COUNT++;
                                 } catch (Exception e) {
-                                    logManager.logError("Exception in Creating Full File Content ", errorLoggerEFGE);
+                                    logError.error("Exception in Creating Full File Content ");
                                 }
                             }
                             return partialList;
@@ -672,19 +670,19 @@ public class AutoSettlementRepo implements AutoSettlementDao {
                             Configurations.PROCESS_TOTAL_NOOF_TRABSACTIONS = 0;
                             Configurations.PROCESS_SUCCESS_COUNT = 0;
                             int txnCount = 0;
-                            BigDecimal headerCreditBig = new BigDecimal(0.0);
-                            BigDecimal headerDebitBig = new BigDecimal(0.0);
+                            BigDecimal headerCreditBig = new BigDecimal("0.0");
+                            BigDecimal headerDebitBig = new BigDecimal("0.0");
                             int headerCreditCount = 0;
                             int headerDebitCount = 0;
-                            BigDecimal totalTxnAmount = new BigDecimal(0.0);
+                            BigDecimal totalTxnAmount = new BigDecimal("0.0");
                             while (result.next()) {
                                 try {
                                     recordCount++;
                                     Configurations.PROCESS_TOTAL_NOOF_TRABSACTIONS++;
                                     boolean isInsert = false;
-                                    BigDecimal txnAmount = new BigDecimal(0.0);
-                                    BigDecimal lastTxnAmount = new BigDecimal(0.0);
-                                    BigDecimal lastTxnAmountRoundOff = new BigDecimal(0.0);
+                                    BigDecimal txnAmount = new BigDecimal("0.0");
+                                    BigDecimal lastTxnAmount = new BigDecimal("0.0");
+                                    BigDecimal lastTxnAmountRoundOff = new BigDecimal("0.0");
                                     LinkedHashMap<String, Object> details = new LinkedHashMap<String, Object>();
                                     int statementDayEODID = 0;
                                     CreateEodId convertToEOD = new CreateEodId();
@@ -787,10 +785,10 @@ public class AutoSettlementRepo implements AutoSettlementDao {
                                     details.put("Debit Acc No", result.getString("DEBITACCOUNTNO"));
                                     details.put("Collection Acc No", Configurations.COLLECTION_ACCOUNT);
 
-                                    logManager.logDetails(details, infoLoggerEFGE);
+                                    logInfo.info(logManager.logDetails(details));
                                     Configurations.PROCESS_SUCCESS_COUNT++;
                                 } catch (Exception e) {
-                                    logManager.logError("Exception in Creating Full File Content ", errorLoggerEFGE);
+                                    logError.error("Exception in Creating Full File Content ");
                                 }
                             }
                             return partialList;
@@ -805,14 +803,14 @@ public class AutoSettlementRepo implements AutoSettlementDao {
             }
 
         } catch (Exception e) {
-            logManager.logError("  STEP 03 Fail to Create File",errorLoggerEFGE);
+            logError.error("  STEP 03 Fail to Create File");
             throw e;
         }
         return partialList;
     }
 
     public BigDecimal getPaymentAmount(String accNO, int startEOD) throws Exception {
-        BigDecimal paymentAmount = new BigDecimal(0.0);
+        BigDecimal paymentAmount = new BigDecimal("0.0");
         double amount = 0;
 
         try {
@@ -821,7 +819,7 @@ public class AutoSettlementRepo implements AutoSettlementDao {
 
             paymentAmount = Objects.requireNonNull(backendJdbcTemplate.query(query,
                     (ResultSet result) -> {
-                        BigDecimal temp = new BigDecimal(0.0);
+                        BigDecimal temp = new BigDecimal("0.0");
                         while (result.next()) {
                             temp = new BigDecimal(result.getString("TOTALPAY"));
                         }
@@ -839,10 +837,8 @@ public class AutoSettlementRepo implements AutoSettlementDao {
         } catch (EmptyResultDataAccessException e) {
             return new BigDecimal("0.0");
         } catch (Exception e) {
-            logManager.logError(String.valueOf(e),errorLoggerEFGE);
             throw e;
         }
-
         return paymentAmount;
     }
 }

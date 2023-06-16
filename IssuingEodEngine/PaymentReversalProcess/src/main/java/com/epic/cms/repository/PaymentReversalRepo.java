@@ -10,14 +10,9 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.core.RowMapperResultSetExtractor;
 import org.springframework.stereotype.Repository;
-import org.springframework.transaction.annotation.Isolation;
-import org.springframework.transaction.annotation.Propagation;
-import org.springframework.transaction.annotation.Transactional;
-
 import java.util.ArrayList;
 import java.util.List;
 
-import static com.epic.cms.util.LogManager.errorLogger;
 
 @Repository
 public class PaymentReversalRepo implements PaymentReversalDao {
@@ -30,9 +25,6 @@ public class PaymentReversalRepo implements PaymentReversalDao {
 
     @Autowired
     StatusVarList status;
-
-    @Autowired
-    LogManager logManager;
 
     @Override
     public List<PaymentBean> getPaymentReversals() throws Exception {
@@ -56,7 +48,6 @@ public class PaymentReversalRepo implements PaymentReversalDao {
                     })
                     , "CADP", Configurations.EOD_ID, status.getINITIAL_STATUS());
         } catch (Exception e) {
-            logManager.logError("Exception in Get Payments Reversals ", errorLogger);
             throw e;
         }
         return chqBeanList;
@@ -81,7 +72,6 @@ public class PaymentReversalRepo implements PaymentReversalDao {
                         Configurations.EOD_ID);
             }
         } catch (Exception e) {
-            logManager.logError("Exception in Update Payments For Cash Reversals ", errorLogger);
             throw e;
         }
         return count;

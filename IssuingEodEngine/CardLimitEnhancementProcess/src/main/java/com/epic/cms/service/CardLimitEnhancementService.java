@@ -5,14 +5,14 @@ import com.epic.cms.model.bean.ErrorCardBean;
 import com.epic.cms.model.bean.OtbBean;
 import com.epic.cms.repository.CardLimitEnhancementRepo;
 import com.epic.cms.util.*;
+import lombok.extern.slf4j.Slf4j;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
-
-import static com.epic.cms.util.LogManager.errorLogger;
-import static com.epic.cms.util.LogManager.infoLogger;
 
 import java.util.ArrayList;
 import java.util.LinkedHashMap;
@@ -20,12 +20,12 @@ import java.util.LinkedHashMap;
 @Service
 public class CardLimitEnhancementService {
 
+    private static final Logger logInfo = LoggerFactory.getLogger("logInfo");
+    private static final Logger logError = LoggerFactory.getLogger("logError");
     @Autowired
     CardLimitEnhancementRepo cardLimitEnhancementRepo;
-
     @Autowired
     StatusVarList status;
-
     @Autowired
     LogManager logManager;
 
@@ -95,7 +95,7 @@ public class CardLimitEnhancementService {
                             details.put("Increment Or Decrement", card.getIncOrDec());
                             details.put("Start Date", card.getStartDate());
                             details.put("End Date", card.getEndDate());
-                            logManager.logDetails(details, infoLogger);
+                            logInfo.info(logManager.logDetails(details));
                             details.clear();
                         }
 
@@ -103,15 +103,12 @@ public class CardLimitEnhancementService {
                     Configurations.PROCESS_SUCCESS_COUNT++;
 
                 } catch (Exception ex) {
-                    logManager.logError("Fee post process failed for account " + bean.getAccountnumber(), ex, errorLogger);
+                    logError.error("Fee post process failed for account " + bean.getAccountnumber(), ex);
                     Configurations.errorCardList.add(new ErrorCardBean(Configurations.ERROR_EOD_ID, Configurations.EOD_DATE, new StringBuffer(bean.getCardnumber()), ex.getMessage(), Configurations.PROCESS_LIMIT_ENHANCEMENT, "Card Limit Enhancement Process", 0, CardAccount.ACCOUNT));
                     Configurations.PROCESS_FAILD_COUNT++;
                 }
                 Configurations.Iterator_Card_Limit_Enhancement++;
-
             }
-
         }
-
     }
 }

@@ -11,6 +11,9 @@ import com.epic.cms.dao.MerchantGLSummaryFileDao;
 import com.epic.cms.model.model.GlAccountBean;
 import com.epic.cms.util.Configurations;
 import com.epic.cms.util.LogManager;
+import lombok.extern.slf4j.Slf4j;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.scheduling.annotation.Async;
@@ -21,8 +24,6 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.util.LinkedHashMap;
 
-import static com.epic.cms.util.LogManager.errorLogger;
-import static com.epic.cms.util.LogManager.infoLogger;
 
 @Service
 public class MerchantGLSummaryFileService {
@@ -36,6 +37,10 @@ public class MerchantGLSummaryFileService {
     @Autowired
     @Qualifier("ThreadPool_100")
     ThreadPoolTaskExecutor taskExecutor;
+
+    private static final Logger logInfo = LoggerFactory.getLogger("logInfo");
+    private static final Logger logError = LoggerFactory.getLogger("logError");
+
 
     @Async("taskExecutor2")
     @Transactional(value = "transactionManager", propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
@@ -54,10 +59,10 @@ public class MerchantGLSummaryFileService {
                 Configurations.PROCESS_SUCCESS_COUNT++;
             } catch (Exception e) {
                 Configurations.PROCESS_FAILD_COUNT++;
-                logManager.logError("Commission gl file exeption ", e, errorLogger);
+                logError.error("Commission gl file exeption ", e);
                 accDetails.put("Sync fail to EOD Merchant GL Account Table for Primary ID " + glaccountBean.getKey(), glaccountBean.getKey());
             } finally {
-                logManager.logDetails(accDetails, infoLogger);
+                logInfo.info(logManager.logDetails(accDetails));
                 accDetails.clear();
             }
         }
@@ -80,10 +85,10 @@ public class MerchantGLSummaryFileService {
                 Configurations.PROCESS_SUCCESS_COUNT++;
             } catch (Exception e) {
                 Configurations.PROCESS_FAILD_COUNT++;
-                logManager.logError("Create fee gl file exeption ", e, errorLogger);
+                logError.error("Create fee gl file exeption ", e);
                 accDetails.put("Sync fail to EOD GL Account Table for Primary ID " + glaccountBean.getKey(), glaccountBean.getKey());
             } finally {
-                logManager.logDetails(accDetails, infoLogger);
+                logInfo.info(logManager.logDetails(accDetails));
                 accDetails.clear();
             }
         }
@@ -106,10 +111,10 @@ public class MerchantGLSummaryFileService {
                 Configurations.PROCESS_SUCCESS_COUNT++;
             } catch (Exception e) {
                 Configurations.PROCESS_FAILD_COUNT++;
-                logManager.logError("Exeption ", e, errorLogger);
+                logError.error("Exeption ", e);
                 accDetails.put("Sync fail to EOD GL Account Table for Primary ID " + glaccountBean.getKey(), glaccountBean.getKey());
             } finally {
-                logManager.logDetails(accDetails, infoLogger);
+                logInfo.info(logManager.logDetails(accDetails));
                 accDetails.clear();
             }
         }
@@ -132,10 +137,10 @@ public class MerchantGLSummaryFileService {
                 Configurations.PROCESS_SUCCESS_COUNT++;
             } catch (Exception e) {
                 Configurations.PROCESS_FAILD_COUNT++;
-                logManager.logError("Exeption ", e, errorLogger);
+                logError.error("Exeption ", e);
                 accDetails.put("Sync fail to EOD GL Account Table for Primary ID " + glaccountBean.getKey(), glaccountBean.getKey());
             } finally {
-                logManager.logDetails(accDetails, infoLogger);
+                logInfo.info(logManager.logDetails(accDetails));
                 accDetails.clear();
             }
         }

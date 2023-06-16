@@ -14,15 +14,11 @@ import java.math.BigDecimal;
 import java.sql.SQLException;
 import java.util.Map;
 
-import static com.epic.cms.util.LogManager.errorLogger;
 
 @Repository
 public class OnlineToBackendTxnRepo implements OnlineToBackendTxnDao {
     @Autowired
     JdbcTemplate backendJdbcTemplate;
-
-    @Autowired
-    LogManager logManager;
 
     @Override
     public int[] callStoredProcedureForTxnSync() throws SQLException {
@@ -76,7 +72,6 @@ public class OnlineToBackendTxnRepo implements OnlineToBackendTxnDao {
                     throw new SQLException();
             }
         }catch (Exception e){
-            logManager.logError("Exception in Call Stored Procedure for Txn Sync " , errorLogger);
             throw e;
         }
     }

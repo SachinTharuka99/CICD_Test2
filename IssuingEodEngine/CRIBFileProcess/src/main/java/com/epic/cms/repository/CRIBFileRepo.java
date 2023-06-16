@@ -11,16 +11,12 @@ import java.math.BigDecimal;
 import java.sql.SQLException;
 import java.util.Map;
 
-import static com.epic.cms.util.LogManager.errorLogger;
-
 @Repository
 public class CRIBFileRepo implements CRIBFileDao {
 
     @Autowired
     private JdbcTemplate backendJdbcTemplate;
 
-    @Autowired
-    LogManager logManager;
 
     @Override
     public int[] callStoredProcedureCribFileGeneration() throws Exception {
@@ -64,10 +60,8 @@ public class CRIBFileRepo implements CRIBFileDao {
                     throw new SQLException();
             }
         } catch (SQLException e) {
-            logManager.logError("Sql Exception",errorLogger);
             throw e;
         } catch (Exception ex) {
-            logManager.logError("Exception",errorLogger);
             throw ex;
         }
     }

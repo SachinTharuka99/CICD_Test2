@@ -9,15 +9,15 @@ import com.epic.cms.util.CommonMethods;
 import com.epic.cms.util.Configurations;
 import com.epic.cms.util.LogManager;
 import com.epic.cms.util.StatusVarList;
+import lombok.extern.slf4j.Slf4j;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.scheduling.concurrent.ThreadPoolTaskExecutor;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
-
-import static com.epic.cms.util.LogManager.errorLogger;
-import static com.epic.cms.util.LogManager.infoLogger;
 
 @Service
 public class PaymentReversalsConnector extends ProcessBuilder {
@@ -39,6 +39,9 @@ public class PaymentReversalsConnector extends ProcessBuilder {
 
     @Autowired
     PaymentReversalRepo paymentReversalRepo;
+
+    private static final Logger logInfo = LoggerFactory.getLogger("logInfo");
+    private static final Logger logError = LoggerFactory.getLogger("logError");
 
     private List<PaymentBean> paymentReversals = null;
 
@@ -70,9 +73,9 @@ public class PaymentReversalsConnector extends ProcessBuilder {
             }
         }catch (Exception e){
             Configurations.IS_PROCESS_COMPLETELY_FAILED = true;
-            logManager.logError("--Error occurred--", e, errorLogger);
+            logError.error("--Error occurred--", e);
         }finally {
-            logManager.logSummery(summery, infoLogger);
+            logInfo.info(logManager.logSummery(summery));
             /** PADSS Change -
              variables handling card data should be nullified
              by replacing the value of variable with zero and call NULL function */
@@ -85,7 +88,7 @@ public class PaymentReversalsConnector extends ProcessBuilder {
                     paymentReversals = null;
                 }
             } catch (Exception e) {
-                logManager.logError("--Error occurred--", e, errorLogger);
+                logError.error("--Error occurred--", e);
             }
         }
     }

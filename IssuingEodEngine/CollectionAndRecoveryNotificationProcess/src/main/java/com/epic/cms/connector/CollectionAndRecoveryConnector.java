@@ -10,6 +10,9 @@ import com.epic.cms.util.CommonMethods;
 import com.epic.cms.util.Configurations;
 import com.epic.cms.util.LogManager;
 import com.epic.cms.util.StatusVarList;
+import lombok.extern.slf4j.Slf4j;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.scheduling.concurrent.ThreadPoolTaskExecutor;
@@ -17,28 +20,23 @@ import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
 
-import static com.epic.cms.util.LogManager.infoLogger;
-import static com.epic.cms.util.LogManager.errorLogger;
 
 @Service
 public class CollectionAndRecoveryConnector extends ProcessBuilder {
 
+    private static final Logger logInfo = LoggerFactory.getLogger("logInfo");
+    private static final Logger logError = LoggerFactory.getLogger("logError");
     @Autowired
     LogManager logManager;
-
     @Autowired
     @Qualifier("taskExecutor2")
     ThreadPoolTaskExecutor taskExecutor;
-
     @Autowired
     CollectionAndRecoveryService collectionAndRecoveryService;
-
     @Autowired
     CollectionAndRecoveryRepo collectionAndRecoveryRepo;
-
     @Autowired
     StatusVarList status;
-
     @Autowired
     CommonRepo commonRepo;
 
@@ -60,7 +58,7 @@ public class CollectionAndRecoveryConnector extends ProcessBuilder {
             processBean = commonRepo.getProcessDetails(151);
 
             if (processBean != null) {
-                logManager.logHeader("Collection and recovery notification Process Started", infoLogger);
+                logInfo.info(logManager.logHeader("Collection and recovery notification Process Started"));
 
                 /**Select the X date before Due Date card set*/
                 noOfDays = collectionAndRecoveryRepo.getNoOfDaysOnTriggerPoint(Configurations.TP_X_DATES_BEFORE_FIRST_DUE_DATE);
@@ -68,7 +66,7 @@ public class CollectionAndRecoveryConnector extends ProcessBuilder {
                 Configurations.PROCESS_TOTAL_NOOF_TRABSACTIONS += cardList.size();
 
                 if (cardList.size() > 0) {
-                    logManager.logInfo("X_DATES_BEFORE_FIRST_DUE_DATE", infoLogger);
+                    logInfo.info("X_DATES_BEFORE_FIRST_DUE_DATE");
                     for (CollectionAndRecoveryBean collectionAndRecoveryBean : cardList) {
                         collectionAndRecoveryService.processX_DATES_BEFORE_FIRST_DUE_DATE(collectionAndRecoveryBean, processBean);
                     }
@@ -76,7 +74,6 @@ public class CollectionAndRecoveryConnector extends ProcessBuilder {
                     while (!(taskExecutor.getActiveCount() == 0)) {
                         Thread.sleep(1000);
                     }
-
                     cardList.clear();
                 }
 
@@ -85,7 +82,7 @@ public class CollectionAndRecoveryConnector extends ProcessBuilder {
                 cardList = collectionAndRecoveryRepo.getCardListForCollectionAndRecoveryOnDueDate(noOfDays, 2, Configurations.TP_X_DATES_BEFORE_FIRST_DUE_DATE);
                 Configurations.PROCESS_TOTAL_NOOF_TRABSACTIONS += cardList.size();
                 if (cardList.size() > 0) {
-                    logManager.logInfo("X_DATES_AFTER_FIRST_DUE_DATE", infoLogger);
+                    logInfo.info("X_DATES_AFTER_FIRST_DUE_DATE");
                     for (CollectionAndRecoveryBean collectionAndRecoveryBean : cardList) {
                         collectionAndRecoveryService.processX_DATES_AFTER_FIRST_DUE_DATE(collectionAndRecoveryBean, processBean);
                     }
@@ -102,7 +99,7 @@ public class CollectionAndRecoveryConnector extends ProcessBuilder {
                 cardList = collectionAndRecoveryRepo.getCardListForCollectionAndRecoveryOnStatmentDate(noOfDays, 1, Configurations.TP_X_DATES_AFTER_FIRST_DUE_DATE);
                 Configurations.PROCESS_TOTAL_NOOF_TRABSACTIONS += cardList.size();
                 if (cardList.size() > 0) {
-                    logManager.logInfo("ON_THE_2ND_STATEMENT_DATE", infoLogger);
+                    logInfo.info("ON_THE_2ND_STATEMENT_DATE");
                     for (CollectionAndRecoveryBean collectionAndRecoveryBean : cardList) {
                         collectionAndRecoveryService.processON_THE_2ND_STATEMENT_DATE(collectionAndRecoveryBean, processBean);
                     }
@@ -110,7 +107,6 @@ public class CollectionAndRecoveryConnector extends ProcessBuilder {
                     while (!(taskExecutor.getActiveCount() == 0)) {
                         Thread.sleep(1000);
                     }
-
                     cardList.clear();
                 }
 
@@ -119,7 +115,7 @@ public class CollectionAndRecoveryConnector extends ProcessBuilder {
                 cardList = collectionAndRecoveryRepo.getCardListForCollectionAndRecoveryOnStatmentDate(noOfDays, 2, Configurations.TP_ON_THE_2ND_STATEMENT_DATE);
                 Configurations.PROCESS_TOTAL_NOOF_TRABSACTIONS += cardList.size();
                 if (cardList.size() > 0) {
-                    logManager.logInfo("X_DATES_AFTER_SECOND_STATEMENT", infoLogger);
+                    logInfo.info("X_DATES_AFTER_SECOND_STATEMENT");
                     for (CollectionAndRecoveryBean collectionAndRecoveryBean : cardList) {
                         collectionAndRecoveryService.processX_DATES_AFTER_SECOND_STATEMENT(collectionAndRecoveryBean, processBean);
                     }
@@ -127,7 +123,6 @@ public class CollectionAndRecoveryConnector extends ProcessBuilder {
                     while (!(taskExecutor.getActiveCount() == 0)) {
                         Thread.sleep(1000);
                     }
-
                     cardList.clear();
                 }
 
@@ -136,7 +131,7 @@ public class CollectionAndRecoveryConnector extends ProcessBuilder {
                 cardList = collectionAndRecoveryRepo.getCardListForCollectionAndRecoveryOnDueDate(noOfDays, 2, Configurations.TP_X_DAYS_AFTER_THE_2ND_STATEMENT_DATE);
                 Configurations.PROCESS_TOTAL_NOOF_TRABSACTIONS += cardList.size();
                 if (cardList.size() > 0) {
-                    logManager.logInfo("IMMEDIATELY_AFTER_THE_2ND_DUE_DATE", infoLogger);
+                    logInfo.info("IMMEDIATELY_AFTER_THE_2ND_DUE_DATE");
                     for (CollectionAndRecoveryBean collectionAndRecoveryBean : cardList) {
                         collectionAndRecoveryService.processIMMEDIATELY_AFTER_THE_2ND_DUE_DATE(collectionAndRecoveryBean, processBean);
                     }
@@ -144,7 +139,6 @@ public class CollectionAndRecoveryConnector extends ProcessBuilder {
                     while (!(taskExecutor.getActiveCount() == 0)) {
                         Thread.sleep(1000);
                     }
-
                     cardList.clear();
                 }
 
@@ -153,7 +147,7 @@ public class CollectionAndRecoveryConnector extends ProcessBuilder {
                 cardList = collectionAndRecoveryRepo.getCardListForCollectionAndRecoveryOnStatmentDate(noOfDays, 1, Configurations.TP_IMMEDIATELY_AFTER_THE_2ND_DUE_DATE);
                 Configurations.PROCESS_TOTAL_NOOF_TRABSACTIONS += cardList.size();
                 if (cardList.size() > 0) {
-                    logManager.logInfo("ON_THE_3RD_STATEMENT_DATE", infoLogger);
+                    logInfo.info("ON_THE_3RD_STATEMENT_DATE");
                     for (CollectionAndRecoveryBean collectionAndRecoveryBean : cardList) {
                         collectionAndRecoveryService.processON_THE_3RD_STATEMENT_DATE(collectionAndRecoveryBean, processBean);
                     }
@@ -161,7 +155,6 @@ public class CollectionAndRecoveryConnector extends ProcessBuilder {
                     while (!(taskExecutor.getActiveCount() == 0)) {
                         Thread.sleep(1000);
                     }
-
                     cardList.clear();
                 }
 
@@ -170,7 +163,7 @@ public class CollectionAndRecoveryConnector extends ProcessBuilder {
                 cardList = collectionAndRecoveryRepo.getCardListForCollectionAndRecoveryOnDueDate(noOfDays, 2, Configurations.TP_ON_THE_3RD_STATEMENT_DATE);
                 Configurations.PROCESS_TOTAL_NOOF_TRABSACTIONS += cardList.size();
                 if (cardList.size() > 0) {
-                    logManager.logInfo("IMMEDIATELY_AFTER_THE_3RD_DUE_DATE", infoLogger);
+                    logInfo.info("IMMEDIATELY_AFTER_THE_3RD_DUE_DATE");
                     for (CollectionAndRecoveryBean collectionAndRecoveryBean : cardList) {
                         collectionAndRecoveryService.processIMMEDIATELY_AFTER_THE_3RD_DUE_DATE(collectionAndRecoveryBean, processBean);
                     }
@@ -178,7 +171,6 @@ public class CollectionAndRecoveryConnector extends ProcessBuilder {
                     while (!(taskExecutor.getActiveCount() == 0)) {
                         Thread.sleep(1000);
                     }
-
                     cardList.clear();
                 }
 
@@ -187,7 +179,7 @@ public class CollectionAndRecoveryConnector extends ProcessBuilder {
                 cardList = collectionAndRecoveryRepo.getCardListForCollectionAndRecoveryOnStatmentDate(noOfDays, 1, Configurations.TP_IMMEDIATELY_AFTER_THE_3RD_DUE_DATE);
                 Configurations.PROCESS_TOTAL_NOOF_TRABSACTIONS += cardList.size();
                 if (cardList.size() > 0) {
-                    logManager.logInfo("ON_THE_4TH_STATEMENT_DATE", infoLogger);
+                    logInfo.info("ON_THE_4TH_STATEMENT_DATE");
                     for (CollectionAndRecoveryBean collectionAndRecoveryBean : cardList) {
                         collectionAndRecoveryService.processON_THE_4TH_STATEMENT_DATE(collectionAndRecoveryBean, processBean);
                     }
@@ -195,7 +187,6 @@ public class CollectionAndRecoveryConnector extends ProcessBuilder {
                     while (!(taskExecutor.getActiveCount() == 0)) {
                         Thread.sleep(1000);
                     }
-
                     cardList.clear();
                 }
 
@@ -204,7 +195,7 @@ public class CollectionAndRecoveryConnector extends ProcessBuilder {
                 cardList = collectionAndRecoveryRepo.getCardListForCollectionAndRecoveryOnStatmentDate(noOfDays, 2, Configurations.TP_ON_THE_4TH_STATEMENT_DATE);
                 Configurations.PROCESS_TOTAL_NOOF_TRABSACTIONS += cardList.size();
                 if (cardList.size() > 0) {
-                    logManager.logInfo("X_DAYS_AFTER_THE_4TH_STATEMENT_DATE", infoLogger);
+                    logInfo.info("X_DAYS_AFTER_THE_4TH_STATEMENT_DATE");
                     for (CollectionAndRecoveryBean collectionAndRecoveryBean : cardList) {
                         collectionAndRecoveryService.processX_DAYS_AFTER_THE_4TH_STATEMENT_DATE(collectionAndRecoveryBean, processBean);
                     }
@@ -212,7 +203,6 @@ public class CollectionAndRecoveryConnector extends ProcessBuilder {
                     while (!(taskExecutor.getActiveCount() == 0)) {
                         Thread.sleep(1000);
                     }
-
                     cardList.clear();
                 }
 
@@ -221,7 +211,7 @@ public class CollectionAndRecoveryConnector extends ProcessBuilder {
                 cardList = collectionAndRecoveryRepo.getCardListForCollectionAndRecoveryOnStatmentDate(noOfDays, 2, Configurations.TP_X_DAYS_AFTER_THE_4TH_STATEMENT_DATE);
                 Configurations.PROCESS_TOTAL_NOOF_TRABSACTIONS += cardList.size();
                 if (cardList.size() > 0) {
-                    logManager.logInfo("WITHIN_X_DAYS_OF_THE_CRIB_INFO_LETTER_REMINDER", infoLogger);
+                    logInfo.info("WITHIN_X_DAYS_OF_THE_CRIB_INFO_LETTER_REMINDER");
                     for (CollectionAndRecoveryBean collectionAndRecoveryBean : cardList) {
                         collectionAndRecoveryService.processWITHIN_X_DAYS_OF_THE_CRIB_INFO_LETTER_REMINDER(collectionAndRecoveryBean, processBean);
                     }
@@ -229,7 +219,6 @@ public class CollectionAndRecoveryConnector extends ProcessBuilder {
                     while (!(taskExecutor.getActiveCount() == 0)) {
                         Thread.sleep(1000);
                     }
-
                     cardList.clear();
                 }
 
@@ -238,7 +227,7 @@ public class CollectionAndRecoveryConnector extends ProcessBuilder {
                 cardList = collectionAndRecoveryRepo.getCardListForCollectionAndRecoveryOnDueDate(noOfDays, 2, Configurations.TP_WITHIN_X_DAYS_OF_THE_CRIB_INFO_LETTER_REMINDER);
                 Configurations.PROCESS_TOTAL_NOOF_TRABSACTIONS += cardList.size();
                 if (cardList.size() > 0) {
-                    logManager.logInfo("IMMEDIATELY_AFTER_THE_4TH_DUE_DATE", infoLogger);
+                    logInfo.info("IMMEDIATELY_AFTER_THE_4TH_DUE_DATE");
                     for (CollectionAndRecoveryBean collectionAndRecoveryBean : cardList) {
                         collectionAndRecoveryService.processIMMEDIATELY_AFTER_THE_4TH_DUE_DATE(collectionAndRecoveryBean, processBean);
                     }
@@ -246,7 +235,6 @@ public class CollectionAndRecoveryConnector extends ProcessBuilder {
                     while (!(taskExecutor.getActiveCount() == 0)) {
                         Thread.sleep(1000);
                     }
-
                     cardList.clear();
                 }
 
@@ -259,7 +247,7 @@ public class CollectionAndRecoveryConnector extends ProcessBuilder {
             }
         } catch (Exception e) {
             Configurations.IS_PROCESS_COMPLETELY_FAILED = true;
-            logManager.logError("Collection and recovery process failed", e, errorLogger);
+            logError.error("Collection and recovery process failed", e);
             try {
                 assert processBean != null;
                 if (processBean.getCriticalStatus() == 1) {
@@ -269,7 +257,7 @@ public class CollectionAndRecoveryConnector extends ProcessBuilder {
                     Configurations.MAIN_EOD_STATUS = false;
                 }
             } catch (Exception e2) {
-                logManager.logError("Collection and recovery process ended with", e2, errorLogger);
+                logError.error("Collection and recovery process ended with", e2);
             }
         } finally {
             try {
@@ -282,7 +270,7 @@ public class CollectionAndRecoveryConnector extends ProcessBuilder {
                     cardList = null;
                 }
             } catch (Exception e2) {
-                logManager.logError("Exception ", e2, errorLogger);
+                logError.error("Exception ", e2);
             }
         }
     }

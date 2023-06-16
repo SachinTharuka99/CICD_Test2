@@ -13,7 +13,6 @@ import com.epic.cms.model.bean.RecPaymentFileIptRowDataBean;
 import com.epic.cms.model.rowmapper.RecPaymentFileIptRowDataRowMapper;
 import com.epic.cms.util.Configurations;
 import com.epic.cms.util.LogManager;
-import com.epic.cms.util.QueryParametersList;
 import com.epic.cms.util.StatusVarList;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.EmptyResultDataAccessException;
@@ -21,9 +20,6 @@ import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.core.RowCountCallbackHandler;
 import org.springframework.jdbc.core.RowMapper;
 import org.springframework.stereotype.Repository;
-import org.springframework.transaction.annotation.Isolation;
-import org.springframework.transaction.annotation.Propagation;
-import org.springframework.transaction.annotation.Transactional;
 
 import java.math.BigDecimal;
 import java.sql.ResultSet;
@@ -32,7 +28,6 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.Hashtable;
 
-import static com.epic.cms.util.LogManager.*;
 
 @Repository
 public class PaymentFileClearingRepo implements PaymentFileClearingDao {
@@ -40,8 +35,6 @@ public class PaymentFileClearingRepo implements PaymentFileClearingDao {
     private StatusVarList status;
     @Autowired
     private JdbcTemplate backendJdbcTemplate;
-    @Autowired
-    LogManager logManager;
 
     @Override
     public FileBean getPaymentFileInfo(String fileId) throws Exception {
@@ -61,7 +54,6 @@ public class PaymentFileClearingRepo implements PaymentFileClearingDao {
             );
 
         } catch (EmptyResultDataAccessException ex) {
-            logManager.logError(ex.getMessage(),errorLoggerEFPE);
         } catch (Exception ex) {
             throw ex;
         }
@@ -100,7 +92,6 @@ public class PaymentFileClearingRepo implements PaymentFileClearingDao {
                     });
 
         } catch (Exception e) {
-            logManager.logError(String.valueOf(e),errorLoggerEFPE);
             throw e;
         }
 
@@ -287,7 +278,7 @@ public class PaymentFileClearingRepo implements PaymentFileClearingDao {
         try {
             cardNumber = backendJdbcTemplate.queryForObject(query, StringBuffer.class, nicWithLast4DigitCard);
         } catch (EmptyResultDataAccessException ex) {
-            infoLoggerEFPE.info(ex.getMessage());
+            throw ex;
         } catch (Exception e) {
             throw e;
         }

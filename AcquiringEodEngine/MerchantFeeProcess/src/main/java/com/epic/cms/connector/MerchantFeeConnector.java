@@ -15,18 +15,19 @@ import com.epic.cms.repository.CommonRepo;
 import com.epic.cms.repository.MerchantFeeRepo;
 import com.epic.cms.service.MerchantFeeService;
 import com.epic.cms.util.*;
+import lombok.extern.slf4j.Slf4j;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.scheduling.concurrent.ThreadPoolTaskExecutor;
 import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
-import java.util.Date;
 import java.util.LinkedHashMap;
 import java.util.List;
 
-import static com.epic.cms.util.LogManager.errorLogger;
-import static com.epic.cms.util.LogManager.infoLogger;
+
 
 @Service
 public class MerchantFeeConnector extends ProcessBuilder {
@@ -42,6 +43,9 @@ public class MerchantFeeConnector extends ProcessBuilder {
 
     @Autowired
     CommonRepo commonRepo;
+
+    private static final Logger logInfo = LoggerFactory.getLogger("logInfo");
+    private static final Logger logError = LoggerFactory.getLogger("logError");
 
     @Autowired
     MerchantFeeService merchantFeeService;
@@ -65,7 +69,7 @@ public class MerchantFeeConnector extends ProcessBuilder {
                 LinkedHashMap summery = new LinkedHashMap();
 
                 merchantFeeCountList = merchantFeeRepo.getMerchantFeeCountList();
-                logManager.logInfo("  " + merchantFeeCountList.size() + " Fees Selected for Merchant Fee Process", infoLogger);
+                logInfo.info("  " + merchantFeeCountList.size() + " Fees Selected for Merchant Fee Process");
 
                 if (merchantFeeCountList != null && merchantFeeCountList.size() > 0) {
                     summery.put("No of fee to be processed: ", merchantFeeCountList.size() + "");
@@ -88,10 +92,10 @@ public class MerchantFeeConnector extends ProcessBuilder {
                 }
             }
         } catch (Exception e) {
-            logManager.logStartEnd("Merchant Fee Process Terminated Because of Error", infoLogger);
-            logManager.logError("Merchant Fee Process Terminated Because of Error", e, errorLogger);
+            logInfo.info(logManager.logStartEnd("Merchant Fee Process Terminated Because of Error"));
+            logError.error("Merchant Fee Process Terminated Because of Error", e);
         } finally {
-            logManager.logSummery(summery, infoLogger);
+            logInfo.info(logManager.logSummery(summery));
         }
     }
 

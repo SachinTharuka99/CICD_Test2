@@ -39,8 +39,6 @@ public class ATMFileClearingRepo implements ATMFileClearingDao {
     StatusVarList status;
     @Autowired
     private JdbcTemplate backendJdbcTemplate;
-    @Autowired
-    LogManager logManager;
 
     @Override
     public FileBean getATMFileInfo(String fileId) throws Exception {
@@ -60,7 +58,6 @@ public class ATMFileClearingRepo implements ATMFileClearingDao {
             );
 
         } catch (EmptyResultDataAccessException ex) {
-            logManager.logError(ex.getMessage(),errorLoggerEFPE);
         } catch (Exception ex) {
             throw ex;
         }

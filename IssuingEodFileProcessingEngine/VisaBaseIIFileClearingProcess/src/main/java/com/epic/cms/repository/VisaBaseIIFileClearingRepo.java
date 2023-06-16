@@ -11,7 +11,10 @@ import com.epic.cms.dao.VisaBaseIIFileClearingDao;
 import com.epic.cms.model.bean.FileBean;
 import com.epic.cms.model.bean.VisaTC56ComposingDataBean;
 import com.epic.cms.model.bean.VisaTC56CurrencyEntryBean;
-import com.epic.cms.util.*;
+import com.epic.cms.util.Configurations;
+import com.epic.cms.util.DatabaseStatus;
+import com.epic.cms.util.QueryParametersList;
+import com.epic.cms.util.StatusVarList;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.jdbc.core.JdbcTemplate;
@@ -20,9 +23,6 @@ import org.springframework.jdbc.core.namedparam.MapSqlParameterSource;
 import org.springframework.jdbc.core.namedparam.SqlParameterSource;
 import org.springframework.jdbc.core.simple.SimpleJdbcCall;
 import org.springframework.stereotype.Repository;
-import org.springframework.transaction.annotation.Isolation;
-import org.springframework.transaction.annotation.Propagation;
-import org.springframework.transaction.annotation.Transactional;
 
 import java.math.BigDecimal;
 import java.math.MathContext;
@@ -33,8 +33,6 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
-import static com.epic.cms.util.LogManager.*;
-
 @Repository
 public class VisaBaseIIFileClearingRepo implements VisaBaseIIFileClearingDao {
     @Autowired
@@ -42,11 +40,9 @@ public class VisaBaseIIFileClearingRepo implements VisaBaseIIFileClearingDao {
     @Autowired
     StatusVarList status;
     @Autowired
-    private JdbcTemplate backendJdbcTemplate;
-    @Autowired
     CommonRepo commonRepo;
     @Autowired
-    LogManager logManager;
+    private JdbcTemplate backendJdbcTemplate;
 
     @Override
     public FileBean getVisaFileInfo(String fileId) throws Exception {
@@ -67,7 +63,6 @@ public class VisaBaseIIFileClearingRepo implements VisaBaseIIFileClearingDao {
             );
 
         } catch (EmptyResultDataAccessException ex) {
-            logManager.logError(ex.getMessage(),errorLoggerEFPE);
         } catch (Exception ex) {
             throw ex;
         }
@@ -127,7 +122,7 @@ public class VisaBaseIIFileClearingRepo implements VisaBaseIIFileClearingDao {
                     Configurations.EOD_ID,
                     fileId);
         } catch (Exception ex) {
-            errorLoggerEFPE.error("VisaBaseIIClearing", ex);
+            throw ex;
         }
     }
 
@@ -138,7 +133,7 @@ public class VisaBaseIIFileClearingRepo implements VisaBaseIIFileClearingDao {
             backendJdbcTemplate.update(query,
                     fileId);
         } catch (Exception ex) {
-            logManager.logError("VisaBaseIIClearing", errorLoggerEFPE);
+            throw ex;
         }
     }
 
@@ -150,7 +145,7 @@ public class VisaBaseIIFileClearingRepo implements VisaBaseIIFileClearingDao {
                     noOfRecords,
                     fileID);
         } catch (Exception ex) {
-            logManager.logError("VisaBaseIIClearing", errorLoggerEFPE);
+            throw ex;
         }
     }
 
@@ -248,8 +243,8 @@ public class VisaBaseIIFileClearingRepo implements VisaBaseIIFileClearingDao {
                     tcr,
                     fileID
             );
-        } catch (EmptyResultDataAccessException ex) {
-            logManager.logError(ex.getMessage(),errorLoggerEFPE);
+        } catch (EmptyResultDataAccessException e) {
+            throw e;
         } catch (Exception ex) {
             throw ex;
         }
@@ -300,11 +295,11 @@ public class VisaBaseIIFileClearingRepo implements VisaBaseIIFileClearingDao {
                                         Configurations.EOD_USER,
                                         Configurations.EOD_USER);
                             } catch (Exception ee) {
-                                logManager.logError("Currency not defined in CURRENCY table: " + visaTC56CurrencyEntryBean.getCounterCurrencyCode(), errorLoggerEFPE);
+                                throw ee;
                             }
                         }
-                    } catch (Exception ee) {
-                        logManager.logError("Unable to update CURRENCYEXCHANGERATE table for currency: " + visaTC56CurrencyEntryBean.getCounterCurrencyCode(), errorLoggerEFPE);
+                    } catch (Exception ey) {
+                        throw ey;
                     }
 
                 } catch (Exception ex) {
@@ -336,7 +331,7 @@ public class VisaBaseIIFileClearingRepo implements VisaBaseIIFileClearingDao {
             backendJdbcTemplate.update(query,
                     fileID);
         } catch (Exception ex) {
-            logManager.logError("VisaBaseIIClearing", errorLoggerEFPE);
+            throw ex;
         }
     }
 

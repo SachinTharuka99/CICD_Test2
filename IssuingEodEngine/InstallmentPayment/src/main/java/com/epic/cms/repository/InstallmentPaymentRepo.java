@@ -28,9 +28,6 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
-import static com.epic.cms.util.LogManager.errorLogger;
-import static com.epic.cms.util.LogManager.infoLogger;
-
 @Repository
 public class InstallmentPaymentRepo implements InstallmentPaymentDao {
     @Autowired
@@ -41,9 +38,6 @@ public class InstallmentPaymentRepo implements InstallmentPaymentDao {
 
     @Autowired
     StatusVarList statusList;
-
-    @Autowired
-    LogManager logManager;
 
     @Override
     public List<ManualNpRequestBean> getManualNpRequestDetails(int reqType, String status) throws Exception {
@@ -181,7 +175,6 @@ public class InstallmentPaymentRepo implements InstallmentPaymentDao {
             String query = "SELECT M1 FROM MINIMUMPAYMENT WHERE CARDNO IN (SELECT CARDNUMBER FROM CARDACCOUNT WHERE ACCOUNTNO = ?)";
             payment = backendJdbcTemplate.queryForObject(query, Double.class, accNo);
         } catch (EmptyResultDataAccessException e) {
-            logManager.logError("--result not found--",errorLogger);
             return 0;
         } catch (Exception e) {
             throw e;

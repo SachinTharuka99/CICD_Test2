@@ -23,7 +23,6 @@ import java.math.MathContext;
 import java.math.RoundingMode;
 import java.util.ArrayList;
 
-import static com.epic.cms.util.LogManager.errorLogger;
 
 @Repository
 public class MerchantEasyPaymentRequestRepo implements MerchantEasyPaymentRequestDao {
@@ -32,9 +31,6 @@ public class MerchantEasyPaymentRequestRepo implements MerchantEasyPaymentReques
 
     @Autowired
     private JdbcTemplate backendJdbcTemplate;
-
-    @Autowired
-    LogManager logManager;
 
     @Override
     public ArrayList<MerchantEasyPaymentRequestBean> getAllEasypaymentTransactions() throws Exception {
@@ -71,7 +67,6 @@ public class MerchantEasyPaymentRequestRepo implements MerchantEasyPaymentReques
                     Configurations.EOD_ID
             );
         } catch (Exception e) {
-            logManager.logError("Get All Easy Payment Transactions Error", errorLogger);
             throw e;
         }
         return easyPaymentTranList;
@@ -131,7 +126,6 @@ public class MerchantEasyPaymentRequestRepo implements MerchantEasyPaymentReques
                     value16
             );
         } catch (Exception e) {
-            logManager.logError("Insert Easy Payment Request Error", errorLogger);
             throw e;
         }
         return count;
@@ -148,7 +142,6 @@ public class MerchantEasyPaymentRequestRepo implements MerchantEasyPaymentReques
             count = backendJdbcTemplate.update(query, txnid);
 
         } catch (Exception e) {
-            logManager.logError("Update Eod Transaction For Easy Payment Status Error", errorLogger);
             throw e;
         }
         return count;
@@ -165,7 +158,6 @@ public class MerchantEasyPaymentRequestRepo implements MerchantEasyPaymentReques
             count = backendJdbcTemplate.update(query, txnid);
 
         } catch (Exception e) {
-            logManager.logError("Update Eod Merchant Transaction For EasyPayment Status Error", errorLogger);
             throw e;
         }
         return count;
@@ -228,7 +220,6 @@ public class MerchantEasyPaymentRequestRepo implements MerchantEasyPaymentReques
             );
 
         } catch (Exception e) {
-            logManager.logError("Insert Easy Payment Reject Request Error", errorLogger);
             throw e;
         }
         return count;

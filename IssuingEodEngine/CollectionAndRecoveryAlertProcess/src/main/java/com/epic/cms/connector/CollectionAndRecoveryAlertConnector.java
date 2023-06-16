@@ -8,13 +8,14 @@ import com.epic.cms.util.CommonMethods;
 import com.epic.cms.util.Configurations;
 import com.epic.cms.util.LogManager;
 import com.epic.cms.util.StatusVarList;
+import lombok.extern.slf4j.Slf4j;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.scheduling.concurrent.ThreadPoolTaskExecutor;
 import org.springframework.stereotype.Service;
 
-import static com.epic.cms.util.LogManager.errorLogger;
-import static com.epic.cms.util.LogManager.infoLogger;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -40,6 +41,9 @@ public class CollectionAndRecoveryAlertConnector extends ProcessBuilder {
 
     @Autowired
     CollectionAndRecoveryAlertService collectionAndRecoveryAlertService;
+
+    private static final Logger logInfo = LoggerFactory.getLogger("logInfo");
+    private static final Logger logError = LoggerFactory.getLogger("logError");
 
     HashMap<StringBuffer, String> confirmCardList = new HashMap<>();
 
@@ -68,10 +72,10 @@ public class CollectionAndRecoveryAlertConnector extends ProcessBuilder {
 
         } catch (Exception e) {
             Configurations.IS_PROCESS_COMPLETELY_FAILED = true;
-            logManager.logError("Collection and Recovery Alert process failed", e, errorLogger);
+            logError.error("Collection and Recovery Alert process failed", e);
             throw e;
         } finally {
-            logManager.logSummery(summery, infoLogger);
+            logInfo.info(logManager.logSummery(summery));
             confirmCardList.clear();
         }
     }
