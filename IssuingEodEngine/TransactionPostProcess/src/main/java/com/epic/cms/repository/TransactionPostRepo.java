@@ -116,6 +116,8 @@ public class TransactionPostRepo implements TransactionPostDao {
 
     @Override
     public ArrayList<OtbBean> getErrorEodTxnPostCustAcc() throws Exception {
+        ArrayList<OtbBean> custAccList = new ArrayList<OtbBean>();
+        OtbBean bean = new OtbBean();
         try {
             String query = "SELECT DISTINCT CAC.CUSTOMERID, CAC.ACCOUNTNO "
                     + "FROM EODTRANSACTION ET "
@@ -133,34 +135,51 @@ public class TransactionPostRepo implements TransactionPostDao {
                     + "OR (ET.TRANSACTIONTYPE = ? AND ET.CRDR = ?) "
                     + "OR (ET.TRANSACTIONTYPE = ? AND ET.CRDR = ?) "
                     + "OR (ET.TRANSACTIONTYPE = ? AND ET.CRDR = ?) "
+                    + "OR (ET.TRANSACTIONTYPE = ? AND ET.CRDR = ?) "
+                    + "OR (ET.TRANSACTIONTYPE = ? AND ET.CRDR = ?) "
+                    + "OR (ET.TRANSACTIONTYPE = ? AND ET.CRDR = ?) "
                     + "OR (ET.TRANSACTIONTYPE = ? AND ET.CRDR = ?)) "
                     + "ORDER BY CAC.CUSTOMERID, CAC.ACCOUNTNO";
 
-            custAccList = (ArrayList<OtbBean>) backendJdbcTemplate.query(query, new TransactionpostRowMapper()
-                    , Configurations.INITIAL_STATUS //1
-                    , Configurations.EOD_PENDING_STATUS //2
-                    , Configurations.ERROR_EOD_ID //3
-                    , Configurations.PROCESS_STEP_ID //4
-                    , Configurations.TXN_TYPE_SALE //5
-                    , Configurations.DEBIT //6
-                    , Configurations.TXN_TYPE_CASH_ADVANCE //7
-                    , Configurations.DEBIT //8
-                    , Configurations.TXN_TYPE_PAYMENT //9
-                    , Configurations.CREDIT //10
-                    , Configurations.TXN_TYPE_REVERSAL_INSTALLMENT //11
-                    , Configurations.CREDIT //12
-                    , Configurations.TXN_TYPE_INSTALLMENT //13
-                    , Configurations.DEBIT //14
-                    , Configurations.TXN_TYPE_FEE_INSTALLMENT //15
-                    , Configurations.DEBIT //16
-                    , Configurations.TXN_TYPE_REVERSAL //17
-                    , Configurations.CREDIT //18
-                    , Configurations.TXN_TYPE_REFUND //19
-                    , Configurations.CREDIT //20
-                    , Configurations.TXN_TYPE_MVISA_REFUND //21
-                    , Configurations.CREDIT //22
-                    , Configurations.TXN_TYPE_MVISA_ORIGINATOR //23
-                    , Configurations.DEBIT //24
+            backendJdbcTemplate.query(query
+                    , (ResultSet result) -> {
+                        while (result.next()) {
+                            bean.setCustomerid(result.getString("CUSTOMERID"));
+                            bean.setAccountnumber(result.getString("ACCOUNTNO"));
+                            custAccList.add(bean);
+                        }
+                        return custAccList;
+                    }
+                    , Configurations.INITIAL_STATUS
+                    , Configurations.EOD_PENDING_STATUS
+                    , Configurations.ERROR_EOD_ID
+                    , Configurations.PROCESS_STEP_ID
+                    , Configurations.TXN_TYPE_SALE
+                    , Configurations.DEBIT
+                    , Configurations.TXN_TYPE_CASH_ADVANCE
+                    , Configurations.DEBIT
+                    , Configurations.TXN_TYPE_PAYMENT
+                    , Configurations.CREDIT
+                    , Configurations.TXN_TYPE_REVERSAL_INSTALLMENT
+                    , Configurations.CREDIT
+                    , Configurations.TXN_TYPE_INSTALLMENT
+                    , Configurations.DEBIT
+                    , Configurations.TXN_TYPE_FEE_INSTALLMENT
+                    , Configurations.DEBIT
+                    , Configurations.TXN_TYPE_REVERSAL
+                    , Configurations.CREDIT
+                    , Configurations.TXN_TYPE_REFUND
+                    , Configurations.CREDIT
+                    , Configurations.TXN_TYPE_MVISA_REFUND
+                    , Configurations.CREDIT
+                    , Configurations.TXN_TYPE_MVISA_ORIGINATOR
+                    , Configurations.DEBIT
+                    , Configurations.TXN_TYPE_MONEY_SEND
+                    , Configurations.CREDIT
+                    , Configurations.TXN_TYPE_MONEY_SEND_REVERSAL
+                    , Configurations.DEBIT
+                    , Configurations.TXN_TYPE_AFT
+                    , Configurations.DEBIT
             );
         } catch (Exception e) {
             throw e;
@@ -368,11 +387,11 @@ public class TransactionPostRepo implements TransactionPostDao {
             count = onlineJdbcTemplate.update(query, bean.getOtbcredit(), bean.getAccountnumber());
 
             if (Configurations.ONLINE_LOG_LEVEL == 1) {
-                logManager.logInfo("================ updateAccountOtbCredit ===================" + Integer.toString(Configurations.EOD_ID),infoLogger);
-                logManager.logInfo(query,infoLogger);
-                logManager.logInfo(Double.toString(bean.getOtbcredit()),infoLogger);
-                logManager.logInfo(bean.getAccountnumber(),infoLogger);
-                logManager.logInfo("================ updateAccountOtbCredit END ===================",infoLogger);
+                logManager.logInfo("================ updateAccountOtbCredit ===================" + Integer.toString(Configurations.EOD_ID), infoLogger);
+                logManager.logInfo(query, infoLogger);
+                logManager.logInfo(Double.toString(bean.getOtbcredit()), infoLogger);
+                logManager.logInfo(bean.getAccountnumber(), infoLogger);
+                logManager.logInfo("================ updateAccountOtbCredit END ===================", infoLogger);
             }
         } catch (Exception e) {
             throw e;

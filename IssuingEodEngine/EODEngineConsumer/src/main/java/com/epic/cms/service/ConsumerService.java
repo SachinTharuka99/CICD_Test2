@@ -253,7 +253,7 @@ public class ConsumerService {
     public void cardLimitEnhancementConsumer(String uniqueID) throws Exception {
         Configurations.eodUniqueId = uniqueID;
         System.out.println("Start Card Limit Enhancement Process");
-        cardLimitEnhancementConnector.startProcess(Configurations.Iterator_Card_Limit_Enhancement, uniqueID);
+        cardLimitEnhancementConnector.startProcess(Configurations.PROCESS_LIMIT_ENHANCEMENT, uniqueID);
         System.out.println("Complete Card Limit Enhancement Process");
     }
 
@@ -499,5 +499,6 @@ public class ConsumerService {
     @KafkaListener(topics = "eodStartStatus", groupId = "group_eodStartStatus")
     public void eodStartStatus(String status) throws Exception {
         Configurations.STARTING_EOD_STATUS = status;
+        //Configurations.IS_PROCESS_COMPLETELY_FAILED = false;
     }
 }

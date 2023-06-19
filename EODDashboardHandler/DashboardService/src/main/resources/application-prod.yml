@@ -1,12 +1,3 @@
-# Server config
-server:
-  port: 7778
-
-# Spring config
-spring:
-  application:
-    name: DashboardService
-
 # Eureka config
 eureka:
   client:
@@ -19,7 +10,3 @@ eureka:
     preferIpAddress: true
     ip-address: ${HERE-GOES-YOUR-PUBLIC-IP:192.168.1.122}
 
-# Ribbon config
-ribbon:
-  eureka:
-    enabled: true

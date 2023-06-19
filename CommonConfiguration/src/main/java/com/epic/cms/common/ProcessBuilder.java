@@ -53,6 +53,8 @@ public abstract class ProcessBuilder {
 
 
     public void startProcess(int processId, String uniqueId) throws Exception {
+        Configurations.errorCardList.clear();
+        Configurations.IS_PROCESS_COMPLETELY_FAILED = false;
         SimpleDateFormat sdf = new SimpleDateFormat("dd-MM-yyyy");
         try {
             ProcessBean processBean = processBuilderRepo.getProcessDetails(processId);
@@ -99,12 +101,13 @@ public abstract class ProcessBuilder {
                 /**
                  * Add any failed cards at EOD
                  */
+                commonRepo.updateEODProcessCount(uniqueId);
                 insertFailedEODCards(processId);
                 //commonRepo.updateEodProcessSummery(Configurations.ERROR_EOD_ID, statusVarList.getSUCCES_STATUS(), processId, Configurations.PROCESS_SUCCESS_COUNT, Configurations.PROCESS_FAILD_COUNT, eodDashboardProcessProgress(Configurations.PROCESS_SUCCESS_COUNT, Configurations.PROCESS_TOTAL_NOOF_TRABSACTIONS));
+
             } else if (hasErrorEODandProcess == 2 && processBean != null) {
                 System.out.println("Skipping this process since Process not under error: " + processBean.getProcessDes());
                 commonRepo.updateEODProcessCount(uniqueId);
-                return;
             }
 
         } catch (FailedCardException ex) {
@@ -127,7 +130,7 @@ public abstract class ProcessBuilder {
             kafkaMessageUpdator.producerWithNoReturn(!Configurations.IS_PROCESS_COMPLETELY_FAILED, "eodEngineConsumerStatus");
             System.out.println("Send the process success status");
             logManager.logStartEnd(completedHeader, infoLogger);
-            commonRepo.updateEODProcessCount(Configurations.eodUniqueId);
+
         }
     }
 

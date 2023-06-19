@@ -868,7 +868,6 @@ public class ConfigVarList {
 
     @Value("${process_eodtransaction_update}")
     public int PROCESS_EODTRANSACTIONUPDATE;
-    public int process_fee_post;
 
     @Value("${report_id}")
     public String report_id;

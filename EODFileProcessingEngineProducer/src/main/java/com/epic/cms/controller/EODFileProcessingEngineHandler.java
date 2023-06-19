@@ -7,14 +7,12 @@
 
 package com.epic.cms.controller;
 
+import com.epic.cms.model.bean.ResponseBean;
 import com.epic.cms.repository.CommonRepo;
 import com.epic.cms.repository.EODFileProcessingEngineProducerRepo;
 import com.epic.cms.service.EODFileProcessingEngineMainService;
 import com.epic.cms.service.KafkaMessageUpdator;
-import com.epic.cms.util.Configurations;
-import com.epic.cms.util.LogManager;
-import com.epic.cms.util.StatusVarList;
-import com.epic.cms.util.Util;
+import com.epic.cms.util.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -62,8 +60,8 @@ public class EODFileProcessingEngineHandler {
     }
 
     @GetMapping("/start/{fileType}/{fileId}")
-    public Map<String, Object> startFileProcessingEngine(@PathVariable("fileType") final String fileType, @PathVariable("fileId") final String fileId) throws Exception {
-        Map<String, Object> response = new HashMap<>();
+    public ResponseBean startFileProcessingEngine(@PathVariable("fileType") final String fileType, @PathVariable("fileId") final String fileId) throws Exception {
+        ResponseBean responseBean = new ResponseBean();
         int eodId = 0;
         try {
             //Configurations.STARTING_EOD_STATUS = "INIT";
@@ -71,14 +69,20 @@ public class EODFileProcessingEngineHandler {
             if (eodId != 0) {
                 kafkaMessageUpdator.producerWithNoReturn(eodId, "eodIdUpdator");
                 eodFileProcessingEngineMainService.startProcess(fileType, fileId);
-                response.put(Util.STATUS_VALUE, Util.STATUS_SUCCESS);
+
+                responseBean.setContent(fileType+ ": " +fileId);
+                responseBean.setResponseCode(ResponseCodes.SUCCESS);
+                responseBean.setResponseMsg(MessageVarList.SUCCESS);
             } else {
-                System.out.println("eod is not in init status");
-                response.put(Util.STATUS_VALUE, "FAILED - eod is not in init status");
+                responseBean.setResponseCode(ResponseCodes.NO_DATA_FOUND);
+                responseBean.setContent(null);
+                responseBean.setResponseMsg("eod is not in init status");
             }
         } catch (Exception ex) {
-            response.put(Util.STATUS_VALUE, Util.STATUS_FAILED);
+            responseBean.setResponseCode(ResponseCodes.UNEXPECTED_ERROR);
+            responseBean.setContent(null);
+            responseBean.setResponseMsg(MessageVarList.NULL_POINTER);
         }
-        return response;
+        return responseBean;
     }
 }
