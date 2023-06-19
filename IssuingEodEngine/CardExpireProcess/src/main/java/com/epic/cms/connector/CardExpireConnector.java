@@ -7,6 +7,9 @@ import com.epic.cms.service.CardExpireService;
 import com.epic.cms.util.CommonMethods;
 import com.epic.cms.util.Configurations;
 import com.epic.cms.util.LogManager;
+import lombok.extern.slf4j.Slf4j;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.scheduling.concurrent.ThreadPoolTaskExecutor;
@@ -14,8 +17,6 @@ import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
 
-import static com.epic.cms.util.LogManager.infoLogger;
-import static com.epic.cms.util.LogManager.errorLogger;
 
 @Service
 public class CardExpireConnector extends ProcessBuilder {
@@ -32,6 +33,9 @@ public class CardExpireConnector extends ProcessBuilder {
 
     @Autowired
     LogManager logManager;
+
+    private static final Logger logInfo = LoggerFactory.getLogger("logInfo");
+    private static final Logger logError = LoggerFactory.getLogger("logError");
 
     private ArrayList<CardBean> expiredCardList = new ArrayList<>();
 
@@ -65,7 +69,7 @@ public class CardExpireConnector extends ProcessBuilder {
             Configurations.IS_PROCESS_COMPLETELY_FAILED = true;
             throw ex;
         } finally {
-            logManager.logSummery(summery,infoLogger);
+            logInfo.info(logManager.logSummery(summery));
             try {
                 if (expiredCardList != null && expiredCardList.size() != 0) {
                     /** PADSS Change -
@@ -76,7 +80,7 @@ public class CardExpireConnector extends ProcessBuilder {
                     }
                 }
             } catch (Exception e) {
-                logManager.logError(e,errorLogger);
+                logError.error(String.valueOf(e));
             }
         }
     }

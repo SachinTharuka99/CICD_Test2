@@ -5,6 +5,9 @@ import com.epic.cms.model.bean.ErrorCardBean;
 import com.epic.cms.repository.CardBlockRepo;
 import com.epic.cms.repository.CardExpireRepo;
 import com.epic.cms.util.*;
+import lombok.extern.slf4j.Slf4j;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
@@ -12,8 +15,6 @@ import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.LinkedHashMap;
-
-import static com.epic.cms.util.LogManager.*;
 
 @Service
 public class CardExpireService {
@@ -29,6 +30,9 @@ public class CardExpireService {
 
     @Autowired
     LogManager logManager;
+
+    private static final Logger logInfo = LoggerFactory.getLogger("logInfo");
+    private static final Logger logError = LoggerFactory.getLogger("logError");
 
     @Async("ThreadPool_100")
     @Transactional(value = "transactionManager", propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
@@ -60,10 +64,10 @@ public class CardExpireService {
 
             } catch (Exception e) {
                 Configurations.errorCardList.add(new ErrorCardBean(Configurations.ERROR_EOD_ID, Configurations.EOD_DATE, new StringBuffer(cardBean.getCardnumber()), e.getMessage(), Configurations.RUNNING_PROCESS_ID, Configurations.RUNNING_PROCESS_DESCRIPTION, 0, CardAccount.CARD));
-                logManager.logError("Card expire process failed for card number " + CommonMethods.cardNumberMask(cardBean.getCardnumber()), e, errorLogger);
+                logError.error("Card expire process failed for card number " + CommonMethods.cardNumberMask(cardBean.getCardnumber()), e);
                 Configurations.PROCESS_FAILD_COUNT++;
             } finally {
-                logManager.logDetails(details, infoLogger);
+                logInfo.info(logManager.logDetails(details));
             }
         }
     }

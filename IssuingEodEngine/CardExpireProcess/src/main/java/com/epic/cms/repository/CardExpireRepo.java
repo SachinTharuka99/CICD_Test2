@@ -6,6 +6,9 @@ import com.epic.cms.util.CommonMethods;
 import com.epic.cms.util.Configurations;
 import com.epic.cms.util.LogManager;
 import com.epic.cms.util.StatusVarList;
+import lombok.extern.slf4j.Slf4j;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.jdbc.core.JdbcTemplate;
@@ -14,7 +17,6 @@ import org.springframework.stereotype.Repository;
 
 import java.util.ArrayList;
 
-import static com.epic.cms.util.LogManager.infoLogger;
 
 @Repository
 public class CardExpireRepo implements CardExpireDao {
@@ -31,6 +33,9 @@ public class CardExpireRepo implements CardExpireDao {
 
     @Autowired
     LogManager logManager;
+
+    private static final Logger logInfo = LoggerFactory.getLogger("logInfo");
+    private static final Logger logError = LoggerFactory.getLogger("logError");
 
     @Override
     public ArrayList<CardBean> getExpiredCardList() throws Exception {
@@ -90,12 +95,12 @@ public class CardExpireRepo implements CardExpireDao {
 
             if (Configurations.ONLINE_LOG_LEVEL == 1) {
                 //Only for troubleshoot
-                logManager.logInfo("================ setCardStatusToExpire ===================" + Integer.toString(Configurations.EOD_ID),infoLogger);
-                logManager.logInfo(sql,infoLogger);
-                logManager.logInfo(Integer.toString(statusList.getONLINE_CARD_EXPIRED_STATUS()),infoLogger);
-                logManager.logInfo(Configurations.EOD_USER,infoLogger);
-                logManager.logInfo(CommonMethods.cardNumberMask(cardNumber),infoLogger);
-                logManager.logInfo("================ setCardStatusToExpire END ===================",infoLogger);
+                logInfo.info("================ setCardStatusToExpire ===================" + Integer.toString(Configurations.EOD_ID));
+                logInfo.info(sql);
+                logInfo.info(Integer.toString(statusList.getONLINE_CARD_EXPIRED_STATUS()));
+                logInfo.info(Configurations.EOD_USER);
+                logInfo.info(CommonMethods.cardNumberMask(cardNumber));
+                logInfo.info("================ setCardStatusToExpire END ===================");
             }
         } catch (Exception e) {
             throw e;

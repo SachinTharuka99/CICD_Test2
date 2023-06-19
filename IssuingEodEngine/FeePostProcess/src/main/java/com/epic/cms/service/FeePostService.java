@@ -4,6 +4,9 @@ import com.epic.cms.dao.FeePostDao;
 import com.epic.cms.model.bean.ErrorCardBean;
 import com.epic.cms.model.bean.OtbBean;
 import com.epic.cms.util.*;
+import lombok.extern.slf4j.Slf4j;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
@@ -12,9 +15,6 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.util.LinkedHashMap;
 import java.util.List;
-
-import static com.epic.cms.util.LogManager.infoLogger;
-import static com.epic.cms.util.LogManager.errorLogger;
 
 @Service
 public class FeePostService {
@@ -27,6 +27,9 @@ public class FeePostService {
 
     @Autowired
     public StatusVarList status;
+
+    private static final Logger logInfo = LoggerFactory.getLogger("logInfo");
+    private static final Logger logError = LoggerFactory.getLogger("logError");
 
     @Async("ThreadPool_100")
     @Transactional(value = "transactionManager", propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
@@ -102,14 +105,14 @@ public class FeePostService {
                                 detail.put("Account Number", bean.getAccountnumber());
                                 detail.put("Card Number", CommonMethods.cardNumberMask(otbBean.getCardnumber()));
                                 detail.put("Fee Amount", otbBean.getOtbcredit());
-                                logManager.logDetails(detail, infoLogger);
+                                logInfo.info(logManager.logDetails(detail));
                                 detail.clear();
                             }
 
                         }
                         feeAdditionSuccess = true;
                     } catch (Exception ex) {
-                        logManager.logError("Fee post process failed for account " + bean.getAccountnumber(), ex, errorLogger);
+                        logError.error("Fee post process failed for account " + bean.getAccountnumber(), ex);
                         Configurations.errorCardList.add(new ErrorCardBean(Configurations.ERROR_EOD_ID, Configurations.EOD_DATE, bean.getCardnumber(), ex.getMessage(), Configurations.RUNNING_PROCESS_ID, Configurations.RUNNING_PROCESS_DESCRIPTION, 0, CardAccount.ACCOUNT));
                         break cards;
                     }
@@ -122,7 +125,7 @@ public class FeePostService {
                 }
                 feeAdditionSuccess = false;
             } catch (Exception ex) {
-                logManager.logError("Error Occured: ", ex, errorLogger);
+                logError.error("Error Occured: ", ex);
             }
         }
     }

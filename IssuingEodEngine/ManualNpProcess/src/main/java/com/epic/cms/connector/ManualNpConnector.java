@@ -6,10 +6,12 @@ import com.epic.cms.model.bean.ProcessBean;
 import com.epic.cms.repository.CommonRepo;
 import com.epic.cms.repository.ManualNpRepo;
 import com.epic.cms.service.ManualNpService;
-import com.epic.cms.util.CommonMethods;
 import com.epic.cms.util.Configurations;
 import com.epic.cms.util.LogManager;
 import com.epic.cms.util.StatusVarList;
+import lombok.extern.slf4j.Slf4j;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.scheduling.concurrent.ThreadPoolTaskExecutor;
@@ -20,11 +22,11 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import static com.epic.cms.util.LogManager.errorLogger;
-import static com.epic.cms.util.LogManager.infoLogger;
 
 @Service
 public class ManualNpConnector extends ProcessBuilder {
+    private static final Logger logInfo = LoggerFactory.getLogger("logInfo");
+    private static final Logger logError = LoggerFactory.getLogger("logError");
     public List<ErrorCardBean> cardErrorList = new ArrayList<ErrorCardBean>();
     int manualNpTotalCount = 0;
     int manualNpSuccesssCount = 0;
@@ -42,7 +44,6 @@ public class ManualNpConnector extends ProcessBuilder {
     @Autowired
     @Qualifier("taskExecutor2")
     ThreadPoolTaskExecutor taskExecutor;
-
     int selectedaccounts = 0;
     int successCounts = 0;
     int FailedCounts = 0;
@@ -114,7 +115,7 @@ public class ManualNpConnector extends ProcessBuilder {
         } catch (Exception e) {
             Configurations.IS_PROCESS_COMPLETELY_FAILED = true;
             try {
-                logManager.logError("Manual NP process failed", e,errorLogger);
+                logError.error("Manual NP process failed", e);
 
                 if (processBean.getCriticalStatus() == 1) {
                     Configurations.COMMIT_STATUS = false;
@@ -124,10 +125,10 @@ public class ManualNpConnector extends ProcessBuilder {
                 }
 
             } catch (Exception e2) {
-                logManager.logError("Exception", e2,errorLogger);
+                logError.error("Exception", e2);
             }
         } finally {
-            logManager.logSummery(summery, infoLogger);
+            logInfo.info(logManager.logSummery(summery));
         }
     }
 

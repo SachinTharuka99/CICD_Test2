@@ -10,6 +10,9 @@ package com.epic.cms.repository;
 import com.epic.cms.dao.CreateEodIdDao;
 import com.epic.cms.util.Configurations;
 import com.epic.cms.util.StatusVarList;
+import lombok.extern.slf4j.Slf4j;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.ComponentScan;
 import org.springframework.dao.EmptyResultDataAccessException;
@@ -22,7 +25,6 @@ import org.springframework.transaction.annotation.Transactional;
 import java.sql.Timestamp;
 import java.util.Date;
 
-import static com.epic.cms.util.LogManager.errorLogger;
 
 @Repository
 @ComponentScan(basePackages = {"com.epic.cms.*"})
@@ -33,6 +35,10 @@ public class CreateEodIdRepo implements CreateEodIdDao {
 
     @Autowired
     private JdbcTemplate backendJdbcTemplate;
+
+    private static final Logger logInfo = LoggerFactory.getLogger("logInfo");
+    private static final Logger logError = LoggerFactory.getLogger("logError");
+
 
     @Override
     public boolean isStatusComp() throws Exception {
@@ -63,7 +69,7 @@ public class CreateEodIdRepo implements CreateEodIdDao {
         try {
             EodId = backendJdbcTemplate.queryForObject(query, String.class, statusList.getSUCCES_STATUS());
         } catch (Exception e) {
-            errorLogger.error(String.valueOf(e));
+            logError.error(String.valueOf(e));
         }
         return EodId;
     }
@@ -84,7 +90,7 @@ public class CreateEodIdRepo implements CreateEodIdDao {
         } catch (EmptyResultDataAccessException ex) {
             return false;
         } catch (Exception e) {
-            errorLogger.error(String.valueOf(e));
+            logError.error(String.valueOf(e));
             return false;
         }
     }
@@ -120,7 +126,7 @@ public class CreateEodIdRepo implements CreateEodIdDao {
         }catch (EmptyResultDataAccessException e){
             return false;
         }catch (Exception ex){
-            errorLogger.error(String.valueOf(ex));
+            logError.error(String.valueOf(ex));
         }
         return false;
     }
@@ -154,7 +160,7 @@ public class CreateEodIdRepo implements CreateEodIdDao {
             query = "Select STATUS FROM EOD WHERE EODID = ?";
             EodStatus = backendJdbcTemplate.queryForObject(query, String.class, errorEodId);
         }catch (Exception e){
-            errorLogger.error(String.valueOf(e));
+            logError.error(String.valueOf(e));
         }
         return EodStatus;
     }
@@ -171,7 +177,7 @@ public class CreateEodIdRepo implements CreateEodIdDao {
         }catch (EmptyResultDataAccessException ex){
             return 0;
         }catch (Exception e){
-            errorLogger.error(String.valueOf(e));
+            logError.error(String.valueOf(e));
         }
         return eodId;
     }

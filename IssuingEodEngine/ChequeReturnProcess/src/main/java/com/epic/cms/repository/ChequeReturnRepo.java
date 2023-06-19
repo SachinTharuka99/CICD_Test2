@@ -3,7 +3,10 @@ package com.epic.cms.repository;
 import com.epic.cms.dao.ChequeReturnDao;
 import com.epic.cms.model.bean.*;
 import com.epic.cms.model.rowmapper.MinimumPaymentRowMapper;
-import com.epic.cms.util.*;
+import com.epic.cms.util.CommonMethods;
+import com.epic.cms.util.Configurations;
+import com.epic.cms.util.QueryParametersList;
+import com.epic.cms.util.StatusVarList;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.dao.EmptyResultDataAccessException;
@@ -14,10 +17,11 @@ import java.sql.Date;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.text.SimpleDateFormat;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
-import static com.epic.cms.util.LogManager.errorLogger;
-import static com.epic.cms.util.LogManager.infoLogger;
 
 @Repository
 public class ChequeReturnRepo implements ChequeReturnDao {
@@ -37,8 +41,6 @@ public class ChequeReturnRepo implements ChequeReturnDao {
     @Qualifier("onlineJdbcTemplate")
     private JdbcTemplate onlineJdbcTemplate;
 
-    @Autowired
-    LogManager logManager;
 
     @Override
     public List<ReturnChequePaymentDetailsBean> getChequeReturns() throws Exception {
@@ -64,7 +66,6 @@ public class ChequeReturnRepo implements ChequeReturnDao {
                     status.getINITIAL_STATUS(),
                     Configurations.EOD_ID);
         } catch (Exception ex) {
-            logManager.logError("Get ChequeReturns Error", errorLogger);
             throw ex;
         }
         return chqBeanList1;
@@ -78,7 +79,6 @@ public class ChequeReturnRepo implements ChequeReturnDao {
             String query = "UPDATE CHEQUEPAYMENT SET CHEQUESTATUS=?, CHEQUERETURNDATE=?,LASTUPDATEDDATE=SYSDATE WHERE CARDNUMBER=? AND SEQUENCENUMBER=?";
             count = backendJdbcTemplate.update(query, status.getCHEQUE_RETURN_STATUS(), returnDate, cardNo.toString(), sequenceNumber);
         } catch (Exception ex) {
-            logManager.logError("Update Cheque Returns Error", errorLogger);
             throw ex;
         }
         return count;
@@ -92,7 +92,6 @@ public class ChequeReturnRepo implements ChequeReturnDao {
             String query = "UPDATE EODPAYMENT SET STATUS=?, LASTUPDATEDDATE=SYSDATE WHERE CARDNUMBER=? AND SEQUENCENUMBER=?";
             count = backendJdbcTemplate.update(query, status.getCHEQUE_RETURN_STATUS(), cardNo.toString(), sequenceNumber);
         } catch (Exception ex) {
-            logManager.logError("Update Cheque Returns For EOD Payment Error", errorLogger);
             throw ex;
         }
         return count;
@@ -107,7 +106,6 @@ public class ChequeReturnRepo implements ChequeReturnDao {
         } catch (EmptyResultDataAccessException ex) {
             return cardNumber;
         } catch (Exception ex) {
-            logManager.logError("Get New Card Number Error", errorLogger);
             throw ex;
         }
         return cardNumber;
@@ -174,7 +172,6 @@ public class ChequeReturnRepo implements ChequeReturnDao {
                                     totalChequeReturns.put(cardNo, returnChequePaymentDetailsNew);
                                 }
                             } catch (Exception ex) {
-                                logManager.logError("Return Cheque PaymentDetails Bean Error", errorLogger);
                             }
                         }
                         return totalChequeReturns;
@@ -186,7 +183,6 @@ public class ChequeReturnRepo implements ChequeReturnDao {
         } catch (EmptyResultDataAccessException ex) {
             return totalChequeReturns;
         } catch (Exception ex) {
-            logManager.logError("Return Cheque Payment Details Error", errorLogger);
             throw ex;
         }
         return totalChequeReturns;
@@ -210,7 +206,6 @@ public class ChequeReturnRepo implements ChequeReturnDao {
         } catch (EmptyResultDataAccessException ex) {
             return cardAccountCustomerBean;
         } catch (Exception ex) {
-            logManager.logError("Get Card Account Customer Error", errorLogger);
             throw ex;
         }
         return cardAccountCustomerBean;
@@ -244,7 +239,6 @@ public class ChequeReturnRepo implements ChequeReturnDao {
         } catch (EmptyResultDataAccessException ex) {
             return chqPaymentKnockoffBean;
         } catch (Exception ex) {
-            logManager.logError("Get Cheque KnockOff Bean Error", errorLogger);
             throw ex;
         }
         return chqPaymentKnockoffBean;
@@ -274,7 +268,6 @@ public class ChequeReturnRepo implements ChequeReturnDao {
         } catch (EmptyResultDataAccessException ex) {
             return eomOtbBean;
         } catch (Exception ex) {
-            logManager.logError("Get EOM Pending KnockOff List Error", errorLogger);
             throw ex;
         }
         return eomOtbBean;
@@ -287,7 +280,6 @@ public class ChequeReturnRepo implements ChequeReturnDao {
             String query = "UPDATE EOMCARDBALANCE SET CUMCASHADVANCE = CUMCASHADVANCE + ?,CUMTRANSACTION = CUMTRANSACTION + ?,CUMFINANCIALCHARGE = CUMFINANCIALCHARGE + ?,EODID=?,LASTUPDATEDUSER = ?, LASTUPDATEDTIME = SYSDATE WHERE CARDNUMBER = ?";
             count = backendJdbcTemplate.update(query, cardBean.getCumcashadvance(), cardBean.getCumtransactions(), cardBean.getFinacialcharges(), Configurations.EOD_ID, Configurations.EOD_USER, cardBean.getCardnumber().toString());
         } catch (Exception ex) {
-            logManager.logError("Update EOM CARD Balance KnockOn Error", errorLogger);
             throw ex;
         }
         return count;
@@ -300,7 +292,6 @@ public class ChequeReturnRepo implements ChequeReturnDao {
             String query = "UPDATE CARDCUSTOMER SET OTBCREDIT= OTBCREDIT - ?,OTBCASH= OTBCASH - ?,LASTUPDATEDUSER=?, LASTUPDATEDTIME=SYSDATE WHERE CUSTOMERID=?";
             count = backendJdbcTemplate.update(query, bean.getOtbcredit(), bean.getOtbcash(), Configurations.EOD_USER, bean.getCustomerid());
         } catch (Exception ex) {
-            logManager.logError("Update Customer Otb Error", errorLogger);
             throw ex;
         }
         return count;
@@ -313,7 +304,6 @@ public class ChequeReturnRepo implements ChequeReturnDao {
             String query = "UPDATE CARDACCOUNT SET OTBCREDIT = OTBCREDIT - ?,OTBCASH = OTBCASH - ?,LASTUPDATEDUSER = ?, LASTUPDATEDTIME = SYSDATE WHERE ACCOUNTNO=?";
             count = backendJdbcTemplate.update(query, otbBean.getOtbcredit(), otbBean.getOtbcash(), Configurations.EOD_USER, otbBean.getAccountnumber());
         } catch (Exception ex) {
-            logManager.logError("Update Account Otb Error", errorLogger);
             throw ex;
         }
         return count;
@@ -326,7 +316,6 @@ public class ChequeReturnRepo implements ChequeReturnDao {
             String query = "UPDATE CARD SET OTBCREDIT = OTBCREDIT - ?,OTBCASH = OTBCASH - ?,TEMPCREDITAMOUNT = TEMPCREDITAMOUNT + ?,TEMPCASHAMOUNT = TEMPCASHAMOUNT + ?,LASTUPDATEDUSER = ?, LASTUPDATEDTIME = SYSDATE WHERE CARDNUMBER=?";
             count = backendJdbcTemplate.update(query, cardBean.getOtbcredit(), cardBean.getOtbcash(), cardBean.getOtbcredit(), cardBean.getOtbcash(), Configurations.EOD_USER, cardBean.getCardnumber().toString());
         } catch (Exception ex) {
-            logManager.logError("Update Card Otb Error", errorLogger);
             throw ex;
         }
         return count;
@@ -339,7 +328,6 @@ public class ChequeReturnRepo implements ChequeReturnDao {
             String query = "UPDATE ECMS_ONLINE_CUSTOMER SET OTBCREDIT= OTBCREDIT - ?,OTBCASH= OTBCASH - ? WHERE CUSTOMERID = ?";
             count = onlineJdbcTemplate.update(query, bean.getOtbcredit(), bean.getOtbcash(), bean.getCustomerid());
         } catch (Exception ex) {
-            logManager.logError("Update Online Customer Otb Error", errorLogger);
             throw ex;
         }
         return count;
@@ -352,7 +340,6 @@ public class ChequeReturnRepo implements ChequeReturnDao {
             String query = "UPDATE ECMS_ONLINE_ACCOUNT SET OTBCREDIT = OTBCREDIT - ?,OTBCASH = OTBCASH - ? WHERE ACCOUNTNUMBER=?";
             count = onlineJdbcTemplate.update(query, otbBean.getOtbcredit(), otbBean.getOtbcash(), otbBean.getAccountnumber());
         } catch (Exception ex) {
-            logManager.logError("Update Online Account Otb Error", errorLogger);
             throw ex;
         }
         return count;
@@ -365,7 +352,6 @@ public class ChequeReturnRepo implements ChequeReturnDao {
             String query = "UPDATE ECMS_ONLINE_CARD SET OTBCREDIT = OTBCREDIT - ?,OTBCASH = OTBCASH - ?,TEMPCREDITAMOUNT = TEMPCREDITAMOUNT + ?,TEMPCASHAMOUNT = TEMPCASHAMOUNT + ?,LASTUPDATEUSER=?, LASTUPDATETIME=SYSDATE WHERE CARDNUMBER=?";
             count = onlineJdbcTemplate.update(query, cardBean.getOtbcredit(), cardBean.getOtbcash(), cardBean.getTmpcredit(), cardBean.getTmpcash(), Configurations.EOD_USER, cardBean.getCardnumber().toString());
         } catch (Exception ex) {
-            logManager.logError("Update Online Card Otb Error", errorLogger);
             throw ex;
         }
         return count;
@@ -378,7 +364,6 @@ public class ChequeReturnRepo implements ChequeReturnDao {
             String query = "UPDATE EODCARDBALANCE SET CUMCASHADVANCES = CUMCASHADVANCES + ?,CUMTRANSACTIONS = CUMTRANSACTIONS + ?,FINANCIALCHARGES = FINANCIALCHARGES + ?,EODCLOSINGBAL = EODCLOSINGBAL - ?,LASTUPDATEDUSER = ?, LASTUPDATEDTIME = SYSDATE WHERE CARDNUMBER = ?";
             count = backendJdbcTemplate.update(query, cardBean.getCumcashadvance(), cardBean.getCumtransactions(), cardBean.getFinacialcharges(), cardBean.getOtbcredit(), Configurations.EOD_USER, cardBean.getCardnumber().toString());
         } catch (Exception ex) {
-            logManager.logError("Update EOD CARD Balance KnockOn Error", errorLogger);
             throw ex;
         }
         return count;
@@ -400,7 +385,6 @@ public class ChequeReturnRepo implements ChequeReturnDao {
         } catch (EmptyResultDataAccessException ex) {
             return interestDetailBean;
         } catch (Exception ex) {
-            logManager.logError("Get IntPr of Error", errorLogger);
             throw ex;
         }
         return interestDetailBean;
@@ -415,7 +399,6 @@ public class ChequeReturnRepo implements ChequeReturnDao {
         } catch (EmptyResultDataAccessException ex) {
             return txnID;
         } catch (Exception ex) {
-            logManager.logError("Get TxnId For Last Cheque By Account Error", errorLogger);
             throw ex;
         }
         return txnID;
@@ -430,7 +413,6 @@ public class ChequeReturnRepo implements ChequeReturnDao {
         } catch (EmptyResultDataAccessException ex) {
 
         } catch (Exception ex) {
-            logManager.logError("Get TxnId For Last Cheque Error", errorLogger);
             throw ex;
         }
         return txnID;
@@ -446,7 +428,6 @@ public class ChequeReturnRepo implements ChequeReturnDao {
         } catch (EmptyResultDataAccessException ex) {
             return existDuplicates;
         } catch (Exception ex) {
-            logManager.logError("Check Duplicate Cheque Return Entry Error", errorLogger);
             throw ex;
         }
         if (transactionId != null) {
@@ -462,7 +443,6 @@ public class ChequeReturnRepo implements ChequeReturnDao {
             String query = "INSERT INTO EODTRANSACTION (EODID,CARDNUMBER,ACCOUNTNO,TRANSACTIONAMOUNT,CURRENCYTYPE,SETTLEMENTDATE,TRANSACTIONDATE,TRANSACTIONID,LASTUPDATEDUSER,CREATEDTIME,LASTUPDATEDTIME,STATUS,TRANSACTIONDESCRIPTION,CRDR,TRACEID,SEQUENCENUMBER,PAYMENTTYPE,TRANSACTIONTYPE,CARDASSOCIATION) VALUES (?,?,?,?,?,?,?,?,?,SYSDATE,SYSDATE,?,?,?,?,?,?,?,?)";
             count = backendJdbcTemplate.update(query, Configurations.EOD_ID, cardnumber.toString(), accountNo, txnAmount, "144", CommonMethods.getSqldate(Configurations.EOD_DATE), CommonMethods.getSqldate(Configurations.EOD_DATE), txnId, Configurations.EOD_USER, status.getCHEQUE_RETURN_STATUS(), "Cheque Returned - " + seqNo, Configurations.DEBIT, traceid, seqNo, status.getCHEQUE_PAYMENT(), Configurations.TXN_TYPE_DEBIT_PAYMENT, cardAssociation);
         } catch (Exception ex) {
-            logManager.logError("Insert Return Cheque To EOD Transaction Error", errorLogger);
             throw ex;
         }
         return count;
@@ -487,7 +467,6 @@ public class ChequeReturnRepo implements ChequeReturnDao {
                 }
             }
         } catch (Exception ex) {
-            logManager.logError("Add Card Fee Count Error", errorLogger);
             throw ex;
         }
         return count;
@@ -504,7 +483,6 @@ public class ChequeReturnRepo implements ChequeReturnDao {
                 forward = true;
             }
         } catch (Exception ex) {
-            logManager.logError("Check Fee Exist For Card", errorLogger);
             throw ex;
         }
         return forward;
@@ -523,7 +501,6 @@ public class ChequeReturnRepo implements ChequeReturnDao {
         } catch (EmptyResultDataAccessException ex) {
             return forward;
         } catch (Exception ex) {
-            logManager.logError("Get Fee Code Error", errorLogger);
             throw ex;
         }
         return forward;
@@ -536,7 +513,6 @@ public class ChequeReturnRepo implements ChequeReturnDao {
             String query = "UPDATE PAYMENT SET STATUS=? WHERE SEQUENCENUMBER=? AND CARDNUMBER=?";
             count = backendJdbcTemplate.update(query, status, seqNo, cardno.toString());
         } catch (Exception ex) {
-            logManager.logError("Update Payment Status Error", errorLogger);
             throw ex;
         }
         return count;
@@ -549,7 +525,6 @@ public class ChequeReturnRepo implements ChequeReturnDao {
             String query = "UPDATE TRANSACTION SET EODSTATUS=? WHERE CB_SEQ_NO = ? AND CARDNO IN (?, ?)";
             count = backendJdbcTemplate.update(query, status, seqNo, newCardNo.toString(), oldCardNo.toString());
         } catch (Exception ex) {
-            logManager.logError("Update Transaction EOD Status Error", errorLogger);
             throw ex;
         }
         return count;
@@ -562,7 +537,6 @@ public class ChequeReturnRepo implements ChequeReturnDao {
             String query = "UPDATE EODTRANSACTION SET STATUS=? WHERE ACCOUNTNO=? AND TRANSACTIONTYPE=? AND SEQUENCENUMBER=?";
             count = backendJdbcTemplate.update(query, status.getCHEQUE_RETURN_STATUS(), accountNo, Configurations.TXN_TYPE_PAYMENT, payBean.getSequencenumber());
         } catch (Exception ex) {
-            logManager.logError("Update Cheque Status For EOD Txn Error", errorLogger);
             throw ex;
         }
         return count;
@@ -575,7 +549,6 @@ public class ChequeReturnRepo implements ChequeReturnDao {
             String query = "UPDATE CHEQUEPAYMENT SET STATUS=? WHERE ID=?";
             count = backendJdbcTemplate.update(query, status, id);
         } catch (Exception ex) {
-            logManager.logError("Update Cheque Payment Status Error", errorLogger);
             throw ex;
         }
         return count;
@@ -588,7 +561,6 @@ public class ChequeReturnRepo implements ChequeReturnDao {
             String query = "SELECT ACCOUNTNO FROM CARDACCOUNTCUSTOMER WHERE CARDNUMBER=?";
             accNo = backendJdbcTemplate.queryForObject(query, String.class, cardNo.toString());
         } catch (Exception ex) {
-            logManager.logError("Get AccountNo On Card Error", errorLogger);
             throw ex;
         }
         return accNo;
@@ -603,7 +575,6 @@ public class ChequeReturnRepo implements ChequeReturnDao {
         } catch (EmptyResultDataAccessException ex) {
             return paymentAmount;
         } catch (Exception ex) {
-            logManager.logError("Get Payment Amount Between Due Date Error", errorLogger);
             throw ex;
         }
         return paymentAmount;
@@ -629,7 +600,6 @@ public class ChequeReturnRepo implements ChequeReturnDao {
         } catch (EmptyResultDataAccessException ex) {
             return eodInterestBean;
         } catch (Exception ex) {
-            logManager.logError("Get Eod Interest For Card Error", errorLogger);
             throw ex;
         }
         return eodInterestBean;
@@ -642,7 +612,6 @@ public class ChequeReturnRepo implements ChequeReturnDao {
             String query = "UPDATE EODINTEREST SET ACTUALINTEREST =ACTUALINTEREST+?,CURRENTINTEREST=CURRENTINTEREST+? WHERE CARDNO = ?";
             count = backendJdbcTemplate.update(query, interest, interest, cardNo.toString());
         } catch (Exception ex) {
-            logManager.logError("Update Eod Interest For Card Error", errorLogger);
             throw ex;
         }
         return count;
@@ -662,7 +631,6 @@ public class ChequeReturnRepo implements ChequeReturnDao {
         } catch (EmptyResultDataAccessException ex) {
             return forward;
         } catch (Exception ex) {
-            logManager.logError("Get FeeCode If There Exists Error", errorLogger);
             throw ex;
         }
         return forward;
@@ -679,7 +647,6 @@ public class ChequeReturnRepo implements ChequeReturnDao {
                 flag = true;
             }
         } catch (Exception ex) {
-            logManager.logError("Restore Minimum Payment Error", errorLogger);
             throw ex;
         }
         return flag;
@@ -704,7 +671,6 @@ public class ChequeReturnRepo implements ChequeReturnDao {
         } catch (EmptyResultDataAccessException ex) {
             return blockBean;
         } catch (Exception ex) {
-            logManager.logError("Get Card Block Old Card Status Error", errorLogger);
             throw ex;
         }
         return blockBean;
@@ -717,7 +683,6 @@ public class ChequeReturnRepo implements ChequeReturnDao {
             String query = "UPDATE CARD SET CARDSTATUS=? , LASTUPDATEDTIME = SYSDATE , LASTUPDATEDUSER = ? WHERE CARDNUMBER = ?";
             count = backendJdbcTemplate.update(query, status, Configurations.EOD_USER, cardNumber.toString());
         } catch (Exception ex) {
-            logManager.logError("Update Card Status Error", errorLogger);
             throw ex;
         }
         return count;
@@ -755,7 +720,6 @@ public class ChequeReturnRepo implements ChequeReturnDao {
         } catch (EmptyResultDataAccessException ex) {
             return newriskClass;
         } catch (Exception ex) {
-            logManager.logError("Get Risk Class On Ndia Error", errorLogger);
             throw ex;
         }
         return newriskClass;
@@ -768,7 +732,6 @@ public class ChequeReturnRepo implements ChequeReturnDao {
             String query = "UPDATE DELINQUENTACCOUNT SET RISKCLASS=?, NDIA=? WHERE CARDNUMBER = ?";
             count = backendJdbcTemplate.update(query, delinqClass, ndia, cardNo.toString());
         } catch (Exception ex) {
-            logManager.logError("Update Delinquency Status Error", errorLogger);
             throw ex;
         }
         return count;
@@ -873,11 +836,9 @@ public class ChequeReturnRepo implements ChequeReturnDao {
             flag = true;
 
         } catch (EmptyResultDataAccessException ex) {
-            logManager.logError("--no result found--",errorLogger);
             backendJdbcTemplate.update(insertQuery, cardNo.toString(), fee - paymentAmount, dueDate, status.getEOD_PENDING_STATUS(), Configurations.EOD_ID);
             flag = true;
         } catch (Exception ex) {
-            logManager.logError("Insert To MinPay TableOld Error", errorLogger);
             throw ex;
         }
         return flag;

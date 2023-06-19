@@ -17,6 +17,9 @@ import com.epic.cms.util.CommonMethods;
 import com.epic.cms.util.Configurations;
 import com.epic.cms.util.LogManager;
 import com.epic.cms.util.StatusVarList;
+import lombok.extern.slf4j.Slf4j;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.scheduling.concurrent.ThreadPoolTaskExecutor;
@@ -24,8 +27,6 @@ import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
 
-import static com.epic.cms.util.LogManager.errorLogger;
-import static com.epic.cms.util.LogManager.infoLogger;
 
 @Service
 public class MerchantEasyPaymentRequestConnector extends ProcessBuilder {
@@ -47,6 +48,10 @@ public class MerchantEasyPaymentRequestConnector extends ProcessBuilder {
 
     @Autowired
     MerchantEasyPaymentRequestRepo merchantEasyPaymentRequestRepo;
+
+    private static final Logger logInfo = LoggerFactory.getLogger("logInfo");
+    private static final Logger logError = LoggerFactory.getLogger("logError");
+
 
     ProcessBean processBean = new ProcessBean();
     private ArrayList<MerchantEasyPaymentRequestBean> easyPaymentTranList;
@@ -83,9 +88,9 @@ public class MerchantEasyPaymentRequestConnector extends ProcessBuilder {
             }
         } catch (Exception e) {
             Configurations.IS_PROCESS_COMPLETELY_FAILED = true;
-            logManager.logError("Merchant Easy Payment process Error", e, errorLogger);
+            logError.error("Merchant Easy Payment process Error", e);
         } finally {
-            logManager.logSummery(summery, infoLogger);
+            logInfo.info(logManager.logSummery(summery));
             try {
                 if (easyPaymentTranList != null && easyPaymentTranList.size() != 0) {
                     /* PADSS Change -
@@ -96,7 +101,7 @@ public class MerchantEasyPaymentRequestConnector extends ProcessBuilder {
                     easyPaymentTranList = null;
                 }
             } catch (Exception e3) {
-                logManager.logError("Exception", e3, errorLogger);
+                logError.error("Exception", e3);
             }
         }
     }

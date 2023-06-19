@@ -7,15 +7,18 @@
 
 package com.epic.cms.service;
 
-import com.epic.cms.dao.MasterFileClearingDao;
 import com.epic.cms.Exception.RejectException;
+import com.epic.cms.dao.MasterFileClearingDao;
 import com.epic.cms.model.bean.MasterFieldsDataBean;
 import com.epic.cms.model.bean.MasterPDSBean;
 import com.epic.cms.util.Configurations;
 import com.epic.cms.util.LogManager;
+import lombok.extern.slf4j.Slf4j;
 import org.jpos.iso.ISOMsg;
 import org.jpos.iso.ISOUtil;
 import org.jpos.iso.packager.GenericValidatingPackager;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.util.ResourceUtils;
@@ -23,16 +26,15 @@ import org.springframework.util.ResourceUtils;
 import java.io.File;
 import java.util.HashMap;
 
-import static com.epic.cms.util.LogManager.*;
 
 @Service
 public class MasterExtractElementService {
+    private static final Logger logInfo = LoggerFactory.getLogger("logInfo");
+    private static final Logger logError = LoggerFactory.getLogger("logError");
     public static GenericValidatingPackager ISO_MSG_PACK;
     private static MasterFieldsDataBean masterBean;
-
     @Autowired
     public MasterFileClearingDao masterFileClearingDao;
-
     @Autowired
     LogManager logManager;
 
@@ -46,10 +48,10 @@ public class MasterExtractElementService {
             System.out.println("--initialize completed--");
             GenericValidatingPackager packager = new GenericValidatingPackager(); //create a packager
             String rootPath = "";
-            if (Configurations.SERVER_RUN_PLATFORM.equals("LINUX")){
-                rootPath ="/app/config";
-            }else{
-                rootPath ="classpath:config";
+            if (Configurations.SERVER_RUN_PLATFORM.equals("LINUX")) {
+                rootPath = "/app/config";
+            } else {
+                rootPath = "classpath:config";
             }
             if (Configurations.INCOMMING_IPM_FILE_ENCODING_FORMAT == 1) {
                 System.out.println("--ASCII Path--" + ResourceUtils.getFile(rootPath + File.separator + "iso8583MasterCardASCII.xml").getAbsolutePath());
@@ -68,6 +70,42 @@ public class MasterExtractElementService {
     }
 
     /**
+     * @param masterBean
+     * @param fieldContent
+     * @throws Exception
+     * @author pramod_d
+     */
+    public static void unpackMerchantData(MasterFieldsDataBean masterBean, String fieldContent) {
+        String[] masterMerchantDetails;
+        masterMerchantDetails = fieldContent.split("\\\\");
+        String merchantName = masterMerchantDetails[0].trim();
+        String merchantCity = masterMerchantDetails[2].trim();
+        String merchantCountryCode = masterMerchantDetails[3].substring(13);
+
+        masterBean.setMerchantName(merchantName);
+        masterBean.setMerchantCity(merchantCity);
+        masterBean.setMerchantCountryCode(merchantCountryCode);
+
+    }
+
+    public static void unpackExponentData(MasterFieldsDataBean masterBean, String subPDSTagValue) throws Exception {
+
+        int i = 0;
+        HashMap<String, String> exponentHashMap = new HashMap<>();
+        while (i < subPDSTagValue.length()) {
+
+            String currencyCode = subPDSTagValue.substring(i, (i + 3)); //first 3 character represent currency code
+            i += 3;
+            String currencyExponent = subPDSTagValue.substring(i, (i + 1));
+            i += 1;
+
+            exponentHashMap.put(currencyCode, currencyExponent);
+
+        }
+        masterBean.setCurrencyExponentList(exponentHashMap);
+    }
+
+    /**
      * @param record
      * @param masterBean
      * @throws Exception
@@ -75,7 +113,7 @@ public class MasterExtractElementService {
     public void doUnpack(String record, MasterFieldsDataBean masterBean) throws Exception {
         String print = null;
         try {
-            byte data[] = ISOUtil.hex2byte(record); //convert hexa string to byte array
+            byte[] data = ISOUtil.hex2byte(record); //convert hexa string to byte array
             ISOMsg isomsg = new ISOMsg();
             isomsg.setPackager(ISO_MSG_PACK);
 
@@ -519,28 +557,9 @@ public class MasterExtractElementService {
                 masterBean.setMti(isomsg.getValue(0).toString());
             }
         } catch (Exception e) {
-            logManager.logError("", e, errorLoggerEFPE);
+            logError.error("", e);
             throw e;
         }
-    }
-
-    /**
-     * @param masterBean
-     * @param fieldContent
-     * @throws Exception
-     * @author pramod_d
-     */
-    public static void unpackMerchantData(MasterFieldsDataBean masterBean, String fieldContent) {
-        String[] masterMerchantDetails;
-        masterMerchantDetails = fieldContent.split("\\\\");
-        String merchantName = masterMerchantDetails[0].trim();
-        String merchantCity = masterMerchantDetails[2].trim();
-        String merchantCountryCode = masterMerchantDetails[3].substring(13);
-
-        masterBean.setMerchantName(merchantName);
-        masterBean.setMerchantCity(merchantCity);
-        masterBean.setMerchantCountryCode(merchantCountryCode);
-
     }
 
     /**
@@ -592,22 +611,5 @@ public class MasterExtractElementService {
 
         }
 
-    }
-
-    public static void unpackExponentData(MasterFieldsDataBean masterBean, String subPDSTagValue) throws Exception {
-
-        int i = 0;
-        HashMap<String, String> exponentHashMap = new HashMap<>();
-        while (i < subPDSTagValue.length()) {
-
-            String currencyCode = subPDSTagValue.substring(i, (i + 3)); //first 3 character represent currency code
-            i += 3;
-            String currencyExponent = subPDSTagValue.substring(i, (i + 1));
-            i += 1;
-
-            exponentHashMap.put(currencyCode, currencyExponent);
-
-        }
-        masterBean.setCurrencyExponentList(exponentHashMap);
     }
 }

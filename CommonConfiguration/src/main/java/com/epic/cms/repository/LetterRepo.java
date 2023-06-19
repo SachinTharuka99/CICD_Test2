@@ -17,8 +17,6 @@ import java.util.ArrayList;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-import static com.epic.cms.util.LogManager.errorLogger;
-import static com.epic.cms.util.LogManager.errorLoggerCOM;
 
 @Repository
 public class LetterRepo implements LetterDao {
@@ -28,8 +26,6 @@ public class LetterRepo implements LetterDao {
 
     @Autowired
     StatusVarList status;
-    @Autowired
-    LogManager logManager;
     @Autowired
     private JdbcTemplate backendJdbcTemplate;
 
@@ -62,7 +58,6 @@ public class LetterRepo implements LetterDao {
             );
 
         } catch (Exception e) {
-            logManager.logError(e,errorLoggerCOM);
             throw e;
         }
         return parameterList;
@@ -233,7 +228,6 @@ public class LetterRepo implements LetterDao {
             }
 
         } catch (Exception e) {
-            logManager.logError(e,errorLoggerCOM);
             throw e;
         }
 
@@ -260,7 +254,6 @@ public class LetterRepo implements LetterDao {
             );
 
         } catch (Exception e) {
-            logManager.logError(e,errorLoggerCOM);
             throw e;
         }
 
@@ -298,7 +291,6 @@ public class LetterRepo implements LetterDao {
             value = backendJdbcTemplate.queryForObject(query, StringBuffer.class);
 
         } catch (Exception e) {
-            logManager.logError(e,errorLoggerCOM);
             throw e;
         }
 
@@ -328,7 +320,6 @@ public class LetterRepo implements LetterDao {
             //body = backendJdbcTemplate.queryForObject(query,String.class,inputParam[0],inputParam[1]);
 
         } catch (Exception e) {
-            logManager.logError(e,errorLoggerCOM);
             throw e;
         }
 
@@ -345,7 +336,6 @@ public class LetterRepo implements LetterDao {
             cardCategory = backendJdbcTemplate.queryForObject(query, String.class, applicationID);
 
         } catch (Exception e) {
-            logManager.logError(e,errorLoggerCOM);
             throw e;
         }
 
@@ -363,7 +353,6 @@ public class LetterRepo implements LetterDao {
             cardCategory = backendJdbcTemplate.queryForObject(query, String.class, cardNumber.toString());
 
         } catch (Exception e) {
-            logManager.logError(e,errorLoggerCOM);
             throw e;
         }
 

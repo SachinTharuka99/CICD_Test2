@@ -1,120 +1,38 @@
 package com.epic.cms.util;
 
-import ch.qos.logback.classic.Level;
-import ch.qos.logback.classic.Logger;
-import ch.qos.logback.classic.LoggerContext;
-import ch.qos.logback.classic.encoder.PatternLayoutEncoder;
-import ch.qos.logback.classic.spi.ILoggingEvent;
-import ch.qos.logback.core.Appender;
-import ch.qos.logback.core.ConsoleAppender;
-import ch.qos.logback.core.FileAppender;
-import ch.qos.logback.core.Layout;
-import ch.qos.logback.core.rolling.RollingFileAppender;
-import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.DependsOn;
 import org.springframework.kafka.core.KafkaTemplate;
 import org.springframework.stereotype.Component;
 
-import javax.annotation.PostConstruct;
-import java.io.File;
-import java.io.IOException;
-import java.nio.file.Files;
-import java.nio.file.attribute.PosixFilePermission;
-import java.nio.file.attribute.PosixFilePermissions;
-import java.time.LocalDateTime;
-import java.time.format.DateTimeFormatter;
-import java.util.HashSet;
 import java.util.Map;
-import java.util.Set;
 
 @Component
-@DependsOn("ConfigurationService")
 public class LogManager {
-
-    public static Logger infoLogger = null, dashboardInfoLogger = null, infoLoggerCOM = null, infoLoggerEFPE = null, infoLoggerEFGE = null;
-    public static Logger errorLogger = null, dashboardErrorLogger = null, errorLoggerCOM = null, errorLoggerEFPE = null, errorLoggerEFGE = null;
-    public static String logTypeInfo = Configurations.LOG_TYPE_INFO;
-    public static String logTypeError = Configurations.LOG_TYPE_ERROR;
+    final String topic = Configurations.LOG_TOPIC;
 
     @Autowired
     public KafkaTemplate<String, String> kafkaTemplate;
 
-    final String topic = Configurations.LOG_TOPIC;
-
-    @PostConstruct
-    public static void init() {
-
-        //info loggers
-        infoLoggerCOM = getLogger(logTypeInfo, "common_info");
-        infoLogger = getLogger(logTypeInfo, "engine_info");
-        infoLoggerEFPE = getLogger(logTypeInfo, "file_pro_engine_info");
-        infoLoggerEFGE = getLogger(logTypeInfo, "file_gen_engine_info");
-        dashboardInfoLogger = getLogger(logTypeInfo, "dashboard_info");
-        //error loggers
-        errorLoggerCOM = getLogger(logTypeError, "common_error");
-        errorLogger = getLogger(logTypeError, "engine_error");
-        errorLoggerEFPE = getLogger(logTypeError, "file_pro_engine_error");
-        errorLoggerEFGE = getLogger(logTypeError, "file_gen_engine_error");
-        dashboardErrorLogger = getLogger(logTypeError, "dashboard_error");
-    }
-
     /**
-     * Config Logger Instances
+     * start and end style
      *
-     * @param logType
-     * @param loggerName
+     * @param name
      * @return
      */
+    public String processStartEndStyle(String name) {
+        //String curDate = new SimpleDateFormat("dd-MMM-yy HH:mm:ss").format(Configurations.EOD_DATE);
 
-    public static Logger getLogger(String logType, String loggerName) {
-        String logPattern = null;
-        if (logType.equals(Configurations.LOG_TYPE_INFO)) {
-            logPattern = Configurations.INFO_LOG_PATTERN;
-        } else {
-            logPattern = Configurations.ERROR_LOG_PATTERN;
+        //String temp = "[" + curDate + "]" + "  " + name + System.lineSeparator();
+        String temp = name + System.lineSeparator();
+
+        try {
+            kafkaTemplate.send(topic, temp);
+        } catch (Exception e) {
+            System.out.println("Kafka log_topic error");
         }
 
-        LoggerContext lc = (LoggerContext) LoggerFactory.getILoggerFactory();
-        String path = Configurations.EOD_LOGS_FILE_PATH;
-        String fileName = "eod_log.log";
-        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyyMMdd"); // Format for the new file name
-
-
-        // Rename previous log file
-        String previousFileName = path + fileName;
-        String newFileName = path + LocalDateTime.now().format(formatter) + "_" + fileName;
-        File previousFile = new File(previousFileName);
-        if (previousFile.exists()) {
-            previousFile.renameTo(new File(newFileName));
-        }
-
-        PatternLayoutEncoder ple = new PatternLayoutEncoder();
-        ple.setPattern(logPattern);
-        ple.setContext(lc);
-        ple.start();
-
-        //console appender
-        ConsoleAppender consoleAppender = new ConsoleAppender();
-        consoleAppender.setEncoder(ple);
-        consoleAppender.setContext(lc);
-        consoleAppender.start();
-
-        // File appender
-        FileAppender<ILoggingEvent> fileAppender = new FileAppender<>();
-        fileAppender.setFile(path + fileName);
-        fileAppender.setEncoder(ple);
-        fileAppender.setContext(lc);
-        fileAppender.start();
-
-        Logger logger = (Logger) LoggerFactory.getLogger(loggerName);
-        logger.detachAndStopAllAppenders();
-        logger.addAppender(consoleAppender);
-        logger.addAppender(fileAppender);
-        logger.setLevel(Level.INFO);
-        logger.setAdditive(false); /* set to true if root should log too */
-
-        return logger;
+        return temp;
     }
 
     /**
@@ -147,23 +65,15 @@ public class LogManager {
             }
         }
         //style = Configurations.EOD_DATE_String + style + System.lineSeparator();
-         style = style + System.lineSeparator();
+        style = style + System.lineSeparator();
+
+        try {
+            kafkaTemplate.send(topic, style);
+        } catch (Exception e) {
+            System.out.println("Kafka log_topic error");
+        }
 
         return style;
-    }
-
-    /**
-     * start and end style
-     *
-     * @param name
-     * @return
-     */
-    public static String processStartEndStyle(String name) {
-        //String curDate = new SimpleDateFormat("dd-MMM-yy HH:mm:ss").format(Configurations.EOD_DATE);
-
-        //String temp = "[" + curDate + "]" + "  " + name + System.lineSeparator();
-        String temp =  name + System.lineSeparator();
-        return temp;
     }
 
     /**
@@ -201,6 +111,13 @@ public class LogManager {
             description = description + "-------------------------------------" + System.lineSeparator();
 
         }
+
+//        try {
+//            kafkaTemplate.send(topic, description);
+//        } catch (Exception e) {
+//            System.out.println("Kafka log_topic error");
+//        }
+
         return description;
     }
 
@@ -262,17 +179,24 @@ public class LogManager {
                 summeryDesign = summeryDesign + "*";
             }
             if (description.length() - 5 > 0) {
-                description = description.substring(0, description.length());
+                description = description;
                 description = summeryDesign + System.lineSeparator() + description + System.lineSeparator() + summeryDesign;
             } else {
                 description = "--No Summery Data To View--" + System.lineSeparator();
             }
             // remove the final new line
         }
+
+        try {
+            kafkaTemplate.send(topic, description);
+        } catch (Exception e) {
+            System.out.println("Kafka log_topic error");
+        }
+
         return description;
     }
 
-    public void logHeader(String msg, Logger logger) {
+    public String logHeader(String msg) {
         String symbol = "~";
         int fixed_length = 100;
         int processName_lenght = msg.length();
@@ -296,35 +220,33 @@ public class LogManager {
             }
         }
         //formattedMsg = Configurations.EOD_DATE_String + formattedMsg + System.lineSeparator();
-        formattedMsg =  formattedMsg + System.lineSeparator();
+        formattedMsg = formattedMsg + System.lineSeparator();
 
-        //write into a log
-        logger.info(formattedMsg);
-        //pass into a kafka topic
         try {
             kafkaTemplate.send(topic, formattedMsg);
         } catch (Exception e) {
             System.out.println("Kafka log_topic error");
         }
+        return formattedMsg;
     }
 
-    public void logStartEnd(String msg, Logger logger) {
+    public String logStartEnd(String msg) {
         //String curDate = new SimpleDateFormat("dd-MMM-yy HH:mm:ss").format(Configurations.EOD_DATE);
 
         //String formattedMsg = "[" + curDate + "]" + "  " + msg + System.lineSeparator();
         String formattedMsg =  msg + System.lineSeparator();
-        //write into a log
-        logger.info(formattedMsg);
-        //pass into a kafka topic
+
         try {
             kafkaTemplate.send(topic, formattedMsg);
         } catch (Exception e) {
             System.out.println("Kafka log_topic error");
         }
+
+        return formattedMsg;
     }
 
-    public void logDetails(Map<String, Object> detailsMap, Logger logger) {
-        String description = null;
+    public String logDetails(Map<String, Object> detailsMap) {
+        String description = "";
         if (detailsMap.size() > 0) {
             int maxLength = 0;
             description = "      ";// 6 white spaces
@@ -351,19 +273,16 @@ public class LogManager {
             }
             description = description + "-------------------------------------" + System.lineSeparator();
 
-            //write into a log
-            logger.info(description);
-            //pass into a kafka topic
             try {
                 kafkaTemplate.send(topic, description);
             } catch (Exception e) {
                 System.out.println("Kafka log_topic error");
             }
         }
-
+        return description;
     }
 
-    public void logSummery(Map<String, Object> detailsMap, Logger logger) {
+    public String logSummery(Map<String, Object> detailsMap) {
         int maxLengthKey = 0;
         int maxLengthValue = 0;
         int maxLength = 0;
@@ -415,64 +334,19 @@ public class LogManager {
                 summeryDesign = summeryDesign + "*";
             }
             if (description.length() - 5 > 0) {
-                description = description.substring(0, description.length());
+                description = description;
                 description = summeryDesign + System.lineSeparator() + description + System.lineSeparator() + summeryDesign;
             } else {
                 description = "--No Summery Data To View--" + System.lineSeparator();
             }
-            //write into a log
-            logger.info(description);
-            //pass into a kafka topic
-            try {
-                kafkaTemplate.send(topic, description);
-            } catch (Exception e) {
-                System.out.println("Kafka log_topic error");
-            }
         }
-
+        return description;
     }
-
-    public void logInfo(String msg, Logger logger) {
-        //write into a log
-        logger.info(msg);
-        //pass into a kafka topic
-        try {
-            kafkaTemplate.send(topic, msg);
-        } catch (Exception e) {
-            System.out.println("Kafka log_topic error");
-        }
-    }
-
-    public void logError(String msg, Throwable e, Logger logger) {
-        //write into a log
-        logger.error(msg, e);
-        //pass into a kafka topic
-        try {
-            kafkaTemplate.send(topic, msg);
-        } catch (Exception ex) {
-            System.out.println("Kafka log_topic error");
-        }
-    }
-
-    public void logError(Throwable e, Logger logger) {
-        //write into a log
-        logger.error(e.getMessage(), e);
-        //pass into a kafka topic
-        try {
-            kafkaTemplate.send(topic, e.getMessage());
-        } catch (Exception ex) {
-            System.out.println("Kafka log_topic error");
-        }
-    }
-
-    public void logError(String msg, Logger logger) {
-        //write into a log
-        logger.error(msg);
-        //pass into a kafka topic
-        try {
-            kafkaTemplate.send(topic, msg);
-        } catch (Exception e) {
-            System.out.println("Kafka log_topic error");
-        }
-    }
+//    public void kafkaDashboardLogUpdator(String description){
+//        try {
+//            kafkaTemplate.send(topic, description);
+//        } catch (Exception e) {
+//            System.out.println("Kafka log_topic error");
+//        }
+//    }
 }

@@ -7,8 +7,6 @@ import org.springframework.context.annotation.ComponentScan;
 import org.springframework.kafka.annotation.KafkaListener;
 import org.springframework.stereotype.Service;
 
-import java.text.SimpleDateFormat;
-import java.util.logging.Logger;
 
 @Service
 @ComponentScan(basePackages = {"com.epic.cms.*"})

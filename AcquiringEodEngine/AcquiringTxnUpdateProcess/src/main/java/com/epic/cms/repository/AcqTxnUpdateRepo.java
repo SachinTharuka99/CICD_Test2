@@ -7,9 +7,7 @@ import com.epic.cms.util.StatusVarList;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Repository;
-import org.springframework.transaction.annotation.Transactional;
 
-import static com.epic.cms.util.LogManager.errorLogger;
 
 import java.sql.ResultSet;
 import java.util.ArrayList;
@@ -29,8 +27,6 @@ public class AcqTxnUpdateRepo implements AcqTxnUpdateDao {
     @Autowired
     StatusVarList status;
 
-    @Autowired
-    LogManager logManager;
 
     @Override
     public String getForexPercentage() throws Exception {
@@ -39,7 +35,6 @@ public class AcqTxnUpdateRepo implements AcqTxnUpdateDao {
         try {
             forexRate= backendJdbcTemplate.queryForObject(query.getAcqTxnUpdate_getForexPercentage(),String.class);
         }catch (Exception e){
-            logManager.logError(String.valueOf(e),errorLogger);
             throw e;
         }
         return forexRate;
@@ -52,7 +47,6 @@ public class AcqTxnUpdateRepo implements AcqTxnUpdateDao {
         try {
             fuelSurchargeRate= backendJdbcTemplate.queryForObject(query.getAcqTxnUpdate_getFuelSurchargeRatePercentage(),String.class);
         }catch (Exception e){
-            logManager.logError(String.valueOf(e),errorLogger);
             throw e;
         }
         return fuelSurchargeRate;
@@ -70,7 +64,6 @@ public class AcqTxnUpdateRepo implements AcqTxnUpdateDao {
             }
             return mccList;
         }catch (Exception e){
-            logManager.logError(String.valueOf(e),errorLogger);
             throw e;
         }
     }
@@ -89,7 +82,6 @@ public class AcqTxnUpdateRepo implements AcqTxnUpdateDao {
                     });
 
         }catch (Exception e){
-            logManager.logError(String.valueOf(e),errorLogger);
             throw e;
         }
         return result;

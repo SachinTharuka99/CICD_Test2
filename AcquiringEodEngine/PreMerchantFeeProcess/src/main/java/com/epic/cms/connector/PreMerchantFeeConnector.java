@@ -15,6 +15,9 @@ import com.epic.cms.service.PreMerchantFeeService;
 import com.epic.cms.util.CommonMethods;
 import com.epic.cms.util.Configurations;
 import com.epic.cms.util.LogManager;
+import lombok.extern.slf4j.Slf4j;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.scheduling.concurrent.ThreadPoolTaskExecutor;
@@ -26,12 +29,9 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 
-import static com.epic.cms.util.LogManager.errorLogger;
-import static com.epic.cms.util.LogManager.infoLogger;
 
 @Service
 public class PreMerchantFeeConnector extends ProcessBuilder {
-
 
     public List<ErrorMerchantBean> merchantErrorList;
     public int configProcess = Configurations.PROCESS_PRE_MERCHANT_FEE_PROCESS;
@@ -49,6 +49,10 @@ public class PreMerchantFeeConnector extends ProcessBuilder {
     @Autowired
     @Qualifier("ThreadPool_100")
     ThreadPoolTaskExecutor taskExecutor;
+
+    private static final Logger logInfo = LoggerFactory.getLogger("logInfo");
+    private static final Logger logError = LoggerFactory.getLogger("logError");
+
 
     private int success_merchant_recurring_fee_count = 0;
     private int success_terminal_recurring_count = 0;
@@ -91,7 +95,7 @@ public class PreMerchantFeeConnector extends ProcessBuilder {
 
             }
         } catch (Exception e) {
-            logManager.logError("Error occurred", e, errorLogger);
+            logError.error("Error occurred", e);
             try {
                 System.out.println("---------------------->> Pre Merchant Fee process failed....");
                 summery.put("Pre Merchant Fee process failed", "");
@@ -105,10 +109,10 @@ public class PreMerchantFeeConnector extends ProcessBuilder {
                 }
 
             } catch (Exception e2) {
-                logManager.logError("Errors occurred", e2, errorLogger);
+                logError.error("Errors occurred", e2);
             }
         } finally {
-            logManager.logSummery(summery, infoLogger);
+            logInfo.info(logManager.logSummery(summery));
         }
     }
 

@@ -10,6 +10,9 @@ package com.epic.cms.repository;
 import com.epic.cms.dao.CardRenewDao;
 import com.epic.cms.model.bean.CardRenewBean;
 import com.epic.cms.util.*;
+import lombok.extern.slf4j.Slf4j;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.dao.EmptyResultDataAccessException;
@@ -17,29 +20,25 @@ import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.core.RowMapperResultSetExtractor;
 import org.springframework.stereotype.Repository;
 
-import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.util.ArrayList;
 import java.util.Objects;
 
-import static com.epic.cms.util.LogManager.errorLogger;
-import static com.epic.cms.util.LogManager.infoLogger;
 
 @Repository
 public class CardRenewRepo implements CardRenewDao {
 
+    private static final Logger logInfo = LoggerFactory.getLogger("logInfo");
+    private static final Logger logError = LoggerFactory.getLogger("logError");
     @Autowired
     StatusVarList statusList;
-
+    @Autowired
+    LogManager logManager;
     @Autowired
     private JdbcTemplate backendJdbcTemplate;
-
     @Autowired
     @Qualifier("onlineJdbcTemplate")
     private JdbcTemplate onlineJdbcTemplate;
-
-    @Autowired
-    LogManager logManager;
 
     @Override
     public int getCardValidityPeriod(StringBuffer cardNumber) throws Exception {
@@ -107,14 +106,13 @@ public class CardRenewRepo implements CardRenewDao {
 
             if (Configurations.ONLINE_LOG_LEVEL == 1) {
                 //Only for troubleshoot
-                logManager.logInfo("================ updateOnlineCardTable ===================" + Integer.toString(Configurations.EOD_ID),infoLogger);
-                logManager.logInfo(query,infoLogger);
-                logManager.logInfo(newExpireDate,infoLogger);
-                logManager.logInfo(CommonMethods.cardNumberMask(cardNumber),infoLogger);
-                logManager.logInfo("================ updateOnlineCardTable END ===================",infoLogger);
+                logInfo.info("================ updateOnlineCardTable ===================" + Configurations.EOD_ID);
+                logInfo.info(query);
+                logInfo.info(newExpireDate);
+                logInfo.info(CommonMethods.cardNumberMask(cardNumber));
+                logInfo.info("================ updateOnlineCardTable END ===================");
             }
         } catch (Exception e) {
-//            LogFileCreator.writeErrorToLog(e);
             throw e;
         }
     }
@@ -141,7 +139,6 @@ public class CardRenewRepo implements CardRenewDao {
                     , statusList.getCARD_RENEWAL_ACCEPTED());
 
         } catch (Exception e) {
-            logManager.logError("Error Occured when selecting Approved Cards",errorLogger);
             throw e;
         }
         return cardList;

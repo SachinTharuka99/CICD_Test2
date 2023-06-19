@@ -18,6 +18,9 @@ import com.epic.cms.util.CommonMethods;
 import com.epic.cms.util.Configurations;
 import com.epic.cms.util.LogManager;
 import com.epic.cms.util.StatusVarList;
+import lombok.extern.slf4j.Slf4j;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.scheduling.concurrent.ThreadPoolTaskExecutor;
@@ -26,28 +29,23 @@ import org.springframework.stereotype.Service;
 import java.util.ArrayList;
 import java.util.List;
 
-import static com.epic.cms.util.LogManager.infoLogger;
-import static com.epic.cms.util.LogManager.errorLogger;
 
 @Service
 public class EasyPaymentConnector extends ProcessBuilder {
 
+    private static final Logger logInfo = LoggerFactory.getLogger("logInfo");
+    private static final Logger logError = LoggerFactory.getLogger("logError");
     @Autowired
     LogManager logManager;
-
     @Autowired
     CommonRepo commonRepo;
-
     @Autowired
     @Qualifier("ThreadPool_100")
     ThreadPoolTaskExecutor taskExecutor;
-
     @Autowired
     InstallmentPaymentRepo installmentPaymentRepo;
-
     @Autowired
     EasyPaymentService easyPaymentService;
-
     @Autowired
     StatusVarList statusList;
 
@@ -82,11 +80,11 @@ public class EasyPaymentConnector extends ProcessBuilder {
                 Configurations.PROCESS_SUCCESS_COUNT = (Configurations.NO_OF_EASY_PAYMENTS - Configurations.FAILED_EASY_PAYMENTS);
                 Configurations.PROCESS_FAILD_COUNT = Configurations.FAILED_EASY_PAYMENTS;
             }
-        }catch (Exception e){
+        } catch (Exception e) {
             Configurations.IS_PROCESS_COMPLETELY_FAILED = true;
-            logManager.logError("Easy Payment process failed", e, errorLogger);
-        }finally {
-            logManager.logSummery(summery, infoLogger);
+            logError.error("Easy Payment process failed", e);
+        } finally {
+            logInfo.info(logManager.logSummery(summery));
             /** PADSS Change -
              variables handling card data should be nullified by replacing the value of variable with zero and call NULL function */
             if (txnList != null && txnList.size() != 0) {
@@ -104,6 +102,5 @@ public class EasyPaymentConnector extends ProcessBuilder {
         summery.put("No of Card effected", Integer.toString(Configurations.NO_OF_EASY_PAYMENTS));
         summery.put("No of Success Card ", Integer.toString(Configurations.NO_OF_EASY_PAYMENTS - Configurations.FAILED_EASY_PAYMENTS));
         summery.put("No of fail Card ", Integer.toString(Configurations.FAILED_EASY_PAYMENTS));
-
     }
 }

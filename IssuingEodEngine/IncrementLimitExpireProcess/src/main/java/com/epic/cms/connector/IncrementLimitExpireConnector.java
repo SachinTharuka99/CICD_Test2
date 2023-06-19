@@ -1,7 +1,6 @@
 package com.epic.cms.connector;
 
 import com.epic.cms.common.ProcessBuilder;
-import com.epic.cms.model.bean.ErrorCardBean;
 import com.epic.cms.model.bean.LimitIncrementBean;
 import com.epic.cms.model.bean.ProcessBean;
 import com.epic.cms.repository.CommonRepo;
@@ -11,41 +10,37 @@ import com.epic.cms.util.CommonMethods;
 import com.epic.cms.util.Configurations;
 import com.epic.cms.util.LogManager;
 import com.epic.cms.util.StatusVarList;
+import lombok.extern.slf4j.Slf4j;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.scheduling.concurrent.ThreadPoolTaskExecutor;
 import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
-import java.util.List;
 
-import static com.epic.cms.util.LogManager.errorLogger;
-import static com.epic.cms.util.LogManager.infoLogger;
 
 @Service
 public class IncrementLimitExpireConnector extends ProcessBuilder {
 
+    private static final Logger logInfo = LoggerFactory.getLogger("logInfo");
+    private static final Logger logError = LoggerFactory.getLogger("logError");
+    public int configProcess = Configurations.PROCESS_ID_INCREMENT_LIMIT_EXPIRE;
+    public String processHeader = "LIMIT INCEREMENT EXPIRE PROCESS";
     @Autowired
     IncrementLimitExpireService incrementLimitExpireService;
-
     @Autowired
     LogManager logManager;
-
     @Autowired
     @Qualifier("taskExecutor2")
     ThreadPoolTaskExecutor taskExecutor;
-
     @Autowired
     StatusVarList status;
-
     @Autowired
     IncrementLimitExpireRepo incrementLimitExpireRepo;
-
     @Autowired
     CommonRepo commonRepo;
-
-    public int configProcess = Configurations.PROCESS_ID_INCREMENT_LIMIT_EXPIRE;
-    public String processHeader = "LIMIT INCEREMENT EXPIRE PROCESS";
 
     @Override
     public void concreteProcess() throws Exception {
@@ -63,11 +58,11 @@ public class IncrementLimitExpireConnector extends ProcessBuilder {
                 /** Expire the Increment*/
                 cardList = incrementLimitExpireRepo.getLimitExpiredCardList();
                 Configurations.PROCESS_TOTAL_NOOF_TRABSACTIONS = cardList.size();
-                noOfCards =Configurations.PROCESS_TOTAL_NOOF_TRABSACTIONS;
+                noOfCards = Configurations.PROCESS_TOTAL_NOOF_TRABSACTIONS;
 
                 /** Limit Expiring card one by one*/
                 for (LimitIncrementBean limitIncrementBean : cardList) {
-                    incrementLimitExpireService.processCreditLimitExpire(limitIncrementBean,processBean, configProcess, processHeader);
+                    incrementLimitExpireService.processCreditLimitExpire(limitIncrementBean, processBean, configProcess, processHeader);
                 }
                 /**wait till all the threads are completed*/
                 while (!(taskExecutor.getActiveCount() == 0)) {
@@ -81,10 +76,10 @@ public class IncrementLimitExpireConnector extends ProcessBuilder {
                 Configurations.PROCESS_FAILD_COUNT = failedCards;
             }
 
-        }catch (Exception e){
+        } catch (Exception e) {
             try {
                 Configurations.IS_PROCESS_COMPLETELY_FAILED = true;
-                logManager.logError("Increment Limit Expire Process Completely failed", e, errorLogger);
+                logError.error("Increment Limit Expire Process Completely failed", e);
 
                 if (processBean.getCriticalStatus() == 1) {
                     Configurations.COMMIT_STATUS = false;
@@ -93,10 +88,10 @@ public class IncrementLimitExpireConnector extends ProcessBuilder {
                     Configurations.MAIN_EOD_STATUS = false;
                 }
             } catch (Exception e2) {
-                logManager.logError("Increment Limit Expire process ended with", e2, errorLogger);
+                logError.error("Increment Limit Expire process ended with", e2);
             }
         } finally {
-            logManager.logSummery(summery, infoLogger);
+            logInfo.info(logManager.logSummery(summery));
             try {
                 if (cardList != null && cardList.size() != 0) {
                     /* PADSS Change -
@@ -107,7 +102,7 @@ public class IncrementLimitExpireConnector extends ProcessBuilder {
                     cardList = null;
                 }
             } catch (Exception e2) {
-                logManager.logError("Exception", e2, errorLogger);
+                logError.error("Exception", e2);
             }
         }
     }
@@ -115,8 +110,8 @@ public class IncrementLimitExpireConnector extends ProcessBuilder {
     @Override
     public void addSummaries() {
         summery.put("Started Date", Configurations.EOD_DATE.toString());
-        summery.put("No of Card effected", Integer.toString( Configurations.PROCESS_TOTAL_NOOF_TRABSACTIONS));
+        summery.put("No of Card effected", Integer.toString(Configurations.PROCESS_TOTAL_NOOF_TRABSACTIONS));
         summery.put("No of Success Card ", Integer.toString(Configurations.PROCESS_SUCCESS_COUNT));
-        summery.put("No of fail Card ", Integer.toString( Configurations.PROCESS_FAILD_COUNT));
+        summery.put("No of fail Card ", Integer.toString(Configurations.PROCESS_FAILD_COUNT));
     }
 }

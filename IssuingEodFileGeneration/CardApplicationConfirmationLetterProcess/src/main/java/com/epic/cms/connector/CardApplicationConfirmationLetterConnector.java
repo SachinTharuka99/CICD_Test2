@@ -14,6 +14,9 @@ import com.epic.cms.util.CommonMethods;
 import com.epic.cms.util.Configurations;
 import com.epic.cms.util.LogManager;
 import com.epic.cms.util.StatusVarList;
+import lombok.extern.slf4j.Slf4j;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -31,6 +34,9 @@ public class CardApplicationConfirmationLetterConnector extends FileGenProcessBu
     CardApplicationConfirmationLetterService cardApplicationConfirmationLetterService;
     @Autowired
     CardApplicationConfirmationLetterRepo cardApplicationConfirmationLetterRepo;
+
+    private static final Logger logInfo = LoggerFactory.getLogger("logInfo");
+    private static final Logger logError = LoggerFactory.getLogger("logError");
 
     String[] fileNameAndPath = null;
 
@@ -56,13 +62,13 @@ public class CardApplicationConfirmationLetterConnector extends FileGenProcessBu
 
         }catch (Exception e){
             Configurations.IS_PROCESS_COMPLETELY_FAILED = true;
-            logManager.logError("Card Application Confirmation Letter Process Failed", e, errorLoggerEFGE);
+            logError.error("Card Application Confirmation Letter Process Failed", e);
 
             if(fileNameAndPath!= null){
                 fileGenerationService.deleteExistFile(fileNameAndPath[0]);
             }
         }finally {
-            logManager.logSummery(summery, infoLoggerEFGE);
+            logInfo.info(logManager.logSummery(summery));
             try {
                 if (!confirmCardlist.isEmpty()) {
                     for (int i = 0; i < confirmCardlist.size(); i++) {
@@ -70,7 +76,7 @@ public class CardApplicationConfirmationLetterConnector extends FileGenProcessBu
                     }
                 }
             } catch (Exception e) {
-                logManager.logError("Exception in Card Number Clearing ",e, errorLoggerEFGE);
+                logError.error("Exception in Card Number Clearing ",e);
             }
         }
     }

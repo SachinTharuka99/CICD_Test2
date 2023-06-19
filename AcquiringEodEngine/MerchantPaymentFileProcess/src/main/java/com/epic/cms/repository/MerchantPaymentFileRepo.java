@@ -16,6 +16,9 @@ import com.epic.cms.util.CommonMethods;
 import com.epic.cms.util.Configurations;
 import com.epic.cms.util.LogManager;
 import com.epic.cms.util.StatusVarList;
+import lombok.extern.slf4j.Slf4j;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Repository;
@@ -27,10 +30,6 @@ import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
-
-import static com.epic.cms.util.LogManager.errorLogger;
-import static com.epic.cms.util.LogManager.infoLogger;
-
 @Repository
 public class MerchantPaymentFileRepo implements MerchantPaymentFileDao {
 
@@ -42,6 +41,9 @@ public class MerchantPaymentFileRepo implements MerchantPaymentFileDao {
 
     @Autowired
     LogManager logManager;
+
+    private static final Logger logInfo = LoggerFactory.getLogger("logInfo");
+    private static final Logger logError = LoggerFactory.getLogger("logError");
 
     @Override
     public HashMap<String, String> getCurrencyList() throws Exception {
@@ -425,12 +427,11 @@ public class MerchantPaymentFileRepo implements MerchantPaymentFileDao {
                     backendJdbcTemplate.update(updateQuery, nextBillingDate, cusNo);
 
                 } else {
-                    logManager.logError("No merchant location for mID " + cusNo + ".",errorLogger);
+                    logError.error("No merchant location for mID " + cusNo + ".");
                 }
             }
 
         } catch (Exception e) {
-            logManager.logError("Exeption ", errorLogger);
             throw e;
         }
     }
@@ -480,11 +481,10 @@ public class MerchantPaymentFileRepo implements MerchantPaymentFileDao {
                     backendJdbcTemplate.update(updateQuery, nextBillingDate, cusNo);
 
                 } else {
-                    logManager.logInfo("No merchant customer for customerNo " + cusNo + ".",infoLogger);
+                    logError.error("No merchant customer for customerNo " + cusNo + ".");
                 }
             }
         } catch (Exception e) {
-            logManager.logError("Exeption ", errorLogger);
             throw e;
         }
     }

@@ -20,9 +20,6 @@ public class OverLimitFeeRepo implements OverLimitFeeDao {
     private JdbcTemplate backendJdbcTemplate;
 
     @Autowired
-    private JdbcTemplate onlineJdbcTemplate;
-
-    @Autowired
     QueryParametersList queryParametersList;
 
     @Autowired

@@ -10,6 +10,9 @@ import com.epic.cms.util.CommonMethods;
 import com.epic.cms.util.Configurations;
 import com.epic.cms.util.LogManager;
 import com.epic.cms.util.StatusVarList;
+import lombok.extern.slf4j.Slf4j;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.scheduling.concurrent.ThreadPoolTaskExecutor;
@@ -17,33 +20,27 @@ import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
 
-import static com.epic.cms.util.LogManager.infoLogger;
-import static com.epic.cms.util.LogManager.errorLogger;
 
 @Service
 public class CardLimitEnhancementConnector extends ProcessBuilder {
 
+    private static final Logger logInfo = LoggerFactory.getLogger("logInfo");
+    private static final Logger logError = LoggerFactory.getLogger("logError");
     @Autowired
     @Qualifier("taskExecutor2")
     ThreadPoolTaskExecutor taskExecutor;
-
     @Autowired
     StatusVarList statusList;
-
     @Autowired
     CardLimitEnhancementService cardLimitEnhancementService;
-
     @Autowired
     CardLimitEnhancementRepo cardLimitEnhancementRepo;
-
     @Autowired
     CommonRepo commonRepo;
-
     @Autowired
     LogManager logManager;
-
-    private ArrayList<OtbBean> custAccList = new ArrayList<OtbBean>();
     ArrayList<BalanceComponentBean> enhancementList;
+    private ArrayList<OtbBean> custAccList = new ArrayList<OtbBean>();
     private int failedCount = 0;
 
     @Override
@@ -84,7 +81,7 @@ public class CardLimitEnhancementConnector extends ProcessBuilder {
             Configurations.IS_PROCESS_COMPLETELY_FAILED = true;
             throw ex;
         } finally {
-            logManager.logSummery(summery, infoLogger);
+            logInfo.info(logManager.logSummery(summery));
             try {
                 if (custAccList != null && custAccList.size() != 0) {
                     for (OtbBean bean : custAccList) {
@@ -101,18 +98,17 @@ public class CardLimitEnhancementConnector extends ProcessBuilder {
                     enhancementList = null;
                 }
             } catch (Exception e) {
-                logManager.logError("Exception Occurred for Card Limit Enhancement ", e, errorLogger);
+                logError.error("Exception Occurred for Card Limit Enhancement ", e);
             }
-
         }
     }
 
     @Override
     public void addSummaries() {
 
-            summery.put("Number of transaction to sync", Configurations.PROCESS_TOTAL_NOOF_TRABSACTIONS);
-            summery.put("Number of success transaction", Configurations.PROCESS_SUCCESS_COUNT);
-            summery.put("Number of failure transaction", Configurations.PROCESS_FAILD_COUNT);
+        summery.put("Number of transaction to sync", Configurations.PROCESS_TOTAL_NOOF_TRABSACTIONS);
+        summery.put("Number of success transaction", Configurations.PROCESS_SUCCESS_COUNT);
+        summery.put("Number of failure transaction", Configurations.PROCESS_FAILD_COUNT);
 
     }
 }

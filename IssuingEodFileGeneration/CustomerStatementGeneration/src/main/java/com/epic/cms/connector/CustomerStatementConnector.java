@@ -13,9 +13,11 @@ import com.epic.cms.util.CommonMethods;
 import com.epic.cms.util.Configurations;
 import com.epic.cms.util.LogManager;
 import com.fasterxml.jackson.databind.JsonNode;
+import lombok.extern.slf4j.Slf4j;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.web.client.RestTemplateBuilder;
-import org.springframework.http.client.HttpComponentsClientHttpRequestFactory;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
 
@@ -23,25 +25,24 @@ import java.util.HashMap;
 import java.util.Map;
 
 import static com.epic.cms.util.Configurations.EOD_STATEMENT_GEN_BASE_URL;
-import static com.epic.cms.util.LogManager.errorLoggerEFGE;
-import static com.epic.cms.util.LogManager.infoLoggerEFGE;
 
 @Service
 public class CustomerStatementConnector extends FileGenProcessBuilder {
 
+    private static final Logger logInfo = LoggerFactory.getLogger("logInfo");
+    private static final Logger logError = LoggerFactory.getLogger("logError");
     final RestTemplate restTemplate;
-
-    public CustomerStatementConnector(RestTemplateBuilder restTemplateBuilder){
-        this.restTemplate = restTemplateBuilder.build();
-    }
-
     @Autowired
     LogManager logManager;
+
+    public CustomerStatementConnector(RestTemplateBuilder restTemplateBuilder) {
+        this.restTemplate = restTemplateBuilder.build();
+    }
 
     @Override
     public void concreteProcess() throws Exception {
 
-        try{
+        try {
 
             processBean = new ProcessBean();
             processBean = commonRepo.getProcessDetails(Configurations.PROCESS_MONTHLY_STATEMENT_FILE_CREATION);
@@ -55,11 +56,11 @@ public class CustomerStatementConnector extends FileGenProcessBuilder {
                 requestBody.put("eodDate", Configurations.EOD_DATE);
                 requestBody.put("eodStatus", Configurations.STARTING_EOD_STATUS);
 
-                JsonNode response = restTemplate.postForObject(EOD_STATEMENT_GEN_BASE_URL+"/customerStatement?eodDate={eodDate}&eodStatus={eodStatus}", requestBody, JsonNode.class, Map.of("eodDate",Configurations.EOD_DATE,"eodStatus", Configurations.STARTING_EOD_STATUS));
+                JsonNode response = restTemplate.postForObject(EOD_STATEMENT_GEN_BASE_URL + "/customerStatement?eodDate={eodDate}&eodStatus={eodStatus}", requestBody, JsonNode.class, Map.of("eodDate", Configurations.EOD_DATE, "eodStatus", Configurations.STARTING_EOD_STATUS));
 
                 // Access the properties of the JsonNode
                 JsonNode successFile = response.get("successno");
-                JsonNode errorFile= response.get("errorno");
+                JsonNode errorFile = response.get("errorno");
 
                 int successCount = Integer.parseInt(successFile.toString());
                 int errorCount = Integer.parseInt(errorFile.toString());
@@ -71,9 +72,9 @@ public class CustomerStatementConnector extends FileGenProcessBuilder {
             }
 
         } catch (Exception e) {
-            logManager.logError("Exception in Customer Statement Generation Process", e, errorLoggerEFGE);
+            logError.error("Exception in Customer Statement Generation Process", e);
         } finally {
-            logManager.logSummery(summery, infoLoggerEFGE);
+            logInfo.info(logManager.logSummery(summery));
         }
     }
 

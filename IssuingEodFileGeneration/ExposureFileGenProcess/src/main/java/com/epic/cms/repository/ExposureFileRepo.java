@@ -10,7 +10,6 @@ package com.epic.cms.repository;
 import com.epic.cms.dao.ExposureFileDao;
 import com.epic.cms.model.bean.ExposureFileBean;
 import com.epic.cms.util.Configurations;
-import com.epic.cms.util.StatusVarList;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.core.RowMapperResultSetExtractor;

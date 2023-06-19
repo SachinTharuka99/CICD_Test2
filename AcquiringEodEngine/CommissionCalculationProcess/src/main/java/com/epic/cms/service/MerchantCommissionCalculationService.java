@@ -16,6 +16,9 @@ import com.epic.cms.util.Configurations;
 import com.epic.cms.util.LogManager;
 import com.epic.cms.util.MerchantCustomer;
 import com.epic.cms.util.StatusVarList;
+import lombok.extern.slf4j.Slf4j;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
@@ -29,9 +32,6 @@ import java.util.ArrayList;
 import java.util.LinkedHashMap;
 import java.util.Queue;
 
-import static com.epic.cms.util.LogManager.errorLogger;
-import static com.epic.cms.util.LogManager.infoLogger;
-
 @Service
 public class MerchantCommissionCalculationService {
 
@@ -43,6 +43,9 @@ public class MerchantCommissionCalculationService {
 
     @Autowired
     LogManager logManager;
+
+    private static final Logger logInfo = LoggerFactory.getLogger("logInfo");
+    private static final Logger logError = LoggerFactory.getLogger("logError");
 
     @Async("ThreadPool_100")
     @Transactional(value="transactionManager",propagation = Propagation.REQUIRED,rollbackFor = Exception.class)
@@ -57,7 +60,7 @@ public class MerchantCommissionCalculationService {
             getMerchantWiseCommision(merchantLocationBean.getComisionProfile(), merchantLocationBean.getMerchantId());
             Configurations.PROCESS_SUCCESS_COUNT++;
         }catch (Exception ex){
-            logManager.logError("Commission calculation process failed for merchantId:" + merchantLocationBean.getMerchantId(), ex, errorLogger);
+            logError.error("Commission calculation process failed for merchantId:" + merchantLocationBean.getMerchantId(), ex);
             Configurations.merchantErrorList.add(new ErrorMerchantBean(Configurations.ERROR_EOD_ID, Configurations.EOD_DATE, merchantLocationBean.getMerchantId(), ex.getMessage(), Configurations.PROCESS_ID_COMMISSION_CALCULATION, Configurations.RUNNING_PROCESS_DESCRIPTION, 0, MerchantCustomer.MERCHANTLOCATION));
             Configurations.PROCESS_FAILD_COUNT++;
         }
@@ -104,7 +107,7 @@ public class MerchantCommissionCalculationService {
                         details.put("Transaction Amount :", commissionTxnBean.getTransactionamount());
                         details.put("Transaction commission :", commissionValue);
                         details.put("Transaction commission segment :", commissionProfileBean.getSegment());
-                        logManager.logDetails(details, infoLogger);
+                        logInfo.info(logManager.logDetails(details));
 
                     }
                 }
@@ -143,7 +146,7 @@ public class MerchantCommissionCalculationService {
                         details.put("Transaction Amount :", commissionTxnBean.getTransactionamount());
                         details.put("Transaction commission :", commissionValue);
                         details.put("Transaction commission segment :", commissionProfileBean.getSegment());
-                        logManager.logDetails(details, infoLogger);
+                        logInfo.info(logManager.logDetails(details));
                     }
                 }
 
@@ -193,7 +196,7 @@ public class MerchantCommissionCalculationService {
                                 details.put("Transaction Type :", commissionTxnBean.getTransactiontype());
                                 details.put("Transaction Amount :", commissionTxnBean.getTransactionamount());
                                 details.put("Transaction commission :", commissionValue);
-                                logManager.logDetails(details, infoLogger);
+                                logInfo.info(logManager.logDetails(details));
                             }
 
                         }
@@ -235,7 +238,7 @@ public class MerchantCommissionCalculationService {
                                     details.put("Transaction Type :", commissionTxnBean.getTransactiontype());
                                     details.put("Transaction Amount :", commissionTxnBean.getTransactionamount());
                                     details.put("Transaction commission :", commissionValue);
-                                    logManager.logDetails(details, infoLogger);
+                                    logInfo.info(logManager.logDetails(details));
                                 }
 
                             }
@@ -282,13 +285,13 @@ public class MerchantCommissionCalculationService {
                         details.put("Transaction Type :", commissionTxnBean.getTransactiontype());
                         details.put("Transaction Amount :", commissionTxnBean.getTransactionamount());
                         details.put("Transaction commission :", commissionValue);
-                        logManager.logDetails(details, infoLogger);
+                        logInfo.info(logManager.logDetails(details));
                     }
 
                 }
             }
         } catch (Exception e) {
-            logManager.logError("Exception occured when get MerchantWiseCommision ",e, errorLogger);
+            logError.error("Exception occured when get MerchantWiseCommision ",e);
             throw e;
         }
     }
@@ -324,7 +327,7 @@ public class MerchantCommissionCalculationService {
                 commissionValue = flatValue.add(calCommission).setScale(2, RoundingMode.DOWN);
             }
         } catch (Exception e) {
-            logManager.logError("Exception in getCommissionValue ", e, errorLogger);
+            logError.error("Exception in getCommissionValue ", e);
             throw e;
         }
         return commissionValue.doubleValue();

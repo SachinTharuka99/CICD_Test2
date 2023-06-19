@@ -13,22 +13,24 @@ import com.epic.cms.service.CollectionAndRecoveryLetterService;
 import com.epic.cms.util.CommonMethods;
 import com.epic.cms.util.Configurations;
 import com.epic.cms.util.LogManager;
+import lombok.extern.slf4j.Slf4j;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
 
-import static com.epic.cms.util.LogManager.*;
 
 @Service
 public class CollectionAndRecoveryLetterConnector extends FileGenProcessBuilder {
 
+    private static final Logger logInfo = LoggerFactory.getLogger("logInfo");
+    private static final Logger logError = LoggerFactory.getLogger("logError");
     @Autowired
     LogManager logManager;
-
     @Autowired
     CollectionAndRecoveryLetterRepo collectionAndRecoveryLetterRepo;
-
     @Autowired
     CollectionAndRecoveryLetterService collectionAndRecoveryLetterService;
 
@@ -61,7 +63,7 @@ public class CollectionAndRecoveryLetterConnector extends FileGenProcessBuilder 
                     }
                 }
             } catch (Exception e) {
-                logManager.logError("Collection & Recovery Letter Process Failed for First Reminder", e, errorLoggerEFGE);
+                logError.error("Collection & Recovery Letter Process Failed for First Reminder", e);
                 if (fileNameAndPath != null) {
                     fileGenerationService.deleteExistFile(fileNameAndPath[0]);
                 }
@@ -79,16 +81,16 @@ public class CollectionAndRecoveryLetterConnector extends FileGenProcessBuilder 
                     }
                 }
             } catch (Exception e) {
-                logManager.logError("Collection & Recovery Letter Process Failed for Second Reminder", e, errorLoggerEFGE);
+                logError.error("Collection & Recovery Letter Process Failed for Second Reminder", e);
                 if (fileNameAndPath != null) {
                     fileGenerationService.deleteExistFile(fileNameAndPath[0]);
                 }
             }
         } catch (Exception e) {
             Configurations.IS_PROCESS_COMPLETELY_FAILED = true;
-            logManager.logError("Failed Collection & Recovery Letter Process ", e, errorLoggerEFGE);
+            logError.error("Failed Collection & Recovery Letter Process ", e);
         } finally {
-            logManager.logSummery(summery, infoLoggerEFGE);
+            logInfo.info(logManager.logSummery(summery));
         }
     }
 

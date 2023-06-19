@@ -15,7 +15,9 @@ import com.epic.cms.service.MerchantPaymentFileService;
 import com.epic.cms.util.CommonMethods;
 import com.epic.cms.util.Configurations;
 import com.epic.cms.util.StatusVarList;
-import com.epic.cms.util.Statusts;
+import lombok.extern.slf4j.Slf4j;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.scheduling.concurrent.ThreadPoolTaskExecutor;
@@ -24,13 +26,10 @@ import org.springframework.stereotype.Service;
 import java.io.BufferedWriter;
 import java.io.File;
 import java.io.FileWriter;
-import java.math.BigDecimal;
-import java.math.RoundingMode;
 import java.text.SimpleDateFormat;
 import java.util.*;
 import java.util.logging.LogManager;
 
-import static com.epic.cms.util.CommonMethods.*;
 
 /**
  * 1- Select list of merchant Customers & Locations according to their payment
@@ -81,6 +80,11 @@ public class MerchantPaymentFileConnector extends ProcessBuilder {
     MerchantPaymentFileDao merchantPaymentFileDao;
     @Autowired
     LogManager logManager;
+
+    private static final Logger logInfo = LoggerFactory.getLogger("logInfo");
+    private static final Logger logError = LoggerFactory.getLogger("logError");
+
+
     private HashMap<String, HashMap<Integer, HashMap<String, ArrayList<MerchantPaymentCycleBean>>>> totalMerchantListOnPaymod;
     private HashMap<Integer, HashMap<String, ArrayList<MerchantPaymentCycleBean>>> totalMerchantListOnPaystatus;
     private HashMap<String, ArrayList<MerchantPaymentCycleBean>> merchantList;

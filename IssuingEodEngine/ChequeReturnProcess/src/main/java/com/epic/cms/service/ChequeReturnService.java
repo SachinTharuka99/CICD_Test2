@@ -5,6 +5,9 @@ import com.epic.cms.dao.ChequeReturnDao;
 import com.epic.cms.dao.CommonDao;
 import com.epic.cms.model.bean.*;
 import com.epic.cms.util.*;
+import lombok.extern.slf4j.Slf4j;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
@@ -14,8 +17,6 @@ import org.springframework.transaction.annotation.Transactional;
 import java.text.SimpleDateFormat;
 import java.util.*;
 
-import static com.epic.cms.util.LogManager.errorLogger;
-import static com.epic.cms.util.LogManager.infoLogger;
 
 @Service
 public class ChequeReturnService {
@@ -31,6 +32,9 @@ public class ChequeReturnService {
 
     @Autowired
     public StatusVarList status;
+
+    private static final Logger logInfo = LoggerFactory.getLogger("logInfo");
+    private static final Logger logError = LoggerFactory.getLogger("logError");
 
     @Transactional(value = "transactionManager", propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
     public void updateChequeReturns() throws Exception {
@@ -114,7 +118,7 @@ public class ChequeReturnService {
                         //EOM balance
                         if (returnBean == null) {
                             Configurations.PROCESS_FAILD_COUNT++;
-                            logManager.logError("null point for eod card:" + CommonMethods.cardNumberMask(cardNo),errorLogger);
+                            logError.error("null point for eod card:" + CommonMethods.cardNumberMask(cardNo));
                             throw new NullPointerException("EOD Payment knockoff data is null");
                         }
                         double eomOtbCash = returnBean.getMainCashAdvanceKnockoff();
@@ -443,9 +447,9 @@ public class ChequeReturnService {
             } catch (Exception ex) {
                 Configurations.errorCardList.add(new ErrorCardBean(Configurations.ERROR_EOD_ID, Configurations.EOD_DATE, new StringBuffer(chqBean.getCardnumber()), ex.getMessage(), Configurations.RUNNING_PROCESS_ID, Configurations.RUNNING_PROCESS_DESCRIPTION, 0, CardAccount.CARD));
                 Configurations.PROCESS_FAILD_COUNT++;
-                logManager.logError("proceedChequeReturn Process Error", ex, errorLogger);
+                logError.error("proceedChequeReturn Process Error", ex);
             } finally {
-                logManager.logDetails(details, infoLogger);
+                logInfo.info(logManager.logDetails(details));
             /* PADSS Change -
                variables handling card data should be nullified by replacing the value of variable with zero and call NULL function */
                 for (ReturnChequePaymentDetailsBean returnChequePaymentDetailBean : chequeReturnList) {
@@ -470,7 +474,7 @@ public class ChequeReturnService {
             chequeReturnDao.updateOnlineAccountOtb(otbBean);
             chequeReturnDao.updateOnlineCardOtb(otbBean);
         } catch (Exception e) {
-            logManager.logError("Update Card Customer Account Balances Error", e, errorLogger);
+            logError.error("Update Card Customer Account Balances Error", e);
             throw e;
         }
     }
@@ -480,7 +484,7 @@ public class ChequeReturnService {
             chequeReturnDao.updateEODCARDBalanceKnockOn(otbBean);
             updateCardCustomerAccountBalances(otbBean);
         } catch (Exception e) {
-            logManager.logError("Update Card Balance By Card Category Error", e, errorLogger);
+            logError.error("Update Card Balance By Card Category Error", e);
             throw e;
         }
     }
@@ -494,7 +498,7 @@ public class ChequeReturnService {
             details.put("min payment", minAmount);
             Statusts.SUMMARY_FOR_MINPAYMENT_RISK_ADDED++;
         } catch (Exception e) {
-            logManager.logError("Add To Min Payment Error", e, errorLogger);
+            logError.error("Add To Min Payment Error", e);
             throw e;
         }
     }

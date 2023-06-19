@@ -14,34 +14,30 @@ import com.epic.cms.model.bean.ProcessBean;
 import com.epic.cms.repository.CommonRepo;
 import com.epic.cms.service.FileGenerationService;
 import com.epic.cms.util.Configurations;
+import lombok.extern.slf4j.Slf4j;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 
 import java.io.File;
 
-import static com.epic.cms.util.LogManager.errorLogger;
-import static com.epic.cms.util.LogManager.infoLogger;
+public abstract class FileGenProcessBuilder extends ProcessBuilder {
 
-public abstract class FileGenProcessBuilder extends ProcessBuilder{
-
+    private static final Logger logInfo = LoggerFactory.getLogger("logInfo");
+    private static final Logger logError = LoggerFactory.getLogger("logError");
     @Autowired
     public CommonRepo commonRepo;
-
     @Autowired
     public FileGenerationService fileGenerationService;
-
     public String fileName = "";
     public String fileExtension = "";
     public String fileDirectory = "";
-
-    public String filePath =null;
-    public String backUpFilePath =null;
-
+    public String filePath = null;
+    public String backUpFilePath = null;
     public String backUpName = "BACKUP" + File.separator;
     public FileGenerationModel fileGenerationModel = null;
     public boolean toDeleteStatus = true;
-
     public String fieldDelimeter = "~";
-
     public String eodEngineStatus = null;
     @Autowired
     ProcessBuilderDao processBuilderRepo;
@@ -57,7 +53,7 @@ public abstract class FileGenProcessBuilder extends ProcessBuilder{
             setupProcessDescriptions();
             StartEodStatus = Configurations.STARTING_EOD_STATUS;
 
-            if(eodEngineStatus.equals("COMP")){
+            if (eodEngineStatus.equals("COMP")) {
                 if (StartEodStatus.equals("EROR")) { //starteodstatus - File Generation Eod status
                     if (isErrorProcess) {
                         //Current process threw errors at previous EOD
@@ -72,8 +68,8 @@ public abstract class FileGenProcessBuilder extends ProcessBuilder{
                 }
 
                 if (hasErrorEODandProcess == 1 && processBean != null || hasErrorEODandProcess == 0 && processBean != null) {
-                    logManager.logHeader(processHeader, infoLogger);
-                    logManager.logStartEnd(startHeader, infoLogger);
+                    logInfo.info(logManager.logHeader(processHeader));
+                    logInfo.info(logManager.logStartEnd(startHeader));
                     commonRepo.insertToEodProcessSumery(processId);
                     /**
                      * Abstract method call.
@@ -91,14 +87,13 @@ public abstract class FileGenProcessBuilder extends ProcessBuilder{
                 } else if (hasErrorEODandProcess == 2 && processBean != null) {
                     System.out.println("Skipping this process since Process not under error: " + processBean.getProcessDes());
                     commonRepo.updateEODProcessCount(uniqueId);
-                    return;
                 }
             }
 
 
-        }catch (Exception e){
-            logManager.logStartEnd(failedHeader, infoLogger);
-            logManager.logError(failedHeader, e, errorLogger);
+        } catch (Exception e) {
+            logInfo.info(logManager.logStartEnd(failedHeader));
+            logError.error(failedHeader, e);
         }
     }
 

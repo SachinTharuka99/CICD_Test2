@@ -2,8 +2,8 @@ package com.epic.cms.repository;
 
 import com.epic.cms.dao.SnapShotDao;
 import com.epic.cms.util.Configurations;
-import com.epic.cms.util.LogManager;
 import com.epic.cms.util.StatusVarList;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.dao.EmptyResultDataAccessException;
@@ -12,26 +12,18 @@ import org.springframework.jdbc.core.namedparam.MapSqlParameterSource;
 import org.springframework.jdbc.core.namedparam.SqlParameterSource;
 import org.springframework.jdbc.core.simple.SimpleJdbcCall;
 import org.springframework.stereotype.Repository;
-import org.springframework.transaction.annotation.Propagation;
-import org.springframework.transaction.annotation.Transactional;
 
-import static com.epic.cms.util.LogManager.errorLogger;
 
 @Repository
 public class SnapShotRepo implements SnapShotDao {
 
     @Autowired
+    StatusVarList statusList;
+    @Autowired
     private JdbcTemplate backendJdbcTemplate;
-
     @Autowired
     @Qualifier("onlineJdbcTemplate")
     private JdbcTemplate onlineJdbcTemplate;
-
-    @Autowired
-    StatusVarList statusList;
-
-    @Autowired
-    LogManager logManager;
 
     @Override
     public int checkEodComplete() throws Exception {
@@ -44,7 +36,6 @@ public class SnapShotRepo implements SnapShotDao {
         } catch (EmptyResultDataAccessException e) {
             return 0;
         } catch (Exception e) {
-            logManager.logError("Check Eod Complete Error",errorLogger);
             throw e;
         }
         return count;
@@ -61,7 +52,6 @@ public class SnapShotRepo implements SnapShotDao {
             simpleJdbcCall.execute(in);
 
         } catch (Exception e) {
-            logManager.logError("Update SnapShot Table Of Cards Error ",errorLogger);
             throw e;
         }
     }
@@ -77,7 +67,6 @@ public class SnapShotRepo implements SnapShotDao {
             simpleJdbcCall.execute(in);
 
         } catch (Exception e) {
-            logManager.logError("Update SnapShot Table Of Accounts Error ",errorLogger);
             throw e;
         }
     }
@@ -93,7 +82,6 @@ public class SnapShotRepo implements SnapShotDao {
             simpleJdbcCall.execute(in);
 
         } catch (Exception e) {
-            logManager.logError("Update Online SnapShot Table Of Cards Error ",errorLogger);
             throw e;
         }
     }
@@ -109,7 +97,6 @@ public class SnapShotRepo implements SnapShotDao {
             simpleJdbcCall.execute(in);
 
         } catch (Exception e) {
-            logManager.logError("Update Online SnapShot Table Of Accounts Error ",errorLogger);
             throw e;
         }
     }

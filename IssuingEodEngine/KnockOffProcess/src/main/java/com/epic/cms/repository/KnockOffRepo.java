@@ -6,6 +6,8 @@ import com.epic.cms.util.CommonMethods;
 import com.epic.cms.util.Configurations;
 import com.epic.cms.util.LogManager;
 import com.epic.cms.util.StatusVarList;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.dao.EmptyResultDataAccessException;
@@ -13,29 +15,22 @@ import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.core.RowMapper;
 import org.springframework.jdbc.core.RowMapperResultSetExtractor;
 import org.springframework.stereotype.Repository;
-import org.springframework.transaction.annotation.Isolation;
-import org.springframework.transaction.annotation.Propagation;
-import org.springframework.transaction.annotation.Transactional;
 
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
 
-import static com.epic.cms.util.LogManager.errorLogger;
-import static com.epic.cms.util.LogManager.infoLogger;
-
 @Repository
 public class KnockOffRepo implements KnockOffDao {
 
+    private static final Logger logInfo = LoggerFactory.getLogger("logInfo");
+    private static final Logger logError = LoggerFactory.getLogger("logError");
     @Autowired
     StatusVarList statusList;
-
     @Autowired
     LogManager logManager;
-
     @Autowired
     private JdbcTemplate backendJdbcTemplate;
-
     @Autowired
     @Qualifier("onlineJdbcTemplate")
     private JdbcTemplate onlineJdbcTemplate;
@@ -60,7 +55,6 @@ public class KnockOffRepo implements KnockOffDao {
             );
 
         } catch (Exception e) {
-            logManager.logError("Get InitKnockOff CustAcc Error", errorLogger);
             throw e;
         }
         return custAccList;
@@ -88,7 +82,6 @@ public class KnockOffRepo implements KnockOffDao {
             );
 
         } catch (Exception e) {
-            logManager.logError("Get Error Knock Off CustAcc Error", errorLogger);
             throw e;
         }
         return custAccList;
@@ -114,7 +107,6 @@ public class KnockOffRepo implements KnockOffDao {
             );
 
         } catch (Exception e) {
-            logManager.logError("Get KnockOff Card List Error", errorLogger);
             throw e;
         }
         return cardList;
@@ -138,7 +130,6 @@ public class KnockOffRepo implements KnockOffDao {
                     accountnumber
             );
         } catch (Exception e) {
-            logManager.logError("Get Main Card Error", errorLogger);
             throw e;
         }
         return mainCardBean;
@@ -166,7 +157,6 @@ public class KnockOffRepo implements KnockOffDao {
             );
 
         } catch (Exception e) {
-            logManager.logError("Get Payment List Error", errorLogger);
             throw e;
         }
         return paymentList;
@@ -196,7 +186,6 @@ public class KnockOffRepo implements KnockOffDao {
         } catch (EmptyResultDataAccessException e) {
             return eomBean;
         } catch (Exception e) {
-            logManager.logError("Get Eom KnockOff Amount Error", errorLogger);
             throw e;
         }
         return eomBean;
@@ -226,7 +215,6 @@ public class KnockOffRepo implements KnockOffDao {
         } catch (EmptyResultDataAccessException e) {
             return eodBean;
         } catch (Exception e) {
-            logManager.logError("Get Eod KnockOff Amount Error", errorLogger);
             throw e;
         }
         return eodBean;
@@ -252,7 +240,6 @@ public class KnockOffRepo implements KnockOffDao {
             );
 
         } catch (Exception e) {
-            logManager.logError("Update Eod Payment Error", errorLogger);
             throw e;
         }
         return count;
@@ -274,7 +261,6 @@ public class KnockOffRepo implements KnockOffDao {
             );
 
         } catch (Exception e) {
-            logManager.logError("Update CardOtb Error", errorLogger);
             throw e;
         }
         return count;
@@ -294,7 +280,6 @@ public class KnockOffRepo implements KnockOffDao {
             );
 
         } catch (Exception e) {
-            logManager.logError("Update Eod Closing Balance Error", errorLogger);
             throw e;
         }
         return count;
@@ -315,7 +300,6 @@ public class KnockOffRepo implements KnockOffDao {
             );
 
         } catch (Exception e) {
-            logManager.logError(String.valueOf(e),errorLogger);
             throw e;
         }
         return count;
@@ -336,7 +320,6 @@ public class KnockOffRepo implements KnockOffDao {
                     cardBean.getCardnumber().toString()
             );
         } catch (Exception e) {
-            logManager.logError("Update EODCARDBALANCE Error", errorLogger);
             throw e;
         }
         return count;
@@ -358,7 +341,6 @@ public class KnockOffRepo implements KnockOffDao {
             );
 
         } catch (Exception e) {
-            logManager.logError("Update CardComp Error", errorLogger);
             throw e;
         }
         return count;
@@ -379,7 +361,6 @@ public class KnockOffRepo implements KnockOffDao {
             );
 
         } catch (Exception e) {
-            logManager.logError("Update Account Otb Error", errorLogger);
             throw e;
         }
         return count;
@@ -400,7 +381,6 @@ public class KnockOffRepo implements KnockOffDao {
             );
 
         } catch (Exception e) {
-            logManager.logError("Update Customer Otb Error", errorLogger);
             throw e;
         }
         return count;
@@ -423,19 +403,19 @@ public class KnockOffRepo implements KnockOffDao {
 
             if (Configurations.ONLINE_LOG_LEVEL == 1) {
                 //Only for troubleshoot
-                logManager.logInfo("================ updateCardCreditLimit ===================" + Configurations.EOD_ID,infoLogger);
-                logManager.logInfo(query,infoLogger);
-                logManager.logInfo(Double.toString(supCardBean.getOtbcredit()),infoLogger);
-                logManager.logInfo(Double.toString(supCardBean.getOtbcash()),infoLogger);
-                logManager.logInfo(Double.toString(supCardBean.getTmpcredit()),infoLogger);
-                logManager.logInfo(Double.toString(supCardBean.getTmpcash()),infoLogger);
-                logManager.logInfo(Double.toString(supCardBean.getTmpcash()),infoLogger);
-                logManager.logInfo(CommonMethods.cardNumberMask(supCardBean.getCardnumber()),infoLogger);
-                logManager.logInfo("================ updateCardCreditLimit END ===================",infoLogger);
+                logInfo.info("================ updateCardCreditLimit ===================" + Configurations.EOD_ID);
+                logInfo.info(query);
+                logInfo.info(Double.toString(supCardBean.getOtbcredit()));
+                logInfo.info(Double.toString(supCardBean.getOtbcash()));
+                logInfo.info(Double.toString(supCardBean.getTmpcredit()));
+                logInfo.info(Double.toString(supCardBean.getTmpcash()));
+                logInfo.info(Double.toString(supCardBean.getTmpcash()));
+                logInfo.info(CommonMethods.cardNumberMask(supCardBean.getCardnumber()));
+                logInfo.info("================ updateCardCreditLimit END ===================");
             }
 
         } catch (Exception e) {
-            logManager.logError("Online update CardOtb Error", errorLogger);
+            logError.error("Online update CardOtb Error");
             throw e;
         }
         return count;
@@ -456,16 +436,16 @@ public class KnockOffRepo implements KnockOffDao {
 
             if (Configurations.ONLINE_LOG_LEVEL == 1) {
                 //Only for troubleshoot
-                logManager.logInfo("================ updateCardCreditLimit ===================" + Configurations.EOD_ID,infoLogger);
-                logManager.logInfo(query,infoLogger);
-                logManager.logInfo(Double.toString(custAccBean.getOtbcredit()),infoLogger);
-                logManager.logInfo(Double.toString(custAccBean.getOtbcash()),infoLogger);
-                logManager.logInfo(custAccBean.getAccountnumber(),infoLogger);
-                logManager.logInfo("================ updateCardCreditLimit END ===================",infoLogger);
+                logInfo.info("================ updateCardCreditLimit ===================" + Configurations.EOD_ID);
+                logInfo.info(query);
+                logInfo.info(Double.toString(custAccBean.getOtbcredit()));
+                logInfo.info(Double.toString(custAccBean.getOtbcash()));
+                logInfo.info(custAccBean.getAccountnumber());
+                logInfo.info("================ updateCardCreditLimit END ===================");
             }
 
         } catch (Exception e) {
-            logManager.logError("Online Update AccountOtb Error",errorLogger);
+            logError.error("Online Update AccountOtb Error");
             throw e;
         }
         return count;
@@ -486,16 +466,16 @@ public class KnockOffRepo implements KnockOffDao {
 
             if (Configurations.ONLINE_LOG_LEVEL == 1) {
                 //Only for troubleshoot
-                logManager.logInfo("================ updateCustomerOtb ===================" + Configurations.EOD_ID,infoLogger);
-                logManager.logInfo(query,infoLogger);
-                logManager.logInfo(Double.toString(custAccBean.getOtbcredit()),infoLogger);
-                logManager.logInfo(Double.toString(custAccBean.getOtbcash()),infoLogger);
-                logManager.logInfo(custAccBean.getCustomerid(),infoLogger);
-                logManager.logInfo("================ updateCustomerOtb END ===================",infoLogger);
+                logInfo.info("================ updateCustomerOtb ===================" + Configurations.EOD_ID);
+                logInfo.info(query);
+                logInfo.info(Double.toString(custAccBean.getOtbcredit()));
+                logInfo.info(Double.toString(custAccBean.getOtbcash()));
+                logInfo.info(custAccBean.getCustomerid());
+                logInfo.info("================ updateCustomerOtb END ===================");
             }
 
         } catch (Exception e) {
-            logManager.logError("Online Update CustomerOtb Error", errorLogger);
+            logError.error("Online Update CustomerOtb Error");
             throw e;
         }
         return count;

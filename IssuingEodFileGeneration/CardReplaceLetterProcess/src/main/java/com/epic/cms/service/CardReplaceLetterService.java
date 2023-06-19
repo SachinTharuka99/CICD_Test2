@@ -13,6 +13,9 @@ import com.epic.cms.util.CommonMethods;
 import com.epic.cms.util.Configurations;
 import com.epic.cms.util.LogManager;
 import com.epic.cms.util.StatusVarList;
+import lombok.extern.slf4j.Slf4j;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Propagation;
@@ -38,6 +41,9 @@ public class CardReplaceLetterService {
     @Autowired
     CommonFileGenProcessRepo commonFileGenProcessRepo;
 
+    private static final Logger logInfo = LoggerFactory.getLogger("logInfo");
+    private static final Logger logError = LoggerFactory.getLogger("logError");
+
     @Transactional(value="transactionManager",propagation = Propagation.REQUIRED,rollbackFor = Exception.class)
     public String[] replaceCardExceptProductChangeCard(StringBuffer replaceCard, int sequenceNo) {
 
@@ -60,7 +66,7 @@ public class CardReplaceLetterService {
             Configurations.PROCESS_SUCCESS_COUNT++;
 
         } catch (Exception e) {
-            logManager.logError("Failed Card Replace Letter Process " + maskedCardNo, e, errorLoggerEFGE);
+            logError.error("Failed Card Replace Letter Process " + maskedCardNo, e);
             Configurations.PROCESS_FAILD_COUNT++;
 
         }
@@ -89,7 +95,7 @@ public class CardReplaceLetterService {
             Configurations.PROCESS_SUCCESS_COUNT++;
 
         } catch (Exception e) {
-            logManager.logError("Failed Card Replace Letter Process " + maskedCardNo, e, errorLoggerEFGE);
+            logError.error("Failed Card Replace Letter Process " + maskedCardNo, e);
             Configurations.PROCESS_FAILD_COUNT++;
         }
         return fileNameAndPath;

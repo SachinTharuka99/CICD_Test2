@@ -9,14 +9,9 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.core.RowCountCallbackHandler;
 import org.springframework.stereotype.Repository;
-import org.springframework.transaction.annotation.Isolation;
-import org.springframework.transaction.annotation.Propagation;
-import org.springframework.transaction.annotation.Transactional;
 
 import java.sql.ResultSet;
 import java.util.ArrayList;
-
-import static com.epic.cms.util.LogManager.errorLogger;
 
 @Repository
 public class ClearMinAmountAndTempBlockRepo implements ClearMinAmountAndTempBlockDao {
@@ -25,9 +20,6 @@ public class ClearMinAmountAndTempBlockRepo implements ClearMinAmountAndTempBloc
 
     @Autowired
     StatusVarList statusList;
-
-    @Autowired
-    LogManager logManager;
 
     @Override
     public ArrayList<StringBuffer[]> getAllCards(StringBuffer cardNo) throws Exception {
@@ -52,7 +44,6 @@ public class ClearMinAmountAndTempBlockRepo implements ClearMinAmountAndTempBloc
                     , statusList.getCARD_PRODUCT_CHANGE_STATUS()
             );
         } catch (Exception e) {
-            logManager.logError("Get All Cards Error", errorLogger);
             throw e;
         }
         return cardList;
@@ -113,7 +104,6 @@ public class ClearMinAmountAndTempBlockRepo implements ClearMinAmountAndTempBloc
                 }
             }
         } catch (Exception e) {
-            logManager.logError("Remove From MinPay Table Error", errorLogger);
             throw e;
         }
     }
@@ -128,7 +118,6 @@ public class ClearMinAmountAndTempBlockRepo implements ClearMinAmountAndTempBloc
             count = backendJdbcTemplate.update(sql, oldStatus, newStatus, eodDate, statusList.getACTIVE_STATUS(), cardNo.toString());
 
         } catch (Exception e) {
-            logManager.logError("Update Card Block Error", errorLogger);
             throw e;
         }
         return count;
@@ -151,7 +140,6 @@ public class ClearMinAmountAndTempBlockRepo implements ClearMinAmountAndTempBloc
                     }, cardNo.toString()
             );
         } catch (Exception e) {
-            logManager.logError("Get Minimum Payment Exist Statement Date Error", errorLogger);
             throw e;
         }
         return lastStmtDetails;

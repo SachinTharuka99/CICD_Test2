@@ -8,14 +8,10 @@ import org.springframework.jdbc.core.namedparam.MapSqlParameterSource;
 import org.springframework.jdbc.core.namedparam.SqlParameterSource;
 import org.springframework.jdbc.core.simple.SimpleJdbcCall;
 import org.springframework.stereotype.Repository;
-import org.springframework.transaction.annotation.Isolation;
-import org.springframework.transaction.annotation.Propagation;
-import org.springframework.transaction.annotation.Transactional;
 
 import java.math.BigDecimal;
 import java.sql.SQLException;
 import java.util.Map;
-import static com.epic.cms.util.LogManager.errorLogger;
 
 @Repository
 public class EodPaymentUpdateRepo implements EodPaymentUpdateDao {
@@ -28,9 +24,6 @@ public class EodPaymentUpdateRepo implements EodPaymentUpdateDao {
 
     @Autowired
     StatusVarList status;
-
-    @Autowired
-    LogManager logManager;
 
     @Override
     public int[] callStoredProcedureForEodPaymentUpdate() throws SQLException {
@@ -85,7 +78,6 @@ public class EodPaymentUpdateRepo implements EodPaymentUpdateDao {
         } catch (SQLException e){
             throw e;
         } catch (Exception ex) {
-            logManager.logError("Call StoredProcedure For EodPaymentUpdate Error", errorLogger);
             throw ex;
         }
     }

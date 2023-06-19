@@ -19,6 +19,8 @@ import com.epic.cms.util.Configurations;
 import com.epic.cms.util.LogManager;
 import com.epic.cms.util.StatusVarList;
 import org.apache.commons.io.FileUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
@@ -35,8 +37,6 @@ import java.util.*;
 
 import static com.epic.cms.util.CommonMethods.*;
 import static com.epic.cms.util.CommonMethods.validateLength;
-import static com.epic.cms.util.LogManager.errorLogger;
-import static com.epic.cms.util.LogManager.infoLogger;
 
 @Service
 public class MerchantPaymentFileService {
@@ -63,6 +63,10 @@ public class MerchantPaymentFileService {
     private HashMap<String, HashMap<Integer, HashMap<String, ArrayList<MerchantPaymentCycleBean>>>> totalMerchantListOnPaymod;
     private HashMap<Integer, HashMap<String, ArrayList<MerchantPaymentCycleBean>>> totalMerchantListOnPaystatus;
     private HashMap<String, ArrayList<MerchantPaymentCycleBean>> merchantList;
+
+    private static final Logger logInfo = LoggerFactory.getLogger("logInfo");
+    private static final Logger logError = LoggerFactory.getLogger("logError");
+
 
     @Async("taskExecutor2")
     @Transactional(value = "transactionManager", propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
@@ -111,7 +115,7 @@ public class MerchantPaymentFileService {
             Configurations.PROCESS_SUCCESS_COUNT++;
         } catch (Exception e) {
             Configurations.PROCESS_FAILD_COUNT++;
-            logManager.logError("exeption ", e, errorLogger);
+            logError.error("exeption ", e);
         }
     }
 
@@ -628,7 +632,7 @@ public class MerchantPaymentFileService {
                 toDeleteStatusDirect = false;
             } else {
 //                logLevel3.info("Merchant Payment File for Direct account is Deleted due to empty line.");
-                logManager.logInfo("Merchant Payment File for Direct account is Deleted due to empty line.", infoLogger);
+                logInfo.info("Merchant Payment File for Direct account is Deleted due to empty line.");
             }
             int count1 = 0, count2 = 0;
 
@@ -668,7 +672,7 @@ public class MerchantPaymentFileService {
             if (file2.exists()) {
                 file2.delete();
             }
-            logManager.logError("Error Occured while writing Merchant Payment File for Direct account. Exception in Merchant Payment file process: ", e, errorLogger);
+            logError.error("Error Occured while writing Merchant Payment File for Direct account. Exception in Merchant Payment file process: ", e);
             throw e;
         } finally {
             try {
@@ -916,7 +920,7 @@ public class MerchantPaymentFileService {
                             }
 
                         } catch (Exception ex) {
-                            logManager.logError("Error Occured while writing Merchant Payment File for slips for Mid : " + key + ". Exception : ", ex, errorLogger);
+                            logError.error("Error Occured while writing Merchant Payment File for slips for Mid : " + key + ". Exception : ", ex);
                         }
                     }
                 }
@@ -1051,7 +1055,7 @@ public class MerchantPaymentFileService {
                             }
                             merchantCustomerList.add(merCusId);
                         } catch (Exception ex) {
-                           logManager.logError("Error Occured while writing Merchant Payment File for slips for Merchant Cus No : " + merCusId + ". Exception : ", ex, errorLogger);
+                           logError.error("Error Occured while writing Merchant Payment File for slips for Merchant Cus No : " + merCusId + ". Exception : ", ex);
                         }
                     }
                 }
@@ -1092,7 +1096,7 @@ public class MerchantPaymentFileService {
 //                logLevel3.info("Merchant Payment File for Slips created on '" + fileAbsPath + "'. ");
             } else {
 //                logLevel3.info("Merchant Payment File for Slips is Deleted due to empty line.");
-                logManager.logError("Merchant Payment File for Slips is Deleted due to empty line.", errorLogger);
+                logError.error("Merchant Payment File for Slips is Deleted due to empty line.");
 
             }
 
@@ -1110,7 +1114,7 @@ public class MerchantPaymentFileService {
             if (file.exists()) {
                 file.delete();
             }
-            logManager.logError("Error Occured while writing Merchant Payment File for Slips. Exception in Merchant Payment file process: ", e, errorLogger);
+            logError.error("Error Occured while writing Merchant Payment File for Slips. Exception in Merchant Payment file process: ", e);
             throw e;
         } finally {
             try {

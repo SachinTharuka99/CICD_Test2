@@ -18,6 +18,9 @@ import com.epic.cms.util.CommonMethods;
 import com.epic.cms.util.Configurations;
 import com.epic.cms.util.LogManager;
 import com.epic.cms.util.StatusVarList;
+import lombok.extern.slf4j.Slf4j;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -26,11 +29,12 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.LinkedHashMap;
 
-import static com.epic.cms.util.LogManager.*;
 
 @Service
 public class GLSummaryFileConnector extends FileGenProcessBuilder {
 
+    private static final Logger logInfo = LoggerFactory.getLogger("logInfo");
+    private static final Logger logError = LoggerFactory.getLogger("logError");
     @Autowired
     LogManager logManager;
     @Autowired
@@ -39,7 +43,6 @@ public class GLSummaryFileConnector extends FileGenProcessBuilder {
     GLSummaryFileService glSummaryFileService;
     @Autowired
     GLSummaryFileRepo glSummaryFileRepo;
-
     int count;
     int noofRecords;
     LinkedHashMap accDetails = new LinkedHashMap();
@@ -79,11 +82,11 @@ public class GLSummaryFileConnector extends FileGenProcessBuilder {
 
                             } catch (Exception e) {
                                 Configurations.PROCESS_FAILD_COUNT++;
-                                logManager.logError("Sync fail to EOD GL Account Table for Primary ID ", errorLoggerEFGE);
+                                logError.error("Sync fail to EOD GL Account Table for Primary ID ");
                                 accDetails.put("Sync fail to EOD GL Account Table for Primary ID " + glaccountBean.getKey(), glaccountBean.getKey());
                             }
 
-                            logManager.logDetails(accDetails, infoLoggerEFGE);
+                            logInfo.info(logManager.logDetails(accDetails));
                             accDetails.clear();
                         }
 
@@ -93,7 +96,7 @@ public class GLSummaryFileConnector extends FileGenProcessBuilder {
                         accDetails.put("Data Retrieval Status for CashBack", "Failed");
                     }
 
-                    logManager.logDetails(accDetails, infoLoggerEFGE);
+                    logInfo.info(logManager.logDetails(accDetails));
                     accDetails.clear();
                     list.clear();
 
@@ -124,11 +127,11 @@ public class GLSummaryFileConnector extends FileGenProcessBuilder {
                             } catch (Exception e) {
                                 Configurations.PROCESS_FAILD_COUNT++;
 
-                                logManager.logError("Sync fail to EOD GL Account Table for Primary ID " + glaccountBean.getKey(), errorLoggerEFGE);
+                                logError.error("Sync fail to EOD GL Account Table for Primary ID " + glaccountBean.getKey());
                                 accDetails.put("Sync fail to EOD GL Account Table for Primary ID " + glaccountBean.getKey(), glaccountBean.getKey());
                             }
 
-                            logManager.logDetails(accDetails, infoLoggerEFGE);
+                            logInfo.info(logManager.logDetails(accDetails));
                             accDetails.clear();
                         }
 
@@ -138,7 +141,7 @@ public class GLSummaryFileConnector extends FileGenProcessBuilder {
 
                         accDetails.put("Data Retrieval Status for CashBackRedeem and Expire", "Failed");
                     }
-                    logManager.logDetails(accDetails, infoLoggerEFGE);
+                    logInfo.info(logManager.logDetails(accDetails));
                     accDetails.clear();
                     list.clear();
 
@@ -169,10 +172,10 @@ public class GLSummaryFileConnector extends FileGenProcessBuilder {
                             } catch (Exception e) {
                                 Configurations.PROCESS_FAILD_COUNT++;
 
-                                logManager.logError("Sync fail to EOD GL Account Table for Primary ID " + glaccountBean.getKey(), errorLoggerEFGE);
+                                logError.error("Sync fail to EOD GL Account Table for Primary ID " + glaccountBean.getKey());
                                 accDetails.put("Sync fail to EOD GL Account Table for Primary ID " + glaccountBean.getKey(), glaccountBean.getKey());
                             }
-                            logManager.logDetails(accDetails, infoLoggerEFGE);
+                            logInfo.info(logManager.logDetails(accDetails));
                             accDetails.clear();
                         }
                         accDetails.put("Data Retrieval Status for Adjustment", "Passed");
@@ -182,7 +185,7 @@ public class GLSummaryFileConnector extends FileGenProcessBuilder {
                         accDetails.put("Data Retrieval Status for Adjustment", "Failed");
                     }
 
-                    logManager.logDetails(accDetails, infoLoggerEFGE);
+                    logInfo.info(logManager.logDetails(accDetails));
                     accDetails.clear();
                     list.clear();
 
@@ -209,10 +212,10 @@ public class GLSummaryFileConnector extends FileGenProcessBuilder {
                             } catch (Exception e) {
                                 Configurations.PROCESS_FAILD_COUNT++;
 
-                                logManager.logError("Sync fail to EOD GL Account Table for Primary ID " + glaccountBean.getKey(), errorLoggerEFGE);
+                                logError.error("Sync fail to EOD GL Account Table for Primary ID " + glaccountBean.getKey());
                                 accDetails.put("Sync fail to EOD GL Account Table for Primary ID " + glaccountBean.getKey(), glaccountBean.getKey());
                             }
-                            logManager.logDetails(accDetails, infoLoggerEFGE);
+                            logInfo.info(logManager.logDetails(accDetails));
                             accDetails.clear();
                         }
 
@@ -222,7 +225,7 @@ public class GLSummaryFileConnector extends FileGenProcessBuilder {
 
                         accDetails.put("Data Retrieval Status for Fee data", "Failed");
                     }
-                    logManager.logDetails(accDetails, infoLoggerEFGE);
+                    logInfo.info(logManager.logDetails(accDetails));
                     accDetails.clear();
                     list.clear();
 
@@ -250,10 +253,10 @@ public class GLSummaryFileConnector extends FileGenProcessBuilder {
                             } catch (Exception e) {
                                 Configurations.PROCESS_FAILD_COUNT++;
 
-                                logManager.logError("Sync fail to EOD GL Account Table for Primary ID " + glaccountBean.getKey(), errorLoggerEFGE);
+                                logError.error("Sync fail to EOD GL Account Table for Primary ID " + glaccountBean.getKey());
                                 accDetails.put("Sync fail to EOD GL Account Table for Primary ID " + glaccountBean.getKey(), glaccountBean.getKey());
                             }
-                            logManager.logDetails(accDetails, infoLoggerEFGE);
+                            logInfo.info(logManager.logDetails(accDetails));
                             accDetails.clear();
                         }
                         accDetails.put("Data Retrieval Status for EOD Transaction Data", "Passed");
@@ -261,7 +264,7 @@ public class GLSummaryFileConnector extends FileGenProcessBuilder {
 
                         accDetails.put("Data Retrieval Status for EOD Transaction Data", "Failed");
                     }
-                    logManager.logDetails(accDetails, infoLoggerEFGE);
+                    logInfo.info(logManager.logDetails(accDetails));
                     accDetails.clear();
                     list.clear();
 
@@ -270,7 +273,7 @@ public class GLSummaryFileConnector extends FileGenProcessBuilder {
                     fileExtension = ".txt";
                     SimpleDateFormat sd = new SimpleDateFormat("yyyy");
                     String year = sd.format(new Date());
-                    String today1 = String.valueOf(year) + Integer.toString(Configurations.EOD_ID).substring(2, 6);
+                    String today1 = year + Integer.toString(Configurations.EOD_ID).substring(2, 6);
 
                     String eodSeq = Integer.toString(Configurations.ERROR_EOD_ID).substring(6);
                     int seq = Integer.parseInt(eodSeq) + 1;
@@ -293,7 +296,7 @@ public class GLSummaryFileConnector extends FileGenProcessBuilder {
                             count = glSummaryFileRepo.updateEodGLAccount(key);
                         }
                         if (count == fileGenerationModel.getTxnIdList().size()) {
-                            logManager.logInfo("GL File Process Successfully Completed ", infoLoggerEFGE);
+                            logInfo.info("GL File Process Successfully Completed ");
                         }
 
                         if (!fileGenerationModel.getDeleteStatus()) {
@@ -308,7 +311,7 @@ public class GLSummaryFileConnector extends FileGenProcessBuilder {
 
                 } catch (Exception e) {
                     try {
-                        logManager.logInfo("GL File Process Failed ", infoLoggerEFGE);
+                        logInfo.info("GL File Process Failed ");
 
                         if (processBean.getCriticalStatus() == 1) {
                             Configurations.COMMIT_STATUS = false;
@@ -317,7 +320,7 @@ public class GLSummaryFileConnector extends FileGenProcessBuilder {
                             Configurations.MAIN_EOD_STATUS = false;
                         }
                     } catch (Exception e2) {
-                        logManager.logError("Exception in GL File Process", e2, errorLoggerEFGE);
+                        logError.error("Exception in GL File Process", e2);
                     }
                 } finally {
                     if (list != null) {
@@ -329,9 +332,9 @@ public class GLSummaryFileConnector extends FileGenProcessBuilder {
                 }
             }
         } catch (Exception e) {
-            logManager.logError("Exception in GL File Process", e, errorLoggerEFGE);
+            logError.error("Exception in GL File Process", e);
         } finally {
-            logManager.logSummery(summery, infoLoggerEFGE);
+            logInfo.info(logManager.logSummery(summery));
         }
     }
 

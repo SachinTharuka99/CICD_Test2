@@ -5,6 +5,9 @@ import com.epic.cms.model.bean.CardReplaceBean;
 import com.epic.cms.repository.CardReplaceRepo;
 import com.epic.cms.service.CardReplaceService;
 import com.epic.cms.util.*;
+import lombok.extern.slf4j.Slf4j;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.scheduling.concurrent.ThreadPoolTaskExecutor;
@@ -13,24 +16,21 @@ import org.springframework.stereotype.Service;
 import java.util.ArrayList;
 import java.util.List;
 
-import static com.epic.cms.util.LogManager.*;
 
 @Service
 public class CardReplaceConnector extends ProcessBuilder {
 
+    private static final Logger logInfo = LoggerFactory.getLogger("logInfo");
+    private static final Logger logError = LoggerFactory.getLogger("logError");
     @Autowired
     @Qualifier("taskExecutor2")
     ThreadPoolTaskExecutor taskExecutor;
-
     @Autowired
     CardReplaceService cardReplaceService;
-
     @Autowired
     CardReplaceRepo cardReplaceRepo;
-
     @Autowired
     StatusVarList status;
-
     @Autowired
     LogManager logManager;
 
@@ -65,7 +65,7 @@ public class CardReplaceConnector extends ProcessBuilder {
             Configurations.IS_PROCESS_COMPLETELY_FAILED = true;
             throw ex;
         } finally {
-            logManager.logSummery(summery, infoLogger);
+            logInfo.info(logManager.logSummery(summery));
             try {
                 if (cardListToReplace != null && cardListToReplace.size() != 0) {
                     /* variables handling card data should be nullified
@@ -77,7 +77,7 @@ public class CardReplaceConnector extends ProcessBuilder {
                     cardListToReplace = null;
                 }
             } catch (Exception e) {
-                logManager.logError("Failed Card Replace Process",e, errorLogger);
+                logError.error("Failed Card Replace Process", e);
             }
         }
     }
@@ -87,5 +87,4 @@ public class CardReplaceConnector extends ProcessBuilder {
         summery.put("Total no of cards to be replaced", Statusts.SUMMARY_FOR_CARDREPLACE);
         summery.put("Cards replaced", Statusts.SUMMARY_FOR_CARDREPLACE_PROCESSED);
     }
-
 }

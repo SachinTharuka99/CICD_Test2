@@ -10,6 +10,9 @@ package com.epic.cms.service;
 import com.epic.cms.dao.AcquiringAdjustmentDao;
 import com.epic.cms.model.bean.*;
 import com.epic.cms.util.*;
+import lombok.extern.slf4j.Slf4j;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
@@ -21,8 +24,6 @@ import java.util.LinkedHashMap;
 import java.util.UUID;
 
 import static com.epic.cms.util.Configurations.merchantErrorList;
-import static com.epic.cms.util.LogManager.errorLogger;
-import static com.epic.cms.util.LogManager.infoLogger;
 
 @Service
 public class AcquiringAdjustmentService {
@@ -45,6 +46,9 @@ public class AcquiringAdjustmentService {
     LogManager logManager;
     @Autowired
     StatusVarList status;
+
+    private static final Logger logInfo = LoggerFactory.getLogger("logInfo");
+    private static final Logger logError = LoggerFactory.getLogger("logError");
 
     @Async("taskExecutor2")
     @Transactional(value = "transactionManager", propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
@@ -155,14 +159,14 @@ public class AcquiringAdjustmentService {
                 }
                 details.put("Adjustment Amount :", acqAdjustmentBean.getAdjustAmount());
                 details.put("CRDR  :", acqAdjustmentBean.getCrDr());
-                logManager.logDetails(details, infoLogger);
+                logInfo.info(logManager.logDetails(details));
                 details.clear();
                 //Update acq adjustment to EDON
                 acquiringAdjustmentDao.updateAdjustmentToEdon(acqAdjustmentBean.getId(), txnID);
 
                 Configurations.PROCESS_SUCCESS_COUNT++;
             } catch (Exception e) {
-                logManager.logError(String.valueOf(e), errorLogger);
+                logError.error(String.valueOf(e));
                 if (!errorMerchantList.contains((String) acqAdjustmentBean.getMerchantId())) {
                     merchantErrorList.add(new ErrorMerchantBean(Configurations.ERROR_EOD_ID, Configurations.EOD_DATE, acqAdjustmentBean.getMerchantId(), e.getMessage(), Configurations.RUNNING_PROCESS_ID, Configurations.RUNNING_PROCESS_DESCRIPTION, 0, MerchantCustomer.MERCHANTLOCATION));
                     errorMerchantList.add(acqAdjustmentBean.getMerchantId());
@@ -170,7 +174,7 @@ public class AcquiringAdjustmentService {
                 failAdjustment++;
                 Configurations.PROCESS_FAILD_COUNT++;
             } finally {
-                logManager.logDetails(details, infoLogger);
+                logInfo.info(logManager.logDetails(details));
             }
         }
     }

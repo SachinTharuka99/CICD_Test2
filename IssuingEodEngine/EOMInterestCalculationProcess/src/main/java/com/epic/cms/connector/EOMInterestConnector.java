@@ -9,6 +9,9 @@ import com.epic.cms.service.EOMInterestService;
 import com.epic.cms.util.Configurations;
 import com.epic.cms.util.LogManager;
 import com.epic.cms.util.StatusVarList;
+import lombok.extern.slf4j.Slf4j;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.scheduling.concurrent.ThreadPoolTaskExecutor;
@@ -18,27 +21,22 @@ import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 
-import static com.epic.cms.util.LogManager.errorLogger;
-import static com.epic.cms.util.LogManager.infoLogger;
 
 @Service
 public class EOMInterestConnector extends ProcessBuilder {
 
+    private static final Logger logInfo = LoggerFactory.getLogger("logInfo");
+    private static final Logger logError = LoggerFactory.getLogger("logError");
     @Autowired
     StatusVarList statusList;
-
     @Autowired
     CommonRepo commonRepo;
-
     @Autowired
     LogManager logManager;
-
     @Autowired
     EOMInterestRepo eomInterestRepo;
-
     @Autowired
     EOMInterestService eomInterestService;
-
     @Autowired
     @Qualifier("taskExecutor2")
     ThreadPoolTaskExecutor taskExecutor;
@@ -73,9 +71,9 @@ public class EOMInterestConnector extends ProcessBuilder {
 
         } catch (Exception e) {
             Configurations.IS_PROCESS_COMPLETELY_FAILED = true;
-            logManager.logError("EOM Interest Calculation Process failed", e, errorLogger);
+            logError.error("EOM Interest Calculation Process failed", e);
         } finally {
-            logManager.logSummery(summery, infoLogger);
+            logInfo.info(logManager.logSummery(summery));
         }
     }
 

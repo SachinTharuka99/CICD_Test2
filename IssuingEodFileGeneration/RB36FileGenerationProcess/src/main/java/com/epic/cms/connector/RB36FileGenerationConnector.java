@@ -19,6 +19,9 @@ import com.epic.cms.util.CommonMethods;
 import com.epic.cms.util.Configurations;
 import com.epic.cms.util.LogManager;
 import com.epic.cms.util.StatusVarList;
+import lombok.extern.slf4j.Slf4j;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -43,6 +46,10 @@ public class RB36FileGenerationConnector extends FileGenProcessBuilder {
 
     @Autowired
     StatusVarList statusVarList;
+
+    private static final Logger logInfo = LoggerFactory.getLogger("logInfo");
+    private static final Logger logError = LoggerFactory.getLogger("logError");
+
 
     int noofRecords = 0;
 
@@ -81,10 +88,10 @@ public class RB36FileGenerationConnector extends FileGenProcessBuilder {
 
             if (processBean != null) {
                 try {
-                    logManager.logStartEnd("RB36 File Generation Process", infoLoggerEFGE);
+                    logInfo.info(logManager.logStartEnd("RB36 File Generation Process"));
                     Configurations.RUNNING_PROCESS_ID = Configurations.PROCESS_RB36_FILE_CREATION;
                     CommonMethods.eodDashboardProgressParametersReset();
-                    logManager.logStartEnd("RB36 File Generation Successfully Started", infoLoggerEFGE);
+                    logInfo.info(logManager.logStartEnd("RB36 File Generation Successfully Started"));
                     //commonRepo.insertToEodProcessSumery(Configurations.PROCESS_RB36_FILE_CREATION);
 
                     //Get NP card set
@@ -125,15 +132,14 @@ public class RB36FileGenerationConnector extends FileGenProcessBuilder {
                         toDeleteStatus = false;
 
                     } else {
-                        logManager.logInfo("Empty line in body. Hence No header section in RB36", infoLoggerEFGE);
-                        logManager.logError("Empty line in body. Hence No header section in RB36", errorLoggerEFGE);
+                        logError.error("Empty line in body. Hence No header section in RB36");
                     }
                     //Update picked record status to EDON
                     for (int key : fileGenerationModel.getTxnIdList()) {
                         noofRecords++;
                         rb36FileGenerationRepo.updateEodGLAccount(key);
                     }
-                    logManager.logInfo("RB36 File Process Successfully Completed ", infoLoggerEFGE);
+                    logInfo.info("RB36 File Process Successfully Completed ");
 
                     EodOuputFileBean eodoutputfilebean = new EodOuputFileBean();
                     eodoutputfilebean.setFileName(fileName + ".txt");
@@ -150,11 +156,11 @@ public class RB36FileGenerationConnector extends FileGenProcessBuilder {
                     }
 
                 } catch (Exception e) {
-                    logManager.logError("Error while writing RB36 file.Exit from the process. Exception:---> ", e, errorLoggerEFGE);
+                    logError.error("Error while writing RB36 file.Exit from the process. Exception:---> ", e);
                 }
             }
         } catch (Exception e) {
-            logManager.logError("RB36FileGeneration Process Failed", e, errorLoggerEFGE);
+            logError.error("RB36FileGeneration Process Failed", e);
             commonRepo.updateEodProcessSummery(Configurations.ERROR_EOD_ID, statusVarList.getERROR_STATUS(), Configurations.PROCESS_RB36_FILE_CREATION,Configurations.PROCESS_SUCCESS_COUNT,Configurations.PROCESS_FAILD_COUNT,CommonMethods.eodDashboardProcessProgress(Configurations.PROCESS_SUCCESS_COUNT, Configurations.PROCESS_TOTAL_NOOF_TRABSACTIONS));
             if (processBean.getCriticalStatus() == 1) {
                 Configurations.COMMIT_STATUS = false;
@@ -163,7 +169,7 @@ public class RB36FileGenerationConnector extends FileGenProcessBuilder {
                 Configurations.MAIN_EOD_STATUS = false;
             }
         }finally {
-            logManager.logSummery(summery, infoLoggerEFGE);
+            logInfo.info(logManager.logSummery(summery));
         }
     }
 

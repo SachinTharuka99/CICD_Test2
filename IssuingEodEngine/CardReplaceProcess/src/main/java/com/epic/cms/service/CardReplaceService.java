@@ -4,6 +4,9 @@ import com.epic.cms.model.bean.CardReplaceBean;
 import com.epic.cms.model.bean.ErrorCardBean;
 import com.epic.cms.repository.CardReplaceRepo;
 import com.epic.cms.util.*;
+import lombok.extern.slf4j.Slf4j;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
@@ -12,19 +15,18 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.util.LinkedHashMap;
 
-import static com.epic.cms.util.LogManager.*;
 
 @Service
 public class CardReplaceService {
 
-    @Autowired
-    CardReplaceRepo cardReplaceRepo;
-
-    @Autowired
-    StatusVarList status;
-
+    private static final Logger logInfo = LoggerFactory.getLogger("logInfo");
+    private static final Logger logError = LoggerFactory.getLogger("logError");
     @Autowired
     public LogManager logManager;
+    @Autowired
+    CardReplaceRepo cardReplaceRepo;
+    @Autowired
+    StatusVarList status;
 
     @Async("taskExecutor2")
     @Transactional(value = "transactionManager", propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
@@ -48,11 +50,11 @@ public class CardReplaceService {
                 Configurations.PROCESS_SUCCESS_COUNT++;
 
             } catch (Exception e) {
-                logManager.logError("Card Replace Process Error for Card - " + CommonMethods.cardNumberMask(cardReplaceBean.getOldCardNo()), e, errorLogger);
+                logError.error("Card Replace Process Error for Card - " + CommonMethods.cardNumberMask(cardReplaceBean.getOldCardNo()), e);
                 Configurations.errorCardList.add(new ErrorCardBean(Configurations.ERROR_EOD_ID, Configurations.EOD_DATE, new StringBuffer(cardReplaceBean.getOldCardNo()), e.getMessage(), Configurations.PROCESS_ID_CARD_REPLACE, "Card Replace", 0, CardAccount.CARD));
                 Configurations.PROCESS_FAILD_COUNT++;
             } finally {
-                logManager.logDetails(details, infoLogger);
+                logInfo.info(logManager.logDetails(details));
             }
         }
     }

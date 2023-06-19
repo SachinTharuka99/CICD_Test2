@@ -7,23 +7,14 @@
 
 package com.epic.cms.service;
 
-import com.epic.cms.model.bean.EodInputFileBean;
 import com.epic.cms.model.bean.ProcessBean;
-import com.epic.cms.model.bean.StatementGenSummeryBean;
-import com.epic.cms.model.entity.EODATMFILE;
-import com.epic.cms.model.entity.EODMASTERFILE;
-import com.epic.cms.model.entity.EODPAYMENTFILE;
-import com.epic.cms.model.entity.EODVISAFILE;
 import com.epic.cms.repository.*;
-import com.epic.cms.util.Configurations;
 import com.epic.cms.util.LogManager;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.ComponentScan;
 import org.springframework.kafka.core.KafkaTemplate;
 import org.springframework.stereotype.Service;
 
-import java.util.ArrayList;
-import java.util.List;
 
 @Service
 @ComponentScan(basePackages = {"com.epic.cms.*"})
@@ -48,9 +39,6 @@ public class EODFileProcessingEngineDashboardService {
 
     @Autowired
     CommonRepo commonRepo;
-
-    @Autowired
-    LogManager logManager;
 
 
 //    public List<Object> getEodInputFIleList(Long eodId) {

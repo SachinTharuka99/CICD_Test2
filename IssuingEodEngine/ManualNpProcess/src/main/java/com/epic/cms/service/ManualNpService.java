@@ -3,7 +3,13 @@ package com.epic.cms.service;
 import com.epic.cms.model.bean.DelinquentAccountBean;
 import com.epic.cms.model.bean.ErrorCardBean;
 import com.epic.cms.repository.ManualNpRepo;
-import com.epic.cms.util.*;
+import com.epic.cms.util.CardAccount;
+import com.epic.cms.util.Configurations;
+import com.epic.cms.util.LogManager;
+import com.epic.cms.util.StatusVarList;
+import lombok.extern.slf4j.Slf4j;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
@@ -12,25 +18,23 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.util.ArrayList;
 
-import static com.epic.cms.util.LogManager.errorLogger;
-import static com.epic.cms.util.LogManager.infoLogger;
-
 
 @Service
 public class ManualNpService {
+    private static final Logger logInfo = LoggerFactory.getLogger("logInfo");
+    private static final Logger logError = LoggerFactory.getLogger("logError");
     @Autowired
     LogManager logManager;
     @Autowired
     StatusVarList status;
     @Autowired
     ManualNpRepo manualNpRepo;
-
     int selectedaccounts = 0;
     int successCounts = 0;
     int FailedCounts = 0;
 
     @Async("taskExecutor2")
-    @Transactional(value="transactionManager",propagation = Propagation.REQUIRED,rollbackFor = Exception.class)
+    @Transactional(value = "transactionManager", propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
     public void manualNpClassification(ArrayList<StringBuffer> accDetails) {
 
         if (!Configurations.isInterrupted) {
@@ -105,9 +109,9 @@ public class ManualNpService {
 
                 int q = manualNpRepo.updateManualNPtoComplete(reqID, status.getCOMMON_COMPLETED());
                 if (q > 0) {
-                    logManager.logStartEnd("Successfully updated id:" + reqID + " RQAC -> COMP", infoLogger);
+                    logInfo.info(logManager.logStartEnd("Successfully updated id:" + reqID + " RQAC -> COMP"));
                 } else {
-                    logManager.logStartEnd("Failed to update id:" + reqID + " RQAC -> COMP", infoLogger);
+                    logInfo.info(logManager.logStartEnd("Failed to update id:" + reqID + " RQAC -> COMP"));
                 }
                 successCounts++;
                 Configurations.PROCESS_SUCCESS_COUNT++;
@@ -115,13 +119,14 @@ public class ManualNpService {
                 FailedCounts++;
                 Configurations.PROCESS_FAILD_COUNT++;
                 Configurations.errorCardList.add(new ErrorCardBean(Configurations.ERROR_EOD_ID, Configurations.EOD_DATE, new StringBuffer(cardNo), ex.getMessage(), Configurations.RUNNING_PROCESS_ID, Configurations.RUNNING_PROCESS_DESCRIPTION, 0, CardAccount.CARD));
-                logManager.logError("Manual NP process failed when going to classified NP for account: " + accNo, ex, errorLogger);
+                logError.error("Manual NP process failed when going to classified NP for account: " + accNo, ex);
             }
         }
     }
+
     @Async("taskExecutor2")
-    @Transactional(value="transactionManager",propagation = Propagation.REQUIRED,rollbackFor = Exception.class)
-    public void manualNpDeClassification(ArrayList<StringBuffer> accDetails){
+    @Transactional(value = "transactionManager", propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
+    public void manualNpDeClassification(ArrayList<StringBuffer> accDetails) {
 
         if (!Configurations.isInterrupted) {
             selectedaccounts++;
@@ -144,7 +149,7 @@ public class ManualNpService {
                     manualNpRepo.updateNpStatusCardAccount(accNo, 1);
                     remark = "Account has Manual Non Performing to Auto Non Performing by the manual declassification.";
                     manualNpRepo.insertIntoDelinquentHistory(cardNo, accNo, remark);
-                    logManager.logStartEnd(accNo + ": " + remark, infoLogger);
+                    logInfo.info(logManager.logStartEnd(accNo + ": " + remark));
 
                 } else {
                     manualNpRepo.getNPDetailsForNpGl(accNo, delinquentAccountBean);
@@ -179,7 +184,7 @@ public class ManualNpService {
                     manualNpRepo.updateDelinquentAccountForManualNP(accNo, delinquentAccountBean);
                     remark = "Account has Manual Non Performing to Performing by the manual.";
                     manualNpRepo.insertIntoDelinquentHistory(cardNo, accNo, remark);
-                    logManager.logStartEnd(accNo + ": " + remark, infoLogger);
+                    logInfo.info(logManager.logStartEnd(accNo + ": " + remark));
                 }
 
                 manualNpRepo.updateManualNPtoComplete(reqID, status.getCOMMON_COMPLETED());
@@ -190,10 +195,11 @@ public class ManualNpService {
                 FailedCounts++;
                 Configurations.PROCESS_FAILD_COUNT++;
                 Configurations.errorCardList.add(new ErrorCardBean(Configurations.ERROR_EOD_ID, Configurations.EOD_DATE, new StringBuffer(cardNo), ex.getMessage(), Configurations.RUNNING_PROCESS_ID, Configurations.RUNNING_PROCESS_DESCRIPTION, 0, CardAccount.CARD));
-                logManager.logError("Manual NP process failed when going to De-classified NP for account: " + accNo, ex, errorLogger);
+                logError.error("Manual NP process failed when going to De-classified NP for account: " + accNo, ex);
             }
         }
     }
+
     private int changeAccountStatus(String accNo, String backendStatus, int onlineStatus) throws Exception {
         int flag = 0;
         flag = manualNpRepo.updateAccountStatus(accNo, backendStatus);

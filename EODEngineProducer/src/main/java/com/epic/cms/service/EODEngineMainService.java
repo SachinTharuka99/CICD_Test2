@@ -10,13 +10,13 @@ package com.epic.cms.service;
 import com.epic.cms.model.bean.ProcessBean;
 import com.epic.cms.repository.EODEngineProducerRepo;
 import com.epic.cms.util.*;
-import com.fasterxml.jackson.databind.JsonNode;
+import lombok.extern.slf4j.Slf4j;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
-import org.springframework.boot.web.client.RestTemplateBuilder;
 import org.springframework.context.annotation.ComponentScan;
 import org.springframework.stereotype.Service;
-import org.springframework.web.client.RestTemplate;
 
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
@@ -24,37 +24,32 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import static com.epic.cms.util.LogManager.errorLogger;
-import static com.epic.cms.util.LogManager.infoLogger;
 
 @Service
 @ComponentScan(basePackages = {"com.epic.cms.*"})
 public class EODEngineMainService {
 
-
+    private static final Logger logInfo = LoggerFactory.getLogger("logInfo");
+    private static final Logger logError = LoggerFactory.getLogger("logError");
+    public SimpleDateFormat sdf = new SimpleDateFormat("dd-MM-yyyy");
     @Autowired
     @Qualifier("EODEngineProducerRepo")
     EODEngineProducerRepo producerRepo;
-
     @Autowired
     LogManager logManager;
-
     @Autowired
     KafkaMessageUpdator kafkaMessageUpdator;
-
     @Autowired
     StatusVarList statusVarList;
-
     @Autowired
     CreateEodId createEodId;
 
-    public SimpleDateFormat sdf = new SimpleDateFormat("dd-MM-yyyy");
     //@Async
     public void EODEngineMain(String eodID, int categoryId) throws InterruptedException {
         System.out.println("Main Method Started");
         try {
-            logManager.logStartEnd("EOD-Engine main service started for EODID:" + eodID, infoLogger);
-            Configurations.EOD_ID =Integer.parseInt(eodID);
+            logInfo.info(logManager.logStartEnd("EOD-Engine main service started for EODID:" + eodID));
+            Configurations.EOD_ID = Integer.parseInt(eodID);
             Configurations.ERROR_EOD_ID = Configurations.EOD_ID;
             Configurations.Str_EOD_ID = eodID;
             //update eodid to inprogress
@@ -63,7 +58,7 @@ public class EODEngineMainService {
             Map<String, Object> requestBody = new HashMap<>();
             requestBody.put("eodid", Configurations.EOD_ID);
 
-            kafkaMessageUpdator.producerWithNoReturn(eodID,"loadEodInfo");
+            kafkaMessageUpdator.producerWithNoReturn(eodID, "loadEodInfo");
 
             List<ProcessBean> processList = new ArrayList<ProcessBean>();
             String uniqueId = generateUniqueId();
@@ -74,9 +69,9 @@ public class EODEngineMainService {
 
             /**if (Configurations.STARTING_EOD_STATUS.equals("INIT")) {//NORMAL EOD
 
-            } else if (Configurations.STARTING_EOD_STATUS.equals("EROR")) {//ERROR EOD
-                updatePreviousFailProcesses(Integer.toString(Configurations.ERROR_EOD_ID));
-            }*/
+             } else if (Configurations.STARTING_EOD_STATUS.equals("EROR")) {//ERROR EOD
+             updatePreviousFailProcesses(Integer.toString(Configurations.ERROR_EOD_ID));
+             }*/
             System.out.println("------------->>>>>>>>>> EODEngineMain Thread ID: " + Thread.currentThread().getId());
             this.EODScheduler(processList, uniqueId);
 
@@ -93,7 +88,7 @@ public class EODEngineMainService {
             //Here the process flow complete status becomes false together with
             //the step flow status if they are successfully completed.
             //if (Configurations.PROCESS_FLOW_STEP_COMPLETE_STATUS && Configurations.FLOW_STEP_COMPLETE_STATUS == false) {
-                eodEngineStatus = producerRepo.hasErrorforLastEOD() ? statusVarList.getERROR_STATUS() : statusVarList.getSUCCES_STATUS();
+            eodEngineStatus = producerRepo.hasErrorforLastEOD() ? statusVarList.getERROR_STATUS() : statusVarList.getSUCCES_STATUS();
 
             /**
              * check if EOD is in error state.
@@ -114,7 +109,7 @@ public class EODEngineMainService {
                 int eodId = createEodId.getCurrentEodId(statusVarList.getINITIAL_STATUS(), statusVarList.getERROR_STATUS());
 
                 //Configurations.EOD_ID is also set.
-                System.out.println("next EOD ID: " + String.valueOf(eodId));
+                System.out.println("next EOD ID: " + eodId);
                 //System.out.println("next EOD date simulation: " + locDate);
                 //System.out.println("Scheduler Status: " + Configurations.EOD_SHEDULER);
                 /**
@@ -127,7 +122,7 @@ public class EODEngineMainService {
             }
         } catch (Exception ex) {
             ex.printStackTrace();
-            logManager.logError(ex.toString(), ex, errorLogger);
+            logError.error(ex.toString(), ex);
         }
 
     }
@@ -187,7 +182,7 @@ public class EODEngineMainService {
                     while (true) {
                         //Check whether msg push to consumer service is complete & the process complete from their end.
                         if (future && Configurations.PROCESS_COMPLETE_STATUS && !Configurations.IS_PROCESS_COMPLETELY_FAILED) {
-                            LogManager.processStartEndStyle(processList.get(j).getProcessDes() + " completed - ");
+                            logInfo.info(logManager.processStartEndStyle(processList.get(j).getProcessDes() + " completed - "));
                             break;
                         } else if (future && Configurations.PROCESS_COMPLETE_STATUS && Configurations.IS_PROCESS_COMPLETELY_FAILED) {
                             throw new EODEngineCompletelyFailedException(processList.get(j).getProcessDes() + " Process completely failed.");
@@ -224,32 +219,32 @@ public class EODEngineMainService {
         int progress = 0;
         List<String> errorProcessList;
 
-            try {
-                if (Configurations.PROCESS_SUCCESS_COUNT != 0 && Configurations.PROCESS_TOTAL_NOOF_TRABSACTIONS != 0) {
-                    progress = ((Configurations.PROCESS_SUCCESS_COUNT * 100 / Configurations.PROCESS_TOTAL_NOOF_TRABSACTIONS));
+        try {
+            if (Configurations.PROCESS_SUCCESS_COUNT != 0 && Configurations.PROCESS_TOTAL_NOOF_TRABSACTIONS != 0) {
+                progress = ((Configurations.PROCESS_SUCCESS_COUNT * 100 / Configurations.PROCESS_TOTAL_NOOF_TRABSACTIONS));
 
-                    Configurations.PROCESS_PROGRESS = String.valueOf(progress) + "%";
+                Configurations.PROCESS_PROGRESS = progress + "%";
 
-                } else if (Configurations.PROCESS_SUCCESS_COUNT == 0 && Configurations.PROCESS_TOTAL_NOOF_TRABSACTIONS != 0) {
-                    Configurations.PROCESS_PROGRESS = "0%";
-                } else {
-                    Configurations.PROCESS_PROGRESS = "100%";
-                }
-
-                producerRepo.updateEodProcessProgress();
-                errorProcessList = producerRepo.getErrorProcessIdList();
-                if (errorProcessList != null) {
-                    for (String processId : errorProcessList) {
-                        producerRepo.updateProcessProgressForErrorProcess(processId);
-                    }
-                }
-                // update success process count | error process count in eod table
-                producerRepo.updateEodProcessStateCount();
-
-                //Thread.sleep(5000); // After every 5 seconds update particular process pogress.
-
-            } catch (Exception e) {
-                logManager.logError(e, errorLogger);
+            } else if (Configurations.PROCESS_SUCCESS_COUNT == 0 && Configurations.PROCESS_TOTAL_NOOF_TRABSACTIONS != 0) {
+                Configurations.PROCESS_PROGRESS = "0%";
+            } else {
+                Configurations.PROCESS_PROGRESS = "100%";
             }
+
+            producerRepo.updateEodProcessProgress();
+            errorProcessList = producerRepo.getErrorProcessIdList();
+            if (errorProcessList != null) {
+                for (String processId : errorProcessList) {
+                    producerRepo.updateProcessProgressForErrorProcess(processId);
+                }
+            }
+            // update success process count | error process count in eod table
+            producerRepo.updateEodProcessStateCount();
+
+            //Thread.sleep(5000); // After every 5 seconds update particular process pogress.
+
+        } catch (Exception e) {
+            logError.error("Update Eod Engine Dashboard Process Progress Error", e);
+        }
     }
 }

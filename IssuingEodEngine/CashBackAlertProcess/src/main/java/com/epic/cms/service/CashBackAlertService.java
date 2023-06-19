@@ -8,6 +8,9 @@ import com.epic.cms.util.CardAccount;
 import com.epic.cms.util.CommonMethods;
 import com.epic.cms.util.Configurations;
 import com.epic.cms.util.LogManager;
+import lombok.extern.slf4j.Slf4j;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
@@ -17,18 +20,16 @@ import org.springframework.transaction.annotation.Transactional;
 import java.util.ArrayList;
 import java.util.LinkedHashMap;
 
-import static com.epic.cms.util.LogManager.errorLogger;
-import static com.epic.cms.util.LogManager.infoLogger;
 
 @Service
 public class CashBackAlertService {
 
+    private static final Logger logInfo = LoggerFactory.getLogger("logInfo");
+    private static final Logger logError = LoggerFactory.getLogger("logError");
     @Autowired
     AlertService alert;
-
     @Autowired
     CashBackAlertRepo cashBackAlertRepo;
-
     @Autowired
     LogManager logManager;
 
@@ -74,9 +75,9 @@ public class CashBackAlertService {
                     }
                 }
             } catch (Exception e) {
-                logManager.logError("Error Occurs, when running Cash Back alert process for Acc No " + accountNumber, e, errorLogger);
+                logError.error("Error Occurs, when running Cash Back alert process for Acc No " + accountNumber, e);
             } finally {
-                logManager.logDetails(adjustDetails, infoLogger);
+                logInfo.info(logManager.logDetails(adjustDetails));
             }
         }
     }

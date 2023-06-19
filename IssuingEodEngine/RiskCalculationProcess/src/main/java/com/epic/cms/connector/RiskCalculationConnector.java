@@ -6,6 +6,7 @@
  */
 
 package com.epic.cms.connector;
+
 import com.epic.cms.common.ProcessBuilder;
 import com.epic.cms.dao.RiskCalculationDao;
 import com.epic.cms.model.bean.DelinquentAccountBean;
@@ -17,6 +18,9 @@ import com.epic.cms.util.CommonMethods;
 import com.epic.cms.util.Configurations;
 import com.epic.cms.util.LogManager;
 import com.epic.cms.util.StatusVarList;
+import lombok.extern.slf4j.Slf4j;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.scheduling.concurrent.ThreadPoolTaskExecutor;
@@ -25,26 +29,20 @@ import org.springframework.stereotype.Service;
 import java.util.ArrayList;
 import java.util.LinkedHashMap;
 
-import static com.epic.cms.util.LogManager.errorLogger;
-import static com.epic.cms.util.LogManager.infoLogger;
-
 @Service
 public class RiskCalculationConnector extends ProcessBuilder {
+    private static final Logger logInfo = LoggerFactory.getLogger("logInfo");
+    private static final Logger logError = LoggerFactory.getLogger("logError");
     @Autowired
     CommonRepo commonRepo;
-
     @Autowired
     StatusVarList statusVarList;
-
     @Autowired
     LogManager logManager;
-
     @Autowired
     RiskCalculationService riskCalculationService;
-
     @Autowired
     RiskCalculationDao riskCalculationDao;
-
     @Autowired
     @Qualifier("ThreadPool_100")
     ThreadPoolTaskExecutor taskExecutor;
@@ -72,8 +70,8 @@ public class RiskCalculationConnector extends ProcessBuilder {
         try {
             if (processBean != null) {
                 /**Get the already exist account list from delinquent table
-                //Np date will be either due date or normal date. (changed by bthe NP CR. prviously only due date account will NP.)
-                //This NP Method has used in easypayment process for accelerate the NP account easypayments. */
+                 //Np date will be either due date or normal date. (changed by bthe NP CR. prviously only due date account will NP.)
+                 //This NP Method has used in easypayment process for accelerate the NP account easypayments. */
                 delinquentCardList = riskCalculationDao.getDelinquentAccounts();
                 Configurations.PROCESS_TOTAL_NOOF_TRABSACTIONS += delinquentCardList.size();
 
@@ -89,7 +87,7 @@ public class RiskCalculationConnector extends ProcessBuilder {
 //----------------------------------Insert fresh cards to delinquent table-----------------------------------------------------//
 
                 //                if (day == 01) {//Cards will be absorb for risk process in a month beginning after a mdue date
-                logManager.logStartEnd("RISK_CALCULATION_PROCESS Process Started for new cards", infoLogger);
+                logInfo.info(logManager.logStartEnd("RISK_CALCULATION_PROCESS Process Started for new cards"));
                 cardList = riskCalculationDao.getRiskCalculationCardList();
                 Configurations.PROCESS_TOTAL_NOOF_TRABSACTIONS += cardList.size();
                 if (cardList.size() > 0) {
@@ -101,7 +99,7 @@ public class RiskCalculationConnector extends ProcessBuilder {
                         Thread.sleep(1000);
                     }
                 } else {
-                    logManager.logInfo("No new cards for add to risk class", infoLogger);
+                    logInfo.info("No new cards for add to risk class");
                 }
 
                 Configurations.PROCESS_TOTAL_NOOF_TRABSACTIONS = (noOfExistingCards + noOfNewCards);
@@ -111,9 +109,9 @@ public class RiskCalculationConnector extends ProcessBuilder {
 
         } catch (Exception e) {
             Configurations.IS_PROCESS_COMPLETELY_FAILED = true;
-            logManager.logError("RISK_CALCULATION_PROCESS ended with", e, errorLogger);
+            logError.error("RISK_CALCULATION_PROCESS ended with", e);
         } finally {
-            logManager.logSummery(summery, infoLogger);
+            logInfo.info(logManager.logSummery(summery));
         }
     }
 

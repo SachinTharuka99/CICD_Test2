@@ -5,6 +5,9 @@ import com.epic.cms.model.bean.LimitIncrementBean;
 import com.epic.cms.model.bean.ProcessBean;
 import com.epic.cms.repository.IncrementLimitExpireRepo;
 import com.epic.cms.util.*;
+import lombok.extern.slf4j.Slf4j;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
@@ -13,23 +16,20 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.util.LinkedHashMap;
 
-import static com.epic.cms.util.LogManager.errorLogger;
-import static com.epic.cms.util.LogManager.infoLogger;
-
 @Service
 public class IncrementLimitExpireService {
 
+    private static final Logger logInfo = LoggerFactory.getLogger("logInfo");
+    private static final Logger logError = LoggerFactory.getLogger("logError");
     @Autowired
     StatusVarList status;
-
     @Autowired
     IncrementLimitExpireRepo incrementLimitExpireRepo;
-
     @Autowired
     LogManager logManager;
 
     @Async("taskExecutor2")
-    @Transactional(value="transactionManager",propagation = Propagation.REQUIRED,rollbackFor = Exception.class)
+    @Transactional(value = "transactionManager", propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
     public void processCreditLimitExpire(LimitIncrementBean limitIncrementBean, ProcessBean processBean, int configProcess, String processHeader) {
         if (!Configurations.isInterrupted) {
             LinkedHashMap details = new LinkedHashMap();
@@ -93,10 +93,9 @@ public class IncrementLimitExpireService {
                 Configurations.errorCardList.add(new ErrorCardBean(Configurations.ERROR_EOD_ID, Configurations.EOD_DATE, new StringBuffer(limitIncrementBean.getCardNumber()), e.getMessage(), Configurations.RUNNING_PROCESS_ID, Configurations.RUNNING_PROCESS_DESCRIPTION, 0, CardAccount.CARD));
                 failedCards++;
                 Configurations.PROCESS_FAILD_COUNT++;
-                logManager.logInfo("Increment Limit Expire process failed for cardnumber " + CommonMethods.cardInfo(maskedCardNumber, processBean), infoLogger);
-                logManager.logError("Increment Limit Expire process failed for cardnumber " + CommonMethods.cardInfo(maskedCardNumber, processBean), e, errorLogger);
+                logError.error("Increment Limit Expire process failed for cardnumber " + CommonMethods.cardInfo(maskedCardNumber, processBean), e);
             }
-            logManager.logDetails(details, infoLogger);
+            logInfo.info(logManager.logDetails(details));
             Configurations.Failed_Count_IncrementLimit += failedCards;
         }
     }

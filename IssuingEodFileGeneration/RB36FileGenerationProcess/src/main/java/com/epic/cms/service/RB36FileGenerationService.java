@@ -14,6 +14,9 @@ import com.epic.cms.util.CommonMethods;
 import com.epic.cms.util.Configurations;
 import com.epic.cms.util.LogManager;
 import com.epic.cms.util.StatusVarList;
+import lombok.extern.slf4j.Slf4j;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -27,8 +30,6 @@ import java.util.Map;
 
 import static com.epic.cms.util.CommonMethods.validateCurrencyLength;
 import static com.epic.cms.util.CommonMethods.validateLength;
-import static com.epic.cms.util.LogManager.errorLogger;
-import static com.epic.cms.util.LogManager.errorLoggerEFGE;
 
 @Service
 public class RB36FileGenerationService {
@@ -38,6 +39,10 @@ public class RB36FileGenerationService {
 
     @Autowired
     LogManager logManager;
+
+    private static final Logger logInfo = LoggerFactory.getLogger("logInfo");
+    private static final Logger logError = LoggerFactory.getLogger("logError");
+
 
     public FileGenerationModel getFileContent(ArrayList<StringBuffer> npCards, HashMap<String, ArrayList<GlAccountBean>> hmap, HashMap<String, GlBean> glAccountsDetail, String fieldDelimeter) throws Exception{
         FileGenerationModel file = new FileGenerationModel();
@@ -345,7 +350,7 @@ public class RB36FileGenerationService {
                 Configurations.PROCESS_SUCCESS_COUNT++;
             } catch (Exception e) {
                 Configurations.PROCESS_FAILD_COUNT++;
-                logManager.logError("Error while writing RB36 file.Exit from the process. Exception in  txn Type " + entrySet.getKey() + "--->" + e, errorLoggerEFGE);
+                logError.error("Error while writing RB36 file.Exit from the process. Exception in  txn Type " + entrySet.getKey() + "--->" + e);
                 throw e;
             }
         }

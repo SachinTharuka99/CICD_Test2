@@ -9,6 +9,9 @@ import com.epic.cms.util.CommonMethods;
 import com.epic.cms.util.Configurations;
 import com.epic.cms.util.LogManager;
 import com.epic.cms.util.StatusVarList;
+import lombok.extern.slf4j.Slf4j;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.scheduling.concurrent.ThreadPoolTaskExecutor;
@@ -17,8 +20,6 @@ import org.springframework.stereotype.Service;
 import java.util.HashMap;
 import java.util.Map;
 
-import static com.epic.cms.util.LogManager.errorLogger;
-import static com.epic.cms.util.LogManager.infoLogger;
 
 @Service
 public class OverLimitFeeConnector extends ProcessBuilder {
@@ -57,6 +58,9 @@ public class OverLimitFeeConnector extends ProcessBuilder {
     @Autowired
     OverLimitFeeService overLimitFeeService;
 
+    private static final Logger logInfo = LoggerFactory.getLogger("logInfo");
+    private static final Logger logError = LoggerFactory.getLogger("logError");
+
     public String processHeader = "OVERLIMIT FEE PROCESS";
 
     @Override
@@ -85,9 +89,9 @@ public class OverLimitFeeConnector extends ProcessBuilder {
             }
         } catch (Exception e) {
             Configurations.IS_PROCESS_COMPLETELY_FAILED = true;
-            logManager.logError("OverLimit fee process failed", e, errorLogger);
+            logError.error("OverLimit fee process failed", e);
         } finally {
-            logManager.logSummery(summery, infoLogger);
+            logInfo.info(logManager.logSummery(summery));
             try {
                 if (accMap != null) {
                     /* PADSS Change -
@@ -95,7 +99,7 @@ public class OverLimitFeeConnector extends ProcessBuilder {
                     accMap.clear();
                 }
             } catch (Exception e3) {
-                logManager.logError("Exception in overlimit fee", e3, errorLogger);
+                logError.error("Exception in overlimit fee", e3);
             }
         }
     }

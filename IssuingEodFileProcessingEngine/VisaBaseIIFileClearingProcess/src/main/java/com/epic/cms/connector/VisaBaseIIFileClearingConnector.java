@@ -13,15 +13,18 @@ import com.epic.cms.repository.CommonRepo;
 import com.epic.cms.repository.VisaBaseIIFileClearingRepo;
 import com.epic.cms.service.VisaBaseIIFileClearingService;
 import com.epic.cms.util.*;
+import lombok.extern.slf4j.Slf4j;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.io.File;
 
-import static com.epic.cms.util.LogManager.*;
-
 @Service
 public class VisaBaseIIFileClearingConnector extends FileProcessingProcessBuilder {
+    private static final Logger logInfo = LoggerFactory.getLogger("logInfo");
+    private static final Logger logError = LoggerFactory.getLogger("logError");
     @Autowired
     VisaBaseIIFileClearingRepo visaBaseIIFileClearingRepo;
     @Autowired
@@ -61,20 +64,20 @@ public class VisaBaseIIFileClearingConnector extends FileProcessingProcessBuilde
             fileBean = this.getVisaFileInfo(fileId);
             if (fileBean != null) {
                 //if (fileBean.getFileStatus().equals(DatabaseStatus.STATUS_FILE_INIT)) {// Fresh file
-                    File file = new File(filepath + File.separator + fileBean.getFileName());
-                    //Make sure the file exist and can read
-                    if (file.isFile() && file.exists() && file.canRead()) {
-                        fileBean.setFilePath(file.getAbsolutePath());
-                        //file reading
-                        fileReadStatus = visaBaseIIFileClearingService.readFile(fileBean);
-                    } else {
-                        print = "Visa Base II file not found..."
-                                + "\nFile Name : " + file.getName()
-                                + "\nFile ID   : " + fileBean.getFileId();
-                        logManager.logInfo(print, infoLoggerEFPE);
-                        //update file status to ERROR
-                        visaBaseIIFileClearingRepo.updateRecVisaFileStatus(fileBean.getFileId(), DatabaseStatus.STATUS_FILE_ERROR);
-                    }
+                File file = new File(filepath + File.separator + fileBean.getFileName());
+                //Make sure the file exist and can read
+                if (file.isFile() && file.exists() && file.canRead()) {
+                    fileBean.setFilePath(file.getAbsolutePath());
+                    //file reading
+                    fileReadStatus = visaBaseIIFileClearingService.readFile(fileBean);
+                } else {
+                    print = "Visa Base II file not found..."
+                            + "\nFile Name : " + file.getName()
+                            + "\nFile ID   : " + fileBean.getFileId();
+                    logInfo.info(print);
+                    //update file status to ERROR
+                    visaBaseIIFileClearingRepo.updateRecVisaFileStatus(fileBean.getFileId(), DatabaseStatus.STATUS_FILE_ERROR);
+                }
                 /*} else {// Repeat file, File reading already completed
                     fileReadStatus = true;
                 }*/
@@ -103,22 +106,22 @@ public class VisaBaseIIFileClearingConnector extends FileProcessingProcessBuilde
                         throw ex;
                     }
                 } else {
-                    logManager.logError("VISA Base II file reading failed for file " + fileId,errorLoggerEFPE);
+                    logInfo.info("VISA Base II file reading failed for file " + fileId);
                     //update file read status to FAIL
                     visaBaseIIFileClearingRepo.updateRecVisaFileStatus(fileId, Configurations.FAIL_STATUS);
                 }
             } else {
                 //file cannot proceed due to invalid status
-                logManager.logError("Cannot read, VISA Base II file " + fileId + " is not in the initial or repeat status",errorLoggerEFPE);
+                logError.error("Cannot read, VISA Base II file " + fileId + " is not in the initial or repeat status");
             }
 
         } catch (Exception ex) {
-            logManager.logError("VISA Base II File clearing process failed for file " + fileId, ex,errorLoggerEFPE);
+            logError.error("VISA Base II File clearing process failed for file " + fileId, ex);
             //update file status to FAIL
             try {
                 visaBaseIIFileClearingRepo.updateRecVisaFileStatus(fileId, Configurations.FAIL_STATUS);
             } catch (Exception e) {
-                logManager.logError("", e,errorLoggerEFPE);
+                logError.error("", e);
             }
         }
     }

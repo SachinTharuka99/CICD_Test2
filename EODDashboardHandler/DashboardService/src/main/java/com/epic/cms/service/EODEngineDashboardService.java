@@ -44,9 +44,6 @@ public class EODEngineDashboardService {
     EodErrorCardListRepo eodErrorCardListRepo;
 
     @Autowired
-    LogManager logManager;
-
-    @Autowired
     EodProcessFlowRepo eodProcessFlowRepo;
 
     @Autowired

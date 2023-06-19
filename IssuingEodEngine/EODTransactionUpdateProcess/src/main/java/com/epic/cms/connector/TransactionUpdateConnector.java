@@ -4,30 +4,31 @@ import com.epic.cms.common.ProcessBuilder;
 import com.epic.cms.service.TransactionUpdateService;
 import com.epic.cms.util.Configurations;
 import com.epic.cms.util.LogManager;
+import lombok.extern.slf4j.Slf4j;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.scheduling.concurrent.ThreadPoolTaskExecutor;
-import org.springframework.stereotype.Component;
+import org.springframework.stereotype.Service;
 
 import java.util.LinkedHashMap;
 
-import static com.epic.cms.util.LogManager.errorLogger;
-import static com.epic.cms.util.LogManager.infoLogger;
 
-@Component
+@Service
 public class TransactionUpdateConnector extends ProcessBuilder {
 
+    private static final Logger logInfo = LoggerFactory.getLogger("logInfo");
+    private static final Logger logError = LoggerFactory.getLogger("logError");
     @Autowired
     LogManager logManager;
-
     @Autowired
     @Qualifier("ThreadPool_100")
     ThreadPoolTaskExecutor taskExecutor;
-
     @Autowired
     TransactionUpdateService transactionUpdateService;
-
-    private String cardAssociationVisa = "VISA", cardAssociationMaster = "MASTER";
+    private final String cardAssociationVisa = "VISA";
+    private final String cardAssociationMaster = "MASTER";
 
     @Override
     public void concreteProcess() throws Exception {
@@ -50,9 +51,9 @@ public class TransactionUpdateConnector extends ProcessBuilder {
             Configurations.PROCESS_FAILD_COUNT = (Configurations.FAILED_VISA_TXN_COUNT + Configurations.FAILED_MASTER_TXN_COUNT);
 
         } catch (Exception ex) {
-            logManager.logError("Transaction Update Process Error", ex, errorLogger);
+            logError.error("Transaction Update Process Error", ex);
         } finally {
-            logManager.logSummery(summery, infoLogger);
+            logInfo.info(logManager.logSummery(summery));
         }
     }
 

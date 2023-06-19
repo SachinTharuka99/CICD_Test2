@@ -14,6 +14,9 @@ import com.epic.cms.util.CommonMethods;
 import com.epic.cms.util.Configurations;
 import com.epic.cms.util.LogManager;
 import com.epic.cms.util.StatusVarList;
+import lombok.extern.slf4j.Slf4j;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Propagation;
@@ -22,8 +25,6 @@ import org.springframework.transaction.annotation.Transactional;
 import java.sql.SQLException;
 import java.util.LinkedHashMap;
 
-import static com.epic.cms.util.LogManager.errorLogger;
-import static com.epic.cms.util.LogManager.infoLogger;
 
 @Service
 public class MerchantPaymentService {
@@ -38,6 +39,9 @@ public class MerchantPaymentService {
 
     @Autowired
     MerchantPaymentRepo merchantPaymentRepo;
+
+    private static final Logger logInfo = LoggerFactory.getLogger("logInfo");
+    private static final Logger logError = LoggerFactory.getLogger("logError");
 
     ProcessBean processBean = new ProcessBean();
 
@@ -65,10 +69,10 @@ public class MerchantPaymentService {
                 summery.put("No of Success Card ", Integer.toString(Configurations.PROCESS_SUCCESS_COUNT));
                 summery.put("No of fail Card ", Configurations.PROCESS_FAILD_COUNT);
 
-                logManager.logSummery(summery, infoLogger);
+                logInfo.info(logManager.logSummery(summery));
             }
         } catch (SQLException e) {
-            logManager.logError("Merchant Payment Process process failed ", e, errorLogger);
+            logError.error("Merchant Payment Process process failed ", e);
         }
     }
 }

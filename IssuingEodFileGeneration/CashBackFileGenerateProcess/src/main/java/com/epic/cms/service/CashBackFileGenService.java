@@ -10,6 +10,9 @@ package com.epic.cms.service;
 import com.epic.cms.model.bean.GlAccountBean;
 import com.epic.cms.util.Configurations;
 import com.epic.cms.util.LogManager;
+import lombok.extern.slf4j.Slf4j;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -17,16 +20,16 @@ import java.math.BigDecimal;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 
-import static com.epic.cms.util.CommonMethods.*;
-import static com.epic.cms.util.LogManager.errorLogger;
-import static com.epic.cms.util.LogManager.errorLoggerEFGE;
+import static com.epic.cms.util.CommonMethods.validateCurrencyLength;
+import static com.epic.cms.util.CommonMethods.validateLength;
 
 @Service
 public class CashBackFileGenService {
 
+    private static final Logger logInfo = LoggerFactory.getLogger("logInfo");
+    private static final Logger logError = LoggerFactory.getLogger("logError");
     @Autowired
     LogManager logManager;
-
     String fieldDelimeter = ",";
     String fieldDelimeterPipe = "|";
 
@@ -80,7 +83,7 @@ public class CashBackFileGenService {
 
             content.append(System.lineSeparator());
         } catch (Exception e) {
-            logManager.logError("Exception in adding first file content" , e, errorLoggerEFGE);
+            logError.error("Exception in adding first file content", e);
         }
         return content;
     }
@@ -119,7 +122,7 @@ public class CashBackFileGenService {
 
             content2.append(System.lineSeparator());
         } catch (Exception e) {
-            logManager.logError("Exception in adding second file content" , e,errorLoggerEFGE);
+            logError.error("Exception in adding second file content", e);
         }
         return content2;
     }
@@ -152,7 +155,7 @@ public class CashBackFileGenService {
             sbHeader.append(validateLength("1", 10)); //CHK_SUM
             sbHeader.append(System.lineSeparator());
         } catch (Exception e) {
-            logManager.logError("Exception in adding first file header" , e, errorLoggerEFGE);
+            logError.error("Exception in adding first file header", e);
         }
         return sbHeader;
     }
@@ -177,8 +180,8 @@ public class CashBackFileGenService {
             sbHeader2.append(fieldDelimeter);
 
             sbHeader2.append(System.lineSeparator());
-        }catch (Exception e){
-            logManager.logError("Exception in adding second file header" , e, errorLoggerEFGE);
+        } catch (Exception e) {
+            logError.error("Exception in adding second file header", e);
         }
         return sbHeader2;
     }

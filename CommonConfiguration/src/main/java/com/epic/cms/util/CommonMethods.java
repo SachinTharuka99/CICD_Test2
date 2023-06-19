@@ -2,6 +2,9 @@ package com.epic.cms.util;
 
 import com.epic.cms.model.bean.ErrorCardBean;
 import com.epic.cms.model.bean.ProcessBean;
+import lombok.extern.slf4j.Slf4j;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
@@ -12,13 +15,15 @@ import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
-import static com.epic.cms.util.LogManager.errorLogger;
 
 @Component
 public class CommonMethods {
 
     @Autowired
     StatusVarList status;
+
+    private static final Logger logInfo = LoggerFactory.getLogger("logInfo");
+    private static final Logger logError = LoggerFactory.getLogger("logError");
 
     public static void eodDashboardProgressParametersReset() {
 
@@ -50,18 +55,18 @@ public class CommonMethods {
 
             } catch (Exception ex) {
                 if (endIndex < startIndex) {
-                    errorLogger.error("Error Occurd in method cardNumberMask" + System.lineSeparator() + "startIndex should be less than endIndex");
+                    logError.error("Error Occurd in method cardNumberMask" + System.lineSeparator() + "startIndex should be less than endIndex");
                     return cardNo.substring(0, 6) + new String(new char[12 - 6]).replace('\0', '*') + cardNo.substring(12, cardNo.length());
                 } else if (endIndex > cardNo.length()) {
-                    errorLogger.error("Error Occurd in method cardNumberMask" + System.lineSeparator() + "endIndex Too Larger");
+                    logError.error("Error Occurd in method cardNumberMask" + System.lineSeparator() + "endIndex Too Larger");
                     return cardNo.substring(0, 6) + new String(new char[12 - 6]).replace('\0', '*') + cardNo.substring(12, cardNo.length());
                 } else {
-                    errorLogger.error("Error in Card Number MAsking Method", ex);
+                    logError.error("Error in Card Number MAsking Method", ex);
                     return cardNo.substring(0, 6) + new String(new char[12 - 6]).replace('\0', '*') + cardNo.substring(12, cardNo.length());
                 }
             }
         } catch (Exception ex) {
-            errorLogger.error("Error in Card Number Masking Method", ex);
+            logError.error("Error in Card Number Masking Method", ex);
         }
         return maskedCardNo;
     }
@@ -205,7 +210,7 @@ public class CommonMethods {
                 cardNo.setLength(0);
             }
         } catch (Exception e) {
-            errorLogger.error(String.valueOf(e));
+            logError.error(String.valueOf(e));
         }
     }
 
@@ -285,7 +290,7 @@ public class CommonMethods {
 
         } catch (Exception e) {
             //e.printStackTrace();
-            errorLogger.error("--error--" + e);
+            logError.error("--error--" + e);
             throw e;
         } finally {
             return parsedDate;

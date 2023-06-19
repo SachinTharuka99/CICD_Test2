@@ -11,14 +11,11 @@ import org.springframework.jdbc.core.namedparam.MapSqlParameterSource;
 import org.springframework.jdbc.core.namedparam.SqlParameterSource;
 import org.springframework.jdbc.core.simple.SimpleJdbcCall;
 import org.springframework.stereotype.Repository;
-import org.springframework.transaction.annotation.Propagation;
-import org.springframework.transaction.annotation.Transactional;
 
 import java.math.BigDecimal;
 import java.sql.SQLException;
 import java.util.Map;
 
-import static com.epic.cms.util.LogManager.errorLogger;
 
 @Repository
 public class TransactionUpdateRepo implements TransactionUpdateDao {
@@ -29,8 +26,6 @@ public class TransactionUpdateRepo implements TransactionUpdateDao {
     @Autowired
     StatusVarList status;
 
-    @Autowired
-    LogManager logManager;
 
     @Override
     public int[] callStoredProcedureForVisaTxnUpdate() throws SQLException {
@@ -79,7 +74,6 @@ public class TransactionUpdateRepo implements TransactionUpdateDao {
         } catch (SQLException e){
             throw e;
         } catch (Exception ex) {
-            logManager.logError("Call StoredProcedure For VisaTxnUpdate Error" ,errorLogger);
             throw ex;
         }
     }
@@ -130,7 +124,6 @@ public class TransactionUpdateRepo implements TransactionUpdateDao {
         } catch (SQLException e){
             throw e;
         } catch (Exception ex) {
-            logManager.logError("Call StoredProcedure For MasterTxnUpdate Error",errorLogger);
             throw ex;
         }
     }

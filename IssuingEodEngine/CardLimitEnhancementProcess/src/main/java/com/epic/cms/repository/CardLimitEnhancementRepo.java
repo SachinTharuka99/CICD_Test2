@@ -5,6 +5,8 @@ import com.epic.cms.model.bean.BalanceComponentBean;
 import com.epic.cms.model.bean.OtbBean;
 import com.epic.cms.model.rowmapper.BalanceComponentRowMapper;
 import com.epic.cms.util.*;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.jdbc.core.JdbcTemplate;
@@ -14,7 +16,6 @@ import org.springframework.stereotype.Repository;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 
-import static com.epic.cms.util.LogManager.infoLogger;
 
 @Repository
 public class CardLimitEnhancementRepo implements CardLimitEnhancementDao {
@@ -31,6 +32,9 @@ public class CardLimitEnhancementRepo implements CardLimitEnhancementDao {
 
     @Autowired
     LogManager logManager;
+
+    private static final Logger logInfo = LoggerFactory.getLogger("logInfo");
+    private static final Logger logError = LoggerFactory.getLogger("logError");
 
     @Override
     public ArrayList<OtbBean> getInitLimitEnhanceCustAcc() throws Exception {
@@ -139,12 +143,12 @@ public class CardLimitEnhancementRepo implements CardLimitEnhancementDao {
 
             if (Configurations.ONLINE_LOG_LEVEL == 1) {
                 //Only for troubleshoot
-                logManager.logInfo("================ updateCardCreditLimit ===================" + Integer.toString(Configurations.EOD_ID),infoLogger);
-                logManager.logInfo(query,infoLogger);
-                logManager.logInfo(Double.toString(otbCredit),infoLogger);
-                logManager.logInfo(Configurations.EOD_USER,infoLogger);
-                logManager.logInfo(CommonMethods.cardNumberMask(cardNumber),infoLogger);
-                logManager.logInfo("================ updateCardCreditLimit END ===================",infoLogger);
+                logInfo.info("================ updateCardCreditLimit ===================" + Integer.toString(Configurations.EOD_ID));
+                logInfo.info(query);
+                logInfo.info(Double.toString(otbCredit));
+                logInfo.info(Configurations.EOD_USER);
+                logInfo.info(CommonMethods.cardNumberMask(cardNumber));
+                logInfo.info("================ updateCardCreditLimit END ===================");
             }
 
         } catch (Exception e) {
@@ -177,12 +181,12 @@ public class CardLimitEnhancementRepo implements CardLimitEnhancementDao {
 
             if (Configurations.ONLINE_LOG_LEVEL == 1) {
                 //Only for troubleshoot
-                logManager.logInfo("================ updateAccountCreditLimit ===================" + Integer.toString(Configurations.EOD_ID),infoLogger);
-                logManager.logInfo(query,infoLogger);
-                logManager.logInfo(Double.toString(otbCredit),infoLogger);
-                logManager.logInfo(Configurations.EOD_USER,infoLogger);
-                logManager.logInfo(accountNumber,infoLogger);
-                logManager.logInfo("================ updateAccountCreditLimit END ===================",infoLogger);
+                logInfo.info("================ updateAccountCreditLimit ===================" + Integer.toString(Configurations.EOD_ID));
+                logInfo.info(query);
+                logInfo.info(Double.toString(otbCredit));
+                logInfo.info(Configurations.EOD_USER);
+                logInfo.info(accountNumber);
+                logInfo.info("================ updateAccountCreditLimit END ===================");
             }
 
         } catch (Exception e) {
@@ -215,11 +219,11 @@ public class CardLimitEnhancementRepo implements CardLimitEnhancementDao {
 
             if (Configurations.ONLINE_LOG_LEVEL == 1) {
                 //Only for troubleshoot
-                logManager.logInfo("================ updateCustomerCreditLimit ===================" + Integer.toString(Configurations.EOD_ID),infoLogger);
-                logManager.logInfo(query,infoLogger);
-                logManager.logInfo(Double.toString(otbCredit),infoLogger);
-                logManager.logInfo(customerId,infoLogger);
-                logManager.logInfo("================ updateCustomerCreditLimit END ===================",infoLogger);
+                logInfo.info("================ updateCustomerCreditLimit ===================" + Integer.toString(Configurations.EOD_ID));
+                logInfo.info(query);
+                logInfo.info(Double.toString(otbCredit));
+                logInfo.info(customerId);
+                logInfo.info("================ updateCustomerCreditLimit END ===================");
             }
 
         } catch (Exception e) {
@@ -252,11 +256,11 @@ public class CardLimitEnhancementRepo implements CardLimitEnhancementDao {
 
             if (Configurations.ONLINE_LOG_LEVEL == 1) {
                 //Only for troubleshoot
-                logManager.logInfo("================ updateCardCashtLimit ===================" + Integer.toString(Configurations.EOD_ID),infoLogger);
-                logManager.logInfo(query,infoLogger);
-                logManager.logInfo(Double.toString(otbCash),infoLogger);
-                logManager.logInfo(CommonMethods.cardNumberMask(cardNumber),infoLogger);
-                logManager.logInfo("================ updateCardCashtLimit END ===================",infoLogger);
+                logInfo.info("================ updateCardCashtLimit ===================" + Integer.toString(Configurations.EOD_ID));
+                logInfo.info(query);
+                logInfo.info(Double.toString(otbCash));
+                logInfo.info(CommonMethods.cardNumberMask(cardNumber));
+                logInfo.info("================ updateCardCashtLimit END ===================");
             }
 
         } catch (Exception e) {
@@ -289,11 +293,11 @@ public class CardLimitEnhancementRepo implements CardLimitEnhancementDao {
 
             if (Configurations.ONLINE_LOG_LEVEL == 1) {
                 //Only for troubleshoot
-                logManager.logInfo("================ updateAccountCashLimit ===================" + Integer.toString(Configurations.EOD_ID),infoLogger);
-                logManager.logInfo(query,infoLogger);
-                logManager.logInfo(Double.toString(otbCash),infoLogger);
-                logManager.logInfo(accountNumber,infoLogger);
-                logManager.logInfo("================ updateAccountCashLimit END ===================",infoLogger);
+                logInfo.info("================ updateAccountCashLimit ===================" + Integer.toString(Configurations.EOD_ID));
+                logInfo.info(query);
+                logInfo.info(Double.toString(otbCash));
+                logInfo.info(accountNumber);
+                logInfo.info("================ updateAccountCashLimit END ===================");
             }
 
         } catch (Exception e) {
@@ -326,11 +330,11 @@ public class CardLimitEnhancementRepo implements CardLimitEnhancementDao {
 
             if (Configurations.ONLINE_LOG_LEVEL == 1) {
                 //Only for troubleshoot
-                logManager.logInfo("================ updateCustomerCashLimit ===================" + Integer.toString(Configurations.EOD_ID),infoLogger);
-                logManager.logInfo(query,infoLogger);
-                logManager.logInfo(Double.toString(otbCash),infoLogger);
-                logManager.logInfo(customerId,infoLogger);
-                logManager.logInfo("================ updateCustomerCashLimit END ===================",infoLogger);
+                logInfo.info("================ updateCustomerCashLimit ===================" + Integer.toString(Configurations.EOD_ID));
+                logInfo.info(query);
+                logInfo.info(Double.toString(otbCash));
+                logInfo.info(customerId);
+                logInfo.info("================ updateCustomerCashLimit END ===================");
             }
 
         } catch (Exception e) {

@@ -18,12 +18,6 @@ import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Repository;
 
-import java.text.SimpleDateFormat;
-import java.util.ArrayList;
-import java.util.Calendar;
-import java.util.TimeZone;
-
-import static com.epic.cms.util.LogManager.errorLogger;
 
 @Repository
 public class ProcessBuilderRepo implements ProcessBuilderDao {

@@ -1,16 +1,14 @@
 package com.epic.cms.connector;
 
 import com.epic.cms.common.ProcessBuilder;
-import com.epic.cms.model.bean.ErrorCardBean;
 import com.epic.cms.service.OnlineToBackendTxnService;
-import com.epic.cms.util.CardAccount;
-import com.epic.cms.util.Configurations;
 import com.epic.cms.util.LogManager;
+import lombok.extern.slf4j.Slf4j;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import static com.epic.cms.util.LogManager.errorLogger;
-import static com.epic.cms.util.LogManager.infoLogger;
 
 
 @Service
@@ -22,6 +20,9 @@ public class OnlineToBackendTxnConnector extends ProcessBuilder {
     @Autowired
     LogManager logManager;
 
+    private static final Logger logInfo = LoggerFactory.getLogger("logInfo");
+    private static final Logger logError = LoggerFactory.getLogger("logError");
+
     @Override
     public void concreteProcess() throws Exception {
 
@@ -29,7 +30,7 @@ public class OnlineToBackendTxnConnector extends ProcessBuilder {
             onlineToBackendTxnService.OnlineToBackend();
 
         } catch (Exception e) {
-            logManager.logError("Online to Backend Txn Sync failed", e, errorLogger);
+            logError.error("Online to Backend Txn Sync failed", e);
         }
     }
 

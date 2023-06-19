@@ -97,7 +97,6 @@ public class AlertRepo implements AlertDao {
             }
 
         } catch (Exception e) {
-            logManager.logError("Exception ", errorLoggerCOM);
             throw e;
         }
         return isActive;
@@ -136,7 +135,6 @@ public class AlertRepo implements AlertDao {
                 return parameterList;
             }, templateCode);
         } catch (Exception e) {
-            logManager.logError("Exception ", errorLoggerCOM);
             throw e;
         }
         return parameterList;
@@ -316,7 +314,6 @@ public class AlertRepo implements AlertDao {
                 return bean;
             });
         } catch (Exception e) {
-            logManager.logError("Exception ", errorLoggerCOM);
             throw e;
         }
         return bean;

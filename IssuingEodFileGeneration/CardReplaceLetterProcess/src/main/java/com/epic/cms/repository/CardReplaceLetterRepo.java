@@ -21,9 +21,6 @@ import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
 
-import static com.epic.cms.util.LogManager.errorLogger;
-import static com.epic.cms.util.LogManager.errorLoggerEFGE;
-
 @Repository
 public class CardReplaceLetterRepo implements CardReplaceLetterDao {
 
@@ -32,9 +29,6 @@ public class CardReplaceLetterRepo implements CardReplaceLetterDao {
 
     @Autowired
     private StatusVarList statusVarList;
-
-    @Autowired
-    LogManager logManager;
 
     @Override
     public ArrayList<StringBuffer> getReplacedToGenerateLetters() throws SQLException {
@@ -73,7 +67,6 @@ public class CardReplaceLetterRepo implements CardReplaceLetterDao {
                         );
             }
         }catch (Exception e){
-            logManager.logError("Error in get Replaced to Generate Letter ", errorLoggerEFGE);
             throw e;
         }
         return replaceCardList;
@@ -88,7 +81,6 @@ public class CardReplaceLetterRepo implements CardReplaceLetterDao {
                     cardNo.toString()
                     );
         }catch (Exception e){
-            logManager.logError("Error in Update Letter generate status in card replace ", errorLoggerEFGE);
             throw e;
         }
         return count;
@@ -131,7 +123,6 @@ public class CardReplaceLetterRepo implements CardReplaceLetterDao {
                         );
             }
         }catch (Exception e){
-            logManager.logError("Error in get Product Change card to Letter Generate ", errorLoggerEFGE);
             throw e;
         }
         return productChangeCards;
@@ -155,7 +146,6 @@ public class CardReplaceLetterRepo implements CardReplaceLetterDao {
                     cardNo.toString()
             );
         }catch (Exception e){
-            logManager.logError("Error in get Card Product Card Type ", errorLoggerEFGE);
             throw e;
         }
         return cardDetails;
@@ -171,7 +161,6 @@ public class CardReplaceLetterRepo implements CardReplaceLetterDao {
                     cardNo.toString()
                     );
         }catch (Exception e){
-            logManager.logError("Error in Update Letter Generation Status in Product Change ", errorLoggerEFGE);
             throw e;
         }
         return count;

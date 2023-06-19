@@ -10,30 +10,31 @@ package com.epic.cms.service;
 import com.epic.cms.common.FileGenProcessBuilder;
 import com.epic.cms.util.Configurations;
 import com.epic.cms.util.LogManager;
+import lombok.extern.slf4j.Slf4j;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 
-import static com.epic.cms.util.LogManager.errorLogger;
-import static com.epic.cms.util.LogManager.errorLoggerEFGE;
-
 @Service
 public class ProcessThreadService {
 
+    private static final Logger logInfo = LoggerFactory.getLogger("logInfo");
+    private static final Logger logError = LoggerFactory.getLogger("logError");
     @Autowired
     LogManager logManager;
 
     @Async("ThreadPool_100")
     public void startProcessByProcessId(int processId, String uniqueId) throws Exception {
-        try{
-            if(processId > 0){
+        try {
+            if (processId > 0) {
                 FileGenProcessBuilder processBuilder = (FileGenProcessBuilder) Configurations.processConnectorList.get(processId);
                 processBuilder.startProcess(processId, uniqueId);
-            }else {
-                logManager.logError("Invalid Process Id ", errorLoggerEFGE);
-                logManager.logError("Invalid Process Id ",errorLogger);
+            } else {
+                logError.error("Invalid Process Id ");
             }
-        }catch (Exception e){
+        } catch (Exception e) {
             throw e;
         }
     }

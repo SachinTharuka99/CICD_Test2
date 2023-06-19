@@ -13,6 +13,9 @@ import com.epic.cms.util.CardAccount;
 import com.epic.cms.util.CommonMethods;
 import com.epic.cms.util.Configurations;
 import com.epic.cms.util.LogManager;
+import lombok.extern.slf4j.Slf4j;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
@@ -23,19 +26,18 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
 
-import static com.epic.cms.util.LogManager.errorLogger;
-import static com.epic.cms.util.LogManager.infoLogger;
 
 @Service
 public class EOMSupplementaryCardResetService {
+    private static final Logger logInfo = LoggerFactory.getLogger("logInfo");
+    private static final Logger logError = LoggerFactory.getLogger("logError");
     @Autowired
     LogManager logManager;
-
     @Autowired
     EOMSupplementaryCardResetDao eomSupplementaryCardResetDao;
 
     @Async("taskExecutor2")
-    @Transactional(value="transactionManager",propagation = Propagation.REQUIRED,rollbackFor = Exception.class)
+    @Transactional(value = "transactionManager", propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
     public void SupplementryResetThread(Object acclist) {
         if (!Configurations.isInterrupted) {
             double totalSupTempCredit = 0.00;
@@ -110,11 +112,11 @@ public class EOMSupplementaryCardResetService {
             } catch (Exception ex) {
                 Configurations.PROCESS_FAILD_COUNT++;
                 Configurations.errorCardList.add(new ErrorCardBean(Configurations.ERROR_EOD_ID, Configurations.EOD_DATE, new StringBuffer(accountNo.toString()), ex.toString(), Configurations.RUNNING_PROCESS_ID, Configurations.RUNNING_PROCESS_DESCRIPTION, 0, CardAccount.ACCOUNT));
-                logManager.logError("Supplementary Card Reset process failed for accountnumber " + accountNo.toString(), ex, errorLogger);
+                logError.error("Supplementary Card Reset process failed for accountnumber " + accountNo, ex);
                 details.put("Account Number", accountNo);
                 details.put("Ststus", "Fails");
             } finally {
-                logManager.logDetails(details, infoLogger);
+                logInfo.info(logManager.logDetails(details));
                 if (cardList != null && cardList.size() != 0) {
                     for (int j = 1; j < cardList.size(); j++) {
                         CommonMethods.clearStringBuffer(cardList.get(j));

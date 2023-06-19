@@ -16,6 +16,9 @@ import com.epic.cms.repository.GLSummaryFileRepo;
 import com.epic.cms.util.Configurations;
 import com.epic.cms.util.LogManager;
 import com.epic.cms.util.StatusVarList;
+import lombok.extern.slf4j.Slf4j;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Propagation;
@@ -29,7 +32,6 @@ import java.util.LinkedHashMap;
 import java.util.Map;
 
 import static com.epic.cms.util.CommonMethods.*;
-import static com.epic.cms.util.LogManager.*;
 
 @Service
 public class GLSummaryFileService {
@@ -48,6 +50,9 @@ public class GLSummaryFileService {
 
     @Autowired
     GLSummaryFileRepo glSummaryFileRepo;
+
+    private static final Logger logInfo = LoggerFactory.getLogger("logInfo");
+    private static final Logger logError = LoggerFactory.getLogger("logError");
 
     ArrayList<Integer> txnId = new ArrayList<>();
 
@@ -114,7 +119,7 @@ public class GLSummaryFileService {
                                 drAmountBig = drAmountBig.add(glAmountBig);
 
                             } else {
-                                logManager.logInfo("Error in CRDR type in EODGLACCOUNT table", infoLoggerEFGE);
+                                logInfo.info("Error in CRDR type in EODGLACCOUNT table");
                             }
                             glIdList.add(glAccountBean.getId());
                         }
@@ -307,7 +312,7 @@ public class GLSummaryFileService {
                                 drAmountBig = drAmountBig.add(glAmountBig);
 
                             } else {
-                                logManager.logInfo("Error in CRDR type in EODGLACCOUNT table", infoLoggerEFGE);
+                                logInfo.info("Error in CRDR type in EODGLACCOUNT table");
                             }
                             glIdList.add(glAccountBean.getId());
                         }
@@ -657,7 +662,7 @@ public class GLSummaryFileService {
                                     drAmountBig = drAmountBig.add(glAmountBig);
 
                                 } else {
-                                    logManager.logInfo("Error in CRDR type in EODGLACCOUNT table", infoLoggerEFGE);
+                                    logInfo.info("Error in CRDR type in EODGLACCOUNT table");
                                 }
                                 glIdList.add(glAccountBean.getId());
                             }
@@ -989,7 +994,7 @@ public class GLSummaryFileService {
                                 }
                             }
                         } else {
-                            logManager.logInfo("GLtype Data Not Configured in the system for Transaction type " + key, infoLogger);
+                            logInfo.info("GLtype Data Not Configured in the system for Transaction type " + key);
                             for (GlAccountBean glAccountBean : value) {
                                 glIdList.add(glAccountBean.getId());
                             }
@@ -1001,11 +1006,11 @@ public class GLSummaryFileService {
                     detailsGlSummary.put("CRDR", crStatus);
                     detailsGlSummary.put("GLTXN CRDR", crDROnBank);
                     detailsGlSummary.put("GL Amount", amountBig.toString());
-                    logManager.logDetails(detailsGlSummary, infoLoggerEFGE);
+                    logInfo.info(logManager.logDetails(detailsGlSummary));
 
                 } catch (Exception e) {
                     status = false;
-                    logManager.logError("Error while writing gl file.Exit from the process. Exception in GL txn Type " + entrySet.getKey() + "--->" + e, errorLoggerEFGE);
+                    logError.error("Error while writing gl file.Exit from the process. Exception in GL txn Type " + entrySet.getKey() + "--->" + e);
                     throw e;
                 }
                 status = true;
@@ -1039,8 +1044,7 @@ public class GLSummaryFileService {
                 fileGenerationService.generateFile(model.getFinalFile().toString(), filePath, backUpFilePath);
                 toDeleteStatus = false;
             } else {
-                logManager.logInfo("Empty line in body. Hence No header section.", infoLoggerEFGE);
-                logManager.logError("Empty line in body. Hence No header section.", errorLoggerEFGE);
+                logInfo.info("Empty line in body. Hence No header section.");
             }
 
             summery.put("Process Name", processBean.getProcessDes());
@@ -1051,10 +1055,10 @@ public class GLSummaryFileService {
             summery.put("Header CR Count", Integer.toString(headerCreditCount));
             summery.put("Created Date ", Configurations.EOD_DATE.toString());
 
-            logManager.logSummery(summery, infoLoggerEFGE);
+            logInfo.info(logManager.logSummery(summery));
 
         } catch (Exception e) {
-            logManager.logError("GL File Process Failed. ", e, errorLoggerEFGE);
+            logError.error("GL File Process Failed. ", e);
             throw e;
         } finally {
             try {

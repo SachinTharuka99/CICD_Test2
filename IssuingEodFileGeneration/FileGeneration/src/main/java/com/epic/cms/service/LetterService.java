@@ -5,6 +5,9 @@ import com.epic.cms.repository.LetterRepo;
 import com.epic.cms.util.CommonMethods;
 import com.epic.cms.util.Configurations;
 import com.epic.cms.util.LogManager;
+import lombok.extern.slf4j.Slf4j;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -16,7 +19,6 @@ import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
 
-import static com.epic.cms.util.LogManager.*;
 
 @Service
 public class LetterService {
@@ -29,6 +31,10 @@ public class LetterService {
 
     @Autowired
     FileGenerationService fileGenerationService;
+
+    private static final Logger logInfo = LoggerFactory.getLogger("logInfo");
+    private static final Logger logError = LoggerFactory.getLogger("logError");
+
 
     public String[] genaration(String tempID, String appID, StringBuffer cardNumber, String cardProduct, String sequenceNo) throws Exception {
         String RefID = "";
@@ -158,9 +164,9 @@ public class LetterService {
             }
             //generate pdf File
             fileGenerationService.generatePDFFile(body, path, backUpFile);
-            logManager.logInfo("Generate PDF Successfully Path is " + path, infoLoggerEFGE);
+            logInfo.info("Generate PDF Successfully Path is " + path);
         } catch (Exception e) {
-            logManager.logError("Exception in letter generation ", e, errorLoggerEFGE);
+            logError.error("Exception in letter generation ", e);
         }
         return fileNameAndPath;
     }

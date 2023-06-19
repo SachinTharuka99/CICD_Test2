@@ -9,6 +9,9 @@ import com.epic.cms.util.CardAccount;
 import com.epic.cms.util.CommonMethods;
 import com.epic.cms.util.Configurations;
 import com.epic.cms.util.LogManager;
+import lombok.extern.slf4j.Slf4j;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
@@ -17,8 +20,6 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.util.LinkedHashMap;
 
-import static com.epic.cms.util.LogManager.infoLogger;
-import static com.epic.cms.util.LogManager.errorLogger;
 
 @Service
 public class AdjustmentService {
@@ -31,6 +32,9 @@ public class AdjustmentService {
 
     @Autowired
     public AdjustmentDao adjustmentDao;
+
+    private static final Logger logInfo = LoggerFactory.getLogger("logInfo");
+    private static final Logger logError = LoggerFactory.getLogger("logError");
 
     @Async("ThreadPool_100")
     @Transactional(value = "transactionManager", propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
@@ -102,10 +106,9 @@ public class AdjustmentService {
                 Configurations.PROCESS_FAILD_COUNT++;
                 Configurations.errorCardList.add(new ErrorCardBean(Configurations.ERROR_EOD_ID, Configurations.EOD_DATE, new StringBuffer(adjustmentBean.getCardNumber()), ex.getMessage(), Configurations.RUNNING_PROCESS_ID, Configurations.RUNNING_PROCESS_DESCRIPTION, 0, CardAccount.CARD));
                 details.put("Adjustment Sync Status", "Failed");
-                logManager.logInfo("ADJUSTMENT_PROCESS failed for card number " + maskedCardNumber, infoLogger);
-                logManager.logError("ADJUSTMENT_PROCESS failed for card number " + maskedCardNumber, ex, errorLogger);
+                logError.error("ADJUSTMENT_PROCESS failed for card number " + maskedCardNumber, ex);
             } finally {
-                logManager.logDetails(details, infoLogger);
+                logInfo.info(logManager.logDetails(details));
                 /** PADSS Change -variables handling card data should be nullified
                  by replacing the value of variable with zero and call NULL function */
                 CommonMethods.clearStringBuffer(pb.getCardnumber());

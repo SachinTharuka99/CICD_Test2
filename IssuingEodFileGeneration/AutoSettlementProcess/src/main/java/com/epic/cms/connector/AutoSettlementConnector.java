@@ -17,6 +17,9 @@ import com.epic.cms.util.CommonMethods;
 import com.epic.cms.util.Configurations;
 import com.epic.cms.util.LogManager;
 import com.epic.cms.util.StatusVarList;
+import lombok.extern.slf4j.Slf4j;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -24,7 +27,6 @@ import java.math.BigDecimal;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 
-import static com.epic.cms.util.LogManager.*;
 
 /**
  * *******************************************************************************
@@ -77,6 +79,10 @@ public class AutoSettlementConnector extends FileGenProcessBuilder {
 
     @Autowired
     AutoSettlementRepo autoSettlementRepo;
+
+    private static final Logger logInfo = LoggerFactory.getLogger("logInfo");
+    private static final Logger logError = LoggerFactory.getLogger("logError");
+
 
     @Override
     public void concreteProcess() throws Exception {
@@ -168,7 +174,7 @@ public class AutoSettlementConnector extends FileGenProcessBuilder {
 
                 } catch (Exception e) {
                     Configurations.PROCESS_FAILD_COUNT++;
-                    logManager.logStartEnd("AutoSettlement Process Fails", infoLoggerEFGE);
+                    logInfo.info(logManager.logStartEnd("AutoSettlement Process Fails"));
                 } finally {
                     try {
                         if (toDeleteStatus) {
@@ -184,7 +190,7 @@ public class AutoSettlementConnector extends FileGenProcessBuilder {
         } catch (Exception ex) {
             Configurations.IS_PROCESS_COMPLETELY_FAILED = true;
             summery.put("Process Status", "Error");
-            logManager.logError("Auto Settlement Letter Process Failed", ex, errorLoggerEFGE);
+            logError.error("Auto Settlement Letter Process Failed", ex);
             try {
                 if (processBean.getCriticalStatus() == 1) {
                     Configurations.COMMIT_STATUS = false;
@@ -193,10 +199,10 @@ public class AutoSettlementConnector extends FileGenProcessBuilder {
                     Configurations.MAIN_EOD_STATUS = false;
                 }
             } catch (Exception e2) {
-                logManager.logError("Exception ", e2, errorLoggerEFGE);
+                logError.error("Exception ", e2);
             }
         } finally {
-            logManager.logSummery(summery, infoLoggerEFGE);
+            logInfo.info(logManager.logSummery(summery));
         }
     }
 

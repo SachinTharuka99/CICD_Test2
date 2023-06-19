@@ -8,36 +8,36 @@ import com.epic.cms.service.ChequeReturnService;
 import com.epic.cms.util.CommonMethods;
 import com.epic.cms.util.Configurations;
 import com.epic.cms.util.LogManager;
+import lombok.extern.slf4j.Slf4j;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
-import org.springframework.scheduling.annotation.Async;
 import org.springframework.scheduling.concurrent.ThreadPoolTaskExecutor;
 import org.springframework.stereotype.Service;
 
-import java.util.*;
+import java.util.HashMap;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Map;
 
-import static com.epic.cms.util.LogManager.infoLogger;
-import static com.epic.cms.util.LogManager.errorLogger;
 
 @Service
 public class ChequeReturnConnector extends ProcessBuilder {
 
+    private static final Logger logInfo = LoggerFactory.getLogger("logInfo");
+    private static final Logger logError = LoggerFactory.getLogger("logError");
     @Autowired
     LogManager logManager;
-
     @Autowired
     CommonRepo commonRepo;
-
     @Autowired
     @Qualifier("taskExecutor2")
     ThreadPoolTaskExecutor taskExecutor;
-
     @Autowired
     ChequeReturnService chequeReturnService;
-
     @Autowired
     ChequeReturnRepo chequeReturnRepo;
-
     Map<StringBuffer, List<ReturnChequePaymentDetailsBean>> totalChequeReturnsList = new HashMap<StringBuffer, List<ReturnChequePaymentDetailsBean>>();
     private int failedCount = 0;
 
@@ -75,9 +75,9 @@ public class ChequeReturnConnector extends ProcessBuilder {
             }
         } catch (Exception ex) {
             Configurations.IS_PROCESS_COMPLETELY_FAILED = true;
-            logManager.logError("Cheque Return process Error", ex, errorLogger);
+            logError.error("Cheque Return process Error", ex);
         } finally {
-            logManager.logSummery(summery, infoLogger);
+            logInfo.info(logManager.logSummery(summery));
              /* PADSS Change -
                variables handling card data should be nullified by replacing the value of variable with zero and call NULL function */
             totalChequeReturnsList.clear();
@@ -87,10 +87,10 @@ public class ChequeReturnConnector extends ProcessBuilder {
     @Override
     public void addSummaries() {
 
-            summery.put("Started Date", Configurations.EOD_DATE.toString());
-            summery.put("Number of transaction to sync", Configurations.PROCESS_TOTAL_NOOF_TRABSACTIONS);
-            summery.put("Number of success transaction", Configurations.PROCESS_SUCCESS_COUNT);
-            summery.put("Number of failure transaction", Configurations.PROCESS_FAILD_COUNT);
+        summery.put("Started Date", Configurations.EOD_DATE.toString());
+        summery.put("Number of transaction to sync", Configurations.PROCESS_TOTAL_NOOF_TRABSACTIONS);
+        summery.put("Number of success transaction", Configurations.PROCESS_SUCCESS_COUNT);
+        summery.put("Number of failure transaction", Configurations.PROCESS_FAILD_COUNT);
 
     }
 }

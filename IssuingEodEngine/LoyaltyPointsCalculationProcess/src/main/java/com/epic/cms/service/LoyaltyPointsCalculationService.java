@@ -6,6 +6,9 @@ import com.epic.cms.util.CommonMethods;
 import com.epic.cms.util.Configurations;
 import com.epic.cms.util.LogManager;
 import com.epic.cms.util.StatusVarList;
+import lombok.extern.slf4j.Slf4j;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
@@ -14,17 +17,16 @@ import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.LinkedHashMap;
 
-import static com.epic.cms.util.LogManager.infoLogger;
 
 @Service
 public class LoyaltyPointsCalculationService {
 
+    private static final Logger logInfo = LoggerFactory.getLogger("logInfo");
+    private static final Logger logError = LoggerFactory.getLogger("logError");
     @Autowired
     StatusVarList statusList;
-
     @Autowired
     LogManager logManager;
-
     @Autowired
     LoyaltyPointsCalculationRepo loyaltyPointsCalculationRepo;
 
@@ -104,11 +106,11 @@ public class LoyaltyPointsCalculationService {
                 Configurations.PROCESS_FAILD_COUNT++;
                 //cardErrorList.add(new ErrorCardBean(Configurations.ERROR_EOD_ID, Configurations.EOD_DATE, new StringBuffer(loyaltyBean.getAccNo()), e.getMessage(), configProcess, processHeader, 0, CardAccount.ACCOUNT));
                 cardDetails.put("Process Status", "Failed");
-               // infoLogger.info("LOYALTY_PROCESS failed for card number " + CommonMethods.cardInfo(maskedCardNumber, processBean));
+                // infoLogger.info("LOYALTY_PROCESS failed for card number " + CommonMethods.cardInfo(maskedCardNumber, processBean));
                 //errorLogger.error("LOYALTY_PROCESS failed for card number " + CommonMethods.cardInfo(maskedCardNumber, processBean), e);
             }
-            logManager.logDetails(cardDetails, infoLogger);
-        }catch (Exception e){
+            logInfo.info(logManager.logDetails(cardDetails));
+        } catch (Exception e) {
             throw e;
         }
     }

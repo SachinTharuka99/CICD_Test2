@@ -14,8 +14,6 @@ import org.springframework.transaction.annotation.Transactional;
 import java.sql.ResultSet;
 import java.util.Date;
 
-import static com.epic.cms.util.LogManager.errorLogger;
-import static com.epic.cms.util.LogManager.errorLoggerCOM;
 
 @Repository
 public class ChequeProcessRepo implements ChequeProcessDao {
@@ -26,8 +24,6 @@ public class ChequeProcessRepo implements ChequeProcessDao {
     @Autowired
     StatusVarList statusList;
 
-    @Autowired
-    LogManager logManager;
 
     @Override
     @Transactional("backendDb")
@@ -77,7 +73,6 @@ public class ChequeProcessRepo implements ChequeProcessDao {
         try {
             dueDate = backendJdbcTemplate.queryForObject(sqlDueDate, Date.class, accountNo, accountNo);
         } catch (Exception e) {
-            logManager.logError("CalculateDueDate Exception", errorLoggerCOM);
             throw e;
         }
         return dueDate;

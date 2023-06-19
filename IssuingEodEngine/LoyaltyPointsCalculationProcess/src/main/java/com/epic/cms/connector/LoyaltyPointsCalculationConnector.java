@@ -9,6 +9,9 @@ import com.epic.cms.util.CommonMethods;
 import com.epic.cms.util.Configurations;
 import com.epic.cms.util.LogManager;
 import com.epic.cms.util.StatusVarList;
+import lombok.extern.slf4j.Slf4j;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.scheduling.concurrent.ThreadPoolTaskExecutor;
@@ -16,8 +19,6 @@ import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
 
-import static com.epic.cms.util.LogManager.errorLogger;
-import static com.epic.cms.util.LogManager.infoLogger;
 
 @Service
 public class LoyaltyPointsCalculationConnector extends ProcessBuilder {
@@ -41,6 +42,9 @@ public class LoyaltyPointsCalculationConnector extends ProcessBuilder {
     @Autowired
     LoyaltyPointsCalculationService loyaltyPointsCalculationService;
 
+    private static final Logger logInfo = LoggerFactory.getLogger("logInfo");
+    private static final Logger logError = LoggerFactory.getLogger("logError");
+
     @Override
     public void concreteProcess() throws Exception {
         ArrayList<LoyaltyBean> cardList = null;
@@ -48,7 +52,7 @@ public class LoyaltyPointsCalculationConnector extends ProcessBuilder {
         int failedAccounts = 0;
 
         try {
-            logManager.logStartEnd("Loyalty Points Calculation Process Started", infoLogger);
+            logInfo.info(logManager.logStartEnd("Loyalty Points Calculation Process Started"));
 
             Configurations.RUNNING_PROCESS_ID = Configurations.PROCESS_ID_LOYALTY_POINT_CALCULATION_PROCESS;
             CommonMethods.eodDashboardProgressParametersReset();
@@ -86,7 +90,7 @@ public class LoyaltyPointsCalculationConnector extends ProcessBuilder {
                     cardList = null;
                 }
             } catch (Exception e) {
-                logManager.logError(String.valueOf(e), errorLogger);
+                logError.error(String.valueOf(e));
             }
         }
     }

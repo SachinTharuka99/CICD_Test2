@@ -12,13 +12,14 @@ import com.epic.cms.model.bean.StatementGenSummeryBean;
 import com.epic.cms.service.EODEngineDashboardService;
 import com.epic.cms.service.EODFileProcessingEngineDashboardService;
 import com.epic.cms.util.*;
+import lombok.extern.slf4j.Slf4j;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.kafka.core.KafkaTemplate;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
-import static com.epic.cms.util.LogManager.*;
 
 @RestController
 @RequestMapping("eod-dashboard/file-processing")
@@ -35,11 +36,12 @@ public class EODFileProcessingEngineDashboardController {
     @Autowired
     LogManager logManager;
 
+    private static final Logger logInfo = LoggerFactory.getLogger("logInfo");
+    private static final Logger logError = LoggerFactory.getLogger("logError");
 
     @PostMapping("/inputfile/{eodid}")
     public ResponseBean getEodInputFIleList(@PathVariable("eodid") final Long eodId) {
         try {
-            logManager.logHeader("EOD-File-Processing Dashboard Get Eod Input FIleList EodId :" + eodId, dashboardInfoLogger);
             List<Object> eodInputFIleList = eodEngineDashboardService.getEodInputFIleList(eodId);
 
             if (eodInputFIleList.size() > 0) {
@@ -55,7 +57,7 @@ public class EODFileProcessingEngineDashboardController {
             responseBean.setResponseCode(ResponseCodes.UNEXPECTED_ERROR);
             responseBean.setContent(null);
             responseBean.setResponseMsg(MessageVarList.NULL_POINTER);
-            logManager.logError("Failed Eod Input FIleList ", e, dashboardErrorLogger);
+            logError.error("Failed Eod Input FIleList ", e);
         }
         return responseBean;
     }
@@ -63,7 +65,6 @@ public class EODFileProcessingEngineDashboardController {
     @PostMapping("/processing/{eodid}")
     public ResponseBean getProcessingSummeryList(@PathVariable("eodid") final Long eodId) {
         try {
-            logManager.logHeader("EOD-File-Processing Dashboard Get Processing SummeryList EodId :" + eodId, dashboardInfoLogger);
             List<StatementGenSummeryBean> processingSummeryList = eodEngineDashboardService.getProcessingSummeryList(eodId);
 
             if (processingSummeryList.size() > 0) {
@@ -79,7 +80,7 @@ public class EODFileProcessingEngineDashboardController {
             responseBean.setResponseCode(ResponseCodes.UNEXPECTED_ERROR);
             responseBean.setContent(null);
             responseBean.setResponseMsg(MessageVarList.NULL_POINTER);
-            logManager.logError("Failed Eod Input FIleList ", e, dashboardErrorLogger);
+            logError.error("Failed Eod Input FIleList ", e);
         }
         return responseBean;
     }
@@ -90,7 +91,7 @@ public class EODFileProcessingEngineDashboardController {
             processingEngineDashboardService.sendInputFileUploadListener(fileId,processId);
 
         } catch (Exception e) {
-            logManager.logError("Failed Input" + fileId + "File Upload Listener ", e, dashboardErrorLogger);
+            logError.error("Failed Input" + fileId + "File Upload Listener ", e);
         }
     }
 }

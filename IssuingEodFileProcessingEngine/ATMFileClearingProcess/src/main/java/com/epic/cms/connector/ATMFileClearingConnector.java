@@ -15,6 +15,9 @@ import com.epic.cms.repository.CommonRepo;
 import com.epic.cms.service.ATMFileClearingService;
 import com.epic.cms.util.*;
 import com.epic.cms.validation.PaymentValidations;
+import lombok.extern.slf4j.Slf4j;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.scheduling.concurrent.ThreadPoolTaskExecutor;
@@ -23,11 +26,11 @@ import org.springframework.stereotype.Service;
 import java.io.File;
 import java.util.ArrayList;
 
-import static com.epic.cms.util.LogManager.infoLoggerEFPE;
-import static com.epic.cms.util.LogManager.errorLoggerEFPE;
 
 @Service
 public class ATMFileClearingConnector extends FileProcessingProcessBuilder {
+    private static final Logger logInfo = LoggerFactory.getLogger("logInfo");
+    private static final Logger logError = LoggerFactory.getLogger("logError");
     @Autowired
     ATMFileClearingRepo atmFileClearingRepo;
     @Autowired
@@ -99,33 +102,33 @@ public class ATMFileClearingConnector extends FileProcessingProcessBuilder {
                             //update file status to COMP
                             atmFileClearingRepo.updateATMFileStatus(status.getCOMMON_COMPLETED(), fileId);
                         } else {
-                            logManager.logError("ATM file reading failed for file " + fileId, errorLoggerEFPE);
+                            logError.error("ATM file reading failed for file " + fileId);
                             //update file read status to FAIL
                             atmFileClearingRepo.updateATMFileStatus(Configurations.FAIL_STATUS, fileId);
                         }
                     } else {
-                        logManager.logInfo("ATM file not found..."
+                        logInfo.info("ATM file not found..."
                                 + "\nFile Name : " + fileBean.getFileName()
-                                + "\nFile ID   : " + fileBean.getFileId(), infoLoggerEFPE);
+                                + "\nFile ID   : " + fileBean.getFileId());
                         //update file read status to FAIL
                         atmFileClearingRepo.updateATMFileStatus(Configurations.FAIL_STATUS, fileId);
                     }
                 } else {
-                    logManager.logError("ATM file clearing process failed for file " + fileId + " , " + isFileNameValid, errorLoggerEFPE);
+                    logError.error("ATM file clearing process failed for file " + fileId + " , " + isFileNameValid);
                     //update file read status to FAIL
                     atmFileClearingRepo.updateATMFileStatus(Configurations.FAIL_STATUS, fileId);
                 }
             } else {
                 //file cannot proceed due to invalid status
-                logManager.logError("Cannot read, ATM file " + fileId + " is not in the initial status", errorLoggerEFPE);
+                logError.error("Cannot read, ATM file " + fileId + " is not in the initial status");
             }
         } catch (Exception ex) {
-            logManager.logError("ATM File clearing process failed for file " + fileId, ex, errorLoggerEFPE);
+            logError.error("ATM File clearing process failed for file " + fileId, ex);
             //update file status to FAIL
             try {
                 atmFileClearingRepo.updateATMFileStatus(Configurations.FAIL_STATUS, fileId);
             } catch (Exception e) {
-                logManager.logError("", e, errorLoggerEFPE);
+                logError.error("", e);
             }
         }
     }
@@ -133,7 +136,6 @@ public class ATMFileClearingConnector extends FileProcessingProcessBuilder {
     @Override
     public void addSummaries() {
         summery.put("Started Date ", Configurations.EOD_DATE.toString());
-        //summery.put("File ID ", fileId);
         summery.put("Number of ATM transactions to process ", Configurations.PROCESS_ATM_FILE_CLEARING_TOTAL_NOOF_TRABSACTIONS);
         summery.put("Number of success transactions ", Configurations.PROCESS_ATM_FILE_CLEARING_SUCCESS_COUNT);
         summery.put("Number of invalid transactions ", Configurations.PROCESS_ATM_FILE_CLEARING_INVALID_COUNT);

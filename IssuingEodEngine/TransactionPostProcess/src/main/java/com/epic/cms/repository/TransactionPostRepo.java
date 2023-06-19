@@ -13,6 +13,8 @@ import com.epic.cms.model.rowmapper.TransactionpostRowMapper;
 import com.epic.cms.util.Configurations;
 import com.epic.cms.util.LogManager;
 import com.epic.cms.util.StatusVarList;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.dao.EmptyResultDataAccessException;
@@ -22,24 +24,22 @@ import org.springframework.stereotype.Repository;
 import java.sql.ResultSet;
 import java.util.ArrayList;
 
-import static com.epic.cms.util.LogManager.infoLogger;
 
 @Repository
 public class TransactionPostRepo implements TransactionPostDao {
+    private static final Logger logInfo = LoggerFactory.getLogger("logInfo");
+    private static final Logger logError = LoggerFactory.getLogger("logError");
     @Autowired
     StatusVarList statusList;
-
     ArrayList<OtbBean> custAccList = new ArrayList<OtbBean>();
-
+    @Autowired
+    LogManager logManager;
     @Autowired
     private JdbcTemplate backendJdbcTemplate;
 
     @Autowired
     @Qualifier("onlineJdbcTemplate")
     private JdbcTemplate onlineJdbcTemplate;
-
-    @Autowired
-    LogManager logManager;
 
     @Override
     public ArrayList<OtbBean> getInitEodTxnPostCustAcc() throws Exception {
@@ -387,11 +387,11 @@ public class TransactionPostRepo implements TransactionPostDao {
             count = onlineJdbcTemplate.update(query, bean.getOtbcredit(), bean.getAccountnumber());
 
             if (Configurations.ONLINE_LOG_LEVEL == 1) {
-                logManager.logInfo("================ updateAccountOtbCredit ===================" + Integer.toString(Configurations.EOD_ID), infoLogger);
-                logManager.logInfo(query, infoLogger);
-                logManager.logInfo(Double.toString(bean.getOtbcredit()), infoLogger);
-                logManager.logInfo(bean.getAccountnumber(), infoLogger);
-                logManager.logInfo("================ updateAccountOtbCredit END ===================", infoLogger);
+                logInfo.info("================ updateAccountOtbCredit ===================" + Configurations.EOD_ID);
+                logInfo.info(query);
+                logInfo.info(Double.toString(bean.getOtbcredit()));
+                logInfo.info(bean.getAccountnumber());
+                logInfo.info("================ updateAccountOtbCredit END ===================");
             }
         } catch (Exception e) {
             throw e;

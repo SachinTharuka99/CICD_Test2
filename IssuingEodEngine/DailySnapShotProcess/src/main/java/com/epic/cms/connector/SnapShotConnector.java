@@ -3,9 +3,11 @@ package com.epic.cms.connector;
 import com.epic.cms.common.ProcessBuilder;
 import com.epic.cms.service.SnapShotService;
 import com.epic.cms.util.LogManager;
+import lombok.extern.slf4j.Slf4j;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-import static com.epic.cms.util.LogManager.errorLogger;
 
 @Service
 public class SnapShotConnector extends ProcessBuilder {
@@ -22,13 +24,15 @@ public class SnapShotConnector extends ProcessBuilder {
     @Autowired
     LogManager logManager;
 
+    private static final Logger logError = LoggerFactory.getLogger("logError");
+
     @Override
     public void concreteProcess() throws Exception {
         try {
             snapShotService.startDailySnapShotProcess();
 
         }catch (Exception e){
-            logManager.logError("Failed SnapShot Process ", e, errorLogger);
+            logError.error("Failed SnapShot Process ", e);
         }
     }
 

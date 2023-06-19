@@ -18,8 +18,6 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 
-import static com.epic.cms.util.LogManager.errorLogger;
-
 @Repository
 public class TxnDropRequestRepo implements TxnDropRequestDao {
 
@@ -32,8 +30,6 @@ public class TxnDropRequestRepo implements TxnDropRequestDao {
     @Autowired
     StatusVarList statusList;
 
-    @Autowired
-    LogManager logManager;
 
     @Override
     public int getTransactionValidityPeriod() throws Exception {
@@ -48,7 +44,6 @@ public class TxnDropRequestRepo implements TxnDropRequestDao {
             return 0;
 
         } catch (Exception e) {
-            logManager.logError(String.valueOf(e),errorLogger);
             throw e;
         }
         return txnValidPeriod;
@@ -84,7 +79,6 @@ public class TxnDropRequestRepo implements TxnDropRequestDao {
                     , Configurations.EOD_CONSIDER_STATUS
             );
         } catch (Exception e) {
-            logManager.logError(String.valueOf(e),errorLogger);
             throw e;
         }
         return dropTransactionList;
@@ -114,7 +108,6 @@ public class TxnDropRequestRepo implements TxnDropRequestDao {
             return false;
 
         } catch (Exception e) {
-            logManager.logError(String.valueOf(e),errorLogger);
             throw e;
         }
         return isReversed;
@@ -134,7 +127,6 @@ public class TxnDropRequestRepo implements TxnDropRequestDao {
                     Configurations.EOD_USER
                     );
         } catch (Exception e) {
-            logManager.logError(String.valueOf(e),errorLogger);
             throw e;
         }
     }
