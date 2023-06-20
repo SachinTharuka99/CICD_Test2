@@ -11,6 +11,8 @@
     <packaging>pom</packaging>
     <modules>
         <module>EODFileGenerationAcquiringConsumer</module>
+        <module>MerchantLocationStatement</module>
+        <module>MerchantCustomerStatement</module>
     </modules>
     <artifactId>AcquiringEodFileGeneration</artifactId>
 
