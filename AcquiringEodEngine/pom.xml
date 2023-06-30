@@ -20,6 +20,7 @@
         <module>PreMerchantFeeProcess</module>
         <module>MerchantGLSummaryFileProcess</module>
         <module>MerchantPaymentFileProcess</module>
+        <module>OriginatorPushTxnUpdateProcess</module>
     </modules>
     <artifactId>AcquiringEodEngine</artifactId>
 

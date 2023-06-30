@@ -1072,4 +1072,8 @@ public class ConfigVarList {
     @Value("${process_stamp_duty_fee}")
     public int process_stamp_duty_fee;
 
+    //Acquiring
+    @Value("${process_id_originator_push_txn_update}")
+    public int process_id_originator_push_txn_update;
+
 }

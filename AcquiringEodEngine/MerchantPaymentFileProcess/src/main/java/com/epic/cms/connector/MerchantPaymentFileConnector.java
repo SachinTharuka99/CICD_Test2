@@ -9,13 +9,15 @@ package com.epic.cms.connector;
 
 import com.epic.cms.common.ProcessBuilder;
 import com.epic.cms.dao.MerchantPaymentFileDao;
-import com.epic.cms.model.bean.*;
+import com.epic.cms.model.bean.ErrorMerchantBean;
+import com.epic.cms.model.bean.MerchantPaymentCycleBean;
+import com.epic.cms.model.bean.ProcessBean;
 import com.epic.cms.repository.CommonRepo;
 import com.epic.cms.service.MerchantPaymentFileService;
 import com.epic.cms.util.CommonMethods;
 import com.epic.cms.util.Configurations;
+import com.epic.cms.util.LogManager;
 import com.epic.cms.util.StatusVarList;
-import lombok.extern.slf4j.Slf4j;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -28,8 +30,6 @@ import java.io.File;
 import java.io.FileWriter;
 import java.text.SimpleDateFormat;
 import java.util.*;
-import java.util.logging.LogManager;
-
 
 /**
  * 1- Select list of merchant Customers & Locations according to their payment
@@ -52,9 +52,10 @@ import java.util.logging.LogManager;
 @Service
 public class MerchantPaymentFileConnector extends ProcessBuilder {
 
+    private static final Logger logInfo = LoggerFactory.getLogger("logInfo");
+    private static final Logger logError = LoggerFactory.getLogger("logError");
     public List<ErrorMerchantBean> merchantErrorList = new ArrayList<ErrorMerchantBean>();
     public int configProcess = Configurations.PROCESS_ID_MERCHANT_PAYMENT_FILE_CREATION;
-    public String processHeader = "MERCHANT_PAYMENT_FILE_CREATION";
     boolean toDeleteStatusDirect = true;
     boolean toDeleteStatusSlip = true;
     LinkedHashMap paymentfilestatus = new LinkedHashMap();
@@ -80,11 +81,6 @@ public class MerchantPaymentFileConnector extends ProcessBuilder {
     MerchantPaymentFileDao merchantPaymentFileDao;
     @Autowired
     LogManager logManager;
-
-    private static final Logger logInfo = LoggerFactory.getLogger("logInfo");
-    private static final Logger logError = LoggerFactory.getLogger("logError");
-
-
     private HashMap<String, HashMap<Integer, HashMap<String, ArrayList<MerchantPaymentCycleBean>>>> totalMerchantListOnPaymod;
     private HashMap<Integer, HashMap<String, ArrayList<MerchantPaymentCycleBean>>> totalMerchantListOnPaystatus;
     private HashMap<String, ArrayList<MerchantPaymentCycleBean>> merchantList;
@@ -98,7 +94,6 @@ public class MerchantPaymentFileConnector extends ProcessBuilder {
                 Configurations.RUNNING_PROCESS_ID = Configurations.PROCESS_ID_MERCHANT_PAYMENT_FILE_CREATION;
                 CommonMethods.eodDashboardProgressParametersReset();
 
-//                dbConCommitTrue.insertToEodProcessSumery(Configurations.PROCESS_ID_MERCHANT_PAYMENT_FILE_CREATION);
                 FileWriter writer = null;
                 BufferedWriter buffer = null;
                 File file = null, backupFile = null;
@@ -126,7 +121,7 @@ public class MerchantPaymentFileConnector extends ProcessBuilder {
 
                         SimpleDateFormat sd = new SimpleDateFormat("yyyy");
                         String year = sd.format(new Date());
-                        String today1 = String.valueOf(year) + Integer.toString(Configurations.EOD_ID).substring(2, 6);
+                        String today1 = year + Integer.toString(Configurations.EOD_ID).substring(2, 6);
 
                         String eodSeq = Integer.toString(Configurations.ERROR_EOD_ID).substring(6);
                         seq = Integer.parseInt(eodSeq) + 1;
@@ -139,7 +134,7 @@ public class MerchantPaymentFileConnector extends ProcessBuilder {
 
                         Configurations.PROCESS_TOTAL_NOOF_TRABSACTIONS = totalMerchantListOnPaymod.size();
                         for (Map.Entry<String, HashMap<Integer, HashMap<String, ArrayList<MerchantPaymentCycleBean>>>> entrySet : totalMerchantListOnPaymod.entrySet()) {
-                            merchantPaymentFileService.paymentFile(entrySet,fileNameF1,fileNameF2);
+                            merchantPaymentFileService.paymentFile(entrySet, fileNameF1, fileNameF2);
 
                         }
                         while (!(taskExecutor.getActiveCount() == 0)) {
@@ -158,17 +153,16 @@ public class MerchantPaymentFileConnector extends ProcessBuilder {
                         merchantPaymentFileDao.updateMerchantCustomerNextPaymentDate(merchantCustomerList);//update nextpayment date on merchant customer according to their billing cycle
 
                     }
-//                    logLevel3.info(logLevels.ProcessStartEndStyle("Merchant Payment File Process Successfully Completed. "));
+                    logInfo.info(logManager.logStartEnd("Merchant Payment File Process Successfully Completed. "));
 
                 } catch (Exception e) {
-//                    errorLog.error("Error while writing payment file from the process. Exception in Merchant Payment file process: ", e);
+                    logError.error("Error while writing payment file from the process. Exception in Merchant Payment file process: ", e);
                     throw e;
                 }
             }
         } catch (Exception e) {
             try {
-//                logLevel3.info("Merchant Payment File Process Failed ");
-//                dbConCommitTrue.updateEodProcessSummery(Configurations.ERROR_EOD_ID, Statusts.ERROR_STATUS, Configurations.PROCESS_ID_MERCHANT_PAYMENT_FILE_CREATION, Configurations.PROCESS_SUCCESS_COUNT, Configurations.PROCESS_FAILD_COUNT, CommonMethods.eodDashboardProcessProgress(Configurations.PROCESS_SUCCESS_COUNT, Configurations.PROCESS_TOTAL_NOOF_TRABSACTIONS));
+                logInfo.info("Merchant Payment File Process Failed ");
                 if (processBean.getCriticalStatus() == 1) {
                     Configurations.COMMIT_STATUS = false;
                     Configurations.FLOW_STEP_COMPLETE_STATUS = false;
@@ -176,7 +170,7 @@ public class MerchantPaymentFileConnector extends ProcessBuilder {
                     Configurations.MAIN_EOD_STATUS = false;
                 }
             } catch (Exception e2) {
-                //logManager.logError("Exception in Merchant Payment File Process", e2);
+                logError.error("Exception in Merchant Payment File Process", e2);
             }
         }
 
@@ -186,8 +180,6 @@ public class MerchantPaymentFileConnector extends ProcessBuilder {
     public void addSummaries() {
 
     }
-
-
 }
 
 

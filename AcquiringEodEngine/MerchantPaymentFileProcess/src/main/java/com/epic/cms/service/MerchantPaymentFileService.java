@@ -14,9 +14,9 @@ import com.epic.cms.model.bean.MerchantPayBean;
 import com.epic.cms.model.bean.MerchantPaymentCycleBean;
 import com.epic.cms.model.model.EodOuputFileBean;
 import com.epic.cms.repository.CommonRepo;
-import com.epic.cms.util.CommonMethods;
 import com.epic.cms.util.Configurations;
 import com.epic.cms.util.LogManager;
+import com.epic.cms.util.MerchantCustomer;
 import com.epic.cms.util.StatusVarList;
 import org.apache.commons.io.FileUtils;
 import org.slf4j.Logger;
@@ -36,10 +36,12 @@ import java.text.SimpleDateFormat;
 import java.util.*;
 
 import static com.epic.cms.util.CommonMethods.*;
-import static com.epic.cms.util.CommonMethods.validateLength;
 
 @Service
 public class MerchantPaymentFileService {
+    private static final Logger logInfo = LoggerFactory.getLogger("logInfo");
+    private static final Logger logError = LoggerFactory.getLogger("logError");
+    public List<ErrorMerchantBean> merchantErrorList = new ArrayList<ErrorMerchantBean>();
     @Autowired
     LogManager logManager;
     @Autowired
@@ -54,7 +56,6 @@ public class MerchantPaymentFileService {
     HashMap<String, String> currencyList = new HashMap<String, String>();
     ArrayList<String> merchantCustomerList = new ArrayList<>();
     ArrayList<String> merchantLocationList = new ArrayList<>();
-    public List<ErrorMerchantBean> merchantErrorList = new ArrayList<ErrorMerchantBean>();
     SimpleDateFormat sdf5 = new SimpleDateFormat("yyyy MMM");
     SimpleDateFormat sdf6 = new SimpleDateFormat("yyyyMMdd");
     SimpleDateFormat sdf7 = new SimpleDateFormat("yyMMM");
@@ -63,10 +64,6 @@ public class MerchantPaymentFileService {
     private HashMap<String, HashMap<Integer, HashMap<String, ArrayList<MerchantPaymentCycleBean>>>> totalMerchantListOnPaymod;
     private HashMap<Integer, HashMap<String, ArrayList<MerchantPaymentCycleBean>>> totalMerchantListOnPaystatus;
     private HashMap<String, ArrayList<MerchantPaymentCycleBean>> merchantList;
-
-    private static final Logger logInfo = LoggerFactory.getLogger("logInfo");
-    private static final Logger logError = LoggerFactory.getLogger("logError");
-
 
     @Async("taskExecutor2")
     @Transactional(value = "transactionManager", propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
@@ -80,7 +77,7 @@ public class MerchantPaymentFileService {
                     insertedTODownloadFile = this.createMerchantPaymentFileForDirectAcc(totalMerchantListOnPaystatus, payMode, fileNameF1, fileNameF2, insertedTODownloadFile);
                 } else if (payMode.equalsIgnoreCase(Configurations.MERCHANT_PAY_MODE_SLIPS)) {
                     this.createMerchantPaymentFileForSlips(totalMerchantListOnPaystatus, payMode);
-//                                    insertedTODownloadFile = this.createMerchantPaymentFileRB36ForDirectAcc(totalMerchantListOnPaystatus, payMode, fileName, insertedTODownloadFile);
+//              insertedTODownloadFile = this.createMerchantPaymentFileRB36ForDirectAcc(totalMerchantListOnPaystatus, payMode, fileName, insertedTODownloadFile);
                 } else if (payMode.equalsIgnoreCase(Configurations.MERCHANT_PAY_MODE_CHEQUE)) {
                     //to be implemented -- DFCC not requested the CHECQUE mode - 2018/11/30
                     //Hence error msg will populate if a payment mode cheque is found.
@@ -91,8 +88,8 @@ public class MerchantPaymentFileService {
                             for (Map.Entry<String, ArrayList<MerchantPaymentCycleBean>> entrySet1 : merchantList.entrySet()) {
                                 for (MerchantPaymentCycleBean bean : entrySet1.getValue()) {
                                     String mId = bean.getMerchantId();
-//                                                        logLevel3.info(logLevels.ProcessStartEndStyle("Invalid Merchant Payment mode for mid : " + mId));
-//                                                        errorLog.error("Invalid Merchant Payment mode for mid : " + mId);
+                                    logInfo.info(logManager.processStartEndStyle("Invalid Merchant Payment mode for mid : " + mId));
+                                    logError.error("Invalid Merchant Payment mode for mid : " + mId);
                                 }
                             }
                         }
@@ -102,14 +99,12 @@ public class MerchantPaymentFileService {
                         merchantList = totalMerchantListOnPaystatus.get(statusList.getYES_STATUS_1());
                         if (merchantList.size() > 0) {
                             for (Map.Entry<String, ArrayList<MerchantPaymentCycleBean>> entrySet1 : merchantList.entrySet()) {
-//                                                    String merCusNo = entrySet1.getKey();
-//                                                    logLevel3.info(logLevels.ProcessStartEndStyle("Invalid Merchant Payment mode for merchant Customer No : " + merCusNo));
-//                                                    errorLog.error("Invalid Merchant Payment mode for merchant Customer No : " + merCusNo);
-//                                                    WebComHandler.showOnWeb(CommonMethods.eodDashboardProcessInfoStyle("Invalid Merchant Payment mode for merchant Customer No : " + merCusNo));
+//                              String merCusNo = entrySet1.getKey();
+//                                logInfo.info(logManager.processStartEndStyle("Invalid Merchant Payment mode for merchant Customer No : " + merCusNo));
+//                                logError.error("Invalid Merchant Payment mode for merchant Customer No : " + merCusNo);
                             }
                         }
                     }
-
                 }
             }
             Configurations.PROCESS_SUCCESS_COUNT++;
@@ -204,7 +199,7 @@ public class MerchantPaymentFileService {
             StringBuilder contentYes2 = new StringBuilder();
             StringBuilder header2 = new StringBuilder();
 
-            BigDecimal headerCreditBig = new BigDecimal(0.0);
+            BigDecimal headerCreditBig = new BigDecimal("0.0");
             int headerCreditCount = 0;
 
             Date nextWorkingDay = merchantPaymentFileDao.getNextWorkingDay(new Date());
@@ -214,7 +209,7 @@ public class MerchantPaymentFileService {
 
             //Get Customer wise  PAYMENTMAINTEINANCESTATUS 'NO' merchant set
             if (totalMerchantListOnPaystatus.containsKey(statusList.getNO_STATUS_0())) {
-                BigDecimal totalPaymentAmountBig = new BigDecimal(0.0);
+                BigDecimal totalPaymentAmountBig = new BigDecimal("0.0");
                 merchantList = totalMerchantListOnPaystatus.get(statusList.getNO_STATUS_0());
                 if (merchantList.size() > 0) {
                     for (Map.Entry<String, ArrayList<MerchantPaymentCycleBean>> entrySet1 : merchantList.entrySet()) {
@@ -229,8 +224,8 @@ public class MerchantPaymentFileService {
                                 mId = bean.getMerchantId();
                                 paymentList = merchantPaymentFileDao.getPaymentsFromEodMerchantpayment(mId);
                                 noofBatches++;
-                                BigDecimal crNetPaymentsBig = new BigDecimal(0.0);
-                                BigDecimal drNetPaymentsBig = new BigDecimal(0.0);
+                                BigDecimal crNetPaymentsBig = new BigDecimal("0.0");
+                                BigDecimal drNetPaymentsBig = new BigDecimal("0.0");
                                 boolean crDrStatus = false;
                                 noOfRecords = 0;
                                 noOfCredit = 0;
@@ -249,29 +244,25 @@ public class MerchantPaymentFileService {
                                         BigDecimal glAmountBig = new BigDecimal(bean2.getNetPayAmount());
                                         drNetPaymentsBig = drNetPaymentsBig.add(glAmountBig);
                                     } else {
-//                                        logLevel2.info("Error in CRDR type in EODMERCHANTPAYEMENT file process.");
-//                                        WebComHandler.showOnWeb(CommonMethods.eodDashboardProcessInfoStyle("Error in CRDR type in EODMERCHANTPAYEMENT file process."));
+                                        logInfo.info("Error in CRDR type in EODMERCHANTPAYEMENT file process.");
                                     }
-
                                 }
 
                                 if (crNetPaymentsBig.compareTo(drNetPaymentsBig) > 0) {
                                     totalPaymentAmountBig = crNetPaymentsBig.subtract(drNetPaymentsBig).setScale(2, RoundingMode.DOWN);
                                     crDrStatus = true;
                                     paymentfilestatus.put("Merchant ID", mId);
-                                    paymentfilestatus.put("Total Payment amount ", totalPaymentAmountBig.toString() + " Cr");
-//                                    logLevel3.info(LgLvls.processDetailsStyles(paymentfilestatus));
-//                                    WebComHandler.showOnWeb(CommonMethods.eodDashboardDetailsStyle(paymentfilestatus));
+                                    paymentfilestatus.put("Total Payment amount ", totalPaymentAmountBig + " Cr");
+                                    logInfo.info(logManager.processDetailsStyles(paymentfilestatus));
                                 } else if (drNetPaymentsBig.compareTo(crNetPaymentsBig) > 0) {
                                     totalPaymentAmountBig = drNetPaymentsBig.subtract(crNetPaymentsBig).setScale(2, RoundingMode.DOWN);
                                     crDrStatus = false;
                                     paymentfilestatus.put("Merchant ID", mId);
-                                    paymentfilestatus.put("Total Payment amount ", totalPaymentAmountBig.toString() + " Dr");
-//                                    logLevel3.info(LgLvls.processDetailsStyles(paymentfilestatus));
-//                                    WebComHandler.showOnWeb(CommonMethods.eodDashboardDetailsStyle(paymentfilestatus));
+                                    paymentfilestatus.put("Total Payment amount ", totalPaymentAmountBig + " Dr");
+                                    logInfo.info(logManager.processDetailsStyles(paymentfilestatus));
                                 }
 
-                                String seqNo = "99" + Integer.toString(Configurations.EOD_ID) + validate(Integer.toString(noofBatches), 6, '0');
+                                String seqNo = "99" + Configurations.EOD_ID + validate(Integer.toString(noofBatches), 6, '0');
 
                                 if (totalPaymentAmountBig.compareTo(BigDecimal.ZERO) > 0) {
                                     if (crDrStatus) {
@@ -279,11 +270,9 @@ public class MerchantPaymentFileService {
                                         headerCreditCount++;
 
                                         //make narration
-                                        StringBuilder sb = new StringBuilder();
-                                        sb.append("MERSet");
-                                        sb.append(mId.substring(mId.length() - 9));
 
-                                        String narration = sb.toString();
+                                        String narration = "MERSet" +
+                                                mId.substring(mId.length() - 9);
 
                                         //first file content - start
                                         contentNo.append(validateLength(seqNo, 35)); //SEQ_NO
@@ -294,7 +283,7 @@ public class MerchantPaymentFileService {
                                         contentNo.append(fieldDelimeter);
                                         contentNo.append(validateCurrencyLength(totalPaymentAmountBig.toString(), 19)); //CR_AMOUNT
                                         contentNo.append(fieldDelimeter);
-                                        contentNo.append(validateLength(currencyList.get(bean.getCurrencyCode()).toString(), 3)); //PAYMENT_CURRENCY --validateLength(currencyList.get(bean.getCurrencyCode()).toString(), 3)
+                                        contentNo.append(validateLength(currencyList.get(bean.getCurrencyCode()), 3)); //PAYMENT_CURRENCY --validateLength(currencyList.get(bean.getCurrencyCode()).toString(), 3)
                                         contentNo.append(fieldDelimeter);
                                         contentNo.append(validateLength(bean.getAccountNo(), 19)); //CR_ACCOUNT --bean.getAccountNo()
                                         contentNo.append(fieldDelimeter);
@@ -373,9 +362,8 @@ public class MerchantPaymentFileService {
                                 }
                                 merchantLocationList.add(mId);
                             } catch (Exception ex) {
-//                                merchantErrorList.add(new ErrorMerchantBean(Configurations.ERROR_EOD_ID, Configurations.EOD_DATE, mId, ex.getMessage(), configProcess, processHeader, 0, MerchantCustomer.MERCHANTLOCATION));
-//                                errorLog.error("Error while writing payment file in PAYMENTMAINTEINANCESTATUS 'NO' mid: " + mId, ex);
-//                                WebComHandler.showOnWeb(CommonMethods.eodDashboardProcessInfoStyle("Error while writing payment file in PAYMENTMAINTEINANCESTATUS 'NO' mid: " + mId));
+                                Configurations.merchantErrorList.add(new ErrorMerchantBean(Configurations.ERROR_EOD_ID, Configurations.EOD_DATE, mId, ex.getMessage(), Configurations.RUNNING_PROCESS_ID, Configurations.RUNNING_PROCESS_DESCRIPTION, 0, MerchantCustomer.MERCHANTLOCATION));
+                                logError.error("Error while writing payment file in PAYMENTMAINTEINANCESTATUS 'NO' mid: " + mId, ex);
                             }
                         }
                     }
@@ -384,7 +372,7 @@ public class MerchantPaymentFileService {
             recordCount = noOfRecords;
             //Get Customer wise  PAYMENTMAINTEINANCESTATUS 'YES' merchant set
             if (totalMerchantListOnPaystatus.containsKey(statusList.getYES_STATUS_1())) {
-                BigDecimal totalPaymentAmountBig = new BigDecimal(0.0);
+                BigDecimal totalPaymentAmountBig = new BigDecimal("0.0");
                 merchantList = totalMerchantListOnPaystatus.get(statusList.getYES_STATUS_1());
                 if (merchantList.size() > 0) {
                     for (Map.Entry<String, ArrayList<MerchantPaymentCycleBean>> entrySet1 : merchantList.entrySet()) {
@@ -400,8 +388,8 @@ public class MerchantPaymentFileService {
                             MerchantCustomerBean cusBean = merchantPaymentFileDao.getMerchantCustomerDetails(merCusId);
 
                             paymentList = merchantPaymentFileDao.getPaymentsForCustomerFromEodMerchantpayment(merCusId);
-                            BigDecimal crNetPaymentsBig = new BigDecimal(0.0);
-                            BigDecimal drNetPaymentsBig = new BigDecimal(0.0);
+                            BigDecimal crNetPaymentsBig = new BigDecimal("0.0");
+                            BigDecimal drNetPaymentsBig = new BigDecimal("0.0");
                             boolean crDrStatus = false;
                             noOfRecords = 0;
                             noOfCredit = 0;
@@ -422,8 +410,7 @@ public class MerchantPaymentFileService {
                                     BigDecimal glAmountBig = new BigDecimal(bean2.getNetPayAmount());
                                     drNetPaymentsBig = drNetPaymentsBig.add(glAmountBig);
                                 } else {
-//                                    logLevel2.info("Error in CRDR type in EODMERCHANTPAYEMENT file process.");
-//                                    WebComHandler.showOnWeb(CommonMethods.eodDashboardProcessInfoStyle("Error in CRDR type in EODMERCHANTPAYEMENT file process"));
+                                    logInfo.info("Error in CRDR type in EODMERCHANTPAYEMENT file process.");
                                 }
 
                             }
@@ -432,19 +419,17 @@ public class MerchantPaymentFileService {
                                 totalPaymentAmountBig = crNetPaymentsBig.subtract(drNetPaymentsBig).setScale(2, RoundingMode.DOWN);
                                 crDrStatus = true;
                                 paymentfilestatus.put("Merchant Customer No", merCusId);
-                                paymentfilestatus.put("Total Payment amount ", totalPaymentAmountBig.toString() + " Cr");
-//                                logLevel3.info(LgLvls.processDetailsStyles(paymentfilestatus));
-//                                WebComHandler.showOnWeb(CommonMethods.eodDashboardDetailsStyle(paymentfilestatus));
+                                paymentfilestatus.put("Total Payment amount ", totalPaymentAmountBig + " Cr");
+                                logInfo.info(logManager.logDetails(paymentfilestatus));
                             } else if (drNetPaymentsBig.compareTo(crNetPaymentsBig) > 0) {
                                 totalPaymentAmountBig = drNetPaymentsBig.subtract(crNetPaymentsBig).setScale(2, RoundingMode.DOWN);
                                 crDrStatus = false;
                                 paymentfilestatus.put("Merchant Customer No", merCusId);
-                                paymentfilestatus.put("Total Payment amount ", totalPaymentAmountBig.toString() + " Dr");
-//                                logLevel3.info(LgLvls.processDetailsStyles(paymentfilestatus));
-//                                WebComHandler.showOnWeb(CommonMethods.eodDashboardDetailsStyle(paymentfilestatus));
+                                paymentfilestatus.put("Total Payment amount ", totalPaymentAmountBig + " Dr");
+                                logInfo.info(logManager.logDetails(paymentfilestatus));
                             }
 
-                            String seqNo = "99" + Integer.toString(Configurations.EOD_ID) + validate(Integer.toString(noofBatches), 6, '0');
+                            String seqNo = "99" + Configurations.EOD_ID + validate(Integer.toString(noofBatches), 6, '0');
                             if (totalPaymentAmountBig.compareTo(BigDecimal.ZERO) > 0) {
                                 if (crDrStatus) {
                                     headerCreditBig = headerCreditBig.add(totalPaymentAmountBig);
@@ -476,7 +461,7 @@ public class MerchantPaymentFileService {
                                     contentYes.append(fieldDelimeter);
                                     contentYes.append(validateCurrencyLength(totalPaymentAmountBig.toString(), 19)); //CR_AMOUNT
                                     contentYes.append(fieldDelimeter);
-                                    contentYes.append(validateLength(currencyList.get(cusBean.getCurrencyCode()).toString(), 3)); //PAYMENT_CURRENCY --validateLength(currencyList.get(bean.getCurrencyCode()).toString(), 3)
+                                    contentYes.append(validateLength(currencyList.get(cusBean.getCurrencyCode()), 3)); //PAYMENT_CURRENCY --validateLength(currencyList.get(bean.getCurrencyCode()).toString(), 3)
                                     contentYes.append(fieldDelimeter);
                                     contentYes.append(validateLength(cusBean.getAccountNo(), 19)); //CR_ACCOUNT --bean.getAccountNo()
                                     contentYes.append(fieldDelimeter);
@@ -555,9 +540,8 @@ public class MerchantPaymentFileService {
                             }
                             merchantCustomerList.add(merCusId);
                         } catch (Exception ex) {
-//                            merchantErrorList.add(new ErrorMerchantBean(Configurations.ERROR_EOD_ID, Configurations.EOD_DATE, merCusId, ex.getMessage(), configProcess, processHeader, 0, MerchantCustomer.MERCHANTCUSTOMER));
-//                            errorLog.error("Error while writing payment file in PAYMENTMAINTEINANCESTATUS 'YES' Merchant Cus No: " + merCusId, ex);
-//                            WebComHandler.showOnWeb(CommonMethods.eodDashboardProcessInfoStyle("Error while writing payment file in PAYMENTMAINTEINANCESTATUS 'YES' Merchant Cus No: " + merCusId));
+                            Configurations.merchantErrorList.add(new ErrorMerchantBean(Configurations.ERROR_EOD_ID, Configurations.EOD_DATE, merCusId, ex.getMessage(), Configurations.RUNNING_PROCESS_ID, Configurations.RUNNING_PROCESS_DESCRIPTION, 0, MerchantCustomer.MERCHANTCUSTOMER));
+                            logError.error("Error while writing payment file in PAYMENTMAINTEINANCESTATUS 'YES' Merchant Cus No: " + merCusId, ex);
                         }
                     }
                 }
@@ -618,20 +602,17 @@ public class MerchantPaymentFileService {
                 buffer.write(contentNo.toString());
                 buffer.write(contentYes.toString());
 
-//                logLevel3.info("Merchant Payment File for Direct account created on '" + fileAbsPath + "'. ");
-//                WebComHandler.showOnWeb(CommonMethods.eodDashboardProcessInfoStyle("Merchant Payment File for Direct account created on '" + fileAbsPath + "'. "));
+                logInfo.info("Merchant Payment File for Direct account created on '" + fileAbsPath + "'. ");
 
                 //write - second file
                 buffer2.write(sbHeader2.toString());
                 buffer2.write(contentNo2.toString());
                 buffer2.write(contentYes2.toString());
 
-//                logLevel3.info("Merchant Payment File for Direct account created on '" + fileAbsPath2 + "'. ");
-//                WebComHandler.showOnWeb(CommonMethods.eodDashboardProcessInfoStyle("Merchant Payment File for Direct account created on '" + fileAbsPath2 + "'. "));
+                logInfo.info("Merchant Payment File for Direct account created on '" + fileAbsPath2 + "'. ");
 
                 toDeleteStatusDirect = false;
             } else {
-//                logLevel3.info("Merchant Payment File for Direct account is Deleted due to empty line.");
                 logInfo.info("Merchant Payment File for Direct account is Deleted due to empty line.");
             }
             int count1 = 0, count2 = 0;
@@ -661,7 +642,7 @@ public class MerchantPaymentFileService {
                 insertedDownloadFile = true;
             }
 
-//            logLevel2.info(logLevels.ProcessStartEndStyle("Merchant Payment File for Direct account Process Successfully Completed. "));
+            logInfo.info(logManager.processStartEndStyle("Merchant Payment File for Direct account Process Successfully Completed. "));
 
         } catch (Exception e) {
             //delete first file
@@ -745,7 +726,7 @@ public class MerchantPaymentFileService {
             SimpleDateFormat sdf3 = new SimpleDateFormat("ddMMyyyy");
             SimpleDateFormat sd = new SimpleDateFormat("yyyy");
             String year = sd.format(new Date());
-            String today1 = String.valueOf(year) + Integer.toString(Configurations.EOD_ID).substring(2, 6);
+            String today1 = year + Integer.toString(Configurations.EOD_ID).substring(2, 6);
 
             String eodSeq = Integer.toString(Configurations.ERROR_EOD_ID).substring(6);
             int seq = Integer.parseInt(eodSeq) + 1;
@@ -792,7 +773,7 @@ public class MerchantPaymentFileService {
             StringBuilder contentNo = new StringBuilder();
             StringBuilder contentYes = new StringBuilder();
             StringBuilder header = new StringBuilder();
-            BigDecimal headerCreditBig = new BigDecimal(0.0);
+            BigDecimal headerCreditBig = new BigDecimal("0.0");
             int headerCreditCount = 0;
 
             Date nextWorkingDay = merchantPaymentFileDao.getNextWorkingDay(new Date());
@@ -810,11 +791,11 @@ public class MerchantPaymentFileService {
 
                             for (MerchantPaymentCycleBean bean : value1) {
                                 noofBatches++;
-                                BigDecimal totalPaymentAmountBig = new BigDecimal(0.0);
+                                BigDecimal totalPaymentAmountBig = new BigDecimal("0.0");
                                 String mId = bean.getMerchantId();
                                 paymentList = merchantPaymentFileDao.getPaymentsFromEodMerchantpayment(mId);
-                                BigDecimal crNetPaymentsBig = new BigDecimal(0.0);
-                                BigDecimal drNetPaymentsBig = new BigDecimal(0.0);
+                                BigDecimal crNetPaymentsBig = new BigDecimal("0.0");
+                                BigDecimal drNetPaymentsBig = new BigDecimal("0.0");
                                 boolean crDrStatus = false;
                                 noOfRecords = 0;
                                 noOfCredit = 0;
@@ -834,34 +815,30 @@ public class MerchantPaymentFileService {
                                         BigDecimal glAmountBig = new BigDecimal(bean2.getNetPayAmount());
                                         drNetPaymentsBig = drNetPaymentsBig.add(glAmountBig);
                                     } else {
-//                                        logLevel2.info("Error in CRDR type in EODMERCHANTPAYEMENT file process.");
-//                                        WebComHandler.showOnWeb(CommonMethods.eodDashboardProcessInfoStyle("Error in CRDR type in EODMERCHANTPAYEMENT file process."));
+                                        logInfo.info("Error in CRDR type in EODMERCHANTPAYEMENT file process.");
                                     }
-
                                 }
 
                                 if (crNetPaymentsBig.compareTo(drNetPaymentsBig) > 0) {
                                     totalPaymentAmountBig = crNetPaymentsBig.subtract(drNetPaymentsBig).setScale(2, RoundingMode.DOWN);
                                     crDrStatus = true;
                                     paymentfilestatus.put("Merchant ID", mId);
-                                    paymentfilestatus.put("Total Payment amount ", totalPaymentAmountBig.toString() + " Cr");
-//                                    logLevel3.info(LgLvls.processDetailsStyles(paymentfilestatus));
+                                    paymentfilestatus.put("Total Payment amount ", totalPaymentAmountBig + " Cr");
+                                    logInfo.info(logManager.logDetails(paymentfilestatus));
                                 } else if (drNetPaymentsBig.compareTo(crNetPaymentsBig) > 0) {
                                     totalPaymentAmountBig = drNetPaymentsBig.subtract(crNetPaymentsBig).setScale(2, RoundingMode.DOWN);
                                     crDrStatus = false;
                                     paymentfilestatus.put("Merchant ID", mId);
-                                    paymentfilestatus.put("Total Payment amount ", totalPaymentAmountBig.toString() + " Dr");
-//                                    logLevel3.info(LgLvls.processDetailsStyles(paymentfilestatus));
+                                    paymentfilestatus.put("Total Payment amount ", totalPaymentAmountBig + " Dr");
+                                    logInfo.info(logManager.logDetails(paymentfilestatus));
                                 }
 
-                                String seqNo = "99" + Integer.toString(Configurations.EOD_ID) + validate(Integer.toString(noofBatches), 6, '0');
+                                String seqNo = "99" + Configurations.EOD_ID + validate(Integer.toString(noofBatches), 6, '0');
 
                                 if (crDrStatus) {
                                     //make narration
-                                    StringBuilder sb = new StringBuilder();
-                                    sb.append("MERSet");
-                                    sb.append(mId.substring(mId.length() - 9));
-                                    String narration = sb.toString();
+                                    String narration = "MERSet" +
+                                            mId.substring(mId.length() - 9);
 
                                     contentNo.append(validateLength(seqNo, 35)); //SEQ_NO
                                     contentNo.append(fieldDelimeter);
@@ -873,7 +850,7 @@ public class MerchantPaymentFileService {
                                     headerCreditBig = headerCreditBig.add(totalPaymentAmountBig);
                                     headerCreditCount++;
                                     contentNo.append(fieldDelimeter);
-                                    contentNo.append(validateLength(currencyList.get(bean.getCurrencyCode()).toString(), 3)); //PAYMENT_CURRENCY --validateLength(currencyList.get(bean.getCurrencyCode()).toString(), 3)
+                                    contentNo.append(validateLength(currencyList.get(bean.getCurrencyCode()), 3)); //PAYMENT_CURRENCY --validateLength(currencyList.get(bean.getCurrencyCode()).toString(), 3)
                                     contentNo.append(fieldDelimeter);
                                     contentNo.append(validateLength(bean.getAccountNo(), 19)); //CR_ACCOUNT --bean.getAccountNo()
                                     contentNo.append(fieldDelimeter);
@@ -918,7 +895,6 @@ public class MerchantPaymentFileService {
                                 }
                                 merchantLocationList.add(mId);
                             }
-
                         } catch (Exception ex) {
                             logError.error("Error Occured while writing Merchant Payment File for slips for Mid : " + key + ". Exception : ", ex);
                         }
@@ -932,7 +908,7 @@ public class MerchantPaymentFileService {
                 if (merchantList.size() > 0) {
                     for (Map.Entry<String, ArrayList<MerchantPaymentCycleBean>> entrySet1 : merchantList.entrySet()) {
                         noofBatches++;
-                        BigDecimal totalPaymentAmountBig = new BigDecimal(0.0);
+                        BigDecimal totalPaymentAmountBig = new BigDecimal("0.0");
                         String merCusId = entrySet1.getKey();//customerno
                         try {
                             ArrayList<MerchantPaymentCycleBean> value1 = entrySet1.getValue();
@@ -942,8 +918,8 @@ public class MerchantPaymentFileService {
                             MerchantCustomerBean cusBean = merchantPaymentFileDao.getMerchantCustomerDetails(merCusId);
 
                             paymentList = merchantPaymentFileDao.getPaymentsForCustomerFromEodMerchantpayment(merCusId);
-                            BigDecimal crNetPaymentsBig = new BigDecimal(0.0);
-                            BigDecimal drNetPaymentsBig = new BigDecimal(0.0);
+                            BigDecimal crNetPaymentsBig = new BigDecimal("0.0");
+                            BigDecimal drNetPaymentsBig = new BigDecimal("0.0");
                             boolean crDrStatus = false;
                             noOfRecords = 0;
                             noOfCredit = 0;
@@ -962,26 +938,25 @@ public class MerchantPaymentFileService {
                                     BigDecimal glAmountBig = new BigDecimal(bean2.getNetPayAmount());
                                     drNetPaymentsBig = drNetPaymentsBig.add(glAmountBig);
                                 } else {
-//                                    logLevel2.info("Error in CRDR type in EODMERCHANTPAYEMENT file process");
+                                    logInfo.info("Error in CRDR type in EODMERCHANTPAYEMENT file process");
                                 }
-
                             }
 
                             if (crNetPaymentsBig.compareTo(drNetPaymentsBig) > 0) {
                                 totalPaymentAmountBig = crNetPaymentsBig.subtract(drNetPaymentsBig).setScale(2, RoundingMode.DOWN);
                                 crDrStatus = true;
                                 paymentfilestatus.put("Merchant Customer No", merCusId);
-                                paymentfilestatus.put("Total Payment amount ", totalPaymentAmountBig.toString() + " Cr");
-//                                logLevel3.info(LgLvls.processDetailsStyles(paymentfilestatus));
+                                paymentfilestatus.put("Total Payment amount ", totalPaymentAmountBig + " Cr");
+                                logInfo.info(logManager.logDetails(paymentfilestatus));
                             } else if (drNetPaymentsBig.compareTo(crNetPaymentsBig) > 0) {
                                 totalPaymentAmountBig = drNetPaymentsBig.subtract(crNetPaymentsBig).setScale(2, RoundingMode.DOWN);
                                 crDrStatus = false;
                                 paymentfilestatus.put("Merchant Customer No", merCusId);
-                                paymentfilestatus.put("Total Payment amount ", totalPaymentAmountBig.toString() + " Dr");
-//                                logLevel3.info(LgLvls.processDetailsStyles(paymentfilestatus));
+                                paymentfilestatus.put("Total Payment amount ", totalPaymentAmountBig + " Dr");
+                                logInfo.info(logManager.logDetails(paymentfilestatus));
                             }
 
-                            String seqNo = "99" + Integer.toString(Configurations.EOD_ID) + validate(Integer.toString(noofBatches), 6, '0');
+                            String seqNo = "99" + Configurations.EOD_ID + validate(Integer.toString(noofBatches), 6, '0');
 
                             if (crDrStatus) {
                                 //make narration
@@ -1011,7 +986,7 @@ public class MerchantPaymentFileService {
                                 headerCreditBig = headerCreditBig.add(totalPaymentAmountBig);
                                 headerCreditCount++;
                                 contentYes.append(fieldDelimeter);
-                                contentYes.append(validateLength(currencyList.get(cusBean.getCurrencyCode()).toString(), 3)); //PAYMENT_CURRENCY --validateLength(currencyList.get(bean.getCurrencyCode()).toString(), 3)
+                                contentYes.append(validateLength(currencyList.get(cusBean.getCurrencyCode()), 3)); //PAYMENT_CURRENCY --validateLength(currencyList.get(bean.getCurrencyCode()).toString(), 3)
                                 contentYes.append(fieldDelimeter);
                                 contentYes.append(validateLength(cusBean.getAccountNo(), 19)); //CR_ACCOUNT --bean.getAccountNo()
                                 contentYes.append(fieldDelimeter);
@@ -1055,7 +1030,7 @@ public class MerchantPaymentFileService {
                             }
                             merchantCustomerList.add(merCusId);
                         } catch (Exception ex) {
-                           logError.error("Error Occured while writing Merchant Payment File for slips for Merchant Cus No : " + merCusId + ". Exception : ", ex);
+                            logError.error("Error Occured while writing Merchant Payment File for slips for Merchant Cus No : " + merCusId + ". Exception : ", ex);
                         }
                     }
                 }
@@ -1093,11 +1068,9 @@ public class MerchantPaymentFileService {
                 buffer.write(contentYes.toString());
 
                 toDeleteStatusSlip = false;
-//                logLevel3.info("Merchant Payment File for Slips created on '" + fileAbsPath + "'. ");
+                logInfo.info("Merchant Payment File for Slips created on '" + fileAbsPath + "'. ");
             } else {
-//                logLevel3.info("Merchant Payment File for Slips is Deleted due to empty line.");
-                logError.error("Merchant Payment File for Slips is Deleted due to empty line.");
-
+                logError.info("Merchant Payment File for Slips is Deleted due to empty line.");
             }
 
             merchantPaymentFileDao.InsertMerchantFilesIntoDownloadTable(fileName + ".txt", "MERCHANTPAYMENTSLIP");
@@ -1109,7 +1082,7 @@ public class MerchantPaymentFileService {
 
             merchantPaymentFileDao.insertOutputFiles(eodoutputfilebean, "MERCHANTPAYMENTSLIP");
 
-//            logLevel2.info(logLevels.ProcessStartEndStyle("Merchant Payment File for Slips Process Successfully Completed. "));
+            logInfo.info(logManager.processStartEndStyle("Merchant Payment File for Slips Process Successfully Completed. "));
         } catch (Exception e) {
             if (file.exists()) {
                 file.delete();

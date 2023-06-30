@@ -273,11 +273,11 @@ public class LogManager {
             }
             description = description + "-------------------------------------" + System.lineSeparator();
 
-            try {
-                kafkaTemplate.send(topic, description);
-            } catch (Exception e) {
-                System.out.println("Kafka log_topic error");
-            }
+//            try {
+//                kafkaTemplate.send(topic, description);
+//            } catch (Exception e) {
+//                System.out.println("Kafka log_topic error");
+//            }
         }
         return description;
     }

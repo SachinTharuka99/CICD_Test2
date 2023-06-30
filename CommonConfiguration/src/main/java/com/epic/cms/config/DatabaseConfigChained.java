@@ -53,7 +53,7 @@ public class DatabaseConfigChained {
         hikariConfig.setMaximumPoolSize(20);
         hikariConfig.setConnectionTimeout(300000);
         //hikariConfig.setIdleTimeout(120000);
-        hikariConfig.setLeakDetectionThreshold(300000);
+        //hikariConfig.setLeakDetectionThreshold(300000);
         hikariConfig.addDataSourceProperty("socketTimeout", "120");
         hikariConfig.addDataSourceProperty("oracle.jdbc.javaNetNio", "false");
         return new HikariDataSource(hikariConfig);

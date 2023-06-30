@@ -9,17 +9,15 @@ package com.epic.cms.controller;
 
 import com.epic.cms.model.bean.*;
 import com.epic.cms.service.*;
-import com.epic.cms.util.LogManager;
 import com.epic.cms.util.MessageVarList;
 import com.epic.cms.util.ResponseCodes;
-import lombok.extern.slf4j.Slf4j;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
-
+import java.util.NoSuchElementException;
 
 
 @RestController
@@ -31,10 +29,6 @@ public class EODEngineDashboardController {
     @Autowired
     EODEngineDashboardService engineDashboardService;
 
-    @Autowired
-    LogManager logManager;
-
-    private static final Logger logInfo = LoggerFactory.getLogger("logInfo");
     private static final Logger logError = LoggerFactory.getLogger("logError");
 
     @PostMapping("/starteodid")
