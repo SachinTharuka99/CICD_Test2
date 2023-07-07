@@ -12,11 +12,8 @@ import com.epic.cms.model.bean.EodOutputFileBean;
 import com.epic.cms.model.bean.ResponseBean;
 import com.epic.cms.model.bean.StatementGenSummeryBean;
 import com.epic.cms.service.EODEngineDashboardService;
-import com.epic.cms.service.EODFileGenerationEngineDashboardService;
-import com.epic.cms.util.LogManager;
 import com.epic.cms.util.MessageVarList;
 import com.epic.cms.util.ResponseCodes;
-import lombok.extern.slf4j.Slf4j;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -31,15 +28,8 @@ public class EODFileGenerationEngineDashboardController {
     ResponseBean responseBean = new ResponseBean();
 
     @Autowired
-    EODFileGenerationEngineDashboardService engineDashboardService;
-
-    @Autowired
     EODEngineDashboardService eodEngineDashboardService;
 
-    @Autowired
-    LogManager logManager;
-
-    private static final Logger logInfo = LoggerFactory.getLogger("logInfo");
     private static final Logger logError = LoggerFactory.getLogger("logError");
 
 

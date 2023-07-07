@@ -226,7 +226,7 @@ public class EasyPaymentService {
         }
     }
 
-    @Async("ThreadPool_100")
+    //@Async("ThreadPool_100")
     @Transactional(value = "transactionManager", propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
     public void startEasyPaymentProcess(InstallmentBean easyPaymentBean, ProcessBean processBean) throws Exception {
         if (!Configurations.isInterrupted) {

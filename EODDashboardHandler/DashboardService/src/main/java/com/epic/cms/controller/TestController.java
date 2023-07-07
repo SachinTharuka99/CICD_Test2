@@ -18,7 +18,6 @@ public class TestController {
 
     @GetMapping("/test/{eodid}")
     public String testService(@PathVariable("eodid") final String eodId) throws Exception{
-
         return "Succcesfully";
     }
 }

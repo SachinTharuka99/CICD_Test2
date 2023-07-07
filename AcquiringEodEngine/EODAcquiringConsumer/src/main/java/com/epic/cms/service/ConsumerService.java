@@ -1,6 +1,7 @@
 package com.epic.cms.service;
 
 import com.epic.cms.connector.*;
+import com.epic.cms.connnector.OriginatorPushTxnUpdateConnector;
 import com.epic.cms.util.Configurations;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.ComponentScan;
@@ -40,6 +41,9 @@ public class ConsumerService {
 
     @Autowired
     EodParameterResetConnector eodParameterResetConnector;
+
+    @Autowired
+    OriginatorPushTxnUpdateConnector originatorPushTxnUpdateConnector;
 
     @KafkaListener(topics = "acqTxnUpdate", groupId = "group_acqTxnUpdate")
     public void acqTxnUpdateConsumer(String uniqueID) throws Exception {
@@ -117,6 +121,13 @@ public class ConsumerService {
         System.out.println("Start EOD Parameter Reset Process");
         eodParameterResetConnector.startProcess(Configurations.PROCESS_ID_EOD_PARAMETER_RESET, uniqueID);
         System.out.println("Complete EOD Parameter Reset Process");
+    }
+
+    @KafkaListener(topics = "originatorPushTxnUpdate", groupId = "group_originatorPushTxnUpdate")
+    public void originatorPushTxnUpdateConsumer(String uniqueID) throws Exception {
+        System.out.println("Start OriginatorPushTxnUpdate Process");
+        originatorPushTxnUpdateConnector.startProcess(Configurations.PROCESS_ID_ORIGINATOR_PUSH_TXN_UPDATE, uniqueID);
+        System.out.println("Complete OriginatorPushTxnUpdate Process");
     }
 
 }

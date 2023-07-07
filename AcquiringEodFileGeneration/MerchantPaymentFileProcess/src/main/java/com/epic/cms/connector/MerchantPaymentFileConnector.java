@@ -10,14 +10,15 @@ package com.epic.cms.connector;
 import com.epic.cms.common.FileGenProcessBuilder;
 import com.epic.cms.common.ProcessBuilder;
 import com.epic.cms.dao.MerchantPaymentFileDao;
-import com.epic.cms.model.bean.*;
+import com.epic.cms.model.bean.ErrorMerchantBean;
+import com.epic.cms.model.bean.MerchantPaymentCycleBean;
+import com.epic.cms.model.bean.ProcessBean;
 import com.epic.cms.repository.CommonRepo;
 import com.epic.cms.service.MerchantPaymentFileService;
 import com.epic.cms.util.CommonMethods;
 import com.epic.cms.util.Configurations;
 import com.epic.cms.util.LogManager;
 import com.epic.cms.util.StatusVarList;
-import lombok.extern.slf4j.Slf4j;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -96,7 +97,7 @@ public class MerchantPaymentFileConnector extends FileGenProcessBuilder {
 
                         SimpleDateFormat sd = new SimpleDateFormat("yyyy");
                         String year = sd.format(new Date());
-                        String today1 = String.valueOf(year) + Integer.toString(Configurations.EOD_ID).substring(2, 6);
+                        String today1 = year + Integer.toString(Configurations.EOD_ID).substring(2, 6);
 
                         String eodSeq = Integer.toString(Configurations.ERROR_EOD_ID).substring(6);
                         seq = Integer.parseInt(eodSeq) + 1;
@@ -110,7 +111,7 @@ public class MerchantPaymentFileConnector extends FileGenProcessBuilder {
                         Configurations.PROCESS_TOTAL_NOOF_TRABSACTIONS = totalMerchantListOnPaymod.size();
 
                         for (Map.Entry<String, HashMap<Integer, HashMap<String, ArrayList<MerchantPaymentCycleBean>>>> entrySet : totalMerchantListOnPaymod.entrySet()) {
-                            merchantPaymentFileService.paymentFile(entrySet,fileNameF1,fileNameF2);
+                            merchantPaymentFileService.paymentFile(entrySet, fileNameF1, fileNameF2);
 
                         }
 
@@ -159,8 +160,6 @@ public class MerchantPaymentFileConnector extends FileGenProcessBuilder {
         summery.put("File Success Count ", Configurations.PROCESS_SUCCESS_COUNT);
         summery.put("File Failed Count ", Configurations.PROCESS_FAILD_COUNT);
     }
-
-
 }
 
 

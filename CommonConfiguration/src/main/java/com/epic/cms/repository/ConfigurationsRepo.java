@@ -476,7 +476,6 @@ public class ConfigurationsRepo implements ConfigurationsDao {
             Configurations.CASHBACK_FILE_PREFIX_F2 = configVarList.getCASHBACK_FILE_PREFIX_F2();
             Configurations.MERCHANT_PAYMENT_FILE_DIRECT_PREFIX_F2 = configVarList.getMERCHANT_PAYMENT_FILE_DIRECT_PREFIX_F2();
             Configurations.PROCESS_ID_TXN_POST = configVarList.getProcess_txn_post();
-            Configurations.PROCESS_ID_FEE_POST = configVarList.getProcess_fee_post();
             Configurations.REPORT_ID = configVarList.getReport_id();
             Configurations.SUBJECT_TYPE = configVarList.getSubject_type();
             Configurations.RESPONSE_TYPE = configVarList.getResponse_type();
@@ -558,6 +557,9 @@ public class ConfigurationsRepo implements ConfigurationsDao {
             Configurations.MERCHANT_PAY_MODE_DIRECT = configVarList.getMERCHANT_PAY_MODE_DIRECT();
             Configurations.MERCHANT_PAY_MODE_CHEQUE = configVarList.getMERCHANT_PAY_MODE_CHEQUE();
             //Configurations.SUSPENCE_ACC_MERCHANT_PAY_MODE_SLIPS = configVarList.getSUSPENCE_ACC_MERCHANT_PAY_MODE_SLIPS();
+
+            //Acquring
+            Configurations.PROCESS_ID_ORIGINATOR_PUSH_TXN_UPDATE = configVarList.getProcess_id_originator_push_txn_update();
 
         } catch (Exception e) {
             throw e;

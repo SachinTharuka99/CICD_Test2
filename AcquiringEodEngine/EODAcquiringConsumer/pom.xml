@@ -71,6 +71,12 @@
         </dependency>
         <dependency>
             <groupId>com.epic.cms</groupId>
+            <artifactId>OriginatorPushTxnUpdateProcess</artifactId>
+            <version>0.0.1-SNAPSHOT</version>
+            <scope>compile</scope>
+        </dependency>
+        <dependency>
+            <groupId>com.epic.cms</groupId>
             <artifactId>MerchantGLSummaryFileProcess</artifactId>
             <version>0.0.1-SNAPSHOT</version>
             <scope>compile</scope>

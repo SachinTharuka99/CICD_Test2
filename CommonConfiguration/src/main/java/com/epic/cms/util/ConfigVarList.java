@@ -868,7 +868,6 @@ public class ConfigVarList {
 
     @Value("${process_eodtransaction_update}")
     public int PROCESS_EODTRANSACTIONUPDATE;
-    public int process_fee_post;
 
     @Value("${report_id}")
     public String report_id;
@@ -1084,5 +1083,9 @@ public class ConfigVarList {
 
     @Value("${merchant_pay_mode_slips}")
     public String MERCHANT_PAY_MODE_SLIPS;
+
+    //Acquiring
+    @Value("${process_id_originator_push_txn_update}")
+    public int process_id_originator_push_txn_update;
 
 }

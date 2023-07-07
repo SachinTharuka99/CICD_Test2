@@ -10,9 +10,7 @@ package com.epic.cms.controller;
 import com.epic.cms.model.bean.ResponseBean;
 import com.epic.cms.model.bean.StatementGenSummeryBean;
 import com.epic.cms.service.EODEngineDashboardService;
-import com.epic.cms.service.EODFileProcessingEngineDashboardService;
 import com.epic.cms.util.*;
-import lombok.extern.slf4j.Slf4j;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -28,15 +26,8 @@ public class EODFileProcessingEngineDashboardController {
     ResponseBean responseBean = new ResponseBean();
 
     @Autowired
-    EODFileProcessingEngineDashboardService processingEngineDashboardService;
-
-    @Autowired
     EODEngineDashboardService eodEngineDashboardService;
 
-    @Autowired
-    LogManager logManager;
-
-    private static final Logger logInfo = LoggerFactory.getLogger("logInfo");
     private static final Logger logError = LoggerFactory.getLogger("logError");
 
     @PostMapping("/inputfile/{eodid}")
@@ -88,7 +79,7 @@ public class EODFileProcessingEngineDashboardController {
     @PostMapping("/fileUpload/{fileId}/{processId}")
     public void inputFileUploadListener(@PathVariable("fileId") final String fileId, @PathVariable("processId") final int processId) {
         try {
-            processingEngineDashboardService.sendInputFileUploadListener(fileId,processId);
+            eodEngineDashboardService.sendInputFileUploadListener(fileId,processId);
 
         } catch (Exception e) {
             logError.error("Failed Input" + fileId + "File Upload Listener ", e);
