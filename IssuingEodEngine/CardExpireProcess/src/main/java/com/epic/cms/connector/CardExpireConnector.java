@@ -63,13 +63,10 @@ public class CardExpireConnector extends ProcessBuilder {
                 }
             }
             Configurations.PROCESS_TOTAL_NOOF_TRABSACTIONS = expiredCardList.size();
-            Configurations.PROCESS_SUCCESS_COUNT = (Configurations.PROCESS_TOTAL_NOOF_TRABSACTIONS - Configurations.PROCESS_FAILD_COUNT);
-
         } catch (Exception ex) {
             Configurations.IS_PROCESS_COMPLETELY_FAILED = true;
             throw ex;
         } finally {
-            logInfo.info(logManager.logSummery(summery));
             try {
                 if (expiredCardList != null && expiredCardList.size() != 0) {
                     /** PADSS Change -
@@ -88,7 +85,7 @@ public class CardExpireConnector extends ProcessBuilder {
     @Override
     public void addSummaries() {
         summery.put("Number of cards to expired ", Configurations.PROCESS_TOTAL_NOOF_TRABSACTIONS);
-        summery.put("Number of success expired ", Configurations.PROCESS_SUCCESS_COUNT);
-        summery.put("Number of failure expired ", Configurations.PROCESS_FAILD_COUNT);
+        summery.put("Number of success expired ", Configurations.PROCESS_TOTAL_NOOF_TRABSACTIONS - Configurations.PROCESS_FAILED_COUNT.get());
+        summery.put("Number of failure expired ", Configurations.PROCESS_FAILED_COUNT.get());
     }
 }

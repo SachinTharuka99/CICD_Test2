@@ -65,7 +65,7 @@ public class CardExpireService {
             } catch (Exception e) {
                 Configurations.errorCardList.add(new ErrorCardBean(Configurations.ERROR_EOD_ID, Configurations.EOD_DATE, new StringBuffer(cardBean.getCardnumber()), e.getMessage(), Configurations.RUNNING_PROCESS_ID, Configurations.RUNNING_PROCESS_DESCRIPTION, 0, CardAccount.CARD));
                 logError.error("Card expire process failed for card number " + CommonMethods.cardNumberMask(cardBean.getCardnumber()), e);
-                Configurations.PROCESS_FAILD_COUNT++;
+                Configurations.PROCESS_FAILED_COUNT.set(Configurations.PROCESS_FAILED_COUNT.getAndIncrement());
             } finally {
                 logInfo.info(logManager.logDetails(details));
             }

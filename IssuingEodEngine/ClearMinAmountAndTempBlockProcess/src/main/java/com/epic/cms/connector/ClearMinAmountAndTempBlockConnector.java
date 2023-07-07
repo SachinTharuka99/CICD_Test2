@@ -65,7 +65,6 @@ public class ClearMinAmountAndTempBlockConnector extends ProcessBuilder {
             logError.error("Failed Clear Min Amount & Temp Block Process ", e);
 
         } finally {
-            logInfo.info(logManager.logSummery(summery));
             try {
                 if (cardList != null && cardList.size() != 0) {
                     for (LastStatementSummeryBean lastStatement : cardList) {
@@ -83,7 +82,7 @@ public class ClearMinAmountAndTempBlockConnector extends ProcessBuilder {
     public void addSummaries() {
             summery.put("Started Date", Configurations.EOD_DATE.toString());
             summery.put("Number of transaction Cards Count", Configurations.PROCESS_TOTAL_NOOF_TRABSACTIONS);
-            summery.put("Number of success Cards Count", Configurations.PROCESS_SUCCESS_COUNT);
-            summery.put("Number of failure Cards Count", Configurations.PROCESS_FAILD_COUNT);
+            summery.put("Number of success Cards Count", Configurations.PROCESS_TOTAL_NOOF_TRABSACTIONS - Configurations.PROCESS_FAILED_COUNT.get());
+            summery.put("Number of failure Cards Count", Configurations.PROCESS_FAILED_COUNT.get());
     }
 }
