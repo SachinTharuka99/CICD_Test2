@@ -47,8 +47,6 @@ public class CardApplicationRejectLetterConnector extends FileGenProcessBuilder 
     @Autowired
     CardApplicationRejectLetterService cardApplicationRejectLetterService;
     String[] fileNameAndPath = null;
-    @Autowired
-    StatusVarList statusVarList;
 
     @Override
     public void concreteProcess() throws Exception {

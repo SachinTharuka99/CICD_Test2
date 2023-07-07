@@ -13,7 +13,7 @@ import java.text.SimpleDateFormat;
 import java.util.Date;
 @Component
 @ComponentScan(basePackages = {"com.epic.cms.*"})
-public class CreateEodId {
+public class    CreateEodId {
 
     @Autowired
     CommonRepo commonRepo;

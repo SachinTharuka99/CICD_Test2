@@ -19,7 +19,7 @@
         <module>AcquiringAdjustmentProcess</module>
         <module>PreMerchantFeeProcess</module>
         <module>MerchantGLSummaryFileProcess</module>
-        <module>MerchantPaymentFileProcess</module>
+        <module>EodParameterResetProcess</module>
     </modules>
     <artifactId>AcquiringEodEngine</artifactId>
 

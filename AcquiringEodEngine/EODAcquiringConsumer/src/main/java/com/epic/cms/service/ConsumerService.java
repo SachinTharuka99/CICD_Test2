@@ -38,6 +38,9 @@ public class ConsumerService {
     @Autowired
     MerchantCommissionCalculationConnector commissionCalculationConnector;
 
+    @Autowired
+    EodParameterResetConnector eodParameterResetConnector;
+
     @KafkaListener(topics = "acqTxnUpdate", groupId = "group_acqTxnUpdate")
     public void acqTxnUpdateConsumer(String uniqueID) throws Exception {
         Configurations.eodUniqueId = uniqueID;
@@ -106,6 +109,14 @@ public class ConsumerService {
         System.out.println("Start MerchantCommissionCalculation Process");
         commissionCalculationConnector.startProcess(Configurations.PROCESS_ID_COMMISSION_CALCULATION, uniqueID);
         System.out.println("Complete MerchantCommissionCalculation Process");
+    }
+
+    @KafkaListener(topics = "eodParameterReset", groupId = "group_eodParameterReset")
+    public void eodParameterResetConsumer(String uniqueID) throws Exception {
+        Configurations.eodUniqueId = uniqueID;
+        System.out.println("Start EOD Parameter Reset Process");
+        eodParameterResetConnector.startProcess(Configurations.PROCESS_ID_EOD_PARAMETER_RESET, uniqueID);
+        System.out.println("Complete EOD Parameter Reset Process");
     }
 
 }

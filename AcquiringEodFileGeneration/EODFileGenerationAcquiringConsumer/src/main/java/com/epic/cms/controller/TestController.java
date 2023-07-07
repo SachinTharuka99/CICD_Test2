@@ -1,8 +1,8 @@
 /**
  * Author : yasiru_l
- * Date : 11/25/2022
+ * Date : 06/27/2023
  * Time : 6:22 PM
- * Project Name : ecms_eod_file_generation_engine
+ * Project Name : ecms_Acquiring_eod_file_generation_engine
  */
 
 package com.epic.cms.controller;
@@ -21,7 +21,7 @@ import org.springframework.web.bind.annotation.RestController;
 import java.text.SimpleDateFormat;
 
 @RestController
-@RequestMapping("eod-engine")
+@RequestMapping("eod-engine-acquiring")
 public class TestController {
 
     @Autowired
@@ -35,7 +35,7 @@ public class TestController {
         CreateEodId createDate = new CreateEodId();
         SimpleDateFormat sdf = new SimpleDateFormat("dd-MM-yyyy");
 
-        Configurations.EOD_ID = 22102900;//22062900;
+        Configurations.EOD_ID = 23102900;//22062900;
         Configurations.ERROR_EOD_ID = Configurations.EOD_ID;
         Configurations.EOD_DATE = createDate.getDateFromEODID(Configurations.EOD_ID);
         Configurations.EOD_DATE_String = sdf.format(Configurations.EOD_DATE);
