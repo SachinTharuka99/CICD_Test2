@@ -14,7 +14,6 @@ import com.epic.cms.model.bean.ProcessBean;
 import com.epic.cms.repository.CommonRepo;
 import com.epic.cms.service.FileGenerationService;
 import com.epic.cms.util.Configurations;
-import lombok.extern.slf4j.Slf4j;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -89,11 +88,19 @@ public abstract class FileGenProcessBuilder extends ProcessBuilder {
                     commonRepo.updateEODProcessCount(uniqueId);
                 }
             }
-
-
-        } catch (Exception e) {
+        } catch (Exception ex) {
             logInfo.info(logManager.logStartEnd(failedHeader));
-            logError.error(failedHeader, e);
+            logInfo.error(failedHeader);
+            //add updateeodprocesssummary
+//            if (ex instanceof FailedCardException) {
+//                commonRepo.updateEodProcessSummery(Configurations.ERROR_EOD_ID, statusVarList.getERROR_STATUS(), processId, Configurations.PROCESS_SUCCESS_COUNT, Configurations.PROCESS_FAILD_COUNT, eodDashboardProcessProgress(Configurations.PROCESS_SUCCESS_COUNT, Configurations.PROCESS_TOTAL_NOOF_TRABSACTIONS));
+//            }
+        } finally {
+            addSummaries();
+            logInfo.info(logManager.logSummery(summery));
+            kafkaMessageUpdator.producerWithNoReturn("true", "processStatus");
+            kafkaMessageUpdator.producerWithNoReturn(!Configurations.IS_PROCESS_COMPLETELY_FAILED, "eodEngineConsumerStatus");
+            logInfo.info(logManager.logStartEnd(completedHeader));
         }
     }
 

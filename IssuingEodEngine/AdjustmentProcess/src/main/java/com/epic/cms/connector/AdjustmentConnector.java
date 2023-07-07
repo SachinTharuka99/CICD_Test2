@@ -24,6 +24,7 @@ import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.concurrent.atomic.AtomicInteger;
 
 
 @Service
@@ -45,9 +46,11 @@ public class AdjustmentConnector extends ProcessBuilder {
     private static final Logger logInfo = LoggerFactory.getLogger("logInfo");
     private static final Logger logError = LoggerFactory.getLogger("logError");
 
+    public AtomicInteger ADJUSTMENT_SEQUENCE_NO = new AtomicInteger(0);
+
     @Override
     public void concreteProcess() throws Exception {
-        Configurations.ADJUSTMENT_SEQUENCE_NO = 1;
+        ADJUSTMENT_SEQUENCE_NO.set(1);
 
         List<AdjustmentBean> adjustmentList = new ArrayList<>();
         try {
@@ -59,7 +62,7 @@ public class AdjustmentConnector extends ProcessBuilder {
             Configurations.PROCESS_TOTAL_NOOF_TRABSACTIONS = adjustmentList.size();
 
             for (AdjustmentBean adjustmentBean : adjustmentList) {
-                adjustmentService.proceedAdjustment(adjustmentBean);
+                adjustmentService.proceedAdjustment(adjustmentBean,ADJUSTMENT_SEQUENCE_NO);
             }
 
             //wait till all the threads are completed
@@ -80,14 +83,13 @@ public class AdjustmentConnector extends ProcessBuilder {
             }
             adjustmentList = null;
         }
-
     }
 
     @Override
     public void addSummaries() {
         summery.put("Started Date", Configurations.EOD_DATE.toString());
         summery.put("No of Card effected", Integer.toString(Configurations.PROCESS_TOTAL_NOOF_TRABSACTIONS));
-        summery.put("No of Success Card ", Integer.toString(Configurations.PROCESS_SUCCESS_COUNT));
-        summery.put("No of fail Card ", Integer.toString(Configurations.PROCESS_FAILD_COUNT));
+        summery.put("No of Success Card ", Integer.toString(Configurations.PROCESS_TOTAL_NOOF_TRABSACTIONS - Configurations.PROCESS_FAILED_COUNT.get()));
+        summery.put("No of fail Card ", Integer.toString(Configurations.PROCESS_FAILED_COUNT.get()));
     }
 }

@@ -17,6 +17,7 @@ import org.springframework.scheduling.concurrent.ThreadPoolTaskExecutor;
 import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
+import java.util.concurrent.atomic.AtomicInteger;
 
 @Service
 public class StampDutyFeeConnector extends ProcessBuilder {
@@ -35,11 +36,14 @@ public class StampDutyFeeConnector extends ProcessBuilder {
     @Qualifier("ThreadPool_100")
     ThreadPoolTaskExecutor taskExecutor;
 
+    public AtomicInteger faileCardCount = new AtomicInteger(0);
+
     @Override
     public void concreteProcess() throws Exception {
         ArrayList<StampDutyBean> statementAccountList = new ArrayList<>();
         int totalFailedCount = 0;
         int noOfCards = 0;
+
 
         try {
             Configurations.RUNNING_PROCESS_ID = Configurations.PROCESS_STAMP_DUTY_FEE;
@@ -53,24 +57,17 @@ public class StampDutyFeeConnector extends ProcessBuilder {
             noOfCards = statementAccountList.size();
 
             for (StampDutyBean stampDutyAcoountBean : statementAccountList) {
-                stampDutyFeeService.StampDutyFee(stampDutyAcoountBean);
+                stampDutyFeeService.StampDutyFee(stampDutyAcoountBean,faileCardCount);
             }
 
             //wait till all the threads are completed
             while (!(taskExecutor.getActiveCount() == 0)) {
                 Thread.sleep(1000);
             }
-
-            totalFailedCount = Configurations.PROCESS_FAILD_COUNT;
-            Configurations.PROCESS_TOTAL_NOOF_TRABSACTIONS = (statementAccountList.size());
-            Configurations.PROCESS_SUCCESS_COUNT = (statementAccountList.size() - totalFailedCount);
-            Configurations.PROCESS_FAILD_COUNT = (totalFailedCount);
-
         } catch (Exception e) {
             Configurations.IS_PROCESS_COMPLETELY_FAILED = true;
             logError.error("Stan Duty Fee Process Fail", e);
         } finally {
-            logInfo.info(logManager.logSummery(summery));
             try {
                 /* PADSS Change -variables handling card data should be nullified by replacing
                  the value of variable with zero and call NULL function */
@@ -90,7 +87,7 @@ public class StampDutyFeeConnector extends ProcessBuilder {
     public void addSummaries() {
         summery.put("Started Date", Configurations.EOD_DATE.toString());
         summery.put("No of Card effected", Integer.toString(Configurations.PROCESS_TOTAL_NOOF_TRABSACTIONS));
-        summery.put("No of Success Card ", Integer.toString(Configurations.PROCESS_SUCCESS_COUNT));
-        summery.put("No of fail Card ", Integer.toString(Configurations.PROCESS_FAILD_COUNT));
+        summery.put("No of Success Card ", Integer.toString(Configurations.PROCESS_TOTAL_NOOF_TRABSACTIONS - faileCardCount.get()));
+        summery.put("No of fail Card ", Integer.toString(faileCardCount.get()));
     }
 }
