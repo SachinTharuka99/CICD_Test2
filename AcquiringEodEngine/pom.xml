@@ -19,7 +19,6 @@
         <module>AcquiringAdjustmentProcess</module>
         <module>PreMerchantFeeProcess</module>
         <module>MerchantGLSummaryFileProcess</module>
-        <module>MerchantPaymentFileProcess</module>
         <module>OriginatorPushTxnUpdateProcess</module>
         <module>EodParameterResetProcess</module>
     </modules>

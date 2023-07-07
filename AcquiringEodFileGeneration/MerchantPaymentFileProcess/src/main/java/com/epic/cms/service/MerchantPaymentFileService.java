@@ -8,10 +8,7 @@
 package com.epic.cms.service;
 
 import com.epic.cms.dao.MerchantPaymentFileDao;
-import com.epic.cms.model.bean.MerchantCustomerBean;
-import com.epic.cms.model.bean.MerchantPayBean;
-import com.epic.cms.model.bean.MerchantPaymentCycleBean;
-import com.epic.cms.model.bean.EodOuputFileBean;
+import com.epic.cms.model.bean.*;
 import com.epic.cms.repository.CommonRepo;
 import com.epic.cms.util.Configurations;
 import com.epic.cms.util.LogManager;
@@ -40,7 +37,7 @@ import static com.epic.cms.util.CommonMethods.*;
 public class MerchantPaymentFileService {
     private static final Logger logInfo = LoggerFactory.getLogger("logInfo");
     private static final Logger logError = LoggerFactory.getLogger("logError");
-    public List<ErrorMerchantBean> merchantErrorList = new ArrayList<ErrorMerchantBean>();
+
     @Autowired
     LogManager logManager;
     @Autowired
