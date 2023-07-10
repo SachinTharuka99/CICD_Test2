@@ -9,7 +9,6 @@ import com.epic.cms.util.CardAccount;
 import com.epic.cms.util.CommonMethods;
 import com.epic.cms.util.Configurations;
 import com.epic.cms.util.LogManager;
-import lombok.extern.slf4j.Slf4j;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -19,6 +18,7 @@ import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.LinkedHashMap;
+import java.util.concurrent.atomic.AtomicInteger;
 
 
 @Service
@@ -38,7 +38,7 @@ public class AdjustmentService {
 
     @Async("ThreadPool_100")
     @Transactional(value = "transactionManager", propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
-    public void proceedAdjustment(AdjustmentBean adjustmentBean) {
+    public void proceedAdjustment(AdjustmentBean adjustmentBean, AtomicInteger ADJUSTMENT_SEQUENCE_NO, AtomicInteger faileCardCount) {
         if (!Configurations.isInterrupted) {
             LinkedHashMap details = new LinkedHashMap();
             PaymentBean pb = new PaymentBean();
@@ -54,7 +54,7 @@ public class AdjustmentService {
                 details.put("CRDR Type", adjustmentBean.getCrDr());
                 details.put("Adjustment ID", adjustmentBean.getId());
 
-                seqNo = CommonMethods.validate(Integer.toString(Configurations.ADJUSTMENT_SEQUENCE_NO), 8, '0');
+                seqNo = CommonMethods.validate(Integer.toString(ADJUSTMENT_SEQUENCE_NO.get()), 8, '0');
 
                 //If a CR it is considered as a credit payment
                 if (adjustmentBean.getCrDr().equalsIgnoreCase("CR")) {
@@ -99,11 +99,10 @@ public class AdjustmentService {
                 adjustmentDao.updateTransactionToEDON(adjustmentBean.getTxnId());
 
                 details.put("Adjustment Sync Status", "Passed");
-                Configurations.ADJUSTMENT_SEQUENCE_NO++;
-                Configurations.PROCESS_SUCCESS_COUNT++;
+                ADJUSTMENT_SEQUENCE_NO.set(ADJUSTMENT_SEQUENCE_NO.getAndIncrement());
 
             } catch (Exception ex) {
-                Configurations.PROCESS_FAILD_COUNT++;
+                faileCardCount.addAndGet(1);
                 Configurations.errorCardList.add(new ErrorCardBean(Configurations.ERROR_EOD_ID, Configurations.EOD_DATE, new StringBuffer(adjustmentBean.getCardNumber()), ex.getMessage(), Configurations.RUNNING_PROCESS_ID, Configurations.RUNNING_PROCESS_DESCRIPTION, 0, CardAccount.CARD));
                 details.put("Adjustment Sync Status", "Failed");
                 logError.error("ADJUSTMENT_PROCESS failed for card number " + maskedCardNumber, ex);

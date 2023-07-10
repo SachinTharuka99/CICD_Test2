@@ -15,6 +15,7 @@ import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.concurrent.atomic.AtomicInteger;
 
 
 @Service
@@ -34,6 +35,9 @@ public class CardReplaceConnector extends ProcessBuilder {
     @Autowired
     LogManager logManager;
 
+    public AtomicInteger faileCardCount = new AtomicInteger(0);
+
+
     @Override
     public void concreteProcess() throws Exception {
         List<CardReplaceBean> cardListToReplace = new ArrayList<>();
@@ -49,9 +53,10 @@ public class CardReplaceConnector extends ProcessBuilder {
                 Configurations.PROCESS_TOTAL_NOOF_TRABSACTIONS = cardListToReplace.size();
 
                 //iterate card list one by one
-                for (CardReplaceBean cardReplaceBean : cardListToReplace) {
-                    cardReplaceService.cardReplace(cardReplaceBean);
-                }
+                cardListToReplace.forEach(cardReplaceBean -> {
+                    cardReplaceService.cardReplace(cardReplaceBean,faileCardCount);
+                });
+
                 Configurations.PROCESS_TOTAL_NOOF_TRABSACTIONS = Statusts.SUMMARY_FOR_CARDREPLACE;
                 Configurations.PROCESS_SUCCESS_COUNT = Statusts.SUMMARY_FOR_CARDREPLACE_PROCESSED;
                 Configurations.PROCESS_FAILD_COUNT = Statusts.SUMMARY_FOR_CARDREPLACE - Statusts.SUMMARY_FOR_CARDREPLACE_PROCESSED;
@@ -65,7 +70,6 @@ public class CardReplaceConnector extends ProcessBuilder {
             Configurations.IS_PROCESS_COMPLETELY_FAILED = true;
             throw ex;
         } finally {
-            logInfo.info(logManager.logSummery(summery));
             try {
                 if (cardListToReplace != null && cardListToReplace.size() != 0) {
                     /* variables handling card data should be nullified
@@ -86,5 +90,7 @@ public class CardReplaceConnector extends ProcessBuilder {
     public void addSummaries() {
         summery.put("Total no of cards to be replaced", Statusts.SUMMARY_FOR_CARDREPLACE);
         summery.put("Cards replaced", Statusts.SUMMARY_FOR_CARDREPLACE_PROCESSED);
+        summery.put("No of Success Card", Configurations.PROCESS_TOTAL_NOOF_TRABSACTIONS - faileCardCount.get());
+        summery.put("Total Fails", faileCardCount.get());
     }
 }

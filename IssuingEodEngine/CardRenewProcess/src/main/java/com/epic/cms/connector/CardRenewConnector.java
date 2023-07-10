@@ -32,6 +32,7 @@ import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
+import java.util.concurrent.atomic.AtomicInteger;
 
 
 @Service
@@ -55,9 +56,10 @@ public class CardRenewConnector extends ProcessBuilder {
     ThreadPoolTaskExecutor taskExecutor;
 
     ArrayList<CardRenewBean> approvedCardBeanList = new ArrayList<CardRenewBean>();
+    public AtomicInteger faileCardCount = new AtomicInteger(0);
+
     int noOfEarlyRenewals = 0;
     int noOfNormalRenewals = 0;
-    int NoOfFailCards = 0;
 
     /**
      * @author Malinda_R
@@ -139,8 +141,12 @@ public class CardRenewConnector extends ProcessBuilder {
                 if (approvedCardBeanList.size() != 0) {
                     /**iterate card list one by one*/
                     for (CardRenewBean CRBean : approvedCardBeanList) {
-                        cardRenewService.cardRenewProcess(CRBean, noOfEarlyRenewals, noOfNormalRenewals, NoOfFailCards);
+                        cardRenewService.cardRenewProcess(CRBean, noOfEarlyRenewals, noOfNormalRenewals,faileCardCount);
                     }
+
+                    approvedCardBeanList.forEach(CRBean -> {
+                        cardRenewService.cardRenewProcess(CRBean, noOfEarlyRenewals, noOfNormalRenewals,faileCardCount);
+                    });
                 }
             }
         } catch (Exception e) {
@@ -159,16 +165,11 @@ public class CardRenewConnector extends ProcessBuilder {
             }
 
         } finally {
-            logInfo.info(logManager.logSummery(summery));
             try {
                 int NoOfFailCards = Configurations.PROCESS_FAILD_COUNT;
                 if (approvedCardBeanList.size() == 0) {
                     logInfo.info("No Cards in Aprroved List");
                 }
-
-                Configurations.PROCESS_TOTAL_NOOF_TRABSACTIONS = approvedCardBeanList.size();
-                Configurations.PROCESS_SUCCESS_COUNT = (approvedCardBeanList.size() - NoOfFailCards);
-                Configurations.PROCESS_FAILD_COUNT = NoOfFailCards;
 
                 if (approvedCardBeanList != null && approvedCardBeanList.size() != 0) {
                     /* PADSS Change -
@@ -190,6 +191,7 @@ public class CardRenewConnector extends ProcessBuilder {
         summery.put("Renewal Process Started with", Configurations.PROCESS_TOTAL_NOOF_TRABSACTIONS + " Cards");
         summery.put("No of Early Renwals", Integer.toString(noOfEarlyRenewals));
         summery.put("No of Normal Renwals", Integer.toString(noOfNormalRenewals));
-        summery.put("Total Fails", Integer.toString(NoOfFailCards));
+        summery.put("No of Success Card", Configurations.PROCESS_TOTAL_NOOF_TRABSACTIONS - faileCardCount.get());
+        summery.put("Total Fails", faileCardCount.get());
     }
 }

@@ -1,6 +1,7 @@
 package com.epic.cms.service;
 
 import com.epic.cms.connector.*;
+import com.epic.cms.connnector.OriginatorPushTxnUpdateConnector;
 import com.epic.cms.util.Configurations;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.ComponentScan;
@@ -37,6 +38,12 @@ public class ConsumerService {
 
     @Autowired
     MerchantCommissionCalculationConnector commissionCalculationConnector;
+
+    @Autowired
+    MerchantCustomerStatementConnector merchantCustomerStatementConnector;
+
+    @Autowired
+    OriginatorPushTxnUpdateConnector originatorPushTxnUpdateConnector;
 
     @Autowired
     RecipientPushTxnUpdateConnector recipientPushTxnUpdateController;
@@ -113,6 +120,20 @@ public class ConsumerService {
         System.out.println("Start MerchantCommissionCalculation Process");
         commissionCalculationConnector.startProcess(Configurations.PROCESS_ID_COMMISSION_CALCULATION, uniqueID);
         System.out.println("Complete MerchantCommissionCalculation Process");
+    }
+
+    @KafkaListener(topics = "merchantCustomerStatement", groupId = "group_merchantCustomerStatement")
+    public void merchantCustomerStatement(String uniqueID) throws Exception {
+        System.out.println("Start Merchant Customer Statement Process");
+        merchantCustomerStatementConnector.startProcess(Configurations.PROCESS_ID_MERCHANT_CUSTOMER_STATEMENT, uniqueID);
+        System.out.println("Complete Merchant Customer Statement Process");
+    }
+
+    @KafkaListener(topics = "originatorPushTxnUpdate", groupId = "group_originatorPushTxnUpdate")
+    public void originatorPushTxnUpdateConsumer(String uniqueID) throws Exception {
+        System.out.println("Start OriginatorPushTxnUpdate Process");
+        originatorPushTxnUpdateConnector.startProcess(Configurations.PROCESS_ID_ORIGINATOR_PUSH_TXN_UPDATE, uniqueID);
+        System.out.println("Complete OriginatorPushTxnUpdate Process");
     }
 
     @KafkaListener(topics = "recipientPushTransaction", groupId = "group_recipientPushTransaction")

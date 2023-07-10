@@ -77,7 +77,6 @@ public class DatabaseConfigChained {
         hikariConfig.setUsername(commonOnlineDbVarList.getOnlineUsername());
         hikariConfig.setPassword(commonOnlineDbVarList.getOnlinePassword());
         hikariConfig.setMaximumPoolSize(10);
-        //hikariConfig.setIdleTimeout(200000);
         hikariConfig.setMinimumIdle(10);
         hikariConfig.setConnectionTimeout(10000);
         hikariConfig.setMaxLifetime(1800000);

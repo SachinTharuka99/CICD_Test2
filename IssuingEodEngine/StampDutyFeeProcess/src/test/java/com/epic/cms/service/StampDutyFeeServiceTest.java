@@ -21,6 +21,7 @@ import org.mockito.MockedStatic;
 import org.mockito.Mockito;
 
 import java.util.*;
+import java.util.concurrent.atomic.AtomicInteger;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
@@ -30,6 +31,8 @@ import static org.mockito.Mockito.*;
 class StampDutyFeeServiceTest {
 
     private StampDutyFeeService stampDutyFeeServiceUnderTest;
+
+    public AtomicInteger faileCardCount = new AtomicInteger(0);
 
     @BeforeEach
     void setUp() {
@@ -72,7 +75,7 @@ class StampDutyFeeServiceTest {
         when(stampDutyFeeServiceUnderTest.stampDutyFeeRepo.getTotalForeignTxns(anyString(), anyInt())).thenReturn(0.0);
 
         // Run the test
-        stampDutyFeeServiceUnderTest.StampDutyFee(stampDutyBean);
+        stampDutyFeeServiceUnderTest.StampDutyFee(stampDutyBean, faileCardCount);
 
         // Verify the results
         verify(stampDutyFeeServiceUnderTest.stampDutyFeeRepo,times(1)).insertToEODcardFee(any(CardFeeBean.class), anyDouble(), any(Date.class), any());

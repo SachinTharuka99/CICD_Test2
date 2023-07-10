@@ -74,10 +74,9 @@ public class CheckPaymentForMinimumAmountService {
                     Statusts.SUMMARY_FOR_MINPAYMENT_RISK_ADDED++;
                 }
             }
-            Configurations.PROCESS_SUCCESS_COUNT++;
         } catch (Exception e) {
             Configurations.errorCardList.add(new ErrorCardBean(Configurations.ERROR_EOD_ID, Configurations.EOD_DATE, new StringBuffer(lastStatement.getCardno()), e.getMessage(), Configurations.RUNNING_PROCESS_ID, Configurations.RUNNING_PROCESS_DESCRIPTION, 0, CardAccount.CARD));
-            Configurations.PROCESS_FAILD_COUNT++;
+            Configurations.PROCESS_FAILED_COUNT.set(Configurations.PROCESS_FAILED_COUNT.getAndIncrement());
             logError.error("Error Occured for cardno :" + CommonMethods.cardInfo(String.valueOf(lastStatement.getCardno()), processBean), e);
         } finally {
             logInfo.info(logManager.logDetails(details));

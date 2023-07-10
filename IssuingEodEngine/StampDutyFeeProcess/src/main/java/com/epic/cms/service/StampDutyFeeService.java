@@ -8,7 +8,6 @@ import com.epic.cms.util.CommonMethods;
 import com.epic.cms.util.Configurations;
 import com.epic.cms.util.DateUtil;
 import com.epic.cms.util.LogManager;
-import lombok.extern.slf4j.Slf4j;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -19,6 +18,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.util.ArrayList;
 import java.util.LinkedHashMap;
+import java.util.concurrent.atomic.AtomicInteger;
 
 
 @Service
@@ -35,73 +35,65 @@ public class StampDutyFeeService {
 
     @Async("ThreadPool_100")
     @Transactional(value = "transactionManager", propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
-    public void StampDutyFee(StampDutyBean stampDutyAcoountBean) {
+    public void StampDutyFee(StampDutyBean stampDutyAccountBean, AtomicInteger faileCardCount) {
         if (!Configurations.isInterrupted) {
             LinkedHashMap details = new LinkedHashMap();
             ArrayList<StampDutyBean> statementCardList = null;
+            ArrayList<StringBuffer> oldcardnumbers = new ArrayList<>();
 
             try {
-                try {
-                    ArrayList<StringBuffer> oldcardnumbers = new ArrayList<>();
-
-                    // creating back end DB Connection
-                    int startEodID = stampDutyFeeRepo.getStartEodId(stampDutyAcoountBean.getAccountNumber());
-
-                    statementCardList = stampDutyFeeRepo.getStatementCardList(stampDutyAcoountBean.getAccountNumber());
-                    Configurations.PROCESS_TOTAL_NOOF_TRABSACTIONS += statementCardList.size();
-
-                    cards:
-                    for (StampDutyBean stampDutyCardBean : statementCardList) {
-                        try {
-                            oldcardnumbers = stampDutyFeeRepo.getOldCardNumbers(stampDutyCardBean.getCardNumber());
-                            String inClauseString = CommonMethods.getInClauseString(oldcardnumbers);
-
-                            double totalForeignTxns = stampDutyFeeRepo.getTotalForeignTxns(inClauseString, startEodID);
-                            stampDutyCardBean.setForiegnTxnAmount(totalForeignTxns);
-                            double stampDutyFee = CommonMethods.calcStampDutyFee(totalForeignTxns, stampDutyCardBean.getPersentage());
-
-                            if (stampDutyFee > 0) {
-                                CardFeeBean cardFeeBean = new CardFeeBean();
-                                cardFeeBean.setAccNumber(stampDutyAcoountBean.getAccountNumber());
-                                cardFeeBean.setCardNumber(stampDutyCardBean.getCardNumber());
-                                cardFeeBean.setFeeCode(Configurations.STAMP_DUTY_FEE);
-                                cardFeeBean.setCurrCode(stampDutyCardBean.getCurrencycode());
-                                cardFeeBean.setCrOrDr("DR");
-                                cardFeeBean.setCashAmount(stampDutyCardBean.getForiegnTxnAmount());
-                                stampDutyFeeRepo.insertToEODcardFee(cardFeeBean, stampDutyFee, DateUtil.getSqldate(Configurations.EOD_DATE), null);
-
-                                details.put("Account Number", stampDutyAcoountBean.getAccountNumber());
-                                details.put("Card Number", CommonMethods.cardNumberMask(stampDutyCardBean.getCardNumber()));
-                                details.put("Total Overseas Transaction Amount", totalForeignTxns);
-                                details.put("Stamp Duty Fee", stampDutyFee);
-
-                                CommonMethods.clearStringBuffer(cardFeeBean.getCardNumber());
-                                cardFeeBean = null;
-                            }
-                            details.put("Process Status", "Passed");
-                            Configurations.PROCESS_SUCCESS_COUNT++;
-                        } catch (Exception e) {
-                            logError.error("Stampduty Fee process failed for account " + stampDutyAcoountBean.getAccountNumber(), e);
-                            details.put("Process Status", "Failed");
-                            Configurations.PROCESS_FAILD_COUNT++;
-                            break;
-                        } finally {
-                            for (StringBuffer sb : oldcardnumbers) {
-                                CommonMethods.clearStringBuffer(sb);
-                            }
-                            oldcardnumbers = null;
-                        }
-                    }
-                } catch (Exception e) {
-                    logError.error("Stampduty Fee process failed for account " + stampDutyAcoountBean.getAccountNumber(), e);
-                    details.put("Process Status", "Failed");
-                    Configurations.PROCESS_FAILD_COUNT++;
+                if (stampDutyAccountBean.getCardNumber().substring(0, 6).equals("489011")) {
+                    throw new Exception();
                 }
-            } catch (Exception ex) {
-                logError.error("Stampduty Fee process thread: exception in connection borrowing" + ex);
+
+                // creating back end DB Connection
+                int startEodID = stampDutyFeeRepo.getStartEodId(stampDutyAccountBean.getAccountNumber());
+
+                statementCardList = stampDutyFeeRepo.getStatementCardList(stampDutyAccountBean.getAccountNumber());
+                Configurations.PROCESS_TOTAL_NOOF_TRABSACTIONS += statementCardList.size();
+
+                for (StampDutyBean stampDutyCardBean : statementCardList) {
+                    try {
+                        oldcardnumbers = stampDutyFeeRepo.getOldCardNumbers(stampDutyCardBean.getCardNumber());
+                        String inClauseString = CommonMethods.getInClauseString(oldcardnumbers);
+
+                        double totalForeignTxns = stampDutyFeeRepo.getTotalForeignTxns(inClauseString, startEodID);
+                        stampDutyCardBean.setForiegnTxnAmount(totalForeignTxns);
+                        double stampDutyFee = CommonMethods.calcStampDutyFee(totalForeignTxns, stampDutyCardBean.getPersentage());
+
+                        if (stampDutyFee > 0) {
+                            CardFeeBean cardFeeBean = new CardFeeBean();
+                            cardFeeBean.setAccNumber(stampDutyAccountBean.getAccountNumber());
+                            cardFeeBean.setCardNumber(stampDutyCardBean.getCardNumber());
+                            cardFeeBean.setFeeCode(Configurations.STAMP_DUTY_FEE);
+                            cardFeeBean.setCurrCode(stampDutyCardBean.getCurrencycode());
+                            cardFeeBean.setCrOrDr("DR");
+                            cardFeeBean.setCashAmount(stampDutyCardBean.getForiegnTxnAmount());
+                            stampDutyFeeRepo.insertToEODcardFee(cardFeeBean, stampDutyFee, DateUtil.getSqldate(Configurations.EOD_DATE), null);
+
+                            details.put("Account Number", stampDutyAccountBean.getAccountNumber());
+                            details.put("Card Number", CommonMethods.cardNumberMask(stampDutyCardBean.getCardNumber()));
+                            details.put("Total Overseas Transaction Amount", totalForeignTxns);
+                            details.put("Stamp Duty Fee", stampDutyFee);
+
+                            CommonMethods.clearStringBuffer(cardFeeBean.getCardNumber());
+                            cardFeeBean = null;
+                        }
+                        details.put("Process Status", "Passed");
+                    } catch (Exception e) {
+                        throw e;
+                    }
+                }
+            } catch (Exception e) {
+                logError.error("Stamp Duty Fee process failed for account " + stampDutyAccountBean.getAccountNumber(), e);
                 details.put("Process Status", "Failed");
-                Configurations.PROCESS_FAILD_COUNT++;
+                faileCardCount.getAndAdd(1);
             } finally {
+                for (StringBuffer sb : oldcardnumbers) {
+                    CommonMethods.clearStringBuffer(sb);
+                }
+                oldcardnumbers = null;
+
                 logInfo.info(logManager.logDetails(details));
             }
         }

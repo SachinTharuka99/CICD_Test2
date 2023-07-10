@@ -148,7 +148,8 @@ public class Configurations {
     public static boolean PROCESS_FLOW_STEP_COMPLETE_STATUS;
     public static boolean MAIN_EOD_STATUS;
     public static volatile int PROCESS_SUCCESS_COUNT = 0;
-    public static volatile int PROCESS_FAILD_COUNT = 0;
+    public static int PROCESS_FAILD_COUNT = 0;
+    public static AtomicInteger PROCESS_FAILED_COUNT = new AtomicInteger(0);
     public static String EOD_USER;
     public static int EOD_ID;
     public static int ERROR_EOD_ID;
@@ -958,6 +959,7 @@ public class Configurations {
     public static String MERCHANT_NARRATIVE_RB36;
 
     public static int PROCESS_ID_MERCHANT_GL_FILE_CREATION;//213
+    public static int PROCESS_ID_ORIGINATOR_PUSH_TXN;
     public static int PROCESS_ID_ADMIN_ALERT_PROCESS;
     public static String ADMIN_STATEMENT_ALERT_EMAIL_CODE;
     public static String ADMIN_DUE_DATE_ALERT_EMAIL_CODE;
@@ -1285,4 +1287,11 @@ public class Configurations {
 //
 //    public static HashMap<Integer, Object> fileProcessingConnectorList = new HashMap<>();
       public static volatile String Str_EOD_ID;
+
+      //Acquiring
+        public static volatile int totalTxnCount = 0;
+        public static volatile int issFailedTxn = 0;
+        public static volatile int acqFailedMerchants = 0;
+        public static volatile int onusTxnCount = 0;
+
 }

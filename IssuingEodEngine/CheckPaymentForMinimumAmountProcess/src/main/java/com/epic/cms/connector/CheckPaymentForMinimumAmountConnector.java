@@ -57,10 +57,8 @@ public class CheckPaymentForMinimumAmountConnector extends ProcessBuilder {
                 Thread.sleep(1000);
             }
 
-            failedCount = Configurations.PROCESS_FAILD_COUNT;
             Configurations.PROCESS_TOTAL_NOOF_TRABSACTIONS = cardList.size();
-            Configurations.PROCESS_SUCCESS_COUNT = (cardList.size() - failedCount);
-            Configurations.PROCESS_FAILD_COUNT = failedCount;
+            Configurations.PROCESS_SUCCESS_COUNT = (Configurations.PROCESS_TOTAL_NOOF_TRABSACTIONS - Configurations.PROCESS_FAILED_COUNT.get());
 
         } catch (Exception e) {
             Configurations.IS_PROCESS_COMPLETELY_FAILED = true;

@@ -18,7 +18,6 @@ import com.epic.cms.util.CommonMethods;
 import com.epic.cms.util.Configurations;
 import com.epic.cms.util.LogManager;
 import com.epic.cms.util.StatusVarList;
-import lombok.extern.slf4j.Slf4j;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -27,38 +26,31 @@ import org.springframework.scheduling.concurrent.ThreadPoolTaskExecutor;
 import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
+import java.util.concurrent.atomic.AtomicInteger;
 
 
 @Service
 public class DailyInterestCalculationConnector extends ProcessBuilder {
 
+    private static final Logger logError = LoggerFactory.getLogger("logError");
+    public AtomicInteger faileCardCount = new AtomicInteger(0);
     @Autowired
     CommonRepo commonRepo;
-
     @Autowired
     @Qualifier("ThreadPool_100")
     ThreadPoolTaskExecutor taskExecutor;
-
     @Autowired
     StatusVarList statusList;
-
     @Autowired
     DailyInterestCalculationRepo interestCalculationRepo;
-
     @Autowired
     DailyInterestCalculationService interestCalculationService;
-
     @Autowired
     LogManager logManager;
-
-    private static final Logger logInfo = LoggerFactory.getLogger("logInfo");
-    private static final Logger logError = LoggerFactory.getLogger("logError");
 
     @Override
     public void concreteProcess() throws Exception {
         ArrayList<StatementBean> accountList = new ArrayList<>();
-        int noOfCards = 0;
-        int failedCards = 0;
 
         try {
             processBean = new ProcessBean();
@@ -71,29 +63,22 @@ public class DailyInterestCalculationConnector extends ProcessBuilder {
                 /** get account list (accounts that have main card not in 'CACL' and first statement generated) */
                 accountList = interestCalculationRepo.getLatestStatementAccountList();
                 Configurations.PROCESS_TOTAL_NOOF_TRABSACTIONS = accountList.size();
-                noOfCards = Configurations.PROCESS_TOTAL_NOOF_TRABSACTIONS;
 
                 if (accountList.size() > 0) {
-                    for (StatementBean statementBean : accountList) {
-                        interestCalculationService.startDailyInterestCalculation(statementBean);
-                    }
+                    accountList.forEach(statementBean -> {
+                        interestCalculationService.startDailyInterestCalculation(statementBean, faileCardCount);
+                    });
                 }
 
                 while (!(taskExecutor.getActiveCount() == 0)) {
                     Thread.sleep(1000);
                 }
-
-                failedCards = Configurations.PROCESS_FAILD_COUNT;
-                Configurations.PROCESS_TOTAL_NOOF_TRABSACTIONS = noOfCards;
-                Configurations.PROCESS_SUCCESS_COUNT = (noOfCards - failedCards);
-                Configurations.PROCESS_FAILD_COUNT = failedCards;
             }
         } catch (Exception e) {
             logError.error("Interest calculation process failed", e);
             Configurations.IS_PROCESS_COMPLETELY_FAILED = true;
 
         } finally {
-            logInfo.info(logManager.logSummery(summery));
             if (accountList != null && accountList.size() != 0) {
                 for (StatementBean accBean : accountList) {
                     CommonMethods.clearStringBuffer(accBean.getCardNo());
@@ -108,8 +93,8 @@ public class DailyInterestCalculationConnector extends ProcessBuilder {
     public void addSummaries() {
         summery.put("Started Date ", Configurations.EOD_DATE.toString());
         summery.put("No of Card effected ", Configurations.PROCESS_TOTAL_NOOF_TRABSACTIONS);
-        summery.put("No of Success Card ", Configurations.PROCESS_SUCCESS_COUNT);
-        summery.put("No of fail Card ", Configurations.PROCESS_FAILD_COUNT);
+        summery.put("No of Success Card ", Configurations.PROCESS_TOTAL_NOOF_TRABSACTIONS - faileCardCount.get());
+        summery.put("No of fail Card ", faileCardCount.get());
 
     }
 }

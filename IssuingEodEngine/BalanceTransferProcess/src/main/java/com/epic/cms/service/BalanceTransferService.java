@@ -12,7 +12,6 @@ import com.epic.cms.model.bean.*;
 import com.epic.cms.repository.CommonRepo;
 import com.epic.cms.repository.InstallmentPaymentRepo;
 import com.epic.cms.util.*;
-import lombok.extern.slf4j.Slf4j;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -27,6 +26,7 @@ import java.util.Date;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.UUID;
+import java.util.concurrent.atomic.AtomicInteger;
 
 
 @Service
@@ -149,7 +149,7 @@ public class BalanceTransferService {
 
     @Async("ThreadPool_100")
     @Transactional(value = "transactionManager", propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
-    public void startBalanceTransferProcess(InstallmentBean installmentBean, ProcessBean processBean) throws Exception {
+    public void startBalanceTransferProcess(InstallmentBean installmentBean, ProcessBean processBean){
         if (!Configurations.isInterrupted) {
             LinkedHashMap details = new LinkedHashMap();
             try {
@@ -295,7 +295,6 @@ public class BalanceTransferService {
                         installmentPaymentRepo.updateEasyPaymentTable(installmentBean, "BALANCETRASFERREQUEST");
 
                     }
-                    Configurations.PROCESS_SUCCESS_COUNT++;
                     details.put("Process Status", "Passed");
 
                 } catch (Exception e) {

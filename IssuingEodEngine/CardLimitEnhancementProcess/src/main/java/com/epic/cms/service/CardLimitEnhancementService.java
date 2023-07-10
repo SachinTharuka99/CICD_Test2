@@ -5,7 +5,6 @@ import com.epic.cms.model.bean.ErrorCardBean;
 import com.epic.cms.model.bean.OtbBean;
 import com.epic.cms.repository.CardLimitEnhancementRepo;
 import com.epic.cms.util.*;
-import lombok.extern.slf4j.Slf4j;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -16,6 +15,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.util.ArrayList;
 import java.util.LinkedHashMap;
+import java.util.concurrent.atomic.AtomicInteger;
 
 @Service
 public class CardLimitEnhancementService {
@@ -31,7 +31,7 @@ public class CardLimitEnhancementService {
 
     @Async("taskExecutor2")
     @Transactional(value = "transactionManager", propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
-    public void processCardLimitEnhancement(ArrayList<BalanceComponentBean> enhancementList, OtbBean bean) {
+    public void processCardLimitEnhancement(ArrayList<BalanceComponentBean> enhancementList, OtbBean bean, AtomicInteger faileCardCount) {
         if (!Configurations.isInterrupted) {
             LinkedHashMap details = new LinkedHashMap();
 
@@ -100,12 +100,11 @@ public class CardLimitEnhancementService {
                         }
 
                     }
-                    Configurations.PROCESS_SUCCESS_COUNT++;
 
                 } catch (Exception ex) {
                     logError.error("Fee post process failed for account " + bean.getAccountnumber(), ex);
                     Configurations.errorCardList.add(new ErrorCardBean(Configurations.ERROR_EOD_ID, Configurations.EOD_DATE, new StringBuffer(bean.getCardnumber()), ex.getMessage(), Configurations.PROCESS_LIMIT_ENHANCEMENT, "Card Limit Enhancement Process", 0, CardAccount.ACCOUNT));
-                    Configurations.PROCESS_FAILD_COUNT++;
+                    faileCardCount.addAndGet(1);
                 }
                 Configurations.Iterator_Card_Limit_Enhancement++;
             }

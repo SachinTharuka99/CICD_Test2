@@ -8,8 +8,10 @@
 package com.epic.cms.dao;
 
 import com.epic.cms.model.bean.CardRenewBean;
+import com.epic.cms.model.bean.ErrorCardBean;
 
 import java.util.ArrayList;
+import java.util.List;
 
 public interface CardRenewDao {
 

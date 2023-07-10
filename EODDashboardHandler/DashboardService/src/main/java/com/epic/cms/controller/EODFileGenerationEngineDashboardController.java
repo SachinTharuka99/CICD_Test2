@@ -9,14 +9,17 @@ package com.epic.cms.controller;
 
 
 import com.epic.cms.model.bean.EodOutputFileBean;
+import com.epic.cms.model.bean.NextRunningEodBean;
 import com.epic.cms.model.bean.ResponseBean;
 import com.epic.cms.model.bean.StatementGenSummeryBean;
 import com.epic.cms.service.EODEngineDashboardService;
-import com.epic.cms.service.EODFileGenerationEngineDashboardService;
-import com.epic.cms.util.LogManager;
 import com.epic.cms.util.MessageVarList;
 import com.epic.cms.util.ResponseCodes;
-import lombok.extern.slf4j.Slf4j;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.media.Content;
+import io.swagger.v3.oas.annotations.media.Schema;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
+import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -31,18 +34,19 @@ public class EODFileGenerationEngineDashboardController {
     ResponseBean responseBean = new ResponseBean();
 
     @Autowired
-    EODFileGenerationEngineDashboardService engineDashboardService;
-
-    @Autowired
     EODEngineDashboardService eodEngineDashboardService;
 
-    @Autowired
-    LogManager logManager;
-
-    private static final Logger logInfo = LoggerFactory.getLogger("logInfo");
     private static final Logger logError = LoggerFactory.getLogger("logError");
 
-
+    @Operation(summary = "Get Eod Output FIle List")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "Found the Eod Output FIle List",
+                    content = {@Content(mediaType = "application/json",
+                            schema = @Schema(implementation = EodOutputFileBean.class))}),
+            @ApiResponse(responseCode = "400", description = "Bad request",
+                    content = @Content),
+            @ApiResponse(responseCode = "500", description = "Internal Server Error",
+                    content = @Content)})
     @PostMapping("/outputfile/{eodid}")
     public ResponseBean getEodOutputFIleList(@PathVariable("eodid") final Long eodId) {
         try {
@@ -65,7 +69,15 @@ public class EODFileGenerationEngineDashboardController {
         }
         return responseBean;
     }
-
+    @Operation(summary = "Get EOD File Generation Summery List")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "Found the File Generation Summery",
+                    content = {@Content(mediaType = "application/json",
+                            schema = @Schema(implementation = StatementGenSummeryBean.class))}),
+            @ApiResponse(responseCode = "400", description = "Bad request",
+                    content = @Content),
+            @ApiResponse(responseCode = "500", description = "Internal Server Error",
+                    content = @Content)})
     @PostMapping("/stmtgensummery/{eodid}")
     public ResponseBean getStatementGenSummeryList(@PathVariable("eodid") final Long eodId) {
         try {

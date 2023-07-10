@@ -18,8 +18,9 @@
         <module>CommissionCalculationProcess</module>
         <module>AcquiringAdjustmentProcess</module>
         <module>PreMerchantFeeProcess</module>
-        <module>MerchantGLSummaryFileProcess</module>
         <module>MerchantPaymentFileProcess</module>
+        <module>OriginatorPushTxnUpdateProcess</module>
+        <module>MerchantCustomerStatementProcess</module>
         <module>RecipientPushTxnUpdateProcess</module>
         <module>MerchantStatementProcess</module>
 
