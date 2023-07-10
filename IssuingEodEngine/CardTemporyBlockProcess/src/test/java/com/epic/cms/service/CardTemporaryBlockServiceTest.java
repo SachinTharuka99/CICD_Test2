@@ -20,6 +20,7 @@ import org.mockito.Mockito;
 
 import java.sql.Timestamp;
 import java.time.LocalDateTime;
+import java.util.concurrent.atomic.AtomicInteger;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
@@ -29,6 +30,9 @@ import static org.mockito.Mockito.*;
 class CardTemporaryBlockServiceTest {
 
     private CardTemporaryBlockService cardTemporaryBlockServiceUnderTest;
+
+    public AtomicInteger faileCardCount = new AtomicInteger(0);
+
 
     @BeforeEach
     void setUp() {
@@ -86,7 +90,7 @@ class CardTemporaryBlockServiceTest {
         when(cardTemporaryBlockServiceUnderTest.cardTemporaryBlockRepo.insertIntoCardBlock(any(StringBuffer.class), eq("CARD_TEMPORARY_BLOCK_Status"), eq("newStatus"), eq("reason"))).thenReturn(0);
 
         // Run the test
-        cardTemporaryBlockServiceUnderTest.processCardTemporaryBlock(blockCardBean, processBean);
+        cardTemporaryBlockServiceUnderTest.processCardTemporaryBlock(blockCardBean, processBean, faileCardCount);
 
         // Verify the results
         verify(cardTemporaryBlockServiceUnderTest.cardTemporaryBlockRepo,times(1)).deactivateCardBlock(any(StringBuffer.class));
@@ -147,7 +151,7 @@ class CardTemporaryBlockServiceTest {
         when(cardTemporaryBlockServiceUnderTest.statusList.getCARD_TEMPORARY_BLOCK_Status()).thenReturn("CARD_TEMPORARY_BLOCK_Status");
 
         // Run the test
-        cardTemporaryBlockServiceUnderTest.processCardTemporaryBlock(blockCardBean, processBean);
+        cardTemporaryBlockServiceUnderTest.processCardTemporaryBlock(blockCardBean, processBean, faileCardCount);
 
         // Verify the results
         verify(cardTemporaryBlockServiceUnderTest.cardTemporaryBlockRepo,times(1)).deactivateCardBlock(any(StringBuffer.class));

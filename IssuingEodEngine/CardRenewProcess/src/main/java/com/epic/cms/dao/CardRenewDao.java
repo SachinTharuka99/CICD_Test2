@@ -8,8 +8,10 @@
 package com.epic.cms.dao;
 
 import com.epic.cms.model.bean.CardRenewBean;
+import com.epic.cms.model.bean.ErrorCardBean;
 
 import java.util.ArrayList;
+import java.util.List;
 
 public interface CardRenewDao {
 
@@ -24,5 +26,7 @@ public interface CardRenewDao {
     ArrayList<CardRenewBean> getApprovedCardList(String curDate) throws Exception;
 
     boolean isProcessCompletlyFail(int ProcessID) throws Exception;
+
+    public List<ErrorCardBean> getEligibleCardList(String curDate) throws Exception;
 
 }

@@ -5,7 +5,6 @@ import com.epic.cms.model.bean.ErrorCardBean;
 import com.epic.cms.model.bean.ProcessBean;
 import com.epic.cms.repository.CardBlockRepo;
 import com.epic.cms.util.*;
-import lombok.extern.slf4j.Slf4j;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -15,6 +14,7 @@ import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.LinkedHashMap;
+import java.util.concurrent.atomic.AtomicInteger;
 
 
 @Service
@@ -30,7 +30,7 @@ public class CardTemporaryBlockService {
 
     @Async("taskExecutor2")
     @Transactional(value = "transactionManager", propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
-    public void processCardTemporaryBlock(BlockCardBean blockCardBean, ProcessBean processBean) throws Exception {
+    public void processCardTemporaryBlock(BlockCardBean blockCardBean, ProcessBean processBean, AtomicInteger faileCardCount){
         if (!Configurations.isInterrupted) {
             LinkedHashMap details = new LinkedHashMap();
             String status = null;
@@ -70,13 +70,12 @@ public class CardTemporaryBlockService {
                 //Deactivate the record from minpayment table
                 cardTemporaryBlockRepo.updateMinimumPaymentTable(blockCardBean.getCardNo(), statusList.getCARD_TEMPORARY_BLOCK_Status());
                 details.put("Process Status", "Passed");
-                Configurations.PROCESS_SUCCESS_COUNT++;
 
             } catch (Exception ex) {
                 Configurations.errorCardList.add(new ErrorCardBean(Configurations.ERROR_EOD_ID, Configurations.EOD_DATE, new StringBuffer(blockCardBean.getCardNo()), ex.getMessage(), Configurations.RUNNING_PROCESS_ID, Configurations.RUNNING_PROCESS_DESCRIPTION, 0, CardAccount.CARD));
                 logError.error("Card Temporary block process failed for cardnumber " + CommonMethods.cardInfo(maskedCardNumber, processBean), ex);
                 details.put("Process Status", "Failed");
-                Configurations.PROCESS_FAILD_COUNT++;
+                faileCardCount.addAndGet(1);
             } finally {
                 logInfo.info(logManager.logDetails(details));
             }
