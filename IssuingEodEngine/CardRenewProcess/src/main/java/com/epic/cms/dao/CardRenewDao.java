@@ -27,6 +27,4 @@ public interface CardRenewDao {
 
     boolean isProcessCompletlyFail(int ProcessID) throws Exception;
 
-    public List<ErrorCardBean> getEligibleCardList(String curDate) throws Exception;
-
 }
