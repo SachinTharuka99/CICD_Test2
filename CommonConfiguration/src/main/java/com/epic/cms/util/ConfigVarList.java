@@ -1072,6 +1072,12 @@ public class ConfigVarList {
     @Value("${process_stamp_duty_fee}")
     public int process_stamp_duty_fee;
 
+    @Value("${process_merchant_gl_file_process}")
+    public int process_merchant_gl_file_process;
+
+    @Value("${OUTPUT_FILE_PROD_CODE}")
+    public String OUTPUT_FILE_PROD_CODE;
+
     //Acquiring
     @Value("${process_id_originator_push_txn_update}")
     public int process_id_originator_push_txn_update;

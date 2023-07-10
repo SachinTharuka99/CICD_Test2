@@ -40,6 +40,9 @@ public class ConsumerService {
     MerchantCommissionCalculationConnector commissionCalculationConnector;
 
     @Autowired
+    MerchantCustomerStatementConnector merchantCustomerStatementConnector;
+
+    @Autowired
     OriginatorPushTxnUpdateConnector originatorPushTxnUpdateConnector;
 
     @KafkaListener(topics = "acqTxnUpdate", groupId = "group_acqTxnUpdate")
@@ -110,6 +113,13 @@ public class ConsumerService {
         System.out.println("Start MerchantCommissionCalculation Process");
         commissionCalculationConnector.startProcess(Configurations.PROCESS_ID_COMMISSION_CALCULATION, uniqueID);
         System.out.println("Complete MerchantCommissionCalculation Process");
+    }
+
+    @KafkaListener(topics = "merchantCustomerStatement", groupId = "group_merchantCustomerStatement")
+    public void merchantCustomerStatement(String uniqueID) throws Exception {
+        System.out.println("Start Merchant Customer Statement Process");
+        merchantCustomerStatementConnector.startProcess(Configurations.PROCESS_ID_MERCHANT_CUSTOMER_STATEMENT, uniqueID);
+        System.out.println("Complete Merchant Customer Statement Process");
     }
 
     @KafkaListener(topics = "originatorPushTxnUpdate", groupId = "group_originatorPushTxnUpdate")
