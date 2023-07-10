@@ -38,7 +38,7 @@ public class AdjustmentService {
 
     @Async("ThreadPool_100")
     @Transactional(value = "transactionManager", propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
-    public void proceedAdjustment(AdjustmentBean adjustmentBean, AtomicInteger ADJUSTMENT_SEQUENCE_NO) {
+    public void proceedAdjustment(AdjustmentBean adjustmentBean, AtomicInteger ADJUSTMENT_SEQUENCE_NO, AtomicInteger faileCardCount) {
         if (!Configurations.isInterrupted) {
             LinkedHashMap details = new LinkedHashMap();
             PaymentBean pb = new PaymentBean();
@@ -102,7 +102,7 @@ public class AdjustmentService {
                 ADJUSTMENT_SEQUENCE_NO.set(ADJUSTMENT_SEQUENCE_NO.getAndIncrement());
 
             } catch (Exception ex) {
-                Configurations.PROCESS_FAILED_COUNT.set(Configurations.PROCESS_FAILED_COUNT.getAndIncrement());
+                faileCardCount.addAndGet(1);
                 Configurations.errorCardList.add(new ErrorCardBean(Configurations.ERROR_EOD_ID, Configurations.EOD_DATE, new StringBuffer(adjustmentBean.getCardNumber()), ex.getMessage(), Configurations.RUNNING_PROCESS_ID, Configurations.RUNNING_PROCESS_DESCRIPTION, 0, CardAccount.CARD));
                 details.put("Adjustment Sync Status", "Failed");
                 logError.error("ADJUSTMENT_PROCESS failed for card number " + maskedCardNumber, ex);

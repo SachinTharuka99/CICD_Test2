@@ -22,6 +22,7 @@ import org.mockito.Mockito;
 
 import java.sql.Timestamp;
 import java.time.LocalDateTime;
+import java.util.concurrent.atomic.AtomicInteger;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
@@ -31,6 +32,8 @@ import static org.mockito.Mockito.*;
 class CardPermanentBlockServiceTest {
 
     private CardPermanentBlockService cardPermanentBlockServiceUnderTest;
+
+    public AtomicInteger faileCardCount = new AtomicInteger(0);
 
     @BeforeEach
     void setUp() {
@@ -91,7 +94,7 @@ class CardPermanentBlockServiceTest {
         when(cardPermanentBlockServiceUnderTest.statusList.getCARD_EXPIRED_STATUS()).thenReturn("result");
 
         // Run the test
-        cardPermanentBlockServiceUnderTest.processCardPermanentBlock(blockCardBean, processBean);
+        cardPermanentBlockServiceUnderTest.processCardPermanentBlock(blockCardBean, processBean, faileCardCount);
 
         // Verify the results
         verify(cardPermanentBlockServiceUnderTest.cardPermanentBlockRepo,times(1)).deactivateCardBlock(any(StringBuffer.class));
@@ -150,7 +153,7 @@ class CardPermanentBlockServiceTest {
         when(cardPermanentBlockServiceUnderTest.statusList.getONLINE_CARD_PERMANENTLY_BLOCKED_STATUS()).thenReturn(0);
 
         // Run the test
-        cardPermanentBlockServiceUnderTest.processCardPermanentBlock(blockCardBean, processBean);
+        cardPermanentBlockServiceUnderTest.processCardPermanentBlock(blockCardBean, processBean, faileCardCount);
 
         // Verify the results
         verify(cardPermanentBlockServiceUnderTest.cardPermanentBlockRepo,times(1)).deactivateCardBlock(any(StringBuffer.class));

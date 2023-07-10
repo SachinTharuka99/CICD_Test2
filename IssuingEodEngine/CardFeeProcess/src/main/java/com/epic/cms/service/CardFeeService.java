@@ -4,7 +4,6 @@ import com.epic.cms.dao.CardFeeDao;
 import com.epic.cms.model.bean.CardFeeBean;
 import com.epic.cms.model.bean.ErrorCardBean;
 import com.epic.cms.util.*;
-import lombok.extern.slf4j.Slf4j;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -16,6 +15,7 @@ import org.springframework.transaction.annotation.Transactional;
 import java.sql.Date;
 import java.text.SimpleDateFormat;
 import java.util.LinkedHashMap;
+import java.util.concurrent.atomic.AtomicInteger;
 
 
 @Service
@@ -35,7 +35,7 @@ public class CardFeeService {
 
     @Async("ThreadPool_100")
     @Transactional(value = "transactionManager", propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
-    public void cardFeeCalculate(CardFeeBean cardBean) {
+    public void cardFeeCalculate(CardFeeBean cardBean, AtomicInteger faileCardCount) {
         if (!Configurations.isInterrupted) {
             LinkedHashMap detail = new LinkedHashMap();
             try {
@@ -94,7 +94,6 @@ public class CardFeeService {
                         }
                         //Statusts.SUMMARY_FOR_FEE_UPDATE++;
                     }
-                    Configurations.PROCESS_SUCCESS_COUNT++;
                 } catch (Exception ex) {
                     logError.error("Exceptions occurred for: " + CommonMethods.cardNumberMask(cardBean.getCardNumber()), ex);
                     Configurations.errorCardList.add(new ErrorCardBean(Configurations.ERROR_EOD_ID, Configurations.EOD_DATE, cardFeeBean.getCardNumber(), ex.getMessage(), Configurations.RUNNING_PROCESS_ID, Configurations.RUNNING_PROCESS_DESCRIPTION, 0, CardAccount.CARD));
@@ -103,7 +102,7 @@ public class CardFeeService {
 
             } catch (Exception ex) {
                 logError.error("Error occurred while processing card number: " + CommonMethods.cardNumberMask(cardBean.getCardNumber()), ex);
-                Configurations.PROCESS_FAILD_COUNT++;
+                faileCardCount.addAndGet(1);
             } finally {
                 logInfo.info(logManager.logDetails(detail));
             }
