@@ -15,6 +15,7 @@ import org.springframework.stereotype.Repository;
 
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.concurrent.atomic.AtomicInteger;
 
 
 @Repository
@@ -92,7 +93,7 @@ public class CardLimitEnhancementRepo implements CardLimitEnhancementDao {
     }
 
     @Override
-    public ArrayList<BalanceComponentBean> getLimitEnhanceReqConCardList(String customerId, String accountNumber) throws Exception {
+    public ArrayList<BalanceComponentBean> getLimitEnhanceReqConCardList(String customerId, String accountNumber) {
         ArrayList<BalanceComponentBean> balanceComponentBeanList = new ArrayList<>();
         SimpleDateFormat sdf = new SimpleDateFormat("dd-MMM-yy");
 

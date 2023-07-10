@@ -43,10 +43,8 @@ public class AdjustmentConnector extends ProcessBuilder {
     @Autowired
     LogManager logManager;
 
-    private static final Logger logInfo = LoggerFactory.getLogger("logInfo");
-    private static final Logger logError = LoggerFactory.getLogger("logError");
-
     public AtomicInteger ADJUSTMENT_SEQUENCE_NO = new AtomicInteger(0);
+    public AtomicInteger faileCardCount = new AtomicInteger(0);
 
     @Override
     public void concreteProcess() throws Exception {
@@ -61,9 +59,9 @@ public class AdjustmentConnector extends ProcessBuilder {
             adjustmentList = adjustmentDao.getAdjustmentList();
             Configurations.PROCESS_TOTAL_NOOF_TRABSACTIONS = adjustmentList.size();
 
-            for (AdjustmentBean adjustmentBean : adjustmentList) {
-                adjustmentService.proceedAdjustment(adjustmentBean,ADJUSTMENT_SEQUENCE_NO);
-            }
+            adjustmentList.forEach(adjustmentBean -> {
+                adjustmentService.proceedAdjustment(adjustmentBean, ADJUSTMENT_SEQUENCE_NO, faileCardCount);
+            });
 
             //wait till all the threads are completed
             while (!(taskExecutor.getActiveCount() == 0)) {
@@ -74,7 +72,6 @@ public class AdjustmentConnector extends ProcessBuilder {
             Configurations.IS_PROCESS_COMPLETELY_FAILED = true;
             throw ex;
         } finally {
-            logInfo.info(logManager.logSummery(summery));
             /** PADSS Change -
              variables handling card data should be nullified
              by replacing the value of variable with zero and call NULL function */
@@ -89,7 +86,7 @@ public class AdjustmentConnector extends ProcessBuilder {
     public void addSummaries() {
         summery.put("Started Date", Configurations.EOD_DATE.toString());
         summery.put("No of Card effected", Integer.toString(Configurations.PROCESS_TOTAL_NOOF_TRABSACTIONS));
-        summery.put("No of Success Card ", Integer.toString(Configurations.PROCESS_TOTAL_NOOF_TRABSACTIONS - Configurations.PROCESS_FAILED_COUNT.get()));
-        summery.put("No of fail Card ", Integer.toString(Configurations.PROCESS_FAILED_COUNT.get()));
+        summery.put("No of Success Card ", Integer.toString(Configurations.PROCESS_TOTAL_NOOF_TRABSACTIONS - faileCardCount.get()));
+        summery.put("No of fail Card ", Integer.toString(faileCardCount.get()));
     }
 }

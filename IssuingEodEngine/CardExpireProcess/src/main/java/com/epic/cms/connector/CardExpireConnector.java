@@ -16,6 +16,7 @@ import org.springframework.scheduling.concurrent.ThreadPoolTaskExecutor;
 import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
+import java.util.concurrent.atomic.AtomicInteger;
 
 
 @Service
@@ -34,8 +35,9 @@ public class CardExpireConnector extends ProcessBuilder {
     @Autowired
     LogManager logManager;
 
-    private static final Logger logInfo = LoggerFactory.getLogger("logInfo");
     private static final Logger logError = LoggerFactory.getLogger("logError");
+
+    public AtomicInteger faileCardCount = new AtomicInteger(0);
 
     private ArrayList<CardBean> expiredCardList = new ArrayList<>();
 
@@ -54,9 +56,9 @@ public class CardExpireConnector extends ProcessBuilder {
             if (expiredCardList != null) {
                 Configurations.PROCESS_TOTAL_NOOF_TRABSACTIONS = expiredCardList.size();
 
-                for (CardBean cardBean : expiredCardList) {
-                    cardExpireService.processCardExpire(cardBean);
-                }
+                expiredCardList.forEach(cardBean -> {
+                    cardExpireService.processCardExpire(cardBean,faileCardCount);
+                });
                 //wait till all the threads are completed
                 while (!(taskExecutor.getActiveCount() == 0)) {
                     Thread.sleep(1000);
@@ -85,7 +87,7 @@ public class CardExpireConnector extends ProcessBuilder {
     @Override
     public void addSummaries() {
         summery.put("Number of cards to expired ", Configurations.PROCESS_TOTAL_NOOF_TRABSACTIONS);
-        summery.put("Number of success expired ", Configurations.PROCESS_TOTAL_NOOF_TRABSACTIONS - Configurations.PROCESS_FAILED_COUNT.get());
-        summery.put("Number of failure expired ", Configurations.PROCESS_FAILED_COUNT.get());
+        summery.put("Number of success expired ", Configurations.PROCESS_TOTAL_NOOF_TRABSACTIONS - faileCardCount.get());
+        summery.put("Number of failure expired ", faileCardCount.get());
     }
 }

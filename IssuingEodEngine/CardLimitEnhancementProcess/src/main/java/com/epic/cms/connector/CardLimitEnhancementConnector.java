@@ -19,6 +19,7 @@ import org.springframework.scheduling.concurrent.ThreadPoolTaskExecutor;
 import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
+import java.util.concurrent.atomic.AtomicInteger;
 
 
 @Service
@@ -43,6 +44,9 @@ public class CardLimitEnhancementConnector extends ProcessBuilder {
     private ArrayList<OtbBean> custAccList = new ArrayList<OtbBean>();
     private int failedCount = 0;
 
+    public AtomicInteger faileCardCount = new AtomicInteger(0);
+
+
     @Override
     public void concreteProcess() throws Exception {
 
@@ -52,6 +56,7 @@ public class CardLimitEnhancementConnector extends ProcessBuilder {
             } else if (Configurations.STARTING_EOD_STATUS.equals(statusList.getERROR_STATUS())) {
                 custAccList = cardLimitEnhancementRepo.getErrorLimitEnhanceCustAcc();
             }
+            Configurations.PROCESS_TOTAL_NOOF_TRABSACTIONS = enhancementList.size();
 
             if (custAccList != null && custAccList.size() > 0) {
                 Configurations.RUNNING_PROCESS_ID = Configurations.PROCESS_LIMIT_ENHANCEMENT;
@@ -60,20 +65,16 @@ public class CardLimitEnhancementConnector extends ProcessBuilder {
                 summery.put("Accounts eligible for limit enhance process: ", custAccList.size() + "");
                 enhancementList = new ArrayList<>();
 
-                for (OtbBean bean : custAccList) {
+                custAccList.forEach(bean -> {
                     enhancementList = cardLimitEnhancementRepo.getLimitEnhanceReqConCardList(bean.getCustomerid(), bean.getAccountnumber());
-                    cardLimitEnhancementService.processCardLimitEnhancement(enhancementList, bean);
+                    cardLimitEnhancementService.processCardLimitEnhancement(enhancementList, bean,faileCardCount);
+                });
 
-                }
                 //wait till all the threads are completed
                 while (!(taskExecutor.getActiveCount() == 0)) {
                     Thread.sleep(1000);
                 }
 
-                failedCount = Configurations.PROCESS_FAILD_COUNT;
-                Configurations.PROCESS_TOTAL_NOOF_TRABSACTIONS = enhancementList.size();
-                Configurations.PROCESS_SUCCESS_COUNT = (enhancementList.size() - failedCount);
-                Configurations.PROCESS_FAILD_COUNT = failedCount;
             } else {
                 summery.put("Accounts eligible for fee posting process ", 0 + "");
             }
@@ -107,8 +108,8 @@ public class CardLimitEnhancementConnector extends ProcessBuilder {
     public void addSummaries() {
 
         summery.put("Number of transaction to sync", Configurations.PROCESS_TOTAL_NOOF_TRABSACTIONS);
-        summery.put("Number of success transaction", Configurations.PROCESS_SUCCESS_COUNT);
-        summery.put("Number of failure transaction", Configurations.PROCESS_FAILD_COUNT);
+        summery.put("Number of success transaction", Configurations.PROCESS_TOTAL_NOOF_TRABSACTIONS - faileCardCount.get());
+        summery.put("Number of failure transaction", faileCardCount.get());
 
     }
 }

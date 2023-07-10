@@ -32,6 +32,7 @@ class AdjustmentServiceTest {
     static MockedStatic<CommonMethods> common;
 
     public AtomicInteger ADJUSTMENT_SEQUENCE_NO = new AtomicInteger(0);
+    public AtomicInteger faileCardCount = new AtomicInteger(0);
 
     @BeforeAll
     public static void init() {
@@ -87,7 +88,7 @@ class AdjustmentServiceTest {
         when(adjustmentServiceUnderTest.adjustmentDao.updateTransactionToEDON(anyString())).thenReturn(1);
 
         //run the test
-        adjustmentServiceUnderTest.proceedAdjustment(adjustmentBean, ADJUSTMENT_SEQUENCE_NO);
+        adjustmentServiceUnderTest.proceedAdjustment(adjustmentBean, ADJUSTMENT_SEQUENCE_NO, faileCardCount);
 
         //verify
         assertEquals(adjustmentBean.getCardNumber(), adjustmentServiceUnderTest.commonRepo.getMainCardNumber(adjustmentBean.getCardNumber()));
@@ -134,7 +135,7 @@ class AdjustmentServiceTest {
         when(adjustmentServiceUnderTest.adjustmentDao.updateTransactionToEDON(anyString())).thenReturn(1);
 
         //run the test
-        adjustmentServiceUnderTest.proceedAdjustment(adjustmentBean, ADJUSTMENT_SEQUENCE_NO);
+        adjustmentServiceUnderTest.proceedAdjustment(adjustmentBean, ADJUSTMENT_SEQUENCE_NO, faileCardCount);
 
         //verify
         assertEquals("1", adjustmentServiceUnderTest.adjustmentDao.getCardAssociationFromCardBin("456788"));
