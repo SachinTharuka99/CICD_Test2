@@ -11,7 +11,6 @@ import com.epic.cms.util.StatusVarList;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
-import java.sql.SQLException;
 import java.util.*;
 
 import static org.mockito.ArgumentMatchers.any;

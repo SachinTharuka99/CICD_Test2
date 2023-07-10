@@ -28,7 +28,7 @@ public class TestController {
         CreateEodId createDate = new CreateEodId();
         SimpleDateFormat sdf = new SimpleDateFormat("dd-MM-yyyy");
 
-        //Configurations.EOD_ID = 22101100;
+        Configurations.EOD_ID = 22120800;
         Configurations.ERROR_EOD_ID = Configurations.EOD_ID;
         Configurations.EOD_DATE = createDate.getDateFromEODID(Configurations.EOD_ID);
         Configurations.EOD_DATE_String = sdf.format(Configurations.EOD_DATE);

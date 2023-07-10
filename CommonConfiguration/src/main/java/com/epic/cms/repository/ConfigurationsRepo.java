@@ -548,6 +548,8 @@ public class ConfigurationsRepo implements ConfigurationsDao {
             Configurations.PROCESS_MERCHANT_STATEMENT_FILE_CREATION = configVarList.getPROCESS_MERCHANT_STATEMENT_FILE_CREATION();
             Configurations.PROCESS_MERCHANT_CUSTOMER_STATEMENT_FILE_CREATION = configVarList.getPROCESS_MERCHANT_CUSTOMER_STATEMENT_FILE_CREATION();
             Configurations.STATEMENT_BATCH_SIZE = configVarList.getSTATEMENT_BATCH_SIZE();
+            Configurations.PROCESS_ID_MERCHANT_GL_FILE_CREATION = configVarList.getProcess_merchant_gl_file_process();
+            Configurations.OUTPUT_FILE_PROD_CODE = configVarList.getOUTPUT_FILE_PROD_CODE();
 
             //Acquring
             Configurations.PROCESS_ID_ORIGINATOR_PUSH_TXN_UPDATE = configVarList.getProcess_id_originator_push_txn_update();
