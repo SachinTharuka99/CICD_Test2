@@ -48,4 +48,6 @@ public class EodTransactionBean {
     private String cardProduct;
 
     private String listenerType;
+
+
 }

@@ -14,6 +14,7 @@ import com.epic.cms.repository.CommonRepo;
 import com.epic.cms.service.MerchantPaymentFileService;
 import com.epic.cms.util.CommonMethods;
 import com.epic.cms.util.Configurations;
+import com.epic.cms.util.LogManager;
 import com.epic.cms.util.StatusVarList;
 import lombok.extern.slf4j.Slf4j;
 import org.slf4j.Logger;
@@ -28,7 +29,6 @@ import java.io.File;
 import java.io.FileWriter;
 import java.text.SimpleDateFormat;
 import java.util.*;
-import java.util.logging.LogManager;
 
 
 /**

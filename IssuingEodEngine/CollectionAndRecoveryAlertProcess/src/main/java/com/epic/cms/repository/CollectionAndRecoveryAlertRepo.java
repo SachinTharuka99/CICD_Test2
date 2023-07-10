@@ -2,6 +2,7 @@ package com.epic.cms.repository;
 
 import com.epic.cms.dao.CollectionAndRecoveryAlertDao;
 import com.epic.cms.util.Configurations;
+import com.epic.cms.util.QueryParametersList;
 import com.epic.cms.util.StatusVarList;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.jdbc.core.JdbcTemplate;
@@ -18,14 +19,18 @@ public class CollectionAndRecoveryAlertRepo implements CollectionAndRecoveryAler
     @Autowired
     private JdbcTemplate backendJdbcTemplate;
 
+    @Autowired
+    QueryParametersList queryParametersList;
+
     @Override
     public HashMap<StringBuffer, String> getConfirmedCardToAlert() throws Exception {
         HashMap<StringBuffer, String> confirmCardList = new HashMap<>();
         String query = null;
         try {
-            query = "SELECT CARDNO, LASTTRIGGERPOINT FROM TRIGGERCARDS WHERE NOTIFICATIONFLAG = ? ";
+            query = queryParametersList.getCollectionAndRecoveryAlert_getConfirmedCardToAlert();
             if (!Configurations.STARTING_EOD_STATUS.equals(statusList.getERROR_STATUS())) {
-                query = query + "AND CARDNO NOT IN (SELECT CARDNO FROM EODERRORCARDS WHERE STATUS = ?) ";
+               // query = query + "AND CARDNO NOT IN (SELECT CARDNO FROM EODERRORCARDS WHERE STATUS = ?) ";
+                query = query + queryParametersList.getCollectionAndRecoveryAlert_getConfirmedCardToAlert_Appender1();
 
                 backendJdbcTemplate.query(query, (ResultSet result) -> {
                     while (result.next()) {
@@ -34,7 +39,9 @@ public class CollectionAndRecoveryAlertRepo implements CollectionAndRecoveryAler
                     return confirmCardList;
                 }, 0, Configurations.EOD_PENDING_STATUS);
             } else {
-                query = query + "AND CARDNO IN (SELECT CARDNO FROM EODERRORCARDS WHERE PROCESSSTEPID <= (SELECT PROCESSSTEPID FROM EODERRORCARDS WHERE ERRORPROCESSID = ?) AND STATUS = ?) ";
+                //query = query + "AND CARDNO IN (SELECT CARDNO FROM EODERRORCARDS WHERE PROCESSSTEPID <= (SELECT PROCESSSTEPID FROM EODERRORCARDS WHERE ERRORPROCESSID = ?) AND STATUS = ?) ";
+                query = query + queryParametersList.getCollectionAndRecoveryAlert_getConfirmedCardToAlert_Appender2();
+
                 backendJdbcTemplate.query(query, (ResultSet result) -> {
                     while (result.next()) {
                         confirmCardList.put(new StringBuffer(result.getString("CARDNO")), result.getString("LASTTRIGGERPOINT"));
@@ -51,9 +58,9 @@ public class CollectionAndRecoveryAlertRepo implements CollectionAndRecoveryAler
     @Override
     public void updateAlertGenStatus(StringBuffer cardNumber, String trigger) throws Exception {
         try {
-            String updatePay = "UPDATE TRIGGERCARDS SET NOTIFICATIONFLAG = ? WHERE CARDNO = ? AND LASTTRIGGERPOINT = ? ";
+            //String updatePay = "UPDATE TRIGGERCARDS SET NOTIFICATIONFLAG = ? WHERE CARDNO = ? AND LASTTRIGGERPOINT = ? ";
 
-            backendJdbcTemplate.update(updatePay, 1, cardNumber.toString(), trigger);
+            backendJdbcTemplate.update(queryParametersList.getCollectionAndRecoveryAlert_updateAlertGenStatus(), 1, cardNumber.toString(), trigger);
         } catch (Exception e) {
             throw e;
         }

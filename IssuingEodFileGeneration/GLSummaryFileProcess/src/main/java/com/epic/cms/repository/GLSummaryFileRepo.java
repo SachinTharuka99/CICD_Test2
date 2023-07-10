@@ -10,6 +10,7 @@ package com.epic.cms.repository;
 import com.epic.cms.dao.GLSummaryFileDao;
 import com.epic.cms.model.bean.GlAccountBean;
 import com.epic.cms.util.Configurations;
+import com.epic.cms.util.QueryParametersList;
 import com.epic.cms.util.StatusVarList;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.jdbc.core.JdbcTemplate;
@@ -32,13 +33,16 @@ public class GLSummaryFileRepo implements GLSummaryFileDao {
     @Autowired
     StatusVarList statusList;
 
+    @Autowired
+    QueryParametersList queryParametersList;
+
     @Override
     public ArrayList<GlAccountBean> getCashbackDataToEODGL() throws Exception {
         ArrayList<GlAccountBean> list = new ArrayList<GlAccountBean>();
         try {
-            String sql = "SELECT CB.ID AS ID ,CB.ACCOUNTNUMBER AS ACCOUNTNUMBER,CA.CARDNUMBER AS CARDNUMBER, CB.CASHBACKAMOUNT AS AMOUNT,CB.EODDATE AS ADJUSTDATE  FROM CASHBACK CB ,CARDACCOUNT CA WHERE GLSTATUS=0 AND CA.ACCOUNTNO= CB.ACCOUNTNUMBER ";
+            //String sql = "SELECT CB.ID AS ID ,CB.ACCOUNTNUMBER AS ACCOUNTNUMBER,CA.CARDNUMBER AS CARDNUMBER, CB.CASHBACKAMOUNT AS AMOUNT,CB.EODDATE AS ADJUSTDATE  FROM CASHBACK CB ,CARDACCOUNT CA WHERE GLSTATUS=0 AND CA.ACCOUNTNO= CB.ACCOUNTNUMBER";
 
-            list = (ArrayList<GlAccountBean>) backendJdbcTemplate.query(sql, new RowMapperResultSetExtractor<>((rs, rowNum) -> {
+            list = (ArrayList<GlAccountBean>) backendJdbcTemplate.query(queryParametersList.getGLSummaryFile_getCashbackDataToEODGL(), new RowMapperResultSetExtractor<>((rs, rowNum) -> {
                 GlAccountBean bean = new GlAccountBean();
                 bean.setId(rs.getInt("ID"));
                 bean.setCardNo(new StringBuffer(rs.getString("CARDNUMBER")));
@@ -60,8 +64,8 @@ public class GLSummaryFileRepo implements GLSummaryFileDao {
         SimpleDateFormat sdf = new SimpleDateFormat("dd-MMM-yy");
         int count = 0;
         try {
-            String sql = "INSERT INTO EODGLACCOUNT (EODID,GLDATE,CARDNO,GLTYPE,AMOUNT,CRDR,PAYMENTTYPE) VALUES (?,TO_DATE(?, 'DD-MM-YY'),?,?,to_char(?,'9999999999.99'),?,?)";
-            count = backendJdbcTemplate.update(sql, eodID, sdf.format(glDate), cardNo.toString(), glType, String.valueOf(amount), cdStatus, payType);
+            //String sql = "INSERT INTO EODGLACCOUNT (EODID,GLDATE,CARDNO,GLTYPE,AMOUNT,CRDR,PAYMENTTYPE) VALUES (?,TO_DATE(?, 'DD-MM-YY'),?,?,to_char(?,'9999999999.99'),?,?)";
+            count = backendJdbcTemplate.update(queryParametersList.getGLSummaryFile_insertIntoEodGLAccount(), eodID, sdf.format(glDate), cardNo.toString(), glType, String.valueOf(amount), cdStatus, payType);
         } catch (Exception e) {
             throw e;
         }
@@ -72,8 +76,8 @@ public class GLSummaryFileRepo implements GLSummaryFileDao {
     public int updateCashback(int key, int i) throws Exception {
         int count = 0;
         try {
-            String sql = "UPDATE CASHBACK SET GLSTATUS = ? WHERE ID = TO_NUMBER(?)";
-            count = backendJdbcTemplate.update(sql, i , key);
+            //String sql = "UPDATE CASHBACK SET GLSTATUS = ? WHERE ID = TO_NUMBER(?)";
+            count = backendJdbcTemplate.update(queryParametersList.getGLSummaryFile_updateCashback(), i , key);
         } catch (Exception e) {
             throw e;
         }
@@ -84,9 +88,9 @@ public class GLSummaryFileRepo implements GLSummaryFileDao {
     public ArrayList<GlAccountBean> getCashbackExpAndRedeemDataToEODGL() throws Exception {
         ArrayList<GlAccountBean> list = new ArrayList<>();
         try {
-            String sql = "SELECT CB.ID        AS ID , CB.ACCOUNTNUMBER  AS ACCOUNTNUMBER, CA.CARDNUMBER     AS CARDNUMBER, CB.AMOUNT AS AMOUNT, CB.EODDATE    AS ADJUSTDATE, NVL(CB.STATUS,0) AS TXNTYPE FROM CASHBACKEXPREDEEM  CB , CARDACCOUNT CA WHERE GLSTATUS  = 0 AND CA.ACCOUNTNO= CB.ACCOUNTNUMBER ";
+            //String sql = "SELECT CB.ID AS ID , CB.ACCOUNTNUMBER AS ACCOUNTNUMBER, CA.CARDNUMBER AS CARDNUMBER, CB.AMOUNT AS AMOUNT, CB.EODDATE AS ADJUSTDATE, NVL(CB.STATUS,0) AS TXNTYPE FROM CASHBACKEXPREDEEM  CB ,CARDACCOUNT CA WHERE GLSTATUS  = 0 AND CA.ACCOUNTNO= CB.ACCOUNTNUMBER";
 
-            list = (ArrayList<GlAccountBean>) backendJdbcTemplate.query(sql, new RowMapperResultSetExtractor<>((rs, rowNum) -> {
+            list = (ArrayList<GlAccountBean>) backendJdbcTemplate.query(queryParametersList.getGLSummaryFile_getCashbackExpAndRedeemDataToEODGL(), new RowMapperResultSetExtractor<>((rs, rowNum) -> {
                 GlAccountBean bean = new GlAccountBean();
                 int txnType = rs.getInt("TXNTYPE");
                 if (txnType == 0) {
@@ -115,8 +119,8 @@ public class GLSummaryFileRepo implements GLSummaryFileDao {
     public int updateCashbackExpAndRedeem(int key, int i) throws Exception {
         int count = 0;
         try {
-            String sql = "UPDATE CASHBACKEXPREDEEM SET GLSTATUS = ? WHERE ID = ?";
-            count = backendJdbcTemplate.update(sql, i , key);
+            //String sql = "UPDATE CASHBACKEXPREDEEM SET GLSTATUS = ? WHERE ID = ?";
+            count = backendJdbcTemplate.update(queryParametersList.getGLSummaryFile_updateCashbackExpAndRedeem(), i , key);
         } catch (Exception e) {
             throw e;
         }
@@ -127,8 +131,8 @@ public class GLSummaryFileRepo implements GLSummaryFileDao {
     public int updateAdjusment(String key, int i) throws Exception {
         int count = 0;
         try {
-            String sql = "UPDATE ADJUSTMENT SET GLSTATUS = ? WHERE ID = TO_NUMBER(?)";
-            count = backendJdbcTemplate.update(sql, i , key);
+            //String sql = "UPDATE ADJUSTMENT SET GLSTATUS = ? WHERE ID = TO_NUMBER(?)";
+            count = backendJdbcTemplate.update(queryParametersList.getGLSummaryFile_updateAdjusment(), i , key);
         } catch (Exception e) {
             throw e;
         }
@@ -139,8 +143,8 @@ public class GLSummaryFileRepo implements GLSummaryFileDao {
     public int updateFeeTable(String key, int i) throws Exception {
         int count = 0;
         try {
-            String sql = "UPDATE eodcardfee SET GLSTATUS = ? WHERE EODFEEID = TO_NUMBER(?)";
-            count = backendJdbcTemplate.update(sql, i , key);
+            //String sql = "UPDATE eodcardfee SET GLSTATUS = ? WHERE EODFEEID = TO_NUMBER(?)";
+            count = backendJdbcTemplate.update(queryParametersList.getGLSummaryFile_updateFeeTable(), i , key);
         } catch (Exception e) {
             throw e;
         }
@@ -151,9 +155,9 @@ public class GLSummaryFileRepo implements GLSummaryFileDao {
     public ArrayList<GlAccountBean> getAdjustmentDataToEODGL() throws Exception {
         ArrayList<GlAccountBean> list = new ArrayList<>();
         try {
-            String sql = "SELECT DISTINCT ID,UNIQUEID,AMOUNT,CRDR,ADJUSTDATE,TRANSACTIONTYPE FROM ADJUSTMENT A WHERE A.STATUS = ?     AND A.EODSTATUS IN (?,?) AND A.ADJUSTMENTTYPE NOT IN(?,?,?) AND A.GLSTATUS = 0";
+            //String sql = "SELECT DISTINCT ID,UNIQUEID,AMOUNT,CRDR,ADJUSTDATE,TRANSACTIONTYPE FROM ADJUSTMENT A WHERE A.STATUS = ? AND A.EODSTATUS IN (?,?) AND A.ADJUSTMENTTYPE NOT IN(?,?,?) AND A.GLSTATUS = 0";
 
-            list = (ArrayList<GlAccountBean>) backendJdbcTemplate.query(sql, new RowMapperResultSetExtractor<>((rs, rowNum) -> {
+            list = (ArrayList<GlAccountBean>) backendJdbcTemplate.query(queryParametersList.getGLSummaryFile_getAdjustmentDataToEODGL(), new RowMapperResultSetExtractor<>((rs, rowNum) -> {
                 GlAccountBean bean = new GlAccountBean();
                 bean.setKey(rs.getString("ID"));
                 bean.setCardNo(new StringBuffer(rs.getString("UNIQUEID")));
@@ -180,9 +184,9 @@ public class GLSummaryFileRepo implements GLSummaryFileDao {
     public ArrayList<GlAccountBean> getFeeDataToEODGL() throws Exception {
         ArrayList<GlAccountBean> list = new ArrayList<>();
         try {
-            String sql = "SELECT DISTINCT ECF.EODFEEID,   ECF.CARDNUMBER,   ECF.ACCOUNTNO,   CA.STATUS,   ECF.CRDR,   ECF.FEEAMOUNT,   ECF.EFFECTDATE,   ECF.FEETYPE FROM EODCARDFEE ECF INNER JOIN CARDACCOUNT CA ON CA.ACCOUNTNO   = ECF.ACCOUNTNO WHERE ECF.STATUS IN (?,?) AND ECF.GLSTATUS  = ? ";
+            //String sql = "SELECT DISTINCT ECF.EODFEEID,   ECF.CARDNUMBER,   ECF.ACCOUNTNO,   CA.STATUS,   ECF.CRDR,   ECF.FEEAMOUNT,   ECF.EFFECTDATE,   ECF.FEETYPE FROM EODCARDFEE ECF INNER JOIN CARDACCOUNT CA ON CA.ACCOUNTNO   = ECF.ACCOUNTNO WHERE ECF.STATUS IN (?,?) AND ECF.GLSTATUS  = ?";
 
-            list = (ArrayList<GlAccountBean>) backendJdbcTemplate.query(sql, new RowMapperResultSetExtractor<>((rs, rowNum) -> {
+            list = (ArrayList<GlAccountBean>) backendJdbcTemplate.query(queryParametersList.getGLSummaryFile_getFeeDataToEODGL(), new RowMapperResultSetExtractor<>((rs, rowNum) -> {
                         String accStatus, feeType = null;
                         GlAccountBean bean = new GlAccountBean();
                         bean.setKey(rs.getString("EODFEEID"));
@@ -221,9 +225,9 @@ public class GLSummaryFileRepo implements GLSummaryFileDao {
     public ArrayList<GlAccountBean> getEODTxnDataToGL() throws Exception {
         ArrayList<GlAccountBean> list = new ArrayList<>();
         try {
-            String sql = "SELECT DISTINCT SETTLEMENTDATE, EODTRANSACTIONID, CARDNUMBER,  ACCOUNTNO,  TRANSACTIONAMOUNT, CRDR,A.TRANSACTIONTYPE AS DESCRIPTION,A.PAYMENTTYPE AS PAYMENTTYPE,  A.REQUESTFROM AS REQUESTFROM, A.ONOFFSTATUS, A.SECOND_PARTY_PAN,A.CARDASSOCIATION  FROM EODTRANSACTION A  WHERE STATUS IN (?,?) AND ADJUSTMENTSTATUS IN(?) AND GLSTATUS  =0 ";
+            //String sql = "SELECT DISTINCT SETTLEMENTDATE, EODTRANSACTIONID, CARDNUMBER,  ACCOUNTNO,  TRANSACTIONAMOUNT, CRDR,A.TRANSACTIONTYPE AS DESCRIPTION,A.PAYMENTTYPE AS PAYMENTTYPE,  A.REQUESTFROM AS REQUESTFROM, A.ONOFFSTATUS, A.SECOND_PARTY_PAN,A.CARDASSOCIATION  FROM EODTRANSACTION A  WHERE STATUS IN (?,?) AND ADJUSTMENTSTATUS IN(?) AND GLSTATUS  =0";
 
-            list = (ArrayList<GlAccountBean>) backendJdbcTemplate.query(sql, new RowMapperResultSetExtractor<>((rs, rowNum) -> {
+            list = (ArrayList<GlAccountBean>) backendJdbcTemplate.query(queryParametersList.getGLSummaryFile_getEODTxnDataToGL(), new RowMapperResultSetExtractor<>((rs, rowNum) -> {
                         GlAccountBean bean = new GlAccountBean();
                         bean.setKey(rs.getString("EODTRANSACTIONID"));
                         bean.setCardNo(new StringBuffer(rs.getString("CARDNUMBER")));
@@ -287,8 +291,8 @@ public class GLSummaryFileRepo implements GLSummaryFileDao {
     @Override
     public void updateEODTxn(String key, int i) throws Exception {
         try {
-            String sql = "UPDATE eodtransaction SET GLSTATUS = ? WHERE EODTRANSACTIONID = TO_NUMBER(?)";
-            backendJdbcTemplate.update(sql, i , key);
+            //String sql = "UPDATE eodtransaction SET GLSTATUS = ? WHERE EODTRANSACTIONID = TO_NUMBER(?)";
+            backendJdbcTemplate.update(queryParametersList.getGLSummaryFile_updateEODTxn(), i , key);
         } catch (Exception e) {
             throw e;
         }
@@ -298,8 +302,8 @@ public class GLSummaryFileRepo implements GLSummaryFileDao {
     public int updateEodGLAccount(int key) throws Exception {
         int count = 0;
         try {
-            String query = "UPDATE EODGLACCOUNT SET EODSTATUS = ? WHERE ID = ? ";
-            count = backendJdbcTemplate.update(query, statusList.getEOD_DONE_STATUS() , key);
+            //String query = "UPDATE EODGLACCOUNT SET EODSTATUS = ? WHERE ID = ?";
+            count = backendJdbcTemplate.update(queryParametersList.getGLSummaryFile_updateEodGLAccount(), statusList.getEOD_DONE_STATUS() , key);
         } catch (Exception e) {
             throw e;
         }
@@ -311,9 +315,9 @@ public class GLSummaryFileRepo implements GLSummaryFileDao {
         HashMap<String, ArrayList<GlAccountBean>> hmap = new HashMap<>();
         ArrayList<String> glTypes = new ArrayList<>();
         try {
-            String sql = "SELECT ID,EODID,GLDATE,CARDNO ,NVL(GLTYPE,'--') AS GLTYPE,AMOUNT,CRDR FROM EODGLACCOUNT  WHERE EODSTATUS = ? AND GLTYPE NOT IN (?,?) AND AMOUNT > 0";
+            //String sql = "SELECT ID,EODID,GLDATE,CARDNO ,NVL(GLTYPE,'--') AS GLTYPE,AMOUNT,CRDR FROM EODGLACCOUNT  WHERE EODSTATUS = ? AND GLTYPE NOT IN (?,?) AND AMOUNT > 0";
 
-            backendJdbcTemplate.query(sql, (ResultSet rs) -> {
+            backendJdbcTemplate.query(queryParametersList.getGLSummaryFile_getDataFromEODGl(), (ResultSet rs) -> {
                 while (rs.next()) {
                     ArrayList<GlAccountBean> list;
                     GlAccountBean bean = new GlAccountBean();
@@ -352,9 +356,9 @@ public class GLSummaryFileRepo implements GLSummaryFileDao {
     public HashMap<String, String[]> getGLTypesData() throws Exception {
         HashMap<String, String[]> hmap = new HashMap<>();
         try {
-            String sql = "SELECT TRANSACTIONCODE,CREDITACCOUNT,DEBITACCOUNT,CRDR FROM GLTRANSACTION WHERE CATEGORY = ? ";
+            //String sql = "SELECT TRANSACTIONCODE,CREDITACCOUNT,DEBITACCOUNT,CRDR FROM GLTRANSACTION WHERE CATEGORY = ?";
 
-            backendJdbcTemplate.query(sql, (ResultSet rs) -> {
+            backendJdbcTemplate.query(queryParametersList.getGLSummaryFile_getGLTypesData(), (ResultSet rs) -> {
                 while (rs.next()) {
                     String[] accountNo = new String[3];
                     String glType = rs.getString("TRANSACTIONCODE");

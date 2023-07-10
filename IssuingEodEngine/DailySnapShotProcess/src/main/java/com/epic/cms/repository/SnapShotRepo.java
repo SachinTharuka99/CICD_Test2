@@ -2,6 +2,8 @@ package com.epic.cms.repository;
 
 import com.epic.cms.dao.SnapShotDao;
 import com.epic.cms.util.Configurations;
+import com.epic.cms.util.LogManager;
+import com.epic.cms.util.QueryParametersList;
 import com.epic.cms.util.StatusVarList;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -25,13 +27,22 @@ public class SnapShotRepo implements SnapShotDao {
     @Qualifier("onlineJdbcTemplate")
     private JdbcTemplate onlineJdbcTemplate;
 
+//    @Autowired
+//    StatusVarList statusList;
+
+    @Autowired
+    LogManager logManager;
+
+    @Autowired
+    QueryParametersList queryParametersList;
+
     @Override
     public int checkEodComplete() throws Exception {
         int count = 0;
         try {
-            String query = "select count(*) as COUNT from eodprocesssummery where status  in (?) and eodid=?";
+           // String query = "select count(*) as COUNT from eodprocesssummery where status  in (?) and eodid=?";
 
-            count = backendJdbcTemplate.queryForObject(query, Integer.class, statusList.getERROR_STATUS(), Configurations.ERROR_EOD_ID);
+            count = backendJdbcTemplate.queryForObject(queryParametersList.getSnapShot_checkEodComplete(), Integer.class, statusList.getERROR_STATUS(), Configurations.ERROR_EOD_ID);
 
         } catch (EmptyResultDataAccessException e) {
             return 0;

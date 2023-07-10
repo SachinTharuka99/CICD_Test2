@@ -9,10 +9,7 @@ package com.epic.cms.repository;
 
 import com.epic.cms.dao.CommonFileGenProcessDao;
 import com.epic.cms.model.bean.GlBean;
-import com.epic.cms.util.CommonMethods;
-import com.epic.cms.util.Configurations;
-import com.epic.cms.util.LogManager;
-import com.epic.cms.util.StatusVarList;
+import com.epic.cms.util.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.jdbc.core.JdbcTemplate;
@@ -33,15 +30,19 @@ public class CommonFileGenProcessRepo implements CommonFileGenProcessDao {
     @Autowired
     StatusVarList statusList;
 
+    @Autowired
+    LogManager logManager;
+
+    @Autowired
+    QueryParametersList queryParametersList;
+
     @Override
     public List<String> getCardProductCardType(StringBuffer cardNo) throws Exception {
         List<String> cardDetails = new ArrayList<>();
         try {
-            String sql = "SELECT CA.CARDTYPE,CA.CARDPRODUCT,ACC.ACCOUNTNO FROM CARD CA "
-                    + "LEFT JOIN CARDACCOUNT ACC ON CA.MAINCARDNO = ACC.CARDNUMBER "
-                    + "WHERE CA.CARDNUMBER= ? ";
+            //String sql = "SELECT CA.CARDTYPE,CA.CARDPRODUCT,ACC.ACCOUNTNO FROM CARD CA LEFT JOIN CARDACCOUNT ACC ON CA.MAINCARDNO = ACC.CARDNUMBER WHERE CA.CARDNUMBER= ?";
 
-            backendJdbcTemplate.query(sql, (ResultSet rs) -> {
+            backendJdbcTemplate.query(queryParametersList.getCommonFileGenProcess_getCardProductCardType(), (ResultSet rs) -> {
                 while (rs.next()) {
                     cardDetails.add(0, rs.getString("CARDTYPE"));
                     cardDetails.add(1, rs.getString("CARDPRODUCT"));
@@ -59,12 +60,8 @@ public class CommonFileGenProcessRepo implements CommonFileGenProcessDao {
     @Override
     public void InsertIntoDownloadTable(StringBuffer cardNo, String filename, List<String> cardDetails) throws Exception {
         try {
-            String query = "Insert into DOWNLOADFILE (FIETYPE,FILENAME,LETTERTYPE, "
-                    + "STATUS,GENERATEDUSER,STATEMENTMONTH,STATEMENTYEAR,LASTUPDATEDTIME, "
-                    + "CREATEDTIME,LASTUPDATEDUSER,CARDTYPE,CARDPRODUCT,FILEID,ACCNUMBER, "
-                    + "APPLICATIONID) values "
-                    + "(?,?,?,?,?,?,?,to_date(SYSDATE,'DD-MM-YY'),to_date(SYSDATE, 'DD-MM-YY'),?,?,?,?,?,?) ";
-            backendJdbcTemplate.update(query, cardDetails.get(3)
+            //String query = "Insert into DOWNLOADFILE (FIETYPE,FILENAME,LETTERTYPE,STATUS,GENERATEDUSER,STATEMENTMONTH,STATEMENTYEAR,LASTUPDATEDTIME, CREATEDTIME,LASTUPDATEDUSER,CARDTYPE,CARDPRODUCT,FILEID,ACCNUMBER, APPLICATIONID) values (?,?,?,?,?,?,?,to_date(SYSDATE,'DD-MM-YY'),to_date(SYSDATE, 'DD-MM-YY'),?,?,?,?,?,?)";
+            backendJdbcTemplate.update(queryParametersList.getCommonFileGenProcess_InsertIntoDownloadTable(), cardDetails.get(3)
             ,filename
             ,cardDetails.get(4)
             ,Configurations.YES_STATUS
@@ -86,8 +83,8 @@ public class CommonFileGenProcessRepo implements CommonFileGenProcessDao {
     public List<String> getCardProductCardTypeByApplicationId(String applicationId) throws Exception {
         List<String> cardDetails = new ArrayList<>();
         try {
-            String sql = "SELECT ca.cardtype, ca.cardproduct, acc.accountno FROM card ca LEFT JOIN cardaccount acc ON ca.maincardno = acc.cardnumber INNER JOIN cardapplication cap ON ca.maincardno = cap.cardnumber WHERE cap.applicationid = ?";
-            backendJdbcTemplate.query(sql, (ResultSet rs) -> {
+            //String sql = "SELECT ca.cardtype, ca.cardproduct, acc.accountno FROM card ca LEFT JOIN cardaccount acc ON ca.maincardno = acc.cardnumber INNER JOIN cardapplication cap ON ca.maincardno = cap.cardnumber WHERE cap.applicationid = ?";
+            backendJdbcTemplate.query(queryParametersList.getCommonFileGenProcess_getCardProductCardTypeByApplicationId(), (ResultSet rs) -> {
                 while (rs.next()) {
                     cardDetails.add(0, rs.getString("CARDTYPE"));
                     cardDetails.add(1, rs.getString("CARDPRODUCT"));
@@ -121,9 +118,9 @@ public class CommonFileGenProcessRepo implements CommonFileGenProcessDao {
     public HashMap<String, GlBean> getGLAccData() throws Exception {
         HashMap<String, GlBean> hmap = new HashMap<>();
         try {
-            String sql = "SELECT NVL(G.GLACCOUNTCODE,'00') AS GLACCOUNTCODE, NVL(G.BRANCH,'00')             AS BRANCH, NVL(G.CLIENTNO,'00')           AS CLIENTNO, NVL(C.CURRENCYALPHACODE,'00')           AS CURRENCY, NVL(G.PROFITCENTRE,'00')       AS PROFITCENTRE, NVL(G.PRODUCTCATEGORY,'00')       AS PRODCATEGORY FROM GLACCOUNT G, CURRENCY C WHERE G.currency=C.CURRENCYNUMCODE AND G.STATUS = ? ";
+            //String sql = "SELECT NVL(G.GLACCOUNTCODE,'00') AS GLACCOUNTCODE, NVL(G.BRANCH,'00') AS BRANCH, NVL(G.CLIENTNO,'00') AS CLIENTNO, NVL(C.CURRENCYALPHACODE,'00') AS CURRENCY, NVL(G.PROFITCENTRE,'00') AS PROFITCENTRE, NVL(G.PRODUCTCATEGORY,'00') AS PRODCATEGORY FROM GLACCOUNT G, CURRENCY C WHERE G.currency=C.CURRENCYNUMCODE AND G.STATUS = ?";
 
-            backendJdbcTemplate.query(sql, (ResultSet rs) -> {
+            backendJdbcTemplate.query(queryParametersList.getCommonFileGenProcess_getGLAccData(), (ResultSet rs) -> {
                 while (rs.next()) {
                     GlBean bean = new GlBean();
                     String glAcc = rs.getString("GLACCOUNTCODE");
@@ -147,8 +144,8 @@ public class CommonFileGenProcessRepo implements CommonFileGenProcessDao {
     public HashMap<String, String[]> getGLTxnTypes() throws Exception {
         HashMap<String, String[]> hmap = new HashMap<>();
         try {
-            String sql = "SELECT GLTXNTYPECODE,DESCRIPTION,NVL(POSITIONTYPE, 'TR') AS POSITIONTYPE FROM GLTXNTYPE";
-            backendJdbcTemplate.query(sql, (ResultSet rs) -> {
+            //String sql = "SELECT GLTXNTYPECODE,DESCRIPTION,NVL(POSITIONTYPE, 'TR') AS POSITIONTYPE FROM GLTXNTYPE";
+            backendJdbcTemplate.query(queryParametersList.getCommonFileGenProcess_getGLTxnTypes(), (ResultSet rs) -> {
                 while (rs.next()) {
                     String[] glTxn = new String[2];
                     String txnTypeCode = rs.getString("GLTXNTYPECODE");
@@ -170,8 +167,8 @@ public class CommonFileGenProcessRepo implements CommonFileGenProcessDao {
     public String getCRDRFromGlTxn(String key) throws Exception {
         String crdr = null;
         try {
-            String sql = "SELECT NVL(CRDR,'DR') AS CRDR FROM GLTXNTYPE WHERE GLTXNTYPECODE=? ";
-            crdr = backendJdbcTemplate.queryForObject(sql, String.class, key);
+            //String sql = "SELECT NVL(CRDR,'DR') AS CRDR FROM GLTXNTYPE WHERE GLTXNTYPECODE=?";
+            crdr = backendJdbcTemplate.queryForObject(queryParametersList.getCommonFileGenProcess_getCRDRFromGlTxn(), String.class, key);
         }catch (Exception e){
             throw e;
         }
@@ -179,7 +176,7 @@ public class CommonFileGenProcessRepo implements CommonFileGenProcessDao {
     }
 
     private boolean isHoliday(Date today) {
-        String query = "SELECT COUNT(*) FROM HOLIDAY WHERE YEAR = ? AND MONTH=? AND DAY=?";
+        //String query = "SELECT COUNT(*) FROM HOLIDAY WHERE YEAR = ? AND MONTH=? AND DAY=?";
         Calendar calendar = Calendar.getInstance();
 
         calendar.setTime(today);
@@ -188,7 +185,7 @@ public class CommonFileGenProcessRepo implements CommonFileGenProcessDao {
             String year = String.valueOf(calendar.get(Calendar.YEAR));
             String month = String.valueOf(calendar.get(Calendar.MONTH));
             String day = String.valueOf(calendar.get(Calendar.DATE));
-            count = backendJdbcTemplate.queryForObject(query, Integer.class, year, month, day);
+            count = backendJdbcTemplate.queryForObject(queryParametersList.getCommonFileGenProcess_isHoliday(), Integer.class, year, month, day);
 
             if (count > 0) {
                 return true;

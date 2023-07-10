@@ -42,6 +42,9 @@ public class AutoSettlementRepo implements AutoSettlementDao {
     @Autowired
     private StatusVarList statusVarList;
 
+    @Autowired
+    QueryParametersList queryParametersList;
+
     @Override
     public int updateAutoSettlementWithPayments() throws Exception {
         Map<String, Object> details = new LinkedHashMap<String, Object>();
@@ -52,7 +55,8 @@ public class AutoSettlementRepo implements AutoSettlementDao {
             SimpleDateFormat format = new SimpleDateFormat("dd-MMM-yy");
             String dateEID = format.format(Configurations.EOD_DATE);
 
-            String query = "SELECT A.CARDACCOUNT, A.CARDNO, A.REMAININGAMOUNT AS OLDREMAININGAMOUNT, NVL((A.REMAININGAMOUNT - NVL(Z.TOTALPAYMENT, 0)),0) AS NEWREMAININGAMOUNT FROM AUTOSETTLEMENT A LEFT JOIN (SELECT ACCOUNTNO, NVL(SUM(TRANSACTIONAMOUNT),0) AS TOTALPAYMENT FROM EODTRANSACTION WHERE TRANSACTIONTYPE =? AND TRUNC(SETTLEMENTDATE) = TO_DATE(?,'DD-MM-YY') AND STATUS IN(?,?) GROUP BY ACCOUNTNO) Z ON A.CARDACCOUNT = Z.ACCOUNTNO WHERE A.REMAININGAMOUNT > 0 ";
+            //String query = "SELECT A.CARDACCOUNT, A.CARDNO, A.REMAININGAMOUNT AS OLDREMAININGAMOUNT, NVL((A.REMAININGAMOUNT - NVL(Z.TOTALPAYMENT, 0)),0) AS NEWREMAININGAMOUNT FROM AUTOSETTLEMENT A LEFT JOIN (SELECT ACCOUNTNO, NVL(SUM(TRANSACTIONAMOUNT),0) AS TOTALPAYMENT FROM EODTRANSACTION WHERE TRANSACTIONTYPE =? AND TRUNC(SETTLEMENTDATE) = TO_DATE(?,'DD-MM-YY') AND STATUS IN(?,?) GROUP BY ACCOUNTNO) Z ON A.CARDACCOUNT = Z.ACCOUNTNO WHERE A.REMAININGAMOUNT > 0";
+            String query = queryParametersList.getAutoSettlement_updateAutoSettlementWithPayments();
 
             Object[] param = null;
 
@@ -121,10 +125,10 @@ public class AutoSettlementRepo implements AutoSettlementDao {
 
     private void updateRemainingAmount(double amount, StringBuffer newCardNo) {
         try {
-            String query = "UPDATE autosettlement SET REMAININGAMOUNT = ? WHERE CARDNO = ? ";
+            //String query = "UPDATE autosettlement SET REMAININGAMOUNT = ? WHERE CARDNO = ? ";
 
             amount = (amount < 0) ? 0 : amount;
-            backendJdbcTemplate.update(query, amount, newCardNo.toString());
+            backendJdbcTemplate.update(queryParametersList.getAutoSettlement_updateRemainingAmount(), amount, newCardNo.toString());
 
         } catch (Exception e) {
             throw e;
@@ -136,8 +140,8 @@ public class AutoSettlementRepo implements AutoSettlementDao {
         StringBuffer cardNumber = oldCardNumber;
 
         try {
-            String sql = "SELECT CR1.NEWCARDNUMBER CARDNUMBER FROM CARDREPLACE CR1 LEFT JOIN CARDREPLACE CR2 ON CR2.OLDCARDNUMBER = CR1.NEWCARDNUMBER INNER JOIN CARD C ON C.CARDNUMBER = CR1.NEWCARDNUMBER WHERE C.CARDSTATUS NOT IN (?,?) START WITH CR1.OLDCARDNUMBER = ? CONNECT BY PRIOR CR1.NEWCARDNUMBER = CR1.OLDCARDNUMBER";
-            cardNumber = backendJdbcTemplate.queryForObject(sql,
+            //String sql = "SELECT CR1.NEWCARDNUMBER CARDNUMBER FROM CARDREPLACE CR1 LEFT JOIN CARDREPLACE CR2 ON CR2.OLDCARDNUMBER = CR1.NEWCARDNUMBER INNER JOIN CARD C ON C.CARDNUMBER = CR1.NEWCARDNUMBER WHERE C.CARDSTATUS NOT IN (?,?) START WITH CR1.OLDCARDNUMBER = ? CONNECT BY PRIOR CR1.NEWCARDNUMBER = CR1.OLDCARDNUMBER";
+            cardNumber = backendJdbcTemplate.queryForObject(queryParametersList.getAutoSettlement_getNewCardNumber(),
                     StringBuffer.class,
                     statusVarList.getCARD_REPLACED_STATUS(),
                     statusVarList.getCARD_PRODUCT_CHANGE_STATUS(),
@@ -157,7 +161,8 @@ public class AutoSettlementRepo implements AutoSettlementDao {
     public void getUnsuccessfullStandingInstructionFeeEligibleCards() throws Exception {
         ArrayList<String> cardList = new ArrayList<String>();
         try {
-            String query = "SELECT CARDNO FROM AUTOSETTLEMENT WHERE PROCESSINGCOUNT = 2 and REMAININGAMOUNT >0 ";
+           // String query = "SELECT CARDNO FROM AUTOSETTLEMENT WHERE PROCESSINGCOUNT = 2 and REMAININGAMOUNT >0";
+            String query = queryParametersList.getAutoSettlement_getUnsuccessfullStandingInstructionFeeEligibleCards();
 
             if (Configurations.STARTING_EOD_STATUS.equals(statusVarList.getINITIAL_STATUS())) {
                 query += " and CARDACCOUNT not in (select ec.ACCOUNTNO from eoderrorcards ec where ec.status= ? )";
@@ -197,17 +202,17 @@ public class AutoSettlementRepo implements AutoSettlementDao {
         SimpleDateFormat sdf = new SimpleDateFormat("dd-MMM-yy");
         int count = 0;
         boolean forward = false;
-        String query = null;
+       // String query = null;
         try {
             forward = this.checkFeeExistForCard(cardNumber, feeCode);
             if (forward) {
                 boolean isFeeUpdateRequired = this.getFeeCode(cardNumber, feeCode);
                 if (isFeeUpdateRequired) {
-                    query = "UPDATE CARDFEECOUNT SET FEECOUNT = FEECOUNT + 1,CASHAMOUNT=CASHAMOUNT+?, LASTUPDATEDUSER= ?, LASTUPDATEDTIME= SYSDATE, STATUS =? WHERE CARDNUMBER = ? AND FEECODE = ?";
-                    count = backendJdbcTemplate.update(query, cashAmount, Configurations.EOD_USER, statusVarList.getEOD_PENDING_STATUS(), cardNumber.toString(), feeCode);
+                    //query = "UPDATE CARDFEECOUNT SET FEECOUNT = FEECOUNT + 1,CASHAMOUNT=CASHAMOUNT+?, LASTUPDATEDUSER= ?, LASTUPDATEDTIME= SYSDATE, STATUS =? WHERE CARDNUMBER = ? AND FEECODE = ?";
+                    count = backendJdbcTemplate.update(queryParametersList.getAutoSettlement_addCardFeeCount_Update(), cashAmount, Configurations.EOD_USER, statusVarList.getEOD_PENDING_STATUS(), cardNumber.toString(), feeCode);
                 } else {
-                    query = "INSERT INTO CARDFEECOUNT (CARDNUMBER,FEECODE,FEECOUNT,CASHAMOUNT,STATUS,CREATEDDATE,LASTUPDATEDTIME,LASTUPDATEDUSER) VALUES (?,?,?,?,?,TO_DATE(?,'DD-MM-YY'),SYSDATE,?)";
-                    count = backendJdbcTemplate.update(query, cardNumber.toString(), feeCode, 1, cashAmount, statusVarList.getEOD_PENDING_STATUS(), sdf.format(Configurations.EOD_DATE), Configurations.EOD_USER);
+                    //query = "INSERT INTO CARDFEECOUNT (CARDNUMBER,FEECODE,FEECOUNT,CASHAMOUNT,STATUS,CREATEDDATE,LASTUPDATEDTIME,LASTUPDATEDUSER) VALUES (?,?,?,?,?,TO_DATE(?,'DD-MM-YY'),SYSDATE,?)";
+                    count = backendJdbcTemplate.update(queryParametersList.getAutoSettlement_addCardFeeCount_Insert(), cardNumber.toString(), feeCode, 1, cashAmount, statusVarList.getEOD_PENDING_STATUS(), sdf.format(Configurations.EOD_DATE), Configurations.EOD_USER);
                 }
             }
         } catch (Exception ex) {
@@ -221,8 +226,8 @@ public class AutoSettlementRepo implements AutoSettlementDao {
         boolean forward = false;
         int feeCount = 0;
         try {
-            String query = "SELECT C.FEECOUNT FROM CARDFEECOUNT C WHERE C.CARDNUMBER = ? AND C.FEECODE = ?";
-            feeCount = backendJdbcTemplate.queryForObject(query, Integer.class, cardNumber.toString(), feeCode);
+            //String query = "SELECT C.FEECOUNT FROM CARDFEECOUNT C WHERE C.CARDNUMBER = ? AND C.FEECODE = ?";
+            feeCount = backendJdbcTemplate.queryForObject(queryParametersList.getAutoSettlement_getFeeCode(), Integer.class, cardNumber.toString(), feeCode);
             if (feeCount > 0 && (!feeCode.equals(Configurations.LATE_PAYMENT_FEE) && !feeCode.equals(Configurations.ANNUAL_FEE))) {
                 forward = true;
             }
@@ -239,8 +244,8 @@ public class AutoSettlementRepo implements AutoSettlementDao {
         int recordCount = 0;
         boolean forward = false;
         try {
-            String query = "SELECT COUNT(C.CARDNUMBER) AS RECORDCOUNT FROM CARD C INNER JOIN FEEPROFILEFEE FPF ON C.FEEPROFILECODE  = FPF.FEEPROFILECODE WHERE C.CARDNUMBER   = ? AND FPF.FEECODE NOT IN (SELECT PFPF.FEECODE FROM CARD C INNER JOIN PROMOFEEPROFILE PFP ON C.PROMOFEEPROFILECODE = PFP.PROMOFEEPROFILECODE INNER JOIN PROMOFEEPROFILEFEE PFPF ON C.PROMOFEEPROFILECODE = PFPF.PROMOFEEPROFILECODE WHERE C.CARDNUMBER = ? AND STATUS <> ?) AND FPF.FEECODE = ?";
-            recordCount = backendJdbcTemplate.queryForObject(query, Integer.class, cardNumber.toString(), cardNumber.toString(), statusVarList.getFEE_PROMOTION_PROFILE_EXPIRE(), feeCode);
+            //String query = "SELECT COUNT(C.CARDNUMBER) AS RECORDCOUNT FROM CARD C INNER JOIN FEEPROFILEFEE FPF ON C.FEEPROFILECODE  = FPF.FEEPROFILECODE WHERE C.CARDNUMBER   = ? AND FPF.FEECODE NOT IN (SELECT PFPF.FEECODE FROM CARD C INNER JOIN PROMOFEEPROFILE PFP ON C.PROMOFEEPROFILECODE = PFP.PROMOFEEPROFILECODE INNER JOIN PROMOFEEPROFILEFEE PFPF ON C.PROMOFEEPROFILECODE = PFPF.PROMOFEEPROFILECODE WHERE C.CARDNUMBER = ? AND STATUS <> ?) AND FPF.FEECODE = ?";
+            recordCount = backendJdbcTemplate.queryForObject(queryParametersList.getAutoSettlement_checkFeeExistForCard(), Integer.class, cardNumber.toString(), cardNumber.toString(), statusVarList.getFEE_PROMOTION_PROFILE_EXPIRE(), feeCode);
             if (recordCount > 0) {
                 forward = true;
             }
@@ -257,7 +262,8 @@ public class AutoSettlementRepo implements AutoSettlementDao {
         try {
             logInfo.info("  STEP 02 - Creating Partial Auto Settlement File");
 
-            String query = "SELECT AST.*,CU.CURRENCYALPHACODE FROM AUTOSETTLEMENT AST, CURRENCY CU WHERE AST.PROCESSINGCOUNT >0 AND AST.RUNNINGSTATUS =? AND AST.AUTOSETTLEMENTSTATUS =? AND AST.STATUS =? AND AST.CURRENCYNUMCODE = CU.CURRENCYNUMCODE ";
+            //String query = "SELECT AST.*,CU.CURRENCYALPHACODE FROM AUTOSETTLEMENT AST, CURRENCY CU WHERE AST.PROCESSINGCOUNT >0 AND AST.RUNNINGSTATUS =? AND AST.AUTOSETTLEMENTSTATUS =? AND AST.STATUS =? AND AST.CURRENCYNUMCODE = CU.CURRENCYNUMCODE";
+            String query = queryParametersList.getAutoSettlement_generatePartialAutoSettlementFile();
 
             if (Configurations.STARTING_EOD_STATUS.equals(statusVarList.getINITIAL_STATUS())) {
                 query += " and AST.CARDACCOUNT not in (select ec.ACCOUNTNO from eoderrorcards ec where ec.status= ? )";
@@ -478,7 +484,7 @@ public class AutoSettlementRepo implements AutoSettlementDao {
         int runningStatus = 0;
         DecimalFormat df = new DecimalFormat("#.00");
         df.setRoundingMode(RoundingMode.FLOOR);
-        String query = null;
+        //String query = null;
         try {
             BigDecimal remainAmount = new BigDecimal(remainingAmount);
             if (remainAmount.compareTo(BigDecimal.ZERO) > 0 && processingCount > 0) {
@@ -489,17 +495,17 @@ public class AutoSettlementRepo implements AutoSettlementDao {
                     processingCount = 3; //--todo this value should be original value.
                 }
 
-                query = "UPDATE autosettlement SET PROCESSINGCOUNT = ? , RUNNINGSTATUS = ? ,REMAININGAMOUNT=? WHERE CARDNO = ?";
+                //query = "UPDATE autosettlement SET PROCESSINGCOUNT = ? , RUNNINGSTATUS = ? ,REMAININGAMOUNT=? WHERE CARDNO = ?";
 
-                backendJdbcTemplate.update(query, processingCount, runningStatus, remainingAmount, cardNo.toString());
+                backendJdbcTemplate.update(queryParametersList.getAutoSettlement_updateAutoSettlementTable_Update1(), processingCount, runningStatus, remainingAmount, cardNo.toString());
 
             } else if (remainAmount.compareTo(BigDecimal.ZERO) <= 0) {
                 runningStatus = 2;
                 processingCount = 3; /**-to do this should be original value*/
 
-                query = "UPDATE autosettlement SET PROCESSINGCOUNT = ?,RUNNINGSTATUS = ? ,REMAININGAMOUNT=? WHERE CARDNO = ?";
+                //query = "UPDATE autosettlement SET PROCESSINGCOUNT = ?,RUNNINGSTATUS = ? ,REMAININGAMOUNT=? WHERE CARDNO = ?";
 
-                backendJdbcTemplate.update(query, processingCount, runningStatus, 0.00, cardNo.toString());
+                backendJdbcTemplate.update(queryParametersList.getAutoSettlement_updateAutoSettlementTable_Update2(), processingCount, runningStatus, 0.00, cardNo.toString());
             }
         } catch (Exception e) {
             logError.error("updateAutoSettlementTable Failed ");
@@ -517,7 +523,8 @@ public class AutoSettlementRepo implements AutoSettlementDao {
 
             logInfo.info("  STEP 03 - Creating Auto Settlement File");//2 spaces
 
-            String query = "SELECT AST.* ,BLS.DUEDATE AS SETTLEMENTDUEDATE ,BLS.STATEMENTENDDATE AS SETTLEMENTENDDATE ,BLS.CLOSINGBALANCE,CU.CURRENCYALPHACODE,BLS.MINAMOUNT  FROM autosettlement AST , BILLINGLASTSTATEMENTSUMMARY BLS ,CURRENCY CU  WHERE ast.cardno = bls.cardno AND  CU.CURRENCYNUMCODE = AST.CURRENCYNUMCODE AND  BLS.DUEDATE = to_date(?, 'dd-MM-yy')+1 AND  BLS.CLOSINGBALANCE > 0 AND  AST.STATUS = ? AND  AST.AUTOSETTLEMENTSTATUS = ? AND  AST.RUNNINGSTATUS IN ( ? , ?) ";
+           // String query = "SELECT AST.* ,BLS.DUEDATE AS SETTLEMENTDUEDATE ,BLS.STATEMENTENDDATE AS SETTLEMENTENDDATE ,BLS.CLOSINGBALANCE,CU.CURRENCYALPHACODE,BLS.MINAMOUNT  FROM autosettlement AST , BILLINGLASTSTATEMENTSUMMARY BLS ,CURRENCY CU  WHERE ast.cardno = bls.cardno AND  CU.CURRENCYNUMCODE = AST.CURRENCYNUMCODE AND  BLS.DUEDATE = to_date(?, 'dd-MM-yy')+1 AND  BLS.CLOSINGBALANCE > 0 AND  AST.STATUS = ? AND  AST.AUTOSETTLEMENTSTATUS = ? AND  AST.RUNNINGSTATUS IN ( ? , ?)";
+            String query = queryParametersList.getAutoSettlement_generateAutoSettlementFile();
 
             if (Configurations.STARTING_EOD_STATUS.equals(statusVarList.getINITIAL_STATUS())) {
                 query += " and AST.CARDACCOUNT not in (select ec.ACCOUNTNO from eoderrorcards ec where ec.status= ?)";
@@ -815,7 +822,8 @@ public class AutoSettlementRepo implements AutoSettlementDao {
 
         try {
 
-            String query = "SELECT NVL(SUM(TRANSACTIONAMOUNT),0) AS TOTALPAY FROM EODTRANSACTION WHERE TRANSACTIONTYPE =? AND EODID > ? AND EODID <= ? AND STATUS IN(?,?) AND  ACCOUNTNO IN (?) ";
+            //String query = "SELECT NVL(SUM(TRANSACTIONAMOUNT),0) AS TOTALPAY FROM EODTRANSACTION WHERE TRANSACTIONTYPE =? AND EODID > ? AND EODID <= ? AND STATUS IN(?,?) AND  ACCOUNTNO IN (?)";
+            String query = queryParametersList.getAutoSettlement_getPaymentAmount();
 
             paymentAmount = Objects.requireNonNull(backendJdbcTemplate.query(query,
                     (ResultSet result) -> {

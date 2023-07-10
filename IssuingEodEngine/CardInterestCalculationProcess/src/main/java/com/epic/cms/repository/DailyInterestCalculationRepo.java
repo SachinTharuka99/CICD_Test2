@@ -13,10 +13,7 @@ import com.epic.cms.model.bean.DailyInterestBean;
 import com.epic.cms.model.bean.InterestDetailBean;
 import com.epic.cms.model.bean.StatementBean;
 import com.epic.cms.model.rowmapper.DailyInterestRowMapper;
-import com.epic.cms.util.CommonMethods;
-import com.epic.cms.util.Configurations;
-import com.epic.cms.util.LogManager;
-import com.epic.cms.util.StatusVarList;
+import com.epic.cms.util.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.jdbc.core.JdbcTemplate;
@@ -39,13 +36,19 @@ public class DailyInterestCalculationRepo implements DailyInterestCalculationDao
     @Autowired
     private JdbcTemplate backendJdbcTemplate;
 
+    @Autowired
+    LogManager logManager;
+
+    @Autowired
+    QueryParametersList queryParametersList;
+
     @Override
     public ArrayList<StatementBean> getLatestStatementAccountList() throws Exception {
         ArrayList<StatementBean> accountList = new ArrayList<>();
         try {
-            String query = "SELECT BS.ACCOUNTNO, BS.MAINCARDNO, BS.CARDNO, BS.STATEMENTSTARTDATE, " + " BS.STATEMENTENDDATE, BS.THISBILLOPERNINGBALANCE, BS.THISBILLCLOSINGBALANCE, BS.DUEDATE, BS.STARTEODID, BS.ENDEODID " + " FROM BILLINGLASTSTATEMENTSUMMARY BLS INNER JOIN " + " BILLINGSTATEMENT BS ON BLS.STATEMENTID=BS.STATEMENTID " + " INNER JOIN CARD C ON BS.CARDNO=C.CARDNUMBER WHERE C.CARDSTATUS NOT IN(?)";
+            //String query = "SELECT BS.ACCOUNTNO, BS.MAINCARDNO, BS.CARDNO, BS.STATEMENTSTARTDATE, " + " BS.STATEMENTENDDATE, BS.THISBILLOPERNINGBALANCE, BS.THISBILLCLOSINGBALANCE, BS.DUEDATE, BS.STARTEODID, BS.ENDEODID " + " FROM BILLINGLASTSTATEMENTSUMMARY BLS INNER JOIN " + " BILLINGSTATEMENT BS ON BLS.STATEMENTID=BS.STATEMENTID " + " INNER JOIN CARD C ON BS.CARDNO=C.CARDNUMBER WHERE C.CARDSTATUS NOT IN(?)";
 
-            accountList = (ArrayList<StatementBean>) backendJdbcTemplate.query(query, new RowMapperResultSetExtractor<>((result, rowNum) -> {
+            accountList = (ArrayList<StatementBean>) backendJdbcTemplate.query(queryParametersList.getCardInterestCalculation_getLatestStatementAccountList(), new RowMapperResultSetExtractor<>((result, rowNum) -> {
                         StatementBean bean = new StatementBean();
                         bean.setAccountNo(result.getString("ACCOUNTNO"));
                         bean.setMainCardNo(new StringBuffer(result.getString("MAINCARDNO")));
@@ -70,9 +73,9 @@ public class DailyInterestCalculationRepo implements DailyInterestCalculationDao
     public InterestDetailBean getIntProf(String accountNo) throws Exception {
         InterestDetailBean interestDetailBean = new InterestDetailBean();
         try {
-            String query = "SELECT IP.INTERESTRATE, IP.INTERESTPERIODVALUE FROM CARDACCOUNT CA INNER JOIN INTERESTPROFILE IP ON IP.INTERESTPROFILECODE = CA.INTERESTPROFILECODE WHERE CA.ACCOUNTNO= ?";
+            //String query = "SELECT IP.INTERESTRATE, IP.INTERESTPERIODVALUE FROM CARDACCOUNT CA INNER JOIN INTERESTPROFILE IP ON IP.INTERESTPROFILECODE = CA.INTERESTPROFILECODE WHERE CA.ACCOUNTNO= ?";
 
-            interestDetailBean = Objects.requireNonNull(backendJdbcTemplate.query(query,
+            interestDetailBean = Objects.requireNonNull(backendJdbcTemplate.query(queryParametersList.getCardInterestCalculation_getIntProf(),
                     (ResultSet rs) -> {
                         InterestDetailBean bean = new InterestDetailBean();
                         while (rs.next()) {
@@ -94,45 +97,9 @@ public class DailyInterestCalculationRepo implements DailyInterestCalculationDao
     public ArrayList<DailyInterestBean> getTxnOrPaymentDetailByAccount(String accountNumber, int startEodId, int endEodId, Date endDate, Double lastBillOpenningBalance, Date lastBillStartDate, Date lastBillEndDate, int lastBillEndEodId) throws Exception {
         ArrayList<DailyInterestBean> txnList = new ArrayList<>();
         try {
-            String query = "SELECT ET.ACCOUNTNO AS ACCOUNTNO, SUM(ET.TRANSACTIONAMOUNT) AS TOTALPAY, (TRUNC(?)-TRUNC(ET.SETTLEMENTDATE)) AS DATEDIFF, "
-                    + " SETTLEMENTDATE AS TRANDATE FROM EODTRANSACTION ET "
-                    + " INNER JOIN CARDACCOUNT CA ON CA.ACCOUNTNO = ET.ACCOUNTNO "
-                    + " INNER JOIN INTERESTPROFILETRANSACTION IPT ON CA.INTERESTPROFILECODE = IPT.INTERESTPROFILE "
-                    + " AND IPT.TRANSACTIONCODE = ET.TRANSACTIONTYPE "
-                    + " WHERE ET.ACCOUNTNO = ? AND ET.TRANSACTIONTYPE IN (?,?,?,?) "
-                    + " AND ET.EODID > ? AND ET.EODID <= ? "
-                    + " AND ET.TRANSACTIONID NOT IN(SELECT TXNID FROM EASYPAYMENTREQUEST WHERE STATUS IN(?,?)) "
-                    + " GROUP BY ET.ACCOUNTNO, ET.SETTLEMENTDATE  "
-                    + " UNION ALL "
-                    + " SELECT ET.ACCOUNTNO AS ACCOUNTNO, SUM(ET.TRANSACTIONAMOUNT) AS TOTALPAY, (TRUNC(?)-TRUNC(ET.SETTLEMENTDATE)) AS DATEDIFF, "
-                    + " SETTLEMENTDATE AS TRANDATE FROM EODTRANSACTION ET "
-                    + " INNER JOIN CARDACCOUNT CA ON CA.ACCOUNTNO = ET.ACCOUNTNO "
-                    + " INNER JOIN INTERESTPROFILETRANSACTION IPT ON CA.INTERESTPROFILECODE = IPT.INTERESTPROFILE "
-                    + " AND IPT.TRANSACTIONCODE = ET.TRANSACTIONTYPE "
-                    + " WHERE ET.ACCOUNTNO = ? AND ET.TRANSACTIONTYPE IN (?) "
-                    + " AND ET.EODID > ? AND ET.EODID <= ? "
-                    + " GROUP BY ET.ACCOUNTNO, ET.SETTLEMENTDATE  "
-                    + " UNION ALL "
-                    + " SELECT ACCOUNTNO AS ACCOUNTNO,SUM(FEEAMOUNT) AS TOTALPAY,(TRUNC(?)-TRUNC(EFFECTDATE)) AS DATEDIFF,TRUNC(EFFECTDATE) AS TRANDATE "
-                    + " FROM EODCARDFEE "
-                    + " WHERE ACCOUNTNO= ? "
-                    + " AND EODID > ? AND EODID <= ? "
-                    + " GROUP BY ACCOUNTNO, TRUNC(EFFECTDATE) "
-                    + " UNION ALL "
-                    + " SELECT ET.ACCOUNTNO AS ACCOUNTNO, -SUM(ET.TRANSACTIONAMOUNT) AS TOTALPAY, (TRUNC(?)-TRUNC(ET.SETTLEMENTDATE)) AS DATEDIFF, "
-                    + " SETTLEMENTDATE AS TRANDATE "
-                    + " FROM EODTRANSACTION ET WHERE ET.ACCOUNTNO = ? AND ET.TRANSACTIONTYPE IN (?) "
-                    + " AND ET.EODID > ? AND ET.EODID <= ? "
-                    + " GROUP BY ET.ACCOUNTNO, ET.SETTLEMENTDATE"
-                    + " UNION ALL "
-                    + " SELECT ? AS ACCOUNTNO, ? AS TOTALPAY ,TRUNC(?)-TRUNC(?) AS DATEDIFF, "
-                    + " ? AS TRANDATE FROM DUAL"
-                    + " UNION ALL "
-                    + " SELECT ? AS ACCOUNTNO,INTERESTAMOUNT AS TOTALPAY ,TRUNC(?)-TRUNC(?) AS DATEDIFF, "
-                    + " ? AS TRANDATE FROM EOMINTEREST WHERE ACCOUNTNO=?  AND EODID=?"
-                    + " ORDER BY TRANDATE";
+            //String query = "SELECT ET.ACCOUNTNO AS ACCOUNTNO, SUM(ET.TRANSACTIONAMOUNT) AS TOTALPAY, (TRUNC(?)-TRUNC(ET.SETTLEMENTDATE)) AS DATEDIFF, SETTLEMENTDATE AS TRANDATE FROM EODTRANSACTION ET  INNER JOIN CARDACCOUNT CA ON CA.ACCOUNTNO = ET.ACCOUNTNO  INNER JOIN INTERESTPROFILETRANSACTION IPT ON CA.INTERESTPROFILECODE = IPT.INTERESTPROFILE AND IPT.TRANSACTIONCODE = ET.TRANSACTIONTYPE WHERE ET.ACCOUNTNO = ? AND ET.TRANSACTIONTYPE IN (?,?,?,?) AND ET.EODID > ? AND ET.EODID <= ? AND ET.TRANSACTIONID NOT IN(SELECT TXNID FROM EASYPAYMENTREQUEST WHERE STATUS IN(?,?)) GROUP BY ET.ACCOUNTNO, ET.SETTLEMENTDATE UNION ALL SELECT ET.ACCOUNTNO AS ACCOUNTNO, SUM(ET.TRANSACTIONAMOUNT) AS TOTALPAY, (TRUNC(?)-TRUNC(ET.SETTLEMENTDATE)) AS DATEDIFF, SETTLEMENTDATE AS TRANDATE FROM EODTRANSACTION ET INNER JOIN CARDACCOUNT CA ON CA.ACCOUNTNO = ET.ACCOUNTNO INNER JOIN INTERESTPROFILETRANSACTION IPT ON CA.INTERESTPROFILECODE = IPT.INTERESTPROFILE AND IPT.TRANSACTIONCODE = ET.TRANSACTIONTYPE WHERE ET.ACCOUNTNO = ? AND ET.TRANSACTIONTYPE IN (?) AND ET.EODID > ? AND ET.EODID <= ? GROUP BY ET.ACCOUNTNO, ET.SETTLEMENTDATE UNION ALL SELECT ACCOUNTNO AS ACCOUNTNO,SUM(FEEAMOUNT) AS TOTALPAY,(TRUNC(?)-TRUNC(EFFECTDATE)) AS DATEDIFF,TRUNC(EFFECTDATE) AS TRANDATE FROM EODCARDFEE WHERE ACCOUNTNO= ? AND EODID > ? AND EODID <= ? GROUP BY ACCOUNTNO, TRUNC(EFFECTDATE) UNION ALL SELECT ET.ACCOUNTNO AS ACCOUNTNO, -SUM(ET.TRANSACTIONAMOUNT) AS TOTALPAY, (TRUNC(?)-TRUNC(ET.SETTLEMENTDATE)) AS DATEDIFF, SETTLEMENTDATE AS TRANDATE FROM EODTRANSACTION ET WHERE ET.ACCOUNTNO = ? AND ET.TRANSACTIONTYPE IN (?) AND ET.EODID > ? AND ET.EODID <= ? GROUP BY ET.ACCOUNTNO, ET.SETTLEMENTDATE UNION ALL SELECT ? AS ACCOUNTNO, ? AS TOTALPAY ,TRUNC(?)-TRUNC(?) AS DATEDIFF, ? AS TRANDATE FROM DUAL UNION ALL  SELECT ? AS ACCOUNTNO,INTERESTAMOUNT AS TOTALPAY ,TRUNC(?)-TRUNC(?) AS DATEDIFF,  ? AS TRANDATE FROM EOMINTEREST WHERE ACCOUNTNO=?  AND EODID=? ORDER BY TRANDATE";
 
-            txnList = (ArrayList<DailyInterestBean>) backendJdbcTemplate.query(query, new DailyInterestRowMapper(),
+            txnList = (ArrayList<DailyInterestBean>) backendJdbcTemplate.query(queryParametersList.getCardInterestCalculation_getTxnOrPaymentDetailByAccount(), new DailyInterestRowMapper(),
                     /**get transaction (but not installment transaction)*/
                     CommonMethods.getSqldate(endDate),
                     accountNumber,
@@ -192,17 +159,15 @@ public class DailyInterestCalculationRepo implements DailyInterestCalculationDao
     public int updateEodInterest(StatementBean bean, double txnInterest, double interestRate) throws Exception {
         int count = 0;
         try {
-            String query = "SELECT COUNT(*) AS RECORD FROM EODINTEREST WHERE ACCOUNTNO = ? ";
+            //String query = "SELECT COUNT(*) AS RECORD FROM EODINTEREST WHERE ACCOUNTNO = ? ";
 
-            count = backendJdbcTemplate.queryForObject(query, Integer.class, bean.getAccountNo());
+            count = backendJdbcTemplate.queryForObject(queryParametersList.getCardInterestCalculation_updateEodInterest_Select(), Integer.class, bean.getAccountNo());
 
             if (count > 0) {
-                query = "UPDATE EODINTEREST "
-                        + "SET FORWARDAMOUNT = ?, CURRENTINTEREST = ?, ACTUALINTEREST = ?, "
-                        + "INTERESTRATE = ?, LASTUPDATEDTIME=SYSDATE, LASTUPDATEDUSER=?, DUEDATE =? "
-                        + "WHERE ACCOUNTNO = ? ";
+                //query = "UPDATE EODINTEREST SET FORWARDAMOUNT = ?, CURRENTINTEREST = ?, ACTUALINTEREST = ?, INTERESTRATE = ?, LASTUPDATEDTIME=SYSDATE, LASTUPDATEDUSER=?, DUEDATE =? WHERE ACCOUNTNO = ? ";
+                queryParametersList.getCardInterestCalculation_updateEodInterest_Update();
 
-                count = backendJdbcTemplate.update(query,
+                count = backendJdbcTemplate.update(queryParametersList.getCardInterestCalculation_updateEodInterest_Select(),
                         bean.getClosingBalance(),
                         txnInterest,
                         txnInterest,
@@ -212,9 +177,9 @@ public class DailyInterestCalculationRepo implements DailyInterestCalculationDao
                         bean.getAccountNo()
                 );
             } else {
-                query = "INSERT INTO EODINTEREST (CARDNO,EODID,FORWARDAMOUNT,CURRENTINTEREST,CREATEDTIME,LASTUPDATEDTIME,LASTUPDATEDUSER,ACTUALINTEREST,INTERESTRATE,DUEDATE,ACCOUNTNO) VALUES (?,?,?,?,SYSDATE,SYSDATE,?,?,?,?,?)";
+                //query = "INSERT INTO EODINTEREST (CARDNO,EODID,FORWARDAMOUNT,CURRENTINTEREST,CREATEDTIME,LASTUPDATEDTIME,LASTUPDATEDUSER,ACTUALINTEREST,INTERESTRATE,DUEDATE,ACCOUNTNO) VALUES (?,?,?,?,SYSDATE,SYSDATE,?,?,?,?,?)";
 
-                count = backendJdbcTemplate.update(query,
+                count = backendJdbcTemplate.update(queryParametersList.getCardInterestCalculation_updateEodInterest_Insert(),
                         bean.getCardNo().toString(),
                         Configurations.EOD_ID,
                         bean.getClosingBalance(),

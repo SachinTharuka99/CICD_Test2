@@ -7,7 +7,9 @@
 
 package com.epic.cms.model.bean;
 
+import lombok.AllArgsConstructor;
 import lombok.Getter;
+import lombok.NoArgsConstructor;
 import lombok.Setter;
 
 import java.util.Date;
@@ -55,4 +57,9 @@ public class MerchantLocationBean {
     private int txnCount;
     private String calMethod;
     private String merchantCustomerNo;
+
+
+    public void isFirstStatement(boolean isFirstStatement) {
+        this.isFirstStatement = isFirstStatement;
+    }
 }

@@ -36,6 +36,9 @@ public class MonthlyStatementRepo implements MonthlyStatementDao {
     @Autowired
     JdbcTemplate backendJdbcTemplate;
 
+    @Autowired
+    QueryParametersList queryParametersList;
+
     @Override
     public HashMap<String, ArrayList<CardBean>> getCardAccountListForBilling() throws Exception {
 
@@ -43,14 +46,18 @@ public class MonthlyStatementRepo implements MonthlyStatementDao {
         String query = null;
         try {
 
-            query = "SELECT CA.ACCOUNTNO,CDA.BILLINGID,CD.CARDNUMBER,cd.cardcategorycode, CD.CREDITLIMIT,CD.CASHLIMIT,CD.OTBCREDIT,CD.OTBCASH,CD.MAINCARDNO, CDA.NEXTBILLINGDATE,CD.CREATEDTIME,CD.CLOSEFLAG FROM CARDACCOUNTCUSTOMER CA, CARD CD,CARDACCOUNT CDA WHERE ca.cardnumber=CD.CARDNUMBER AND CDA.ACCOUNTNO =CA.ACCOUNTNO AND trunc(CDA.NEXTBILLINGDATE) =TO_DATE(?,'DD-MON-YY') AND (CD.CARDSTATUS NOT  IN(?,?,?) OR (CD.CARDSTATUS = ? AND CD.CLOSEFLAG = ?)) ";
+            //query = "SELECT CA.ACCOUNTNO,CDA.BILLINGID,CD.CARDNUMBER,cd.cardcategorycode, CD.CREDITLIMIT,CD.CASHLIMIT,CD.OTBCREDIT,CD.OTBCASH,CD.MAINCARDNO, CDA.NEXTBILLINGDATE,CD.CREATEDTIME,CD.CLOSEFLAG FROM CARDACCOUNTCUSTOMER CA, CARD CD,CARDACCOUNT CDA WHERE ca.cardnumber=CD.CARDNUMBER AND CDA.ACCOUNTNO =CA.ACCOUNTNO AND trunc(CDA.NEXTBILLINGDATE) =TO_DATE(?,'DD-MON-YY') AND (CD.CARDSTATUS NOT  IN(?,?,?) OR (CD.CARDSTATUS = ? AND CD.CLOSEFLAG = ?))";
+            query = queryParametersList.getMonthlyStatement_getCardAccountListForBilling();
             if (Configurations.STARTING_EOD_STATUS.equals(statusList.getINITIAL_STATUS())) {
-                query += " and CA.ACCOUNTNO not in (select ec.ACCOUNTNO from eoderrorcards ec where ec.status= ? )";
+                //query += "and CA.ACCOUNTNO not in (select ec.ACCOUNTNO from eoderrorcards ec where ec.status= ? )";
+                query+=queryParametersList.getMonthlyStatement_getCardAccountListForBilling_Appender1();
             } else if (Configurations.STARTING_EOD_STATUS.equals(statusList.getERROR_STATUS())) {
-                query += " and CA.ACCOUNTNO in (select ec.ACCOUNTNO from eoderrorcards ec where ec.status= ? and EODID < ?  and PROCESSSTEPID <= ? )";
+                //query += "and CA.ACCOUNTNO in (select ec.ACCOUNTNO from eoderrorcards ec where ec.status= ? and EODID < ?  and PROCESSSTEPID <= ? )";
+                query = queryParametersList.getMonthlyStatement_getCardAccountListForBilling_Appender2();
             }
 
-            query += " ORDER BY CA.ACCOUNTNO, CASE WHEN cd.cardcategorycode = ? OR cd.cardcategorycode = ? OR cd.cardcategorycode = ? OR cd.cardcategorycode = ? OR cd.cardcategorycode = ? THEN 1 WHEN cd.cardcategorycode = ? OR cd.cardcategorycode = ? OR cd.cardcategorycode = ? OR cd.cardcategorycode = ? OR cd.cardcategorycode = ? THEN 2 ELSE 3 END, CD.CARDNUMBER ";
+            //query += "ORDER BY CA.ACCOUNTNO, CASE WHEN cd.cardcategorycode = ? OR cd.cardcategorycode = ? OR cd.cardcategorycode = ? OR cd.cardcategorycode = ? OR cd.cardcategorycode = ? THEN 1 WHEN cd.cardcategorycode = ? OR cd.cardcategorycode = ? OR cd.cardcategorycode = ? OR cd.cardcategorycode = ? OR cd.cardcategorycode = ? THEN 2 ELSE 3 END, CD.CARDNUMBER";
+            query += queryParametersList.getMonthlyStatement_getCardAccountListForBilling_Appender3();
 
             SimpleDateFormat format = new SimpleDateFormat("dd-MMM-yy");
 
@@ -301,8 +308,8 @@ public class MonthlyStatementRepo implements MonthlyStatementDao {
         boolean hasReplaceCards = false;
 
         try {
-            String query = "SELECT COUNT(*) AS CARDCOUNT FROM CARDREPLACE WHERE NEWCARDNUMBER =? ";
-            hasReplaceCards = Objects.requireNonNull(backendJdbcTemplate.query(query, (ResultSet rs) -> {
+            //String query = "SELECT COUNT(*) AS CARDCOUNT FROM CARDREPLACE WHERE NEWCARDNUMBER =?";
+            hasReplaceCards = Objects.requireNonNull(backendJdbcTemplate.query(queryParametersList.getMonthlyStatement_checkReplaceStatus(), (ResultSet rs) -> {
                 boolean temp = false;
                 while (rs.next()) {
                     if (rs.getInt("CARDCOUNT") > 0) {
@@ -325,7 +332,8 @@ public class MonthlyStatementRepo implements MonthlyStatementDao {
         stBean.setHasBillingCycleChangeRequest(false);
 
         try {
-            String query = "SELECT LAST_DAY(ADD_MONTHS(SYSDATE,0))+ NEWBILLINGDATE AS NEWSTATEMENTDATE,NEWBILLINGDATE,REQUESTID FROM DUAL,BILLINGCHANGEREQUEST WHERE ACCOUNTNUMBER=? AND STATUS = ? and EODSTATUS <> ?";
+            //String query = "SELECT LAST_DAY(ADD_MONTHS(SYSDATE,0))+ NEWBILLINGDATE AS NEWSTATEMENTDATE,NEWBILLINGDATE,REQUESTID FROM DUAL,BILLINGCHANGEREQUEST WHERE ACCOUNTNUMBER=? AND STATUS = ? and EODSTATUS <> ?";
+            String query = queryParametersList.getMonthlyStatement_CheckBillingCycleChangeRequest();
             backendJdbcTemplate.query(query, (ResultSet rs) -> {
                 while (rs.next()) {
                     stBean.setHasBillingCycleChangeRequest(true);
@@ -341,7 +349,9 @@ public class MonthlyStatementRepo implements MonthlyStatementDao {
             }, accNo, "RQAC", statusList.getBILLING_DONE_STATUS());
 
             if (!stBean.getHasBillingCycleChangeRequest()) {
-                query = "SELECT LAST_DAY((NEXTBILLINGDATE))+ BILLINGDATE AS NEWNEXTBILLINGDATE,NEXTBILLINGDATE,BILLINGDATE FROM CARDACCOUNT WHERE ACCOUNTNO=?";
+                //query = "SELECT LAST_DAY((NEXTBILLINGDATE))+ BILLINGDATE AS NEWNEXTBILLINGDATE,NEXTBILLINGDATE,BILLINGDATE FROM CARDACCOUNT WHERE ACCOUNTNO=?";
+                query = queryParametersList.getMonthlyStatement_CheckBillingCycleChangeRequest_Appender1();
+
                 backendJdbcTemplate.query(query, (ResultSet rs) -> {
                     while (rs.next()) {
                         stBean.setNewNextBillingDate(rs.getDate("NEWNEXTBILLINGDATE"));
@@ -362,8 +372,8 @@ public class MonthlyStatementRepo implements MonthlyStatementDao {
         List<StringBuffer> oldCards = new ArrayList<StringBuffer>();
 
         try {
-            String query = "select oldcardnumber from cardreplace cr START WITH cr.newcardnumber =? CONNECT BY PRIOR cr.oldcardnumber = cr.newcardnumber ";
-            oldCards = Objects.requireNonNull(backendJdbcTemplate.query(query, (ResultSet rs) -> {
+            //String query = "select oldcardnumber from cardreplace cr START WITH cr.newcardnumber =? CONNECT BY PRIOR cr.oldcardnumber = cr.newcardnumber";
+            oldCards = Objects.requireNonNull(backendJdbcTemplate.query(queryParametersList.getMonthlyStatement_getAllOldCards(), (ResultSet rs) -> {
                 int count = 1;
                 List<StringBuffer> tempOldCards = new ArrayList<StringBuffer>();
                 while (rs.next()) {
@@ -384,8 +394,8 @@ public class MonthlyStatementRepo implements MonthlyStatementDao {
     public void updateCloseCardFlag(StringBuffer CardNumbers) throws Exception {
 
         try {
-            String query = "UPDATE CARD SET CLOSEFLAG = ? WHERE CARDNUMBER = ? AND CLOSEFLAG = ? ";
-            backendJdbcTemplate.update(query, statusList.getNO_STATUS_0(), CardNumbers.toString(), statusList.getYES_STATUS_1());
+            //String query = "UPDATE CARD SET CLOSEFLAG = ? WHERE CARDNUMBER = ? AND CLOSEFLAG = ?";
+            backendJdbcTemplate.update(queryParametersList.getMonthlyStatement_updateCloseCardFlag(), statusList.getNO_STATUS_0(), CardNumbers.toString(), statusList.getYES_STATUS_1());
 
         } catch (Exception e) {
             throw e;
@@ -398,8 +408,8 @@ public class MonthlyStatementRepo implements MonthlyStatementDao {
         java.sql.Date eodDate = DateUtil.getSqldate(Configurations.EOD_DATE);
 
         try {
-            String query = "update BILLINGCHANGEREQUEST set EODSTATUS = ? , STATUS = ?,LASTEODUPDATEDDATE=? where ACCOUNTNUMBER =? AND REQUESTID = ? ";
-            backendJdbcTemplate.update(query, statusList.getBILLING_DONE_STATUS(), "RPBC", eodDate, AccNo, reqID);
+            //String query = "update BILLINGCHANGEREQUEST set EODSTATUS = ? , STATUS = ?,LASTEODUPDATEDDATE=? where ACCOUNTNUMBER =? AND REQUESTID = ?";
+            backendJdbcTemplate.update(queryParametersList.getMonthlyStatement_updateBillingCycleRequestBCCP(), statusList.getBILLING_DONE_STATUS(), "RPBC", eodDate, AccNo, reqID);
 
         } catch (Exception e) {
             throw e;
@@ -412,14 +422,16 @@ public class MonthlyStatementRepo implements MonthlyStatementDao {
         Date DueDate = null;
 
         try {
-            String sql_DueDate = "SELECT NEXTBILLINGDATE + (SELECT GRACEPERIOD FROM  BILLINGSTATEMENTPROFILE BSP,CARDACCOUNT CA WHERE CA.ACCOUNTNO = ? AND CA.BILLINGSTATEMENTPROFILECODE = BSP.PROFILECODE) as DUEDATE FROM CARDACCOUNT WHERE ACCOUNTNO = ?";
-            DueDate = Objects.requireNonNull(backendJdbcTemplate.query(sql_DueDate, (ResultSet result_temp) -> {
+            //String sql_DueDate = "SELECT NEXTBILLINGDATE + (SELECT GRACEPERIOD FROM  BILLINGSTATEMENTPROFILE BSP,CARDACCOUNT CA WHERE CA.ACCOUNTNO = ? AND CA.BILLINGSTATEMENTPROFILECODE = BSP.PROFILECODE) as DUEDATE FROM CARDACCOUNT WHERE ACCOUNTNO = ?";
+            DueDate = Objects.requireNonNull(backendJdbcTemplate.query(queryParametersList.getMonthlyStatement_calculateDueDate(), (ResultSet result_temp) -> {
                 Date date = null;
                 while (result_temp.next()) {
                     date = result_temp.getDate("DUEDATE");
                 }
                 return date;
-            }, AccNo, AccNo));
+            },
+                    AccNo,
+                    AccNo));
 
         } catch (Exception e) {
             throw e;
@@ -433,8 +445,8 @@ public class MonthlyStatementRepo implements MonthlyStatementDao {
         boolean isHoliday = false;
 
         try {
-            String query = "SELECT COUNT(*) FROM HOLIDAY WHERE YEAR = ? AND MONTH=? AND DAY=?";
-            isHoliday = Objects.requireNonNull(backendJdbcTemplate.query(query, (ResultSet rs) -> {
+            //String query = "SELECT COUNT(*) FROM HOLIDAY WHERE YEAR = ? AND MONTH=? AND DAY=?";
+            isHoliday = Objects.requireNonNull(backendJdbcTemplate.query(queryParametersList.getMonthlyStatement_isHoliday(), (ResultSet rs) -> {
                         boolean temp = false;
                         if (rs.next()) {
                             int count = Integer.parseInt(rs.getString(1).trim());
@@ -466,8 +478,8 @@ public class MonthlyStatementRepo implements MonthlyStatementDao {
         int startEODId = 0;
 
         try {
-            String query = "SELECT BS.STARTEODID , BS.ENDEODID FROM BILLINGSTATEMENT BS,BILLINGLASTSTATEMENTSUMMARY BLS WHERE BS.STATEMENTID= BLS.STATEMENTID AND BLS.CARDNO = ?";
-            startEODId = Objects.requireNonNull(backendJdbcTemplate.query(query, (ResultSet rs) -> {
+            //String query = "SELECT BS.STARTEODID , BS.ENDEODID FROM BILLINGSTATEMENT BS,BILLINGLASTSTATEMENTSUMMARY BLS WHERE BS.STATEMENTID= BLS.STATEMENTID AND BLS.CARDNO = ?";
+            startEODId = Objects.requireNonNull(backendJdbcTemplate.query(queryParametersList.getMonthlyStatement_getThisStatementStartandEndEodId(), (ResultSet rs) -> {
                 int eod = 0;
                 while (rs.next()) {
                     eod = rs.getInt("ENDEODID");
@@ -487,8 +499,8 @@ public class MonthlyStatementRepo implements MonthlyStatementDao {
         CardTransactionBean cardTransactionBean = new CardTransactionBean();
 
         try {
-            String sql = "SELECT SalesAndEasyPayments ,interest,PaymentsAndReversal,fees,cashadvances,cradj,dradj,CreditsWithoutPayments FROM ( select NVL(SUM(TRANSACTIONAMOUNT),0) SalesAndEasyPayments FROM  EODTRANSACTION where TRANSACTIONTYPE IN (?,?,?,?,?) and EODID >? AND EODID <=? AND cardnumber =? AND ADJUSTMENTSTATUS= ?) A CROSS JOIN ( select NVL(SUM(FORWARDINTEREST),0) Interest FROM  EOMINTEREST where CARDNO = ?) B CROSS JOIN ( select NVL(SUM(TRANSACTIONAMOUNT),0) PaymentsAndReversal FROM  EODTRANSACTION where TRANSACTIONTYPE IN (?,?,?,?,?) and EODID >? AND EODID <=? AND cardnumber = ? AND ADJUSTMENTSTATUS= ?) C CROSS JOIN (select NVL( SUM(feeamount),0) fees from eodcardfee where cardnumber=? and status = ? and ADJUSTMENTSTATUS = 'NO') D CROSS JOIN ( select NVL(SUM(TRANSACTIONAMOUNT),0) CASHADVANCEs FROM  EODTRANSACTION where TRANSACTIONTYPE =? and EODID >? AND EODID <=? AND cardnumber = ? AND ADJUSTMENTSTATUS= ?) E CROSS JOIN (select NVL( SUM(AMOUNT),0) CRADJ from ADJUSTMENT where UNIQUEID=? and eodstatus = ? AND crdr = ? and ADJUSTMENTTYPE not in(?,?)) F CROSS JOIN (select NVL( SUM(AMOUNT),0) DRADJ from ADJUSTMENT where UNIQUEID=? and eodstatus = ? AND crdr = ? and ADJUSTMENTTYPE not in(?,?)) G CROSS JOIN (select NVL( SUM(TRANSACTIONAMOUNT),0) CreditsWithoutPayments from EODTRANSACTION where TRANSACTIONTYPE IN (?,?) and EODID >? AND EODID <=? AND cardnumber = ? AND ADJUSTMENTSTATUS= ?) H ";
-            backendJdbcTemplate.query(sql, (ResultSet rs) -> {
+            //String sql = "SELECT SalesAndEasyPayments ,interest,PaymentsAndReversal,fees,cashadvances,cradj,dradj,CreditsWithoutPayments FROM ( select NVL(SUM(TRANSACTIONAMOUNT),0) SalesAndEasyPayments FROM  EODTRANSACTION where TRANSACTIONTYPE IN (?,?,?,?,?) and EODID >? AND EODID <=? AND cardnumber =? AND ADJUSTMENTSTATUS= ?) A CROSS JOIN ( select NVL(SUM(FORWARDINTEREST),0) Interest FROM  EOMINTEREST where CARDNO = ?) B CROSS JOIN ( select NVL(SUM(TRANSACTIONAMOUNT),0) PaymentsAndReversal FROM  EODTRANSACTION where TRANSACTIONTYPE IN (?,?,?,?,?) and EODID >? AND EODID <=? AND cardnumber = ? AND ADJUSTMENTSTATUS= ?) C CROSS JOIN (select NVL( SUM(feeamount),0) fees from eodcardfee where cardnumber=? and status = ? and ADJUSTMENTSTATUS = 'NO') D CROSS JOIN ( select NVL(SUM(TRANSACTIONAMOUNT),0) CASHADVANCEs FROM  EODTRANSACTION where TRANSACTIONTYPE =? and EODID >? AND EODID <=? AND cardnumber = ? AND ADJUSTMENTSTATUS= ?) E CROSS JOIN (select NVL( SUM(AMOUNT),0) CRADJ from ADJUSTMENT where UNIQUEID=? and eodstatus = ? AND crdr = ? and ADJUSTMENTTYPE not in(?,?)) F CROSS JOIN (select NVL( SUM(AMOUNT),0) DRADJ from ADJUSTMENT where UNIQUEID=? and eodstatus = ? AND crdr = ? and ADJUSTMENTTYPE not in(?,?)) G CROSS JOIN (select NVL( SUM(TRANSACTIONAMOUNT),0) CreditsWithoutPayments from EODTRANSACTION where TRANSACTIONTYPE IN (?,?) and EODID >? AND EODID <=? AND cardnumber = ? AND ADJUSTMENTSTATUS= ?) H";
+            backendJdbcTemplate.query(queryParametersList.getMonthlyStatement_getCardTranactionSummeryBean(), (ResultSet rs) -> {
                 while (rs.next()) {
                     cardTransactionBean.setCardNo(cardNo.toString());
                     cardTransactionBean.setSalesAndEasyPayments(rs.getDouble("SalesAndEasyPayments"));
@@ -517,8 +529,8 @@ public class MonthlyStatementRepo implements MonthlyStatementDao {
         int count = 0;
 
         try {
-            String query = "update EODTRANSACTION set STATEMENTID=? where eodid<=? and eodid > ? and ACCOUNTNO = ?";
-            count = backendJdbcTemplate.update(query, statementId, endEodId, startEodId, accountNo);
+            //String query = "update EODTRANSACTION set STATEMENTID=? where eodid<=? and eodid > ? and ACCOUNTNO = ?";
+            count = backendJdbcTemplate.update(queryParametersList.getMonthlyStatement_updateStatementIDByAccNoInEODTxn(), statementId, endEodId, startEodId, accountNo);
 
         } catch (Exception e) {
             throw e;
@@ -533,7 +545,8 @@ public class MonthlyStatementRepo implements MonthlyStatementDao {
         if (stBean.getCardCategory().equals(Configurations.CARD_CATEGORY_SUPPLEMENTORY) || stBean.getCardCategory().equals(Configurations.CARD_CATEGORY_CORPORATE) || stBean.getCardCategory().equals(Configurations.CARD_CATEGORY_FD_SUPPLEMENTORY) || stBean.getCardCategory().equals(Configurations.CARD_CATEGORY_AFFINITY_SUPPLEMENTORY) || stBean.getCardCategory().equals(Configurations.CARD_CATEGORY_CO_BRANDED_SUPPLEMENTORY)) {
             return stBean;
         }
-        query = "SELECT BL.*,CA.CREDITLIMIT,BS.STARTEODID,BS.ENDEODID FROM BILLINGLASTSTATEMENTSUMMARY BL,BILLINGSTATEMENT BS,CARD CA WHERE BL.CARDNO=? AND CA.CARDNUMBER=BL.CARDNO AND BL.statementid=BS.statementid ";
+        //query = "SELECT BL.*,CA.CREDITLIMIT,BS.STARTEODID,BS.ENDEODID FROM BILLINGLASTSTATEMENTSUMMARY BL,BILLINGSTATEMENT BS,CARD CA WHERE BL.CARDNO=? AND CA.CARDNUMBER=BL.CARDNO AND BL.statementid=BS.statementid";
+        query = queryParametersList.getMonthlyStatement_getLastStatementDetails_Select1();
 
         try {
             boolean isFirstStatement = false;
@@ -570,7 +583,9 @@ public class MonthlyStatementRepo implements MonthlyStatementDao {
 
             } else {
 
-                query = "SELECT BL.*,CA.CREDITLIMIT,BS.STARTEODID,BS.ENDEODID,(select COUNT from MINIMUMPAYMENT where cardno = BL.CARDNO) as MINPAYMENTCOUNT FROM BILLINGLASTSTATEMENTSUMMARY BL,BILLINGSTATEMENT BS,CARD CA WHERE BL.CARDNO=? AND CA.CARDNUMBER=BL.CARDNO AND BL.statementid=BS.statementid ";
+               //query = "SELECT BL.*,CA.CREDITLIMIT,BS.STARTEODID,BS.ENDEODID,(select COUNT from MINIMUMPAYMENT where cardno = BL.CARDNO) as MINPAYMENTCOUNT FROM BILLINGLASTSTATEMENTSUMMARY BL,BILLINGSTATEMENT BS,CARD CA WHERE BL.CARDNO=? AND CA.CARDNUMBER=BL.CARDNO AND BL.statementid=BS.statementid";
+                query = queryParametersList.getMonthlyStatement_getLastStatementDetails_Select2();
+
                 backendJdbcTemplate.query(query, (ResultSet rs) -> {
                     try {
                         while (rs.next()) {
@@ -626,11 +641,11 @@ public class MonthlyStatementRepo implements MonthlyStatementDao {
         Map<String, Object> details = new LinkedHashMap<String, Object>();
         boolean flag = true;
         double totalStampDuty = getTotalStampDuty(stBean.getAccountNo());
-        String query = "INSERT INTO BILLINGSTATEMENT (STATEMENTID,CARDNO,MAINCARDNO,CREDITLIMIT,CASHLIMIT,AVCREDITLIMIT,AVCASHLIMIT,STATEMENTSTARTDATE,STATEMENTENDDATE,MINPAYMENTDUE,TOTALMINPAYMENT,DUEDATE,LASTBILLCLOSINGBALANCE,CHEQUERETURNAMOUNT,THISBILLOPERNINGBALANCE,PURCHASES,CASHADVANCE,INTEREST,CHARGES,PAYMENT,THISBILLCLOSINGBALANCE,OPENINGLOYALTYPOINT,EARNLOYALTYPOINT,AVLOYALTYPOINT,BILLINGCYCLEID,STATUS,LASTUPDATEUSERID,TIMESTAMP,INTERESTRATE,CASHADVANCEINTERESTRATE,STARTEODID,ENDEODID,STARTPAYID,ENDPAYID,ADJUSTLOYALTYPOINT,REDEEMLOYALTYPOINT,CLOSINGLOYALTYPOINT,NORMALINTERESTAMOUNT,CASHADVANCEINTERESTAMOUNT,TOTALMAILORDERAMOUNT,STAMPDUITY,PASTDUEAMOUNT,ACCOUNTNO,STATEMENTGENERATEDSTATUS,CARDCATEGORYCODE,CRADJUSTMENT,DRADJUSTMENT,BUCKETID,NOOFDAYSINAREERS) Values (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)";
+        //String query = "INSERT INTO BILLINGSTATEMENT (STATEMENTID,CARDNO,MAINCARDNO,CREDITLIMIT,CASHLIMIT,AVCREDITLIMIT,AVCASHLIMIT,STATEMENTSTARTDATE,STATEMENTENDDATE,MINPAYMENTDUE,TOTALMINPAYMENT,DUEDATE,LASTBILLCLOSINGBALANCE,CHEQUERETURNAMOUNT,THISBILLOPERNINGBALANCE,PURCHASES,CASHADVANCE,INTEREST,CHARGES,PAYMENT,THISBILLCLOSINGBALANCE,OPENINGLOYALTYPOINT,EARNLOYALTYPOINT,AVLOYALTYPOINT,BILLINGCYCLEID,STATUS,LASTUPDATEUSERID,TIMESTAMP,INTERESTRATE,CASHADVANCEINTERESTRATE,STARTEODID,ENDEODID,STARTPAYID,ENDPAYID,ADJUSTLOYALTYPOINT,REDEEMLOYALTYPOINT,CLOSINGLOYALTYPOINT,NORMALINTERESTAMOUNT,CASHADVANCEINTERESTAMOUNT,TOTALMAILORDERAMOUNT,STAMPDUITY,PASTDUEAMOUNT,ACCOUNTNO,STATEMENTGENERATEDSTATUS,CARDCATEGORYCODE,CRADJUSTMENT,DRADJUSTMENT,BUCKETID,NOOFDAYSINAREERS) Values (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)";
 
         try {
             ArrayList<String> Bucketdetails = getBucketIdAndNODIA(stBean.getAccountNo());
-            backendJdbcTemplate.update(query, stBean.getStatementID(), stBean.getCardNo().toString(), stBean.getMainCardNo().toString(), stBean.getCreditLimit(), stBean.getCashLimit(), stBean.getAvailablCereditLimit(), stBean.getAvailableCashLimit(), stBean.getStatementStartDate(), stBean.getStatementEndDate(), stBean.getTotalMinPaymentDue(), stBean.getTotalMinPayment(), stBean.getStatementDueDate(), stBean.getLastBillclosingBalance(), 0, stBean.getOpenBalance(), stBean.getTotalPurchases(), stBean.getCashAdvance(), stBean.getInterest(), stBean.getFee(), stBean.getPaymentAndCredit(), stBean.getClosingBalance(), 0, 0, 0, stBean.getBillingID(), "0", 0, DateUtil.getSqldate(Configurations.EOD_DATE), 0, 0, stBean.getStartEodID(), stBean.getEndEodID(), 0, 0, 0, 0, 0, 0, 0, 0, totalStampDuty, 0, stBean.getAccountNo(), 0, stBean.getCardCategory(), stBean.getTotalCrAdj(), stBean.getTotalDrAdj(), Bucketdetails.isEmpty() ? "0" : Bucketdetails.get(0), Bucketdetails.isEmpty() ? "0" : Bucketdetails.get(1));
+            backendJdbcTemplate.update(queryParametersList.getMonthlyStatement_insertBillingStatement(), stBean.getStatementID(), stBean.getCardNo().toString(), stBean.getMainCardNo().toString(), stBean.getCreditLimit(), stBean.getCashLimit(), stBean.getAvailablCereditLimit(), stBean.getAvailableCashLimit(), stBean.getStatementStartDate(), stBean.getStatementEndDate(), stBean.getTotalMinPaymentDue(), stBean.getTotalMinPayment(), stBean.getStatementDueDate(), stBean.getLastBillclosingBalance(), 0, stBean.getOpenBalance(), stBean.getTotalPurchases(), stBean.getCashAdvance(), stBean.getInterest(), stBean.getFee(), stBean.getPaymentAndCredit(), stBean.getClosingBalance(), 0, 0, 0, stBean.getBillingID(), "0", 0, DateUtil.getSqldate(Configurations.EOD_DATE), 0, 0, stBean.getStartEodID(), stBean.getEndEodID(), 0, 0, 0, 0, 0, 0, 0, 0, totalStampDuty, 0, stBean.getAccountNo(), 0, stBean.getCardCategory(), stBean.getTotalCrAdj(), stBean.getTotalDrAdj(), Bucketdetails.isEmpty() ? "0" : Bucketdetails.get(0), Bucketdetails.isEmpty() ? "0" : Bucketdetails.get(1));
 
             details.put("Card No", CommonMethods.cardNumberMask(stBean.getCardNo()));
             details.put("Card Type", stBean.getCardCategory());
@@ -654,12 +669,12 @@ public class MonthlyStatementRepo implements MonthlyStatementDao {
     @Override
     public double getTotalStampDuty(String accNo) throws Exception {
 
-        String sql = null;
+        //String sql = null;
         double stampDuty = 0.00;
 
         try {
-            sql = "select NVL(sum(FEEAMOUNT),0.00)as stampDuty from EODCARDFEE where ACCOUNTNO = ? and STATUS = ? and feetype = ?";
-            stampDuty = Objects.requireNonNull(backendJdbcTemplate.query(sql, (ResultSet rs) -> {
+            //sql = "select NVL(sum(FEEAMOUNT),0.00)as stampDuty from EODCARDFEE where ACCOUNTNO = ? and STATUS = ? and feetype = ?";
+            stampDuty = Objects.requireNonNull(backendJdbcTemplate.query(queryParametersList.getMonthlyStatement_getTotalStampDuty(), (ResultSet rs) -> {
                 double temp = 0.00;
                 while (rs.next()) {
                     temp = rs.getDouble("stampDuty");
@@ -676,12 +691,12 @@ public class MonthlyStatementRepo implements MonthlyStatementDao {
     @Override
     public ArrayList<String> getBucketIdAndNODIA(String accNo) throws Exception {
 
-        String sql = null;
+        //String sql = null;
         ArrayList<String> details = new ArrayList<String>();
 
         try {
-            sql = "select RISKCLASS,NDIA from DELINQUENTACCOUNT where ACCOUNTNO = ?";
-            backendJdbcTemplate.query(sql, (ResultSet rs) -> {
+            //sql = "select RISKCLASS,NDIA from DELINQUENTACCOUNT where ACCOUNTNO = ?";
+            backendJdbcTemplate.query(queryParametersList.getMonthlyStatement_getBucketIdAndNODIA(), (ResultSet rs) -> {
                 while (rs.next()) {
                     details.add(0, rs.getString("RISKCLASS"));
                     details.add(1, rs.getString("NDIA"));
@@ -698,15 +713,15 @@ public class MonthlyStatementRepo implements MonthlyStatementDao {
     @Override
     public void updateNextBillingDate(StatementBean stBean) throws Exception {
 
-        String sql = null;
+        //String sql = null;
         try {
             if (!stBean.getHasBillingCycleChangeRequest()) {
-                sql = "update CARDACCOUNT set NEXTBILLINGDATE = ? where ACCOUNTNO= ?";
-                backendJdbcTemplate.update(sql, stBean.getNewNextBillingDate(), stBean.getAccountNo());
+                //sql = "update CARDACCOUNT set NEXTBILLINGDATE = ? where ACCOUNTNO= ?";
+                backendJdbcTemplate.update(queryParametersList.getMonthlyStatement_getBucketIdAndNODIA_Update1(), stBean.getNewNextBillingDate(), stBean.getAccountNo());
             } else if (stBean.getHasBillingCycleChangeRequest()) {
                 String billingDate = new SimpleDateFormat("dd").format(stBean.getNewNextBillingDate());
-                sql = "update CARDACCOUNT set NEXTBILLINGDATE = ?,BILLINGDATE = ?  where ACCOUNTNO= ?";
-                backendJdbcTemplate.update(sql, stBean.getNewNextBillingDate(), billingDate, stBean.getAccountNo());
+                //sql = "update CARDACCOUNT set NEXTBILLINGDATE = ?,BILLINGDATE = ?  where ACCOUNTNO= ?";
+                backendJdbcTemplate.update(queryParametersList.getMonthlyStatement_getBucketIdAndNODIA_Update2(), stBean.getNewNextBillingDate(), billingDate, stBean.getAccountNo());
             }
 
         } catch (Exception e) {
@@ -719,10 +734,10 @@ public class MonthlyStatementRepo implements MonthlyStatementDao {
 
         double MinPayment = 0.0;
         CalculateMinPaymentBean calculateMinPaymentBean = new CalculateMinPaymentBean();
-        String sql_MinAmt = "SELECT MINIMUMDUEFLATAMOUNT,MINIMUMDUEPERCENTAGE,MINIMUMDUECOMBINATION ,CCP.PERMENANTBLKTHRESHOLD from BILLINGSTATEMENTPROFILE BSP,CARDACCOUNT CA,COMMONCARDPARAMETER CCP WHERE CA.ACCOUNTNO= ? AND CA.BILLINGSTATEMENTPROFILECODE = BSP.PROFILECODE";
+        //String sql_MinAmt = "SELECT MINIMUMDUEFLATAMOUNT,MINIMUMDUEPERCENTAGE,MINIMUMDUECOMBINATION ,CCP.PERMENANTBLKTHRESHOLD from BILLINGSTATEMENTPROFILE BSP,CARDACCOUNT CA,COMMONCARDPARAMETER CCP WHERE CA.ACCOUNTNO= ? AND CA.BILLINGSTATEMENTPROFILECODE = BSP.PROFILECODE";
         try {
 
-            calculateMinPaymentBean = Objects.requireNonNull(backendJdbcTemplate.query(sql_MinAmt, (ResultSet result_temp) -> {
+            calculateMinPaymentBean = Objects.requireNonNull(backendJdbcTemplate.query(queryParametersList.getMonthlyStatement_calculateMinPayment(), (ResultSet result_temp) -> {
                 CalculateMinPaymentBean tempCalculateMinPaymentBean = new CalculateMinPaymentBean();
                 while (result_temp.next()) {
                     tempCalculateMinPaymentBean.setFlatAmount(result_temp.getDouble("MINIMUMDUEFLATAMOUNT"));
@@ -777,8 +792,8 @@ public class MonthlyStatementRepo implements MonthlyStatementDao {
         int minPaymentDueCount = 0;
         try {
 
-            String query = "SELECT CA.CARDNUMBER,MP.COUNT FROM CARDACCOUNT CA,MINIMUMPAYMENT MP WHERE CA.ACCOUNTNO = ?  and MP.CARDNO =CA.CARDNUMBER ";
-            minPaymentDueCount = Objects.requireNonNull(backendJdbcTemplate.query(query, (ResultSet rs) -> {
+            //String query = "SELECT CA.CARDNUMBER,MP.COUNT FROM CARDACCOUNT CA,MINIMUMPAYMENT MP WHERE CA.ACCOUNTNO = ?  and MP.CARDNO =CA.CARDNUMBER";
+            minPaymentDueCount = Objects.requireNonNull(backendJdbcTemplate.query(queryParametersList.getMonthlyStatement_checkMinPaymentDueCount(), (ResultSet rs) -> {
                 int temp = 0;
                 while (rs.next()) {
                     temp = rs.getInt("COUNT");
@@ -797,8 +812,8 @@ public class MonthlyStatementRepo implements MonthlyStatementDao {
 
         boolean flag = true;
         try {
-            String query = "INSERT INTO BILLINGLASTSTATEMENTSUMMARY (CARDNO,OPENINGBALANCE,CLOSINGBALANCE,MINAMOUNT,PAYMENT, DUEDATE,STATEMENTSTARTDATE,STATEMENTENDDATE,CLOSINGLOYALTYPOINT,STATEMENTID) VALUES (?,?,?,?,?,?,?,?,?,?)";
-            backendJdbcTemplate.update(query, stBean.getCardNo().toString(), stBean.getOpenBalance(), stBean.getClosingBalance(), stBean.getTotalMinPayment(), stBean.getPaymentAndCredit(), stBean.getStatementDueDate(), stBean.getStatementStartDate(), stBean.getStatementEndDate(), "", stBean.getStatementID());
+            //String query = "INSERT INTO BILLINGLASTSTATEMENTSUMMARY (CARDNO,OPENINGBALANCE,CLOSINGBALANCE,MINAMOUNT,PAYMENT, DUEDATE,STATEMENTSTARTDATE,STATEMENTENDDATE,CLOSINGLOYALTYPOINT,STATEMENTID) VALUES (?,?,?,?,?,?,?,?,?,?)";
+            backendJdbcTemplate.update(queryParametersList.getMonthlyStatement_insertBillingLastStatementSummry(), stBean.getCardNo().toString(), stBean.getOpenBalance(), stBean.getClosingBalance(), stBean.getTotalMinPayment(), stBean.getPaymentAndCredit(), stBean.getStatementDueDate(), stBean.getStatementStartDate(), stBean.getStatementEndDate(), "", stBean.getStatementID());
 
         } catch (Exception e) {
             throw e;
@@ -811,9 +826,9 @@ public class MonthlyStatementRepo implements MonthlyStatementDao {
 
         boolean flag = true;
         try {
-            String query = "UPDATE BILLINGLASTSTATEMENTSUMMARY SET OPENINGBALANCE=?,CLOSINGBALANCE=?,MINAMOUNT=?,PAYMENT=?,DUEDATE=?,STATEMENTSTARTDATE=?,STATEMENTENDDATE=?,CLOSINGLOYALTYPOINT=?,STATEMENTID=? WHERE CARDNO = ? ";
+            //String query = "UPDATE BILLINGLASTSTATEMENTSUMMARY SET OPENINGBALANCE=?,CLOSINGBALANCE=?,MINAMOUNT=?,PAYMENT=?,DUEDATE=?,STATEMENTSTARTDATE=?,STATEMENTENDDATE=?,CLOSINGLOYALTYPOINT=?,STATEMENTID=? WHERE CARDNO = ?";
 
-            backendJdbcTemplate.update(query, StBean.getOpenBalance(), StBean.getClosingBalance(), StBean.getTotalMinPayment(), StBean.getPaymentAndCredit(), StBean.getStatementDueDate(), StBean.getStatementStartDate(), StBean.getStatementEndDate(), "", StBean.getStatementID(), StBean.getCardNo().toString());
+            backendJdbcTemplate.update(queryParametersList.getMonthlyStatement_updateBillingLastStatementSummry(), StBean.getOpenBalance(), StBean.getClosingBalance(), StBean.getTotalMinPayment(), StBean.getPaymentAndCredit(), StBean.getStatementDueDate(), StBean.getStatementStartDate(), StBean.getStatementEndDate(), "", StBean.getStatementID(), StBean.getCardNo().toString());
         } catch (Exception e) {
             throw e;
         }
@@ -827,16 +842,16 @@ public class MonthlyStatementRepo implements MonthlyStatementDao {
         HashMap<String, Double> amountMap = new HashMap<String, Double>();
         double chequeReturnAmount = 0.00;
         try {
-            String query = "select TRANSACTIONAMOUNT,TRANSACTIONID from eodtransaction where eodid >? AND eodid <= ? AND status = ? and transactiontype = ? and accountno = ? ";
-            backendJdbcTemplate.query(query, (ResultSet rs) -> {
+            //String query = "select TRANSACTIONAMOUNT,TRANSACTIONID from eodtransaction where eodid >? AND eodid <= ? AND status = ? and transactiontype = ? and accountno = ?";
+            backendJdbcTemplate.query(queryParametersList.getMonthlyStatement_checkChequeReturns_Select1(), (ResultSet rs) -> {
                 while (rs.next()) {
                     amountMap.put(rs.getString("TRANSACTIONID"), rs.getDouble("TRANSACTIONAMOUNT"));
                 }
                 return amountMap;
             }, stBean.getStartEodID(), stBean.getEndEodID(), statusList.getCHEQUE_RETURN_STATUS(), Configurations.TXN_TYPE_DEBIT_PAYMENT, stBean.getAccountNo());
 
-            query = "select TRANSACTIONAMOUNT,TRANSACTIONID from eodtransaction where eodid >? AND eodid <= ? AND status = ? and transactiontype = ? and accountno = ? ";
-            chequeReturnAmount = Objects.requireNonNull(backendJdbcTemplate.query(query, (ResultSet rs) -> {
+            //query = "select TRANSACTIONAMOUNT,TRANSACTIONID from eodtransaction where eodid >? AND eodid <= ? AND status = ? and transactiontype = ? and accountno = ?";
+            chequeReturnAmount = Objects.requireNonNull(backendJdbcTemplate.query(queryParametersList.getMonthlyStatement_checkChequeReturns_Select2(), (ResultSet rs) -> {
 
                 double tempChequeReturnAmount = 0.00;
                 while (rs.next()) {

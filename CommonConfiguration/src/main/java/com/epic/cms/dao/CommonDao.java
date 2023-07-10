@@ -6,6 +6,7 @@ import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
+import java.util.List;
 
 public interface CommonDao {
     ProcessBean getProcessDetails(int processId) throws Exception;
@@ -104,4 +105,6 @@ public interface CommonDao {
     String getEodStatusByEodID(int eodId) throws Exception;
 
     int getRuninngEODId(String initial_status) throws Exception;
+
+
 }

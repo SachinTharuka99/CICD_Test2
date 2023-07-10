@@ -189,6 +189,7 @@ public class StatusVarList {
 
     @Value("${backend_card_block_status}")
     public String CARD_BLOCK_STATUS;
+
     @Value("${backend_card_replaced_status}")
     public String CARD_REPLACED_STATUS;
 
@@ -411,6 +412,9 @@ public class StatusVarList {
 
     @Value("${MERCHANT_CANCEL_STATUS}")
     public String MERCHANT_CANCEL_STATUS;
+
+    @Value("${MERCHANT_DEACTIVE_STATUS}")
+    public String MERCHANT_DEACTIVE_STATUS;
 
     @Value("${MERCHANT_CUSTOMER_DELETE_STATUS}")
     public String MERCHANT_CUSTOMER_DELETE_STATUS;

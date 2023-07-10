@@ -3,6 +3,7 @@ package com.epic.cms.repository;
 import com.epic.cms.dao.CashBackAlertDao;
 import com.epic.cms.model.bean.CashBackAlertBean;
 import com.epic.cms.util.LogManager;
+import com.epic.cms.util.QueryParametersList;
 import com.epic.cms.util.StatusVarList;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.jdbc.core.JdbcTemplate;
@@ -21,14 +22,20 @@ public class CashBackAlertRepo implements CashBackAlertDao {
     @Autowired
     StatusVarList statusList;
 
+    @Autowired
+    LogManager logManager;
+
+    @Autowired
+    QueryParametersList queryParametersList;
+
     @Override
     public HashMap<String, ArrayList<CashBackAlertBean>> getConfirmedAccountToAlert() throws Exception {
         HashMap<String, ArrayList<CashBackAlertBean>> confirmAccountList = new HashMap<>();
 
         try {
-            String sql = "SELECT BS.CARDNO, BS.ACCOUNTNO, BS.STATEMENTID, CB.ID AS REQID, CB.ACCOUNTNUMBER, CB.CASHBACKAMOUNT, BLS.MINAMOUNT FROM BILLINGSTATEMENT BS INNER JOIN BILLINGLASTSTATEMENTSUMMARY BLS ON BS.STATEMENTID = BLS.STATEMENTID LEFT JOIN CASHBACK CB ON BS.ACCOUNTNO = CB.ACCOUNTNUMBER AND BS.ENDEODID = EODID WHERE BS.NOTIFICATIONFLAG = ? ";
+            //String sql = "SELECT BS.CARDNO, BS.ACCOUNTNO, BS.STATEMENTID, CB.ID AS REQID, CB.ACCOUNTNUMBER, CB.CASHBACKAMOUNT, BLS.MINAMOUNT FROM BILLINGSTATEMENT BS INNER JOIN BILLINGLASTSTATEMENTSUMMARY BLS ON BS.STATEMENTID = BLS.STATEMENTID LEFT JOIN CASHBACK CB ON BS.ACCOUNTNO = CB.ACCOUNTNUMBER AND BS.ENDEODID = EODID WHERE BS.NOTIFICATIONFLAG = ? ";
 
-            backendJdbcTemplate.query(sql, (ResultSet result) -> {
+            backendJdbcTemplate.query(queryParametersList.getCashBackAlert_getConfirmedAccountToAlert(), (ResultSet result) -> {
                 while (result.next()) {
                     CashBackAlertBean bean = new CashBackAlertBean();
                     bean.setReqId(result.getInt("REQID"));
@@ -65,9 +72,9 @@ public class CashBackAlertRepo implements CashBackAlertDao {
     @Override
     public void updateCashBackAlertGenStatus(int reqId) throws Exception {
         try {
-            String updatePay = "UPDATE CASHBACK CB SET CB.NOTIFICATIONFLAG = ? WHERE CB.ID = ? ";
+            //String updatePay = "UPDATE CASHBACK CB SET CB.NOTIFICATIONFLAG = ? WHERE CB.ID = ? ";
 
-            backendJdbcTemplate.update(updatePay, 1, reqId);
+            backendJdbcTemplate.update(queryParametersList.getCashBackAlert_updateCashBackAlertGenStatus(), 1, reqId);
         } catch (Exception e) {
             throw e;
         }
@@ -76,9 +83,9 @@ public class CashBackAlertRepo implements CashBackAlertDao {
     @Override
     public void updateBillingStatementAlertGenStatus(String statementId) throws Exception {
         try {
-            String updatePay = "UPDATE BILLINGSTATEMENT BS SET BS.NOTIFICATIONFLAG = ? WHERE BS.STATEMENTID = ? ";
+            //String updatePay = "UPDATE BILLINGSTATEMENT BS SET BS.NOTIFICATIONFLAG = ? WHERE BS.STATEMENTID = ? ";
 
-            backendJdbcTemplate.update(updatePay, 1, statementId);
+            backendJdbcTemplate.update(queryParametersList.getCashBackAlert_updateBillingStatementAlertGenStatus(), 1, statementId);
         }catch (Exception e){
             throw e;
         }

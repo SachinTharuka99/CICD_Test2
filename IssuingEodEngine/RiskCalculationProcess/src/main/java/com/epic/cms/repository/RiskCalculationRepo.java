@@ -17,6 +17,7 @@ import com.epic.cms.util.LogManager;
 import com.epic.cms.util.StatusVarList;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import com.epic.cms.util.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.dao.EmptyResultDataAccessException;
@@ -41,6 +42,9 @@ public class RiskCalculationRepo implements RiskCalculationDao {
     @Qualifier("onlineJdbcTemplate")
     private JdbcTemplate onlineJdbcTemplate;
 
+    @Autowired
+    QueryParametersList queryParametersList;
+
     private static final Logger logInfo = LoggerFactory.getLogger("logInfo");
     private static final Logger logError = LoggerFactory.getLogger("logError");
 
@@ -48,7 +52,8 @@ public class RiskCalculationRepo implements RiskCalculationDao {
     public ArrayList<DelinquentAccountBean> getDelinquentAccounts() throws Exception {
         ArrayList<DelinquentAccountBean> delinquentCardList = new ArrayList<DelinquentAccountBean>();
         try {
-            String query = "SELECT DL.* FROM DELINQUENTACCOUNT DL,CARD C WHERE C.CARDNUMBER=DL.CARDNUMBER AND DL.DELINQSTATUS NOT IN (?,?) AND C.CARDSTATUS <>? AND LASTUPDATEDEODID <> ?";
+            //String query = "SELECT DL.* FROM DELINQUENTACCOUNT DL,CARD C WHERE C.CARDNUMBER=DL.CARDNUMBER AND DL.DELINQSTATUS NOT IN (?,?) AND C.CARDSTATUS <>? AND LASTUPDATEDEODID <> ?";
+            String query = queryParametersList.getRiskCalculation_getDelinquentAccounts();
             if (Configurations.STARTING_EOD_STATUS.equals(statusVarList.getINITIAL_STATUS())) {
                 query += " AND DL.ACCOUNTNO NOT IN (SELECT EC.ACCOUNTNO FROM EODERRORCARDS EC WHERE EC.STATUS= ? )";
             } else if (Configurations.STARTING_EOD_STATUS.equals(statusVarList.getERROR_STATUS())) {
@@ -72,9 +77,9 @@ public class RiskCalculationRepo implements RiskCalculationDao {
         boolean isManualNp = false;
         try {
             int npStatus = 0;
-            String sql = "SELECT NPSTATUS FROM CARDACCOUNT WHERE ACCOUNTNO = ? ";
+            //String sql = "SELECT NPSTATUS FROM CARDACCOUNT WHERE ACCOUNTNO = ?";
 
-            npStatus = backendJdbcTemplate.queryForObject(sql, Integer.class, accNo);
+            npStatus = backendJdbcTemplate.queryForObject(queryParametersList.getRiskCalculation_isManualNp(), Integer.class, accNo);
             isManualNp = npStatus == 2;
         } catch (Exception e) {
             throw e;
@@ -89,14 +94,9 @@ public class RiskCalculationRepo implements RiskCalculationDao {
         SimpleDateFormat sdf = new SimpleDateFormat("dd-MMM-yy");
 
         try {
-            String sql = "SELECT NVL(SUM(TRANSACTIONAMOUNT), 0) AS TOTAL "
-                    + " FROM EODTRANSACTION "
-                    + " WHERE ACCOUNTNO = ? "
-                    + " AND TRANSACTIONTYPE IN (?,?,?,?) "
-                    + " AND TRUNC(SETTLEMENTDATE) = TO_DATE(?, 'DD-MM-YY') "
-                    + " AND STATUS NOT IN (?)";
+            //String sql = "SELECT NVL(SUM(TRANSACTIONAMOUNT), 0) AS TOTAL FROM EODTRANSACTION WHERE ACCOUNTNO = ? AND TRANSACTIONTYPE IN (?,?,?,?) AND TRUNC(SETTLEMENTDATE) = TO_DATE(?, 'DD-MM-YY') AND STATUS NOT IN (?)";
 
-            payment = backendJdbcTemplate.queryForObject(sql, Double.class
+            payment = backendJdbcTemplate.queryForObject(queryParametersList.getRiskCalculation_checkForPayment(), Double.class
                     , accNo
                     , Configurations.TXN_TYPE_PAYMENT
                     , Configurations.TXN_TYPE_REVERSAL
@@ -119,37 +119,10 @@ public class RiskCalculationRepo implements RiskCalculationDao {
 
         try {
 
-            String query = "SELECT bucketid, minndia FROM bucket WHERE"
-                    + "    CASE"
-                    + "        WHEN ("
-                    + "            SELECT"
-                    + "                MAX(maxndia)"
-                    + "            FROM"
-                    + "                bucket"
-                    + "            WHERE"
-                    + "                status = 'ACT'"
-                    + "        ) < ? THEN ("
-                    + "            SELECT"
-                    + "                MAX(bucketid)"
-                    + "            FROM"
-                    + "                bucket"
-                    + "            WHERE"
-                    + "                status = 'ACT'"
-                    + "        )"
-                    + "        ELSE ("
-                    + "            SELECT"
-                    + "                bucketid"
-                    + "            FROM"
-                    + "                bucket"
-                    + "            WHERE"
-                    + "                status = 'ACT'"
-                    + "                AND minndia <= ?"
-                    + "                AND maxndia >= ?"
-                    + "        )"
-                    + "    END = bucketid";
+            //String query = "SELECT bucketid, minndia FROM bucket WHERE CASE WHEN (SELECT MAX(maxndia) FROM bucket WHERE status = 'ACT' ) < ? THEN (SELECT MAX(bucketid) FROM bucket WHERE status = 'ACT') ELSE ( SELECT bucketid FROM bucket WHERE status = 'ACT' AND minndia <= ? AND maxndia >= ?) END = bucketid";
 
 
-            backendJdbcTemplate.query(query
+            backendJdbcTemplate.query(queryParametersList.getRiskCalculation_getRiskclassOnNdia()
                     , (ResultSet rs) -> {
                         while (rs.next()) {
                             String riskClass = rs.getString("BUCKETID");
@@ -176,10 +149,10 @@ public class RiskCalculationRepo implements RiskCalculationDao {
     public String getNPRiskClass() throws Exception {
         String npRiskClass = null;
 
-        String query = "SELECT NVL(NONPERFORMINGRISKCLASS,'4') AS NONPERFORMINGRISKCLASS FROM COMMONCARDPARAMETER";
+        //String query = "SELECT NVL(NONPERFORMINGRISKCLASS,'4') AS NONPERFORMINGRISKCLASS FROM COMMONCARDPARAMETER";
 
         try {
-            npRiskClass = backendJdbcTemplate.queryForObject(query, String.class);
+            npRiskClass = backendJdbcTemplate.queryForObject(queryParametersList.getRiskCalculation_getNPRiskClass(), String.class);
         } catch (Exception e) {
             throw e;
         }
@@ -192,9 +165,9 @@ public class RiskCalculationRepo implements RiskCalculationDao {
 
 
         try {
-            String query = "SELECT BUCKETID,MINNDIA,MAXNDIA,NOOFDAYSINAREERS FROM BUCKET WHERE BUCKETID =? ";
+            //String query = "SELECT BUCKETID,MINNDIA,MAXNDIA,NOOFDAYSINAREERS FROM BUCKET WHERE BUCKETID =?";
 
-            backendJdbcTemplate.query(query
+            backendJdbcTemplate.query(queryParametersList.getRiskCalculation_getNDIAOnRiskClass()
                     , (ResultSet result) -> {
                         while (result.next()) {
                             bucket[0] = result.getString("BUCKETID");
@@ -219,71 +192,15 @@ public class RiskCalculationRepo implements RiskCalculationDao {
 
         //NPoustanding = last month outstanding + SUM(laststament date - today)txn
         if (manualNp) {
-            sql = "SELECT NVL(B.INTEREST,0) AS INTEREST, ";
+            //sql = "SELECT NVL(B.INTEREST,0) AS INTEREST,";
+            sql = queryParametersList.getRiskCalculation_getNPDetailsFromLastBillingStatement_Select1();
         } else {
-            sql = "SELECT (SELECT NVL(SUM(INTEREST),0) "
-                    + "FROM (SELECT ROWNUM RN, "
-                    + "    A.INTEREST "
-                    + "  FROM "
-                    + "    (SELECT BS.CARDNO, "
-                    + "      BS.INTEREST "
-                    + "    FROM BILLINGSTATEMENT BS "
-                    + "    WHERE BS.CARDNO = ? "
-                    + "    ORDER BY BS.DUEDATE DESC "
-                    + "    ) A "
-                    + "  ) B "
-                    + "WHERE B.RN < 4 "
-                    + ") AS INTEREST, ";
+            //sql = "SELECT (SELECT NVL(SUM(INTEREST),0) FROM (SELECT ROWNUM RN, A.INTEREST FROM (SELECT BS.CARDNO, BS.INTEREST FROM BILLINGSTATEMENT BS WHERE BS.CARDNO = ? ORDER BY BS.DUEDATE DESC ) A ) B WHERE B.RN < 4 ) AS INTEREST,";
+            sql = queryParametersList.getRiskCalculation_getNPDetailsFromLastBillingStatement_Select2();
         }
 
-        String sqlMain = sql + " (NVL(B.THISBILLCLOSINGBALANCE,0) + NVL(Y.TOTALOUTSTANING,0)) AS THISBILLCLOSINGBALANCE "
-                + "FROM BILLINGLASTSTATEMENTSUMMARY BS "
-                + "INNER JOIN BILLINGSTATEMENT B "
-                + "ON B.STATEMENTID=BS.STATEMENTID "
-                + "LEFT JOIN "
-                + "  (SELECT X.CARDNO, "
-                + "    SUM(X.TOTALAMOUNT) AS TOTALOUTSTANING "
-                + "  FROM "
-                + "    (SELECT BLS.CARDNO, "
-                + "      SUM( "
-                + "      CASE "
-                + "        WHEN ECF.CRDR = 'CR' "
-                + "        THEN -1 * ECF.FEEAMOUNT "
-                + "        ELSE ECF.FEEAMOUNT "
-                + "      END) AS TOTALAMOUNT "
-                + "    FROM BILLINGLASTSTATEMENTSUMMARY BLS "
-                + "    INNER JOIN BILLINGSTATEMENT BS "
-                + "    ON BLS.STATEMENTID = BS.STATEMENTID "
-                + "    LEFT JOIN EODCARDFEE ECF "
-                + "    ON BS.ACCOUNTNO      = ECF.ACCOUNTNO "
-                + "    WHERE ECF.EFFECTDATE > BLS.STATEMENTENDDATE "
-                + "    AND ECF.EFFECTDATE  <= TO_DATE(?,'DD-MM-YY')"
-                + "    AND ECF.STATUS       = ? "
-                + "    AND BLS.CARDNO       = ? "
-                + "    GROUP BY BLS.CARDNO "
-                + "    UNION ALL "
-                + "    SELECT BLS.CARDNO, "
-                + "      SUM( "
-                + "      CASE "
-                + "        WHEN E.CRDR = 'CR' "
-                + "        THEN -1 * E.TRANSACTIONAMOUNT "
-                + "        ELSE E.TRANSACTIONAMOUNT "
-                + "      END) AS TOTALAMOUNT "
-                + "    FROM BILLINGLASTSTATEMENTSUMMARY BLS "
-                + "    INNER JOIN BILLINGSTATEMENT BS "
-                + "    ON BLS.STATEMENTID = BS.STATEMENTID "
-                + "    LEFT JOIN EODTRANSACTION E "
-                + "    ON BS.ACCOUNTNO        = E.ACCOUNTNO "
-                + "    WHERE E.SETTLEMENTDATE > BLS.STATEMENTENDDATE "
-                + "    AND E.SETTLEMENTDATE  <= TO_DATE(?,'DD-MM-YY') "
-                + "    AND E.STATUS           = ? "
-                + "    AND BLS.CARDNO         = ? "
-                + "    GROUP BY BLS.CARDNO "
-                + "    ) X "
-                + "  GROUP BY X.CARDNO "
-                + "  ) Y ON B.CARDNO = Y.CARDNO "
-                + "WHERE 1           =1 "
-                + "AND B.CARDNO      =?";
+        //String sqlMain = sql + "(NVL(B.THISBILLCLOSINGBALANCE,0) + NVL(Y.TOTALOUTSTANING,0)) AS THISBILLCLOSINGBALANCE FROM BILLINGLASTSTATEMENTSUMMARY BS INNER JOIN BILLINGSTATEMENT B ON B.STATEMENTID=BS.STATEMENTID LEFT JOIN  (SELECT X.CARDNO, SUM(X.TOTALAMOUNT) AS TOTALOUTSTANING FROM (SELECT BLS.CARDNO, SUM(CASE WHEN ECF.CRDR = 'CR' THEN -1 * ECF.FEEAMOUNT ELSE ECF.FEEAMOUNT END) AS TOTALAMOUNT FROM BILLINGLASTSTATEMENTSUMMARY BLS INNER JOIN BILLINGSTATEMENT BS ON BLS.STATEMENTID = BS.STATEMENTID LEFT JOIN EODCARDFEE ECF ON BS.ACCOUNTNO= ECF.ACCOUNTNO WHERE ECF.EFFECTDATE > BLS.STATEMENTENDDATE AND ECF.EFFECTDATE  <= TO_DATE(?,'DD-MM-YY') AND ECF.STATUS = ? AND BLS.CARDNO= ? GROUP BY BLS.CARDNO UNION ALL SELECT BLS.CARDNO, SUM(CASE WHEN E.CRDR = 'CR' THEN -1 * E.TRANSACTIONAMOUNT ELSE E.TRANSACTIONAMOUNT END) AS TOTALAMOUNT FROM BILLINGLASTSTATEMENTSUMMARY BLS INNER JOIN BILLINGSTATEMENT BS ON BLS.STATEMENTID = BS.STATEMENTID LEFT JOIN EODTRANSACTION E ON BS.ACCOUNTNO = E.ACCOUNTNO WHERE E.SETTLEMENTDATE > BLS.STATEMENTENDDATE AND E.SETTLEMENTDATE  <= TO_DATE(?,'DD-MM-YY') AND E.STATUS= ? AND BLS.CARDNO = ? GROUP BY BLS.CARDNO) X GROUP BY X.CARDNO ) Y ON B.CARDNO = Y.CARDNO WHERE 1 =1 AND B.CARDNO=?";
+        String sqlMain = sql + queryParametersList.getRiskCalculation_getNPDetailsFromLastBillingStatement_Select3();
 
         try {
             SimpleDateFormat sdf = new SimpleDateFormat("dd-MMM-yy");
@@ -311,10 +228,9 @@ public class RiskCalculationRepo implements RiskCalculationDao {
         SimpleDateFormat sdf = new SimpleDateFormat("dd-MMM-yy");
 
         try {
-            String sql = "INSERT INTO EODGLACCOUNT (EODID,GLDATE,CARDNO,GLTYPE,AMOUNT,CRDR,PAYMENTTYPE) " +
-                    "VALUES (?,TO_DATE(?, 'DD-MM-YY'),?,?,to_char(?,'9999999999.99'),?,?)";
+            //String sql = "INSERT INTO EODGLACCOUNT (EODID,GLDATE,CARDNO,GLTYPE,AMOUNT,CRDR,PAYMENTTYPE) VALUES (?,TO_DATE(?, 'DD-MM-YY'),?,?,to_char(?,'9999999999.99'),?,?)";
 
-            count = backendJdbcTemplate.update(sql, eodID, sdf.format(glDate), cardNo.toString(), glType, String.valueOf(amount), cdStatus, payType);
+            count = backendJdbcTemplate.update(queryParametersList.getRiskCalculation_insertIntoEodGLAccount(), eodID, sdf.format(glDate), cardNo.toString(), glType, String.valueOf(amount), cdStatus, payType);
 
         } catch (Exception e) {
             throw e;
@@ -327,9 +243,9 @@ public class RiskCalculationRepo implements RiskCalculationDao {
         int flag = 0;
         try {
 
-            String query = "UPDATE CARDACCOUNT SET NPSTATUS = ? WHERE ACCOUNTNO = ?";
+            //String query = "UPDATE CARDACCOUNT SET NPSTATUS = ? WHERE ACCOUNTNO = ?";
 
-            flag = backendJdbcTemplate.update(query, npstatus, accNo);
+            flag = backendJdbcTemplate.update(queryParametersList.getRiskCalculation_updateNpStatusCardAccount(), npstatus, accNo);
 
         } catch (Exception e) {
             throw e;
@@ -342,15 +258,9 @@ public class RiskCalculationRepo implements RiskCalculationDao {
         double payment = 0;
         SimpleDateFormat sdf = new SimpleDateFormat("dd-MMM-yy");
         try {
-            String sql = "SELECT NVL(SUM(TRANSACTIONAMOUNT),0) AS TOTAL "
-                    + " FROM EODTRANSACTION "
-                    + " WHERE ACCOUNTNO = ? "
-                    + " AND TRANSACTIONTYPE IN (?,?,?,?) "
-                    + " AND TRUNC(SETTLEMENTDATE) > TO_DATE(?, 'DD-MM-YY') "
-                    + " AND TRUNC(SETTLEMENTDATE) <= TO_DATE(?, 'DD-MM-YY') "
-                    + " AND STATUS NOT IN (?)";
+            //String sql = "SELECT NVL(SUM(TRANSACTIONAMOUNT),0) AS TOTAL FROM EODTRANSACTION WHERE ACCOUNTNO = ? AND TRANSACTIONTYPE IN (?,?,?,?) AND TRUNC(SETTLEMENTDATE) > TO_DATE(?, 'DD-MM-YY') AND TRUNC(SETTLEMENTDATE) <= TO_DATE(?, 'DD-MM-YY') AND STATUS NOT IN (?)";
 
-            payment = backendJdbcTemplate.queryForObject(sql, Double.class
+            payment = backendJdbcTemplate.queryForObject(queryParametersList.getRiskCalculation_getTotalPaymentSinceLastDue(), Double.class
                     , cardNumber
                     , Configurations.TXN_TYPE_PAYMENT
                     , Configurations.TXN_TYPE_REVERSAL
@@ -376,22 +286,18 @@ public class RiskCalculationRepo implements RiskCalculationDao {
         SimpleDateFormat sdf = new SimpleDateFormat("dd-MMM-yy");
 
         try {
-            String sql = "SELECT DELINQSTATUS FROM DELINQUENTACCOUNT WHERE CARDNUMBER = ?";
+            //String sql = "SELECT DELINQSTATUS FROM DELINQUENTACCOUNT WHERE CARDNUMBER = ?";
 
-            String result = backendJdbcTemplate.queryForObject(sql, String.class,
+            String result = backendJdbcTemplate.queryForObject(queryParametersList.getRiskCalculation_getTotalPaymentSinceLastDue_Select(), String.class,
                     delinquentAccountBean.getCardNumber().toString());
             if (result == null) {
             } else {
                 ststus = true;
             }
             if (ststus) {
-                sql = "UPDATE DELINQUENTACCOUNT SET NDIA = ? ,MIA = ? ,RISKCLASS = ?,"
-                        + " DUEAMOUNT = ? ,ACCSTATUS = ?,CARDCATEGORYCODE = ?,"
-                        + " LASTSTATEMENTDATE = TO_DATE(?, 'DD-MM-YY') ,LASTUPDATEDUSER = ?,LASTUPDATEDTIME = TO_DATE(SYSDATE, 'DD-MM-YY'),"
-                        + " CONTACTNO = ?,ASSIGNEE = ?,ASSIGNSTATUS = ?,SUPERVISOR = ?,DELINQSTATUS = ?,DUEDATE =  TO_DATE(?, 'DD-MM-YY'),NPDATE= TO_DATE(?, 'DD-MM-YY'),NPINTEREST=?,NPOUTSTANDING=?,REMAINDUE=?,LASTUPDATEDEODID=?"
-                        + " WHERE CARDNUMBER = ?";
+                //sql = "UPDATE DELINQUENTACCOUNT SET NDIA = ? ,MIA = ? ,RISKCLASS = ?,DUEAMOUNT = ? ,ACCSTATUS = ?,CARDCATEGORYCODE = ?, LASTSTATEMENTDATE = TO_DATE(?, 'DD-MM-YY') ,LASTUPDATEDUSER = ?,LASTUPDATEDTIME = TO_DATE(SYSDATE, 'DD-MM-YY'), CONTACTNO = ?,ASSIGNEE = ?,ASSIGNSTATUS = ?,SUPERVISOR = ?,DELINQSTATUS = ?,DUEDATE =  TO_DATE(?, 'DD-MM-YY'),NPDATE= TO_DATE(?, 'DD-MM-YY'),NPINTEREST=?,NPOUTSTANDING=?,REMAINDUE=?,LASTUPDATEDEODID=? WHERE CARDNUMBER = ?";
 
-                count = backendJdbcTemplate.update(sql
+                count = backendJdbcTemplate.update(queryParametersList.getRiskCalculation_getTotalPaymentSinceLastDue_Update()
                         , delinquentAccountBean.getNDIA() //1
                         , delinquentAccountBean.getMIA() //2
                         , delinquentAccountBean.getRiskClass() //3
@@ -415,14 +321,9 @@ public class RiskCalculationRepo implements RiskCalculationDao {
                 );
 
             } else {
-                sql = "INSERT INTO DELINQUENTACCOUNT(CARDNUMBER,MAINCARDNO,ACCOUNTNO,CIF,"
-                        + "NAMEONCARD,NAMEINFULL,IDTYPE,IDNUMBER,NDIA,MIA,RISKCLASS,"
-                        + "DUEAMOUNT,ACCSTATUS,CARDCATEGORYCODE,LASTSTATEMENTDATE,"
-                        + "LASTUPDATEDUSER,LASTUPDATEDTIME,CREATEDTIME,CONTACTNO,DUEDATE,DELINQSTATUS,ASSIGNEE,ASSIGNSTATUS,SUPERVISOR,REMAINDUE,LASTUPDATEDEODID) "
-                        + " VALUES(?,?,?,?,?,?,?,?,?,?,?,?,?,?,TO_DATE(?, 'DD-MM-YY'),?,TO_DATE(SYSDATE, 'DD-MM-YY') ,"
-                        + "TO_DATE(SYSDATE, 'DD-MM-YY'),?,TO_DATE(?, 'DD-MM-YY'),?,?,?,?,?,?)";
+                //sql = "INSERT INTO DELINQUENTACCOUNT(CARDNUMBER,MAINCARDNO,ACCOUNTNO,CIF,NAMEONCARD,NAMEINFULL,IDTYPE,IDNUMBER,NDIA,MIA,RISKCLASS, DUEAMOUNT,ACCSTATUS,CARDCATEGORYCODE,LASTSTATEMENTDATE,LASTUPDATEDUSER,LASTUPDATEDTIME,CREATEDTIME,CONTACTNO,DUEDATE,DELINQSTATUS,ASSIGNEE,ASSIGNSTATUS,SUPERVISOR,REMAINDUE,LASTUPDATEDEODID) VALUES(?,?,?,?,?,?,?,?,?,?,?,?,?,?,TO_DATE(?, 'DD-MM-YY'),?,TO_DATE(SYSDATE, 'DD-MM-YY') , TO_DATE(SYSDATE, 'DD-MM-YY'),?,TO_DATE(?, 'DD-MM-YY'),?,?,?,?,?,?)";
 
-                count = backendJdbcTemplate.update(sql
+                count = backendJdbcTemplate.update(queryParametersList.getRiskCalculation_getTotalPaymentSinceLastDue_Insert()
                         , delinquentAccountBean.getCardNumber().toString()  //1
                         , delinquentAccountBean.getCardNumber().toString() //2
                         , delinquentAccountBean.getAccNo() //3
@@ -458,11 +359,10 @@ public class RiskCalculationRepo implements RiskCalculationDao {
     @Override
     public int insertIntoDelinquentHistory(StringBuffer cardNumber, String accNo, String remark) throws Exception {
         int flag = 0;
-        String sql = "INSERT INTO DELINQUENTHISTORY (CARDNUMBER,  ACCOUNTNO,REMARK,  LASTUPDATEDUSER,"
-                + "   LASTUPDATEDTIME,   CREATEDTIME ) VALUES (?,?,?,?,TO_DATE(SYSDATE, 'DD-MM-YY') ,TO_DATE(SYSDATE, 'DD-MM-YY'))";
+        //String sql = "INSERT INTO DELINQUENTHISTORY (CARDNUMBER,  ACCOUNTNO,REMARK,  LASTUPDATEDUSER, LASTUPDATEDTIME,   CREATEDTIME ) VALUES (?,?,?,?,TO_DATE(SYSDATE, 'DD-MM-YY') ,TO_DATE(SYSDATE, 'DD-MM-YY'))";
 
         try {
-            flag = backendJdbcTemplate.update(sql, cardNumber.toString(), accNo, remark, Configurations.EOD_USER);
+            flag = backendJdbcTemplate.update(queryParametersList.getRiskCalculation_insertIntoDelinquentHistory(), cardNumber.toString(), accNo, remark, Configurations.EOD_USER);
         } catch (Exception e) {
             throw e;
         }
@@ -472,11 +372,8 @@ public class RiskCalculationRepo implements RiskCalculationDao {
     @Override
     public ArrayList<com.epic.cms.model.bean.RiskCalculationBean> getRiskCalculationCardList() throws Exception {
         ArrayList<RiskCalculationBean> cardList = new ArrayList<RiskCalculationBean>();
-        String sql = "SELECT M.CARDNO,M.M1,M.M1DATE FROM MINIMUMPAYMENT M, BILLINGLASTSTATEMENTSUMMARY B WHERE M.M1 > 0 "
-                + " AND (M.M2 IS NULL OR M.M2 = 0) "
-                + " AND B.CARDNO = M.CARDNO "
-                + " AND M.CARDNO NOT IN"
-                + " (SELECT CARDNUMBER FROM DELINQUENTACCOUNT WHERE DELINQSTATUS NOT IN (?,?) )";
+        //String sql = "SELECT M.CARDNO,M.M1,M.M1DATE FROM MINIMUMPAYMENT M, BILLINGLASTSTATEMENTSUMMARY B WHERE M.M1 > 0 AND (M.M2 IS NULL OR M.M2 = 0) AND B.CARDNO = M.CARDNO AND M.CARDNO NOT IN (SELECT CARDNUMBER FROM DELINQUENTACCOUNT WHERE DELINQSTATUS NOT IN (?,?))";
+        String sql = queryParametersList.getRiskCalculation_getRiskCalculationCardList();
 
         sql += CommonMethods.checkForErrorCards("M.CARDNO");
 
@@ -509,9 +406,9 @@ public class RiskCalculationRepo implements RiskCalculationDao {
         PreparedStatement stmt = null;
         int count = 0;
         try {
-            String query = "UPDATE DELINQUENTACCOUNT SET NPPROVISIONAMOUNT = ? WHERE ACCOUNTNO = ? ";
+            //String query = "UPDATE DELINQUENTACCOUNT SET NPPROVISIONAMOUNT = ? WHERE ACCOUNTNO = ?";
 
-            count = backendJdbcTemplate.update(query, provisionAmount.toString(), accNo);
+            count = backendJdbcTemplate.update(queryParametersList.getRiskCalculation_updateProvisionInDELINQUENTACCOUNT(), provisionAmount.toString(), accNo);
 
         } catch (Exception e) {
             throw e;
@@ -523,9 +420,9 @@ public class RiskCalculationRepo implements RiskCalculationDao {
     public ArrayList<Object> getLastStatementDate(StringBuffer cardNumber) throws Exception {
 
         ArrayList<Object> lastStmtDetails = new ArrayList<>();
-        String sql = "SELECT MINAMOUNT,STATEMENTENDDATE,DUEDATE FROM BILLINGLASTSTATEMENTSUMMARY WHERE CARDNO = ?";
+        //String sql = "SELECT MINAMOUNT,STATEMENTENDDATE,DUEDATE FROM BILLINGLASTSTATEMENTSUMMARY WHERE CARDNO = ?";
         try {
-            backendJdbcTemplate.query(sql,
+            backendJdbcTemplate.query(queryParametersList.getRiskCalculation_getLastStatementDate(),
                     (ResultSet rs) -> {
                         while (rs.next()) {
                             lastStmtDetails.add(rs.getDate("STATEMENTENDDATE"));
@@ -544,11 +441,10 @@ public class RiskCalculationRepo implements RiskCalculationDao {
     public HashMap<String, Date> getDueDateList(StringBuffer cardNumber) throws Exception {
         HashMap<String, java.util.Date> dueDateList = new HashMap<String, java.util.Date>();
 
-        String sql = "SELECT M1DATE,M2DATE,M3DATE,M4DATE,M5DATE,M6DATE,M7DATE,M8DATE,"
-                + "M9DATE,M10DATE,M11DATE,M12DATE FROM MINIMUMPAYMENT WHERE CARDNO = ? ";
+        //String sql = "SELECT M1DATE,M2DATE,M3DATE,M4DATE,M5DATE,M6DATE,M7DATE,M8DATE, M9DATE,M10DATE,M11DATE,M12DATE FROM MINIMUMPAYMENT WHERE CARDNO = ?";
 
         try {
-            backendJdbcTemplate.query(sql,
+            backendJdbcTemplate.query(queryParametersList.getRiskCalculation_getDueDateList(),
                     (ResultSet rs) -> {
                         while (rs.next()) {
                             for (int i = 1; i <= 12; i++) {
@@ -567,14 +463,7 @@ public class RiskCalculationRepo implements RiskCalculationDao {
     public ArrayList<Object> getMinimumPaymentExistStatementDate(StringBuffer cardNo, int monthNo) throws Exception {
         ArrayList<Object> lastStmtDetails = new ArrayList<>();
 
-        String sql = "SELECT BS.STATEMENTENDDATE, "
-                + "  BS.TOTALMINPAYMENT, "
-                + "  BS.DUEDATE "
-                + "FROM MINIMUMPAYMENT MP "
-                + "INNER JOIN BILLINGSTATEMENT BS "
-                + "ON MP.CARDNO         = BS.MAINCARDNO "
-                + "WHERE BS.MAINCARDNO  = ? "
-                + "AND TRUNC(MP.M" + monthNo + "DATE) = TRUNC(BS.DUEDATE)";
+        String sql = "SELECT BS.STATEMENTENDDATE, BS.TOTALMINPAYMENT, BS.DUEDATE FROM MINIMUMPAYMENT MP INNER JOIN BILLINGSTATEMENT BS ON MP.CARDNO = BS.MAINCARDNO WHERE BS.MAINCARDNO  = ? AND TRUNC(MP.M" + monthNo + "DATE) = TRUNC(BS.DUEDATE)";
         try {
             backendJdbcTemplate.query(sql,
                     (ResultSet rs) -> {
@@ -597,16 +486,16 @@ public class RiskCalculationRepo implements RiskCalculationDao {
         int flag = 0;
 
         try {
-            String sql = "UPDATE ECMS_ONLINE_ACCOUNT SET STATUS=? WHERE ACCOUNTNUMBER=? ";
+            //String sql = "UPDATE ECMS_ONLINE_ACCOUNT SET STATUS=? WHERE ACCOUNTNUMBER=?";
 
-            flag = onlineJdbcTemplate.update(sql,
+            flag = onlineJdbcTemplate.update(queryParametersList.getRiskCalculation_updateOnlineAccountStatus(),
                     status,
                     accNo
             );
             if (Configurations.ONLINE_LOG_LEVEL == 1) {
                 //Only for troubleshoot
                 logInfo.info("================ updateOnlineAccountStatus ===================" + Configurations.EOD_ID);
-                logInfo.info(sql);
+                logInfo.info(queryParametersList.getRiskCalculation_updateOnlineAccountStatus());
                 logInfo.info(Integer.toString(status));
                 logInfo.info(accNo);
                 logInfo.info("================ updateOnlineAccountStatus END ===================");
@@ -623,9 +512,9 @@ public class RiskCalculationRepo implements RiskCalculationDao {
         int flag = 0;
 
         try {
-            String sql = "UPDATE CARDACCOUNT SET STATUS=?,LASTUPDATEDUSER=?,LASTUPDATEDTIME=SYSDATE WHERE ACCOUNTNO=? ";
+            //String sql = "UPDATE CARDACCOUNT SET STATUS=?,LASTUPDATEDUSER=?,LASTUPDATEDTIME=SYSDATE WHERE ACCOUNTNO=?";
 
-            flag = backendJdbcTemplate.update(sql,
+            flag = backendJdbcTemplate.update(queryParametersList.getRiskCalculation_updateAccountStatus(),
                     status,
                     Configurations.EOD_USER,
                     accNo
@@ -642,8 +531,8 @@ public class RiskCalculationRepo implements RiskCalculationDao {
         SimpleDateFormat sdf = new SimpleDateFormat("dd-MMM-yy");
         double payment = 0;
         try {
-            String query = "SELECT M1 FROM MINIMUMPAYMENT WHERE CARDNO IN (SELECT CARDNUMBER FROM CARDACCOUNT WHERE ACCOUNTNO = ?)";
-            payment = backendJdbcTemplate.queryForObject(query, Double.class, accNo);
+            //String query = "SELECT M1 FROM MINIMUMPAYMENT WHERE CARDNO IN (SELECT CARDNUMBER FROM CARDACCOUNT WHERE ACCOUNTNO = ?)";
+            payment = backendJdbcTemplate.queryForObject(queryParametersList.getRiskCalculation_checkLeastMinimumPayment(), Double.class, accNo);
         } catch (EmptyResultDataAccessException e) {
             return 0;
         } catch (Exception e) {
@@ -658,9 +547,9 @@ public class RiskCalculationRepo implements RiskCalculationDao {
         SimpleDateFormat sdf = new SimpleDateFormat("dd-MMM-yy");
 
         try {
-            String sql = "INSERT INTO EODGLACCOUNT (EODID,GLDATE,CARDNO,GLTYPE,AMOUNT,CRDR,PAYMENTTYPE) VALUES (?,TO_DATE(?, 'DD-MM-YY'),?,?,to_char(?,'9999999999.99'),?,?)";
+            //String sql = "INSERT INTO EODGLACCOUNT (EODID,GLDATE,CARDNO,GLTYPE,AMOUNT,CRDR,PAYMENTTYPE) VALUES (?,TO_DATE(?, 'DD-MM-YY'),?,?,to_char(?,'9999999999.99'),?,?)";
 
-            count = backendJdbcTemplate.update(sql, Integer.class
+            count = backendJdbcTemplate.update(queryParametersList.getRiskCalculation_insertIntoEodGLAccountBigDecimal(), Integer.class
                     , eodID, sdf.format(glDate), cardNo.toString(), glDate, amount.toString(), cdStatus, payType);
 
         } catch (Exception e) {
@@ -707,28 +596,9 @@ public class RiskCalculationRepo implements RiskCalculationDao {
 
         DelinquentAccountBean delinquentAccountBean = new DelinquentAccountBean();
         try {
-            String sql = "SELECT C.CARDCATEGORYCODE,"
-                    + " C.NAMEONCARD,"
-                    + " C.IDTYPE,"
-                    + " C.IDNUMBER,"
-                    + " CAC.ACCOUNTNO,"
-                    + " CA.STATUS,"
-                    + " CAC.CUSTOMERID,"
-                    + " B.STATEMENTENDDATE,"
-                    + " B.DUEDATE, "
-                    + " B.MINAMOUNT, NVL(DA.NDIA,0) AS NDIA "
-                    + " FROM CARD C,"
-                    + " CARDACCOUNTCUSTOMER CAC,"
-                    + " BILLINGLASTSTATEMENTSUMMARY B,"
-                    + " CARDACCOUNT CA"
-                    + " LEFT JOIN DELINQUENTACCOUNT DA ON DA.ACCOUNTNO = CA.ACCOUNTNO "
-                    + " WHERE CAC.CARDNUMBER = C.CARDNUMBER"
-                    + " AND CA.CARDNUMBER = C.MAINCARDNO"
-                    + " AND C.CARDNUMBER = C.MAINCARDNO"
-                    + " AND B.CARDNO = C.MAINCARDNO "
-                    + " AND C.MAINCARDNO = ? ";
+            //String sql = "SELECT C.CARDCATEGORYCODE,C.NAMEONCARD, C.IDTYPE, C.IDNUMBER, CAC.ACCOUNTNO, CA.STATUS, CAC.CUSTOMERID, B.STATEMENTENDDATE, B.DUEDATE,  B.MINAMOUNT, NVL(DA.NDIA,0) AS NDIA  FROM CARD C, CARDACCOUNTCUSTOMER CAC, BILLINGLASTSTATEMENTSUMMARY B, CARDACCOUNT CA LEFT JOIN DELINQUENTACCOUNT DA ON DA.ACCOUNTNO = CA.ACCOUNTNO  WHERE CAC.CARDNUMBER = C.CARDNUMBER AND CA.CARDNUMBER = C.MAINCARDNO AND C.CARDNUMBER = C.MAINCARDNO AND B.CARDNO = C.MAINCARDNO AND C.MAINCARDNO = ?";
 
-            backendJdbcTemplate.query(sql
+            backendJdbcTemplate.query(queryParametersList.getRiskCalculation_setDelinquentAccountDetails_Select1()
                     , (ResultSet rs) -> {
                         while (rs.next()) {
                             delinquentAccountBean.setCardCategory(rs.getString("CARDCATEGORYCODE"));
@@ -751,9 +621,9 @@ public class RiskCalculationRepo implements RiskCalculationDao {
             if (delinquentAccountBean.getCardCategory().equals(Configurations.CARD_CATEGORY_MAIN)
                     || delinquentAccountBean.getCardCategory().equals(Configurations.CARD_CATEGORY_AFFINITY)
                     || delinquentAccountBean.getCardCategory().equals(Configurations.CARD_CATEGORY_CO_BRANDED)) {
-                sql = "SELECT NAMEWITHINITIAL ,CONTACTNO ,EMAIL FROM CARDMAINCUSTOMERDETAIL WHERE CUSTOMERID = ?";
+                //sql = "SELECT NAMEWITHINITIAL ,CONTACTNO ,EMAIL FROM CARDMAINCUSTOMERDETAIL WHERE CUSTOMERID = ?";
 
-                backendJdbcTemplate.query(sql
+                backendJdbcTemplate.query(queryParametersList.getRiskCalculation_setDelinquentAccountDetails_Select2()
                         , (ResultSet rs) -> {
                             while (rs.next()) {
                                 delinquentAccountBean.setNameInFull(rs.getString("NAMEWITHINITIAL"));
@@ -765,9 +635,9 @@ public class RiskCalculationRepo implements RiskCalculationDao {
                         }, delinquentAccountBean.getCif()
                 );
             } else if (delinquentAccountBean.getCardCategory().equals(Configurations.CARD_CATEGORY_FD)) {
-                sql = "SELECT CUSTOMERNAME ,CONTACTNO ,EMAIL FROM CARDFDCUSTOMERDETAIL WHERE CUSTOMERID = ?";
+                //sql = "SELECT CUSTOMERNAME ,CONTACTNO ,EMAIL FROM CARDFDCUSTOMERDETAIL WHERE CUSTOMERID = ?";
 
-                backendJdbcTemplate.query(sql
+                backendJdbcTemplate.query(queryParametersList.getRiskCalculation_setDelinquentAccountDetails_Select3()
                         , (ResultSet rs) -> {
                             while (rs.next()) {
                                 delinquentAccountBean.setNameInFull(rs.getString("CUSTOMERNAME"));
@@ -778,9 +648,9 @@ public class RiskCalculationRepo implements RiskCalculationDao {
                         }, delinquentAccountBean.getCif()
                 );
             } else if (delinquentAccountBean.getCardCategory().equals(Configurations.CARD_CATEGORY_ESTABLISHMENT)) {
-                sql = "SELECT NAMEOFTHECOMPANY ,CONTACTNUMBERSLAND ,CONTACTEMAIL FROM CARDESTCUSTOMERDETAILS WHERE CUSTOMERID = ?";
+                //sql = "SELECT NAMEOFTHECOMPANY ,CONTACTNUMBERSLAND ,CONTACTEMAIL FROM CARDESTCUSTOMERDETAILS WHERE CUSTOMERID = ?";
 
-                backendJdbcTemplate.query(sql
+                backendJdbcTemplate.query(queryParametersList.getRiskCalculation_setDelinquentAccountDetails_Select4()
                         , (ResultSet rs) -> {
                             while (rs.next()) {
                                 delinquentAccountBean.setNameInFull(rs.getString("NAMEOFTHECOMPANY"));
@@ -803,13 +673,9 @@ public class RiskCalculationRepo implements RiskCalculationDao {
         double minPayment = 0;
 
         try {
-            String sql = "SELECT BLS.MINAMOUNT "
-                    + "FROM BILLINGLASTSTATEMENTSUMMARY BLS "
-                    + "INNER JOIN BILLINGSTATEMENT BS "
-                    + "ON BS.STATEMENTID = BLS.STATEMENTID "
-                    + "WHERE BS.ACCOUNTNO = ? ";
+            //String sql = "SELECT BLS.MINAMOUNT FROM BILLINGLASTSTATEMENTSUMMARY BLS INNER JOIN BILLINGSTATEMENT BS ON BS.STATEMENTID = BLS.STATEMENTID WHERE BS.ACCOUNTNO = ?";
 
-            minPayment = backendJdbcTemplate.queryForObject(sql, Double.class, accNumber);
+            minPayment = backendJdbcTemplate.queryForObject(queryParametersList.getRiskCalculation_getMinPaymentFromBilling(), Double.class, accNumber);
 
         } catch (Exception e) {
             throw e;
@@ -822,10 +688,9 @@ public class RiskCalculationRepo implements RiskCalculationDao {
         List<BigDecimal> delinquentList = new ArrayList<BigDecimal>();
         try {
 
-            String sql = "SELECT NPINTEREST, NPOUTSTANDING, NPACCRUEDINTEREST, NPACCRUEDFEES, NPACCRUEDOVERLIMITFEES, "
-                    + " NPACCRUEDLATEPAYFEES, NPPROVISIONAMOUNT FROM DELINQUENTACCOUNT WHERE ACCOUNTNO = ?";
+            //String sql = "SELECT NPINTEREST, NPOUTSTANDING, NPACCRUEDINTEREST, NPACCRUEDFEES, NPACCRUEDOVERLIMITFEES, NPACCRUEDLATEPAYFEES, NPPROVISIONAMOUNT FROM DELINQUENTACCOUNT WHERE ACCOUNTNO = ?";
 
-            backendJdbcTemplate.query(sql
+            backendJdbcTemplate.query(queryParametersList.getRiskCalculation_getDelinquentAccountDetailsAsList()
                     , (ResultSet rs) -> {
                         if (rs.next()) {
                             BigDecimal npInterest = new BigDecimal(rs.getString("NPINTEREST"));
@@ -866,10 +731,9 @@ public class RiskCalculationRepo implements RiskCalculationDao {
         try {
             totalFees = otherFees + accruedLatePayFees + accruedOverLimitFees;
 
-            String query = "UPDATE DELINQUENTACCOUNT SET NPINTEREST = ?, NPOUTSTANDING = ?, NPACCRUEDINTEREST = ?, NPACCRUEDOVERLIMITFEES = ?, "
-                    + "NPACCRUEDLATEPAYFEES = ?, NPACCRUEDFEES = ? WHERE ACCOUNTNO = ? ";
+            //String query = "UPDATE DELINQUENTACCOUNT SET NPINTEREST = ?, NPOUTSTANDING = ?, NPACCRUEDINTEREST = ?, NPACCRUEDOVERLIMITFEES = ?,NPACCRUEDLATEPAYFEES = ?, NPACCRUEDFEES = ? WHERE ACCOUNTNO = ?";
 
-            count = backendJdbcTemplate.update(query, npInterest, npOutstanding, accruedInterest, accruedOverLimitFees
+            count = backendJdbcTemplate.update(queryParametersList.getRiskCalculation_updateAllDELINQUENTACCOUNTnpdetails(), npInterest, npOutstanding, accruedInterest, accruedOverLimitFees
                     , accruedLatePayFees, totalFees, accNo);
 
         } catch (Exception e) {
@@ -885,10 +749,9 @@ public class RiskCalculationRepo implements RiskCalculationDao {
         try {
             totalFees = otherFees.add(accruedLatePayFees).add(accruedOverLimitFees);
 
-            String query = "UPDATE DELINQUENTACCOUNT SET NPINTEREST = ?, NPOUTSTANDING = ?, NPACCRUEDINTEREST = ?, NPACCRUEDOVERLIMITFEES = ?, "
-                    + "NPACCRUEDLATEPAYFEES = ?, NPACCRUEDFEES = ? WHERE ACCOUNTNO = ? ";
+            //String query = "UPDATE DELINQUENTACCOUNT SET NPINTEREST = ?, NPOUTSTANDING = ?, NPACCRUEDINTEREST = ?, NPACCRUEDOVERLIMITFEES = ?, NPACCRUEDLATEPAYFEES = ?, NPACCRUEDFEES = ? WHERE ACCOUNTNO = ?";
 
-            backendJdbcTemplate.update(query, npInterest.toString()
+            backendJdbcTemplate.update(queryParametersList.getRiskCalculation_updateAllDELINQUENTACCOUNTnpdetails2(), npInterest.toString()
                     , npOutstanding.toString()
                     , accruedInterest.toString()
                     , accruedOverLimitFees.toString()

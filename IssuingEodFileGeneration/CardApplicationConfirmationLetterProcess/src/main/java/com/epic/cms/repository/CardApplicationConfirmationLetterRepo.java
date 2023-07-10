@@ -10,6 +10,7 @@ package com.epic.cms.repository;
 import com.epic.cms.dao.CardApplicationConfirmationLetterDao;
 import com.epic.cms.util.Configurations;
 import com.epic.cms.util.LogManager;
+import com.epic.cms.util.QueryParametersList;
 import com.epic.cms.util.StatusVarList;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.jdbc.core.JdbcTemplate;
@@ -28,12 +29,21 @@ public class CardApplicationConfirmationLetterRepo implements CardApplicationCon
     @Autowired
     private StatusVarList statusVarList;
 
+    @Autowired
+    LogManager logManager;
+
+    @Autowired
+    QueryParametersList queryParametersList;
+
+
     @Override
     public ArrayList<StringBuffer> getConfirmedCardToGenerateLetters() throws SQLException {
         ArrayList<StringBuffer> confirmCardList = new ArrayList<StringBuffer>();
         String query = null;
         try {
-            query = "select ca.cardnumber from card CA left join cardapplication capp on capp.CARDNUMBER = ca.cardnumber where ca.EMBOSSSTATUS=? and PINSTATUS=? AND LETTERGENSTATUS=? ";
+            //query = "select ca.cardnumber from card CA left join cardapplication capp on capp.CARDNUMBER = ca.cardnumber where ca.EMBOSSSTATUS=? and PINSTATUS=? AND LETTERGENSTATUS=?";
+            query = queryParametersList.getCardApplicationConfirmationLetter_getConfirmedCardToGenerateLetters();
+
             if (!Configurations.STARTING_EOD_STATUS.equals(statusVarList.getERROR_STATUS())) {
                 query = query + "and ca.cardnumber not in (select cardno from eoderrorcards where status = ?) ";
                 backendJdbcTemplate.query(query,
@@ -74,8 +84,8 @@ public class CardApplicationConfirmationLetterRepo implements CardApplicationCon
     public int updateLettergenStatus(StringBuffer cardNo, String yes) throws Exception {
         int count = 0;
         try {
-            String updatePay = "update cardapplication set lettergenstatus=? where cardnumber=?";
-            count = backendJdbcTemplate.update(updatePay,
+            //String updatePay = "update cardapplication set lettergenstatus=? where cardnumber=?";
+            count = backendJdbcTemplate.update(queryParametersList.getCardApplicationConfirmationLetter_updateLettergenStatus(),
                     yes,
                     cardNo.toString()
                     );

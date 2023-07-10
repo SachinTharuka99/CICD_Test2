@@ -20,7 +20,7 @@ public class TxnMismatchPostRepo implements TxnMismatchPostDao {
     private JdbcTemplate backendJdbcTemplate;
 
     @Autowired
-    QueryParametersList query;
+    QueryParametersList queryParametersList;
 
     @Autowired
     StatusVarList status;
@@ -29,30 +29,10 @@ public class TxnMismatchPostRepo implements TxnMismatchPostDao {
     public ArrayList<OtbBean> getInitEodTxnMismatchPostCustAcc() throws Exception {
         ArrayList<OtbBean> custAccList = new ArrayList<OtbBean>();
 
-        String query = "SELECT DISTINCT CAC.CUSTOMERID, CAC.ACCOUNTNO "
-                + "FROM EODTRANSACTION ET "
-                + "INNER JOIN CARD C ON C.CARDNUMBER = ET.CARDNUMBER "
-                + "INNER JOIN CARDACCOUNTCUSTOMER CAC ON CAC.CARDNUMBER = C.MAINCARDNO "
-                + "LEFT OUTER JOIN TRANSACTION T ON T.TXNID = ET.TRANSACTIONID "
-                + "WHERE ET.STATUS = ? AND ET.EODID = ? AND ET.ONLYVISAFALSE NOT IN(?) "
-                + "AND ((ET.TRANSACTIONTYPE = ? AND ET.CRDR = ?) "
-                + "OR (ET.TRANSACTIONTYPE = ? AND ET.CRDR = ?) "
-                + "OR (ET.TRANSACTIONTYPE = ? AND ET.CRDR = ?) "
-                + "OR (ET.TRANSACTIONTYPE = ? AND ET.CRDR = ?) "
-                + "OR (ET.TRANSACTIONTYPE = ? AND ET.CRDR = ?) "
-                + "OR (ET.TRANSACTIONTYPE = ? AND ET.CRDR = ?) "
-                + "OR (ET.TRANSACTIONTYPE = ? AND ET.CRDR = ?) "
-                + "OR (ET.TRANSACTIONTYPE = ? AND ET.CRDR = ?) "
-                + "OR (ET.TRANSACTIONTYPE = ? AND ET.CRDR = ?) "
-                + "OR (ET.TRANSACTIONTYPE = ? AND ET.CRDR = ?)) "
-                + " AND CAC.ACCOUNTNO not in "
-                + " (select ec.ACCOUNTNO from eoderrorcards ec where ec.status= ? ) "
-                + "GROUP BY CAC.CUSTOMERID, CAC.ACCOUNTNO "
-                + " HAVING SUM(NVL(ET.TRANSACTIONAMOUNT,0)-NVL((CASE WHEN T.TXNCURRENCY = ? THEN T.TXNAMOUNT ELSE T.BILLINGAMOUNT END)/100,0)) != 0 "
-                + "ORDER BY CAC.CUSTOMERID, CAC.ACCOUNTNO ";
+        //String query = "SELECT DISTINCT CAC.CUSTOMERID, CAC.ACCOUNTNO FROM EODTRANSACTION ET INNER JOIN CARD C ON C.CARDNUMBER = ET.CARDNUMBER INNER JOIN CARDACCOUNTCUSTOMER CAC ON CAC.CARDNUMBER = C.MAINCARDNO LEFT OUTER JOIN TRANSACTION T ON T.TXNID = ET.TRANSACTIONID WHERE ET.STATUS = ? AND ET.EODID = ? AND ET.ONLYVISAFALSE NOT IN(?) AND ((ET.TRANSACTIONTYPE = ? AND ET.CRDR = ?) OR (ET.TRANSACTIONTYPE = ? AND ET.CRDR = ?) OR (ET.TRANSACTIONTYPE = ? AND ET.CRDR = ?) OR (ET.TRANSACTIONTYPE = ? AND ET.CRDR = ?) OR (ET.TRANSACTIONTYPE = ? AND ET.CRDR = ?) OR (ET.TRANSACTIONTYPE = ? AND ET.CRDR = ?) OR (ET.TRANSACTIONTYPE = ? AND ET.CRDR = ?) OR (ET.TRANSACTIONTYPE = ? AND ET.CRDR = ?) OR (ET.TRANSACTIONTYPE = ? AND ET.CRDR = ?) OR (ET.TRANSACTIONTYPE = ? AND ET.CRDR = ?)) AND CAC.ACCOUNTNO not in (select ec.ACCOUNTNO from eoderrorcards ec where ec.status= ? ) GROUP BY CAC.CUSTOMERID, CAC.ACCOUNTNO HAVING SUM(NVL(ET.TRANSACTIONAMOUNT,0)-NVL((CASE WHEN T.TXNCURRENCY = ? THEN T.TXNAMOUNT ELSE T.BILLINGAMOUNT END)/100,0)) != 0 ORDER BY CAC.CUSTOMERID, CAC.ACCOUNTNO";
 
         try {
-            custAccList = (ArrayList<OtbBean>) backendJdbcTemplate.query(query,
+            custAccList = (ArrayList<OtbBean>) backendJdbcTemplate.query(queryParametersList.getTxnMismatchPost_getInitEodTxnMismatchPostCustAcc(),
                     new RowMapperResultSetExtractor<>((result, rowNum) -> {
                         OtbBean bean = new OtbBean();
                         bean.setCustomerid(result.getString("CUSTOMERID"));
@@ -96,7 +76,7 @@ public class TxnMismatchPostRepo implements TxnMismatchPostDao {
         ArrayList<OtbBean> custAccList = new ArrayList<OtbBean>();
 
         try {
-            custAccList = (ArrayList<OtbBean>) backendJdbcTemplate.query(query.getTxnMismatchPost_getErrorEodTxnMismatchPostCustAcc(),
+            custAccList = (ArrayList<OtbBean>) backendJdbcTemplate.query(queryParametersList.getTxnMismatchPost_getErrorEodTxnMismatchPostCustAcc(),
                     new RowMapperResultSetExtractor<>((result, rowNum) -> {
                         OtbBean bean = new OtbBean();
                         bean.setCustomerid(result.getString("CUSTOMERID"));
@@ -139,29 +119,29 @@ public class TxnMismatchPostRepo implements TxnMismatchPostDao {
     public ArrayList<OtbBean> getInitTxnMismatch(String accountNumber) throws Exception {
         ArrayList<OtbBean> txnList = new ArrayList<OtbBean>();
 
-        String query = "SELECT ET.CARDNUMBER, TT.TRANSACTIONCODE, TT.DESCRIPTION,ET.CRDR, "
-                + "(CASE WHEN ET.CRDR='CR' THEN -1*SUM(NVL(ET.TRANSACTIONAMOUNT,0)-NVL((CASE WHEN T.TXNCURRENCY = ? THEN T.TXNAMOUNT ELSE T.BILLINGAMOUNT END)/100,0))"
-                + "ELSE SUM(NVL(ET.TRANSACTIONAMOUNT,0)-NVL((CASE WHEN T.TXNCURRENCY = ? THEN T.TXNAMOUNT ELSE T.BILLINGAMOUNT END)/100,0)) END) AS TXNMISMATCHAMOUNT  "
-                + "FROM EODTRANSACTION ET "
-                + "LEFT JOIN TRANSACTION T ON T.TXNID = ET.TRANSACTIONID "
-                + "INNER JOIN TRANSACTIONTYPE TT ON TT.TRANSACTIONCODE = ET.TRANSACTIONTYPE "
-                + "WHERE ET.STATUS = ? AND ET.EODID = ? AND ET.ONLYVISAFALSE NOT IN(?)"
-                + "AND ((ET.TRANSACTIONTYPE = ? AND ET.CRDR = ?) "
-                + "OR (ET.TRANSACTIONTYPE = ? AND ET.CRDR = ?) "
-                + "OR (ET.TRANSACTIONTYPE = ? AND ET.CRDR = ?) "
-                + "OR (ET.TRANSACTIONTYPE = ? AND ET.CRDR = ?) "
-                + "OR (ET.TRANSACTIONTYPE = ? AND ET.CRDR = ?) "
-                + "OR (ET.TRANSACTIONTYPE = ? AND ET.CRDR = ?) "
-                + "OR (ET.TRANSACTIONTYPE = ? AND ET.CRDR = ?) "
-                + "OR (ET.TRANSACTIONTYPE = ? AND ET.CRDR = ?) "
-                + "OR (ET.TRANSACTIONTYPE = ? AND ET.CRDR = ?) "
-                + "OR (ET.TRANSACTIONTYPE = ? AND ET.CRDR = ?)) "
-                + "AND ET.ACCOUNTNO = ? "
-                + "GROUP BY ET.CARDNUMBER, TT.TRANSACTIONCODE, TT.DESCRIPTION, ET.CRDR "
-                + "HAVING SUM(NVL(ET.TRANSACTIONAMOUNT,0)-NVL((CASE WHEN T.TXNCURRENCY = ? THEN T.TXNAMOUNT ELSE T.BILLINGAMOUNT END)/100,0)) != 0 ";
+//        String query = "SELECT ET.CARDNUMBER, TT.TRANSACTIONCODE, TT.DESCRIPTION,ET.CRDR, "
+//                + "(CASE WHEN ET.CRDR='CR' THEN -1*SUM(NVL(ET.TRANSACTIONAMOUNT,0)-NVL((CASE WHEN T.TXNCURRENCY = ? THEN T.TXNAMOUNT ELSE T.BILLINGAMOUNT END)/100,0))"
+//                + "ELSE SUM(NVL(ET.TRANSACTIONAMOUNT,0)-NVL((CASE WHEN T.TXNCURRENCY = ? THEN T.TXNAMOUNT ELSE T.BILLINGAMOUNT END)/100,0)) END) AS TXNMISMATCHAMOUNT  "
+//                + "FROM EODTRANSACTION ET "
+//                + "LEFT JOIN TRANSACTION T ON T.TXNID = ET.TRANSACTIONID "
+//                + "INNER JOIN TRANSACTIONTYPE TT ON TT.TRANSACTIONCODE = ET.TRANSACTIONTYPE "
+//                + "WHERE ET.STATUS = ? AND ET.EODID = ? AND ET.ONLYVISAFALSE NOT IN(?)"
+//                + "AND ((ET.TRANSACTIONTYPE = ? AND ET.CRDR = ?) "
+//                + "OR (ET.TRANSACTIONTYPE = ? AND ET.CRDR = ?) "
+//                + "OR (ET.TRANSACTIONTYPE = ? AND ET.CRDR = ?) "
+//                + "OR (ET.TRANSACTIONTYPE = ? AND ET.CRDR = ?) "
+//                + "OR (ET.TRANSACTIONTYPE = ? AND ET.CRDR = ?) "
+//                + "OR (ET.TRANSACTIONTYPE = ? AND ET.CRDR = ?) "
+//                + "OR (ET.TRANSACTIONTYPE = ? AND ET.CRDR = ?) "
+//                + "OR (ET.TRANSACTIONTYPE = ? AND ET.CRDR = ?) "
+//                + "OR (ET.TRANSACTIONTYPE = ? AND ET.CRDR = ?) "
+//                + "OR (ET.TRANSACTIONTYPE = ? AND ET.CRDR = ?)) "
+//                + "AND ET.ACCOUNTNO = ? "
+//                + "GROUP BY ET.CARDNUMBER, TT.TRANSACTIONCODE, TT.DESCRIPTION, ET.CRDR "
+//                + "HAVING SUM(NVL(ET.TRANSACTIONAMOUNT,0)-NVL((CASE WHEN T.TXNCURRENCY = ? THEN T.TXNAMOUNT ELSE T.BILLINGAMOUNT END)/100,0)) != 0 ";
 
         try {
-            txnList = (ArrayList<OtbBean>) backendJdbcTemplate.query(query,
+            txnList = (ArrayList<OtbBean>) backendJdbcTemplate.query(queryParametersList.getTxnMismatchPost_getInitTxnMismatch(),
                     new RowMapperResultSetExtractor<>((result, rowNum) -> {
                         OtbBean bean = new OtbBean();
 //                        bean.setCustomerid(result.getString("CUSTOMERID"));

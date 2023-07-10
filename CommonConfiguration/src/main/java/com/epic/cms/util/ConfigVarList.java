@@ -1072,4 +1072,7 @@ public class ConfigVarList {
     @Value("${process_stamp_duty_fee}")
     public int process_stamp_duty_fee;
 
+    @Value("${process_id_recipient_push_txn_update}")
+    public int process_id_recipient_push_txn_update;
+
 }
