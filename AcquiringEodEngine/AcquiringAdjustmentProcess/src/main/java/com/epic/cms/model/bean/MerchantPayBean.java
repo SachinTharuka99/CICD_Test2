@@ -24,7 +24,7 @@ public class MerchantPayBean {
     private double commAmount;
     private double feeAmount;
     private double paymentAmount;
-    private String netPayAmount;
+    private double netPayAmount;
     private String crDrnetPayment;
     private int currencyType;
     private String accountNo;

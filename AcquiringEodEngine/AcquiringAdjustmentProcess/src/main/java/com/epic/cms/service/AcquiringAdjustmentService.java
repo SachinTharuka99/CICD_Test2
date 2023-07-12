@@ -192,7 +192,7 @@ public class AcquiringAdjustmentService {
         paymentBean.setMerchantAccNo(merchantDetailsBean.getMerchantAccountNo());
         paymentBean.setMerchantCusAccNo(merchantDetailsBean.getMerchantCusAccNo());
         paymentBean.setMerchantCusId(merchantDetailsBean.getMerchantCustomerId());
-        paymentBean.setNetPayAmount(acqAdjustmentBean.getAdjustAmount());
+        paymentBean.setNetPayAmount(Double.parseDouble(acqAdjustmentBean.getAdjustAmount()));
         paymentBean.setPaymentAmount(0);
         paymentBean.setPaymentCrDr(acqAdjustmentBean.getCrDr());
         paymentBean.setTxncount(1);

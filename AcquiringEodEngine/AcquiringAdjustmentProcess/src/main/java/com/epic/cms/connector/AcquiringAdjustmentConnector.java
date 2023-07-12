@@ -68,7 +68,7 @@ public class AcquiringAdjustmentConnector extends ProcessBuilder {
     @Override
     public void concreteProcess() throws Exception {
         try {
-            processBean = commonRepo.getProcessDetails(configProcess);
+            processBean = commonRepo.getProcessDetails(Configurations.PROCESS_ACQUIRING_ADJUSTMENT_PROCESS);
             if (processBean != null) {
 
                 Configurations.RUNNING_PROCESS_ID = Configurations.PROCESS_ACQUIRING_ADJUSTMENT_PROCESS;
@@ -124,7 +124,8 @@ public class AcquiringAdjustmentConnector extends ProcessBuilder {
     public void addSummaries() {
         summery.put("Started Date", Configurations.EOD_DATE.toString());
         summery.put("No of Adjustments", Configurations.PROCESS_TOTAL_NOOF_TRABSACTIONS);
-        summery.put("No of Success Adjustments ", Integer.toString(Configurations.PROCESS_SUCCESS_COUNT - Configurations.PROCESS_FAILD_COUNT));
+        summery.put("No of Success Adjustments ", Configurations.PROCESS_SUCCESS_COUNT);
+        summery.put("No of Failed Adjustments ", Configurations.PROCESS_FAILD_COUNT);
     }
 
     private void setCardProduct() {

@@ -23,10 +23,7 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
-import java.util.ArrayList;
-import java.util.LinkedList;
-import java.util.List;
-import java.util.Queue;
+import java.util.*;
 
 @Repository
 public class MerchantCommissionCalculationRepo implements MerchantCommissionCalculationDao {
@@ -40,15 +37,7 @@ public class MerchantCommissionCalculationRepo implements MerchantCommissionCalc
     public List<MerchantLocationBean> getAllMerchants() throws Exception {
         List<MerchantLocationBean> merchantList = new ArrayList<>();
         try {
-            String query = "SELECT DISTINCT ML.MERCHANTID, CP.CALMETHOD, CP.COMMISSIONPROFILECODE,"
-                    + " ML.MERCHANTCUSTOMERNO"
-                    + " FROM MERCHANTLOCATION ML"
-                    + " LEFT JOIN COMMISSIONPROFILE CP"
-                    + " ON CP.COMMISSIONPROFILECODE = ML.COMMITIONPROFILE"
-                    + " INNER JOIN EODMERCHANTTRANSACTION EMT"
-                    + " ON EMT.MID = ML.MERCHANTID"
-                    + " WHERE ML.STATUS NOT IN (?,?)"
-                    + " AND EMT.STATUS = ?";
+            String query = "SELECT DISTINCT ML.MERCHANTID, CP.CALMETHOD, CP.COMMISSIONPROFILECODE, ML.MERCHANTCUSTOMERNO FROM MERCHANTLOCATION ML LEFT JOIN COMMISSIONPROFILE CP ON CP.COMMISSIONPROFILECODE = ML.COMMITIONPROFILE INNER JOIN EODMERCHANTTRANSACTION EMT ON EMT.MID = ML.MERCHANTID WHERE ML.STATUS NOT IN (?,?) AND EMT.STATUS = ?";
 
             if (Configurations.STARTING_EOD_STATUS.equals(statusList.getINITIAL_STATUS())) {
                 query += " AND ML.MERCHANTID NOT IN (SELECT EM.MID FROM EODERRORMERCHANT EM WHERE EM.STATUS='" + statusList.getEOD_PENDING_STATUS() + "')";
@@ -117,21 +106,7 @@ public class MerchantCommissionCalculationRepo implements MerchantCommissionCalc
     public Queue<CommissionProfileBean> getAllCommCombination(String comisionProfile, String COMMISSION_TABLE, String COMMISSION_SEGMENT, String COMMISSION_DEFAULT_KEY) throws Exception {
         Queue<CommissionProfileBean> commProfileList = new LinkedList<CommissionProfileBean>();
 
-        String query = "SELECT COMMISSIONPROFILECODE, FLATVALUE, PERCENTAGE,COMBINATION, CRDR, BINTYPE,CARDPRODUCT, " + COMMISSION_SEGMENT + ""
-                + " FROM  " + COMMISSION_TABLE + ""
-                + " WHERE COMMISSIONPROFILECODE=?"
-                + " ORDER BY"
-                + " CASE"
-                + "   WHEN " + COMMISSION_SEGMENT + " != ?"
-                + "    THEN 1"
-                + "    WHEN (CARDPRODUCT!= ?"
-                + "    AND " + COMMISSION_SEGMENT + " = ?)"
-                + "    THEN 2"
-                + "    WHEN (CARDPRODUCT= ?"
-                + "    AND " + COMMISSION_SEGMENT + " = ? )"
-                + "    THEN 3"
-                + "    ELSE 4"
-                + "  END";
+        String query = "SELECT COMMISSIONPROFILECODE, FLATVALUE, PERCENTAGE,COMBINATION, CRDR, BINTYPE,CARDPRODUCT, " + COMMISSION_SEGMENT + " FROM  " + COMMISSION_TABLE + " WHERE COMMISSIONPROFILECODE=? ORDER BY CASE   WHEN " + COMMISSION_SEGMENT + " != ?    THEN 1    WHEN (CARDPRODUCT!= ?    AND " + COMMISSION_SEGMENT + " = ?)    THEN 2    WHEN (CARDPRODUCT= ?    AND " + COMMISSION_SEGMENT + " = ? )    THEN 3    ELSE 4  END";
         try {
             backendJdbcTemplate.query(query,
                     (ResultSet rs) -> {
@@ -162,11 +137,7 @@ public class MerchantCommissionCalculationRepo implements MerchantCommissionCalc
         ArrayList<CommissionTxnBean> commissionTxnList = new ArrayList<>();
         String query;
         try {
-            query = "SELECT BATCHNO,CRDR,CURRENCYTYPE,MID,TID,TRANSACTIONAMOUNT,TRANSACTIONDATE,"
-                    + " TRANSACTIONID,TRANSACTIONTYPE,BIN,CARDPRODUCT,CARDASSOCIATION FROM EODMERCHANTTRANSACTION WHERE "
-                    + " MID =?  "
-                    + " AND STATUS = ?"
-                    + " AND EODID = ?";
+            query = "SELECT BATCHNO,CRDR,CURRENCYTYPE,MID,TID,TRANSACTIONAMOUNT,TRANSACTIONDATE, TRANSACTIONID,TRANSACTIONTYPE,BIN,CARDPRODUCT,CARDASSOCIATION FROM EODMERCHANTTRANSACTION WHERE  MID =?   AND STATUS = ? AND EODID = ?";
 
             if (!segment.equalsIgnoreCase(COMMISSION_DEFAULT_KEY)) {
                 if (cardProduct.equalsIgnoreCase(statusList.getPRODUCT_CODE_VISA_ALL()) || cardProduct.equalsIgnoreCase(statusList.getPRODUCT_CODE_MASTER_ALL())
@@ -363,11 +334,7 @@ public class MerchantCommissionCalculationRepo implements MerchantCommissionCalc
         String query = null;
         DateFormat formatter;
         try {
-            query = "INSERT INTO EODMERCHANTCOMMISSION (EODID,MERCHANTCUSTID,CUSTACCOUNTNO,MID,MERACCOUNTNO,"
-                    + "TID,TRANSACTIONAMOUNT,MERCHANTCOMMSSION,MERCHANTDUEAMOUNT,CURRENCYTYPE,CRDR,"
-                    + "TRANSACTIONDATE,TRANSACTIONTYPE,BATCHNO,TRANSACTIONID,LASTUPDATEDUSER,CREATEDTIME,"
-                    + "LASTUPDATEDTIME,STATUS,BINTYPE,CALMETHOD,CARDASSOCIATION,PRODUCTID,SEGMENT,EODDATE,"
-                    + "CARDPRODUCT,MDRPERCENTAGE,MDRFLATAMOUNT) VALUES (?,?,?,?,?,?,?,?,?,?,?,TO_DATE(?,'DD-MM-YY'),?,?,?,?,SYSDATE,SYSDATE,?,?,?,?,?,?,TO_DATE(?,'DD-MM-YY'),?,?,?)";
+            query = "INSERT INTO EODMERCHANTCOMMISSION (EODID,MERCHANTCUSTID,CUSTACCOUNTNO,MID,MERACCOUNTNO,TID,TRANSACTIONAMOUNT,MERCHANTCOMMSSION,MERCHANTDUEAMOUNT,CURRENCYTYPE,CRDR,TRANSACTIONDATE,TRANSACTIONTYPE,BATCHNO,TRANSACTIONID,LASTUPDATEDUSER,CREATEDTIME,LASTUPDATEDTIME,STATUS,BINTYPE,CALMETHOD,CARDASSOCIATION,PRODUCTID,SEGMENT,EODDATE,CARDPRODUCT,MDRPERCENTAGE,MDRFLATAMOUNT) VALUES (?,?,?,?,?,?,?,?,?,?,?,TO_DATE(?,'DD-MM-YY'),?,?,?,?,SYSDATE,SYSDATE,?,?,?,?,?,?,TO_DATE(?,'DD-MM-YY'),?,?,?)";
 
             formatter = new SimpleDateFormat("dd-MMM-yy");
             count = backendJdbcTemplate.update(query, Configurations.EOD_ID
@@ -423,22 +390,7 @@ public class MerchantCommissionCalculationRepo implements MerchantCommissionCalc
         Queue<CommissionProfileBean> commProfileList = new LinkedList<CommissionProfileBean>();
 
         try {
-            String query = "SELECT COMMISSIONPROFILECODE,"
-                    + "  FLATVALUE,"
-                    + "  PERCENTAGE,"
-                    + "  COMBINATION,"
-                    + "  CRDR,"
-                    + "  BINTYPE,"
-                    + "  CARDPRODUCT,"
-                    + "  VOLUMEID"
-                    + " FROM COMMISSIONVOLUME"
-                    + " WHERE COMMISSIONPROFILECODE=?"
-                    + " ORDER BY BINTYPE,"
-                    + "  CASE"
-                    + "    WHEN CARDPRODUCT != ?"
-                    + "    THEN 1"
-                    + "    ELSE 2"
-                    + "  END,CARDPRODUCT,VOLUMEID";
+            String query = "SELECT COMMISSIONPROFILECODE,  FLATVALUE,  PERCENTAGE,  COMBINATION,  CRDR,  BINTYPE,  CARDPRODUCT,  VOLUMEID FROM COMMISSIONVOLUME WHERE COMMISSIONPROFILECODE=? ORDER BY BINTYPE,  CASE    WHEN CARDPRODUCT != ?    THEN 1    ELSE 2  END,CARDPRODUCT,VOLUMEID";
 
             backendJdbcTemplate.query(query,
                     (ResultSet rs) -> {
@@ -479,18 +431,13 @@ public class MerchantCommissionCalculationRepo implements MerchantCommissionCalc
     @Override
     public CommissionProfileBean getCommissionProfile(String commissionProfile, String binType, String productCode, String volumeId) throws Exception {
 
-        CommissionProfileBean commissionProfileBean1 = null;
+        CommissionProfileBean commissionProfileBean1 = new CommissionProfileBean();
         try {
-            String query = " SELECT  FLATVALUE, PERCENTAGE,COMBINATION, CRDR,BINTYPE,CARDPRODUCT, VOLUMEID,COMMISSIONPROFILECODE "
-                    + "FROM COMMISSIONVOLUME "
-                    + "WHERE BINTYPE=? "
-                    + "AND CARDPRODUCT=?"
-                    + "AND COMMISSIONPROFILECODE=? "
-                    + "AND VOLUMEID=?";
+            String query = " SELECT  FLATVALUE, PERCENTAGE,COMBINATION, CRDR,BINTYPE,CARDPRODUCT, VOLUMEID,COMMISSIONPROFILECODE FROM COMMISSIONVOLUME WHERE BINTYPE=? AND CARDPRODUCT=?AND COMMISSIONPROFILECODE=? AND VOLUMEID=?";
 
-            commissionProfileBean1 = backendJdbcTemplate.query(query,
+            commissionProfileBean1 = Objects.requireNonNull(backendJdbcTemplate.query(query,
                     (ResultSet rs) -> {
-                        CommissionProfileBean commissionProfileBean = null;
+                        CommissionProfileBean commissionProfileBean = new CommissionProfileBean();
                         while (rs.next()) {
                             commissionProfileBean = new CommissionProfileBean();
                             commissionProfileBean.setBinType(rs.getString("BINTYPE"));
@@ -506,20 +453,17 @@ public class MerchantCommissionCalculationRepo implements MerchantCommissionCalc
                         return commissionProfileBean;
 
                     }, Integer.parseInt(binType), productCode, commissionProfile, volumeId
-            );
+            ));
 
             if (commissionProfileBean1 == null) {
-                query = " SELECT  FLATVALUE, PERCENTAGE,COMBINATION, CRDR,BINTYPE,CARDPRODUCT, VOLUMEID,COMMISSIONPROFILECODE "
-                        + "FROM COMMISSIONVOLUME "
-                        + "WHERE BINTYPE=? "
-                        + "AND CARDPRODUCT=?"
-                        + "AND COMMISSIONPROFILECODE=? "
-                        + "AND VOLUMEID=?";
+                query = " SELECT  FLATVALUE, PERCENTAGE,COMBINATION, CRDR,BINTYPE,CARDPRODUCT, VOLUMEID,COMMISSIONPROFILECODE FROM COMMISSIONVOLUME WHERE BINTYPE=? AND CARDPRODUCT=?AND COMMISSIONPROFILECODE=? AND VOLUMEID=?";
 
-                commissionProfileBean1 = backendJdbcTemplate.query(query,
+                commissionProfileBean1 = Objects.requireNonNull(backendJdbcTemplate.query(query,
                         (ResultSet rs1) -> {
-                            CommissionProfileBean commissionProfileBean = null;
+                            CommissionProfileBean commissionProfileBean = new CommissionProfileBean();
+
                             while (rs1.next()) {
+
                                 commissionProfileBean.setBinType(rs1.getString("BINTYPE"));
                                 commissionProfileBean.setCardProduct(rs1.getString("CARDPRODUCT"));
                                 commissionProfileBean.setCombination(rs1.getString("COMBINATION"));
@@ -529,11 +473,12 @@ public class MerchantCommissionCalculationRepo implements MerchantCommissionCalc
                                 commissionProfileBean.setSegment(rs1.getString(Configurations.COMMISSION_SEGMENT_VOLUME));
                                 commissionProfileBean.setCrdr(rs1.getString("CRDR"));
                                 commissionProfileBean.setVolumeId(Configurations.COMMISSION_DEFAULT_VOLUME);
+
                             }
                             return commissionProfileBean;
 
                         }, Integer.parseInt(binType), productCode, commissionProfile, Configurations.COMMISSION_DEFAULT_VOLUME
-                );
+                ));
             }
 
         } catch (Exception e) {
@@ -546,9 +491,7 @@ public class MerchantCommissionCalculationRepo implements MerchantCommissionCalc
     public ArrayList<CommissionTxnBean> getTransactionForCommissionVolumeWise(String merchantId, String binType, String cardProduct, String calMethod, ArrayList<CommissionTxnBean> commissionTxnList) throws Exception {
         String query;
         try {
-            query = "SELECT * FROM EODMERCHANTTRANSACTION WHERE "
-                    + " MID =?  "
-                    + " AND STATUS = ?";
+            query = "SELECT * FROM EODMERCHANTTRANSACTION WHERE  MID =?   AND STATUS = ?";
 
             if (!(cardProduct.equalsIgnoreCase("PDEF"))) {
                 if (cardProduct.equalsIgnoreCase(statusList.getPRODUCT_CODE_VISA_ALL()) || cardProduct.equalsIgnoreCase(statusList.getPRODUCT_CODE_MASTER_ALL())
