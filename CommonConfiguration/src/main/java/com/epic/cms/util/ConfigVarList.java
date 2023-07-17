@@ -1082,4 +1082,10 @@ public class ConfigVarList {
     @Value("${process_id_originator_push_txn_update}")
     public int process_id_originator_push_txn_update;
 
+    @Value("${file_code_mastercard_t67}")
+    public String FILE_CODE_MASTERCARD_T67;
+
+    @Value("${file_code_dcf}")
+    public String FILE_CODE_DCF;
+
 }

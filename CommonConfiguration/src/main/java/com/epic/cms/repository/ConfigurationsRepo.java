@@ -293,6 +293,8 @@ public class ConfigurationsRepo implements ConfigurationsDao {
             //File Code
             Configurations.FILE_CODE_ATM = configVarList.getFile_code_atm();
             Configurations.FAIL_STATUS = configVarList.getFail_status();
+            Configurations.FILE_CODE_MASTERCARD_T67 = configVarList.getFILE_CODE_MASTERCARD_T67();
+            Configurations.FILE_CODE_DCF = configVarList.getFILE_CODE_DCF();
 
             //Letter
             Configurations.CARD_CATEGORY_SUPPLEMENTORY = configVarList.getCard_category_supplementory();

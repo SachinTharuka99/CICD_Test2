@@ -23,7 +23,11 @@ import org.springframework.scheduling.concurrent.ThreadPoolTaskExecutor;
 import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
+import java.util.LinkedList;
 import java.util.List;
+import java.util.Queue;
+import java.util.concurrent.ArrayBlockingQueue;
+import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.atomic.AtomicInteger;
 
 
@@ -44,7 +48,9 @@ public class AdjustmentConnector extends ProcessBuilder {
     LogManager logManager;
 
     public AtomicInteger ADJUSTMENT_SEQUENCE_NO = new AtomicInteger(0);
-    public AtomicInteger faileCardCount = new AtomicInteger(0);
+    int capacity = 200000;
+    BlockingQueue<Integer> failCount = new ArrayBlockingQueue<>(capacity);
+    BlockingQueue<Integer> successCount = new ArrayBlockingQueue<>(capacity);
 
     @Override
     public void concreteProcess() throws Exception {
@@ -60,7 +66,7 @@ public class AdjustmentConnector extends ProcessBuilder {
             Configurations.PROCESS_TOTAL_NOOF_TRABSACTIONS = adjustmentList.size();
 
             adjustmentList.forEach(adjustmentBean -> {
-                adjustmentService.proceedAdjustment(adjustmentBean, ADJUSTMENT_SEQUENCE_NO, faileCardCount);
+                adjustmentService.proceedAdjustment(adjustmentBean, ADJUSTMENT_SEQUENCE_NO,successCount,failCount);
             });
 
             //wait till all the threads are completed
@@ -86,7 +92,7 @@ public class AdjustmentConnector extends ProcessBuilder {
     public void addSummaries() {
         summery.put("Started Date", Configurations.EOD_DATE.toString());
         summery.put("No of Card effected", Integer.toString(Configurations.PROCESS_TOTAL_NOOF_TRABSACTIONS));
-        summery.put("No of Success Card ", Integer.toString(Configurations.PROCESS_TOTAL_NOOF_TRABSACTIONS - faileCardCount.get()));
-        summery.put("No of fail Card ", Integer.toString(faileCardCount.get()));
+        summery.put("No of Success Card ", Integer.toString(successCount.size()));
+        summery.put("No of fail Card ", Integer.toString(failCount.size()));
     }
 }

@@ -18,6 +18,7 @@ import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.LinkedHashMap;
+import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.atomic.AtomicInteger;
 
 
@@ -38,7 +39,7 @@ public class AdjustmentService {
 
     @Async("ThreadPool_100")
     @Transactional(value = "transactionManager", propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
-    public void proceedAdjustment(AdjustmentBean adjustmentBean, AtomicInteger ADJUSTMENT_SEQUENCE_NO, AtomicInteger faileCardCount) {
+    public void proceedAdjustment(AdjustmentBean adjustmentBean, AtomicInteger ADJUSTMENT_SEQUENCE_NO, BlockingQueue<Integer> successCount, BlockingQueue<Integer> failCount) {
         if (!Configurations.isInterrupted) {
             LinkedHashMap details = new LinkedHashMap();
             PaymentBean pb = new PaymentBean();
@@ -100,9 +101,10 @@ public class AdjustmentService {
 
                 details.put("Adjustment Sync Status", "Passed");
                 ADJUSTMENT_SEQUENCE_NO.set(ADJUSTMENT_SEQUENCE_NO.getAndIncrement());
+                successCount.add(1);
 
             } catch (Exception ex) {
-                faileCardCount.addAndGet(1);
+                failCount.add(1);
                 Configurations.errorCardList.add(new ErrorCardBean(Configurations.ERROR_EOD_ID, Configurations.EOD_DATE, new StringBuffer(adjustmentBean.getCardNumber()), ex.getMessage(), Configurations.RUNNING_PROCESS_ID, Configurations.RUNNING_PROCESS_DESCRIPTION, 0, CardAccount.CARD));
                 details.put("Adjustment Sync Status", "Failed");
                 logError.error("ADJUSTMENT_PROCESS failed for card number " + maskedCardNumber, ex);

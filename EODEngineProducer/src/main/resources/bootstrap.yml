@@ -5,5 +5,5 @@ spring:
         - http://localhost:8888
 
   profiles:
-    active: db,query,status
+    active: db,query,status,qa
     #active: db,query,status,qa

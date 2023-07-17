@@ -1193,7 +1193,6 @@ public class CommonRepo implements CommonDao {
             filePath = backendJdbcTemplate.queryForObject(query, String.class, fileCode);
 
         } catch (Exception e) {
-            //logManager.logError(e,errorLoggerCOM);
             throw e;
         }
         return filePath;

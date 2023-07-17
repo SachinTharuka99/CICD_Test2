@@ -31,20 +31,4 @@ public class ConsumerService {
         System.out.println("Complete Merchant GLSummary File Process");
     }
 
-    @KafkaListener(topics = "merchantStatementGeneration", groupId = "group_merchantStatementGeneration")
-    public void merchantLocationFileGeneration(String uniqueID) throws Exception {
-        Configurations.eodUniqueId = uniqueID;
-        System.out.println("Start Merchant Location File Gen Process");
-        merchantLocationStatementConnector.startProcess(Configurations.PROCESS_MERCHANT_STATEMENT_FILE_CREATION, uniqueID);
-        System.out.println("Complete Merchant Location File Gen Process");
-    }
-
-    @KafkaListener(topics = "merchantCustomerStatementGeneration", groupId = "group_merchantCustomerStatementGeneration")
-    public void merchantCustomerFileGeneration(String uniqueID) throws Exception {
-        Configurations.eodUniqueId = uniqueID;
-        System.out.println("Start Merchant Customer File Gen Process");
-        merchantCustomerStatementConnector.startProcess(Configurations.PROCESS_MERCHANT_CUSTOMER_STATEMENT_FILE_CREATION, uniqueID);
-        System.out.println("Complete Merchant Customer File Gen Process");
-    }
-
 }
