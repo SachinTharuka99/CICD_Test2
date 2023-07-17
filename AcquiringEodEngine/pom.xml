@@ -18,12 +18,11 @@
         <module>CommissionCalculationProcess</module>
         <module>AcquiringAdjustmentProcess</module>
         <module>PreMerchantFeeProcess</module>
-        <module>MerchantPaymentFileProcess</module>
         <module>OriginatorPushTxnUpdateProcess</module>
         <module>MerchantCustomerStatementProcess</module>
         <module>RecipientPushTxnUpdateProcess</module>
         <module>MerchantStatementProcess</module>
-
+        <module>EodParameterResetProcess</module>
     </modules>
     <artifactId>AcquiringEodEngine</artifactId>
 

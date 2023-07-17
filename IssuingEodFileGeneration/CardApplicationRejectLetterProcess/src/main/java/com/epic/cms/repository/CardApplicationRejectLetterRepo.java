@@ -24,9 +24,6 @@ import java.util.ArrayList;
 public class CardApplicationRejectLetterRepo implements CardApplicationRejectLetterDao {
 
     @Autowired
-    QueryParametersList queryParametersList;
-
-    @Autowired
     StatusVarList statusVarList;
 
     @Autowired

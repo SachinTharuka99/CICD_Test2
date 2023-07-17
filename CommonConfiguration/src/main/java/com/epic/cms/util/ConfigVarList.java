@@ -1072,6 +1072,15 @@ public class ConfigVarList {
     @Value("${process_stamp_duty_fee}")
     public int process_stamp_duty_fee;
 
+    @Value("${merchant_pay_mode_direct}")
+    public String MERCHANT_PAY_MODE_DIRECT;
+
+    @Value("${merchant_pay_mode_cheque}")
+    public String MERCHANT_PAY_MODE_CHEQUE;
+
+    @Value("${merchant_pay_mode_slips}")
+    public String MERCHANT_PAY_MODE_SLIPS;
+
     @Value("${process_merchant_gl_file_process}")
     public int process_merchant_gl_file_process;
 

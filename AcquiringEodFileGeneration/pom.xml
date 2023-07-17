@@ -15,6 +15,8 @@
         <module>MerchantLocationStatementGenerationProcess</module>
         <module>MerchantCustomerStatementGenerationProcess</module>
         <module>OutgoingIPMFileGenProcess</module>
+        <module>MerchantPaymentFileProcess</module>
+        <module>OutgoingCUPFileGeneration</module>
     </modules>
     <artifactId>AcquiringEodFileGeneration</artifactId>
 

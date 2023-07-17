@@ -12,7 +12,7 @@ import com.epic.cms.util.CommonMethods;
 import com.epic.cms.util.Configurations;
 import com.epic.cms.util.LogManager;
 import com.epic.cms.util.StatusVarList;
-
+import lombok.extern.slf4j.Slf4j;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -50,7 +50,6 @@ public class AcqTxnUpdateConnector extends ProcessBuilder {
     private static final Logger logError = LoggerFactory.getLogger("logError");
 
     public List<ErrorMerchantBean> merchantErrorList = new ArrayList<ErrorMerchantBean>();
-    public int configProcess = Configurations.PROCESS_ID_ACQUIRING_TXN_UPDATE_PROCESS;
     public String processHeader = "ACQUIRING_TXN_UPDATE_PROCESS";
     HashMap<Integer, ArrayList<EodTransactionBean>> txnMap;
     ArrayList<EodTransactionBean> txnList;
@@ -89,44 +88,18 @@ public class AcqTxnUpdateConnector extends ProcessBuilder {
                     txnList = entrySet.getValue();
                     Configurations.PROCESS_TOTAL_NOOF_TRABSACTIONS += txnList.size();
 
-
                     if (txnList != null && txnList.size() > 0) {
                         for (EodTransactionBean eodTransactionBean : txnList) {
                             acqTxnUpdateService.processAcqTxnUpdate(key, eodTransactionBean, visaTxnFields, fuelMccList);
                         }
                     }
-                    //wait till all the threads are completed
-                    while (!(taskExecutor.getActiveCount() == 0)) {
-                        Thread.sleep(1000);
-                    }
                 }
 
-                totalTxnCount = Configurations.totalTxnCount_AcqTxnUpdateProcess;
-                issFailedTxn = Configurations.failedTxnCount_AcqTxnUpdateProcess;
-                acqFailedMerchants = Configurations.acqFailedMerchantCount_AcqTxnUpdateProcess;
-                onusTxnCount = Configurations.onusTxnCount_AcqTxnUpdateProcess;
+                //wait till all the threads are completed
+                while (!(taskExecutor.getActiveCount() == 0)) {
+                    Thread.sleep(1000);
+                }
 
-                //***********************************************IMPORTANT ***********************************************
-                //Set card product for sync txn in eodmerchanttxn table
-                this.setCardProduct();
-                Configurations.PROCESS_TOTAL_NOOF_TRABSACTIONS = totalTxnCount;
-                Configurations.PROCESS_SUCCESS_COUNT = (totalTxnCount - (issFailedTxn + acqFailedMerchants));
-                Configurations.PROCESS_FAILD_COUNT = (issFailedTxn + acqFailedMerchants);
-
-                if (issFailedTxn > 0) {
-                    //CommonMethods.insertFailedEODCards(cardErrorList, conComitTrue, processHeader);
-//                    commonRepo.updateEodProcessSummery(Configurations.ERROR_EOD_ID, status.getERROR_STATUS(), Configurations.PROCESS_ID_ACQUIRING_TXN_UPDATE_PROCESS, Configurations.PROCESS_SUCCESS_COUNT, Configurations.PROCESS_FAILD_COUNT, CommonMethods.eodDashboardProcessProgress(Configurations.PROCESS_SUCCESS_COUNT, Configurations.PROCESS_TOTAL_NOOF_TRABSACTIONS));
-                    //logInfo.info(logManager.logStartEnd(processHeader + "  completed with errors in card level"));
-                }
-                if (acqFailedMerchants > 0) {
-                    //CommonMethods.insertFailedEODMerchants(merchantErrorList, conComitTrue, processHeader);
-//                    commonRepo.updateEodProcessSummery(Configurations.ERROR_EOD_ID, status.getERROR_STATUS(), Configurations.PROCESS_ID_ACQUIRING_TXN_UPDATE_PROCESS, Configurations.PROCESS_SUCCESS_COUNT, Configurations.PROCESS_FAILD_COUNT, CommonMethods.eodDashboardProcessProgress(Configurations.PROCESS_SUCCESS_COUNT, Configurations.PROCESS_TOTAL_NOOF_TRABSACTIONS));
-                    //logInfo.info(logManager.logStartEnd(processHeader + "  completed with errors in merchant level"));
-                }
-                if (issFailedTxn == 0 && acqFailedMerchants == 0) {
-//                    commonRepo.updateEodProcessSummery(Configurations.ERROR_EOD_ID, status.getSUCCES_STATUS(), Configurations.PROCESS_ID_ACQUIRING_TXN_UPDATE_PROCESS, Configurations.PROCESS_SUCCESS_COUNT, Configurations.PROCESS_FAILD_COUNT, CommonMethods.eodDashboardProcessProgress(Configurations.PROCESS_SUCCESS_COUNT, Configurations.PROCESS_TOTAL_NOOF_TRABSACTIONS));
-                    //logInfo.info(logManager.logStartEnd(processHeader + "completed without errors"));
-                }
             }
         }catch (Exception e){
             try {
@@ -163,31 +136,31 @@ public class AcqTxnUpdateConnector extends ProcessBuilder {
     @Override
     public void addSummaries() {
         summery.put("Started Date", Configurations.EOD_DATE.toString());
-        summery.put("No of OnUsTxn effected", Integer.toString(onusTxnCount));
+        summery.put("No of OnUsTxn effected", Configurations.onusTxnCount_AcqTxnUpdateProcess);
         summery.put("No of Success OnUsTxn ", Integer.toString(onusTxnCount - issFailedTxn));
-        summery.put("No of fail OnUsTxn ", Integer.toString(issFailedTxn));
-        summery.put("No of Total Txn", Integer.toString(totalTxnCount));
-        summery.put("No of Total failed Txn ", Integer.toString(issFailedTxn + acqFailedMerchants));
+        summery.put("No of fail OnUsTxn ", Configurations.failedTxnCount_AcqTxnUpdateProcess);
+        summery.put("No of Total Txn", Configurations.totalTxnCount_AcqTxnUpdateProcess);
+        summery.put("No of Total failed Txn ", Configurations.failedTxnCount_AcqTxnUpdateProcess);
 
     }
 
 
-    private void setCardProduct() {
-        try {
-            //acqBackendDbConn.setCardProductToEodMerTxn();
-            //con.commit();
-        } catch (Exception e) {
-            try {
-                //con.rollback();
-            } catch (Exception ex) {
-                /*try {
-                    //WebComHandler.showOnWeb(CommonMethods.eodDashboardProcessInfoStyle(ex.getMessage()));
-                    errorLogger.error(String.valueOf(ex));
-                } catch (IOException ex1) {
-                    Logger.getLogger(OnusAcqTxnUpdateProcess.class.getName()).log(Level.SEVERE, null, ex1);
-                }*/
-            }
-
-        }
-    }
+//    private void setCardProduct() {
+//        try {
+//            //acqBackendDbConn.setCardProductToEodMerTxn();
+//            //con.commit();
+//        } catch (Exception e) {
+//            try {
+//                //con.rollback();
+//            } catch (Exception ex) {
+//                /*try {
+//                    //WebComHandler.showOnWeb(CommonMethods.eodDashboardProcessInfoStyle(ex.getMessage()));
+//                    errorLogger.error(String.valueOf(ex));
+//                } catch (IOException ex1) {
+//                    Logger.getLogger(OnusAcqTxnUpdateProcess.class.getName()).log(Level.SEVERE, null, ex1);
+//                }*/
+//            }
+//
+//        }
+//    }
 }

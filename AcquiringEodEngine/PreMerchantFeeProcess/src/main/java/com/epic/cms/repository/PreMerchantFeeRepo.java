@@ -42,8 +42,8 @@ public class PreMerchantFeeRepo implements PreMerchantFeeDao {
         HashMap<String, List<String>> feeProfileFeeCodeMap = new HashMap<>();
 
         try {
-            backendJdbcTemplate.query(query
-                    , (ResultSet rs) -> {
+            backendJdbcTemplate.query(query,
+                    (ResultSet rs) -> {
                         int count = 0;
                         String previousFeeProfileCode = "";
                         List<String> feeCodeList = null;
@@ -83,9 +83,6 @@ public class PreMerchantFeeRepo implements PreMerchantFeeDao {
                     }
             );
 
-//            if (!previousFeeProfileCode.isEmpty()) { // adding the last element. but not if sql result is empty
-//                feeProfileFeeCodeMap.put(previousFeeProfileCode, feeCodeList);
-//            }
             return feeProfileFeeCodeMap;
         } catch (Exception e) {
             throw e;
@@ -96,12 +93,7 @@ public class PreMerchantFeeRepo implements PreMerchantFeeDao {
     public ArrayList<MerchantBeanForFee> getMerchantListForFeeProcess() throws Exception {
         ArrayList<MerchantBeanForFee> merchantBeanList = new ArrayList<>();
 
-        String query = "SELECT ML.MERCHANTID,ML.FEEPROFILE,ML.NEXTANNIVERSARYDATE AS M_NEXTANNIVERSARYDATE,T.TERMINALID,T.TERMINALTYPE,T.TERMINALSTATUS, "
-                + "T.NEXTANNIVERSARYDATE AS T_NEXTANNIVERSARYDATE,T.NEXTRENTALDATE AS T_NEXTRENTALDATE,ML.MERCHANTCUSTOMERNO,"
-                + "ML.NEXTBIMONTHLYDATE AS M_NEXTBIMONTHLYDATE,ML.NEXTQUARTERLYDATE AS M_NEXTQUARTERLYDATE,"
-                + "ML.NEXTHALFYEARLYDATE AS M_NEXTHALFYEARLYDATE,T.NEXTBIMONTHLYDATE AS T_NEXTBIMONTHLYDATE,T.NEXTQUARTERLYDATE AS T_NEXTQUARTERLYDATE,"
-                + "T.NEXTHALFYEARLYDATE AS T_NEXTHALFYEARLYDATE,T.NEXTWEEKLYDATE AS T_NEXTWEEKLYDATE FROM  "
-                + " MERCHANTLOCATION ML LEFT JOIN TERMINAL T ON T.MERCHANTID=ML.MERCHANTID WHERE ML.STATUS NOT IN(?,?) and ml.merchantid = 000000000002003 ";
+        String query = "SELECT ML.MERCHANTID,ML.FEEPROFILE,ML.NEXTANNIVERSARYDATE AS M_NEXTANNIVERSARYDATE,T.TERMINALID,T.TERMINALTYPE,T.TERMINALSTATUS, T.NEXTANNIVERSARYDATE AS T_NEXTANNIVERSARYDATE,T.NEXTRENTALDATE AS T_NEXTRENTALDATE,ML.MERCHANTCUSTOMERNO,ML.NEXTBIMONTHLYDATE AS M_NEXTBIMONTHLYDATE,ML.NEXTQUARTERLYDATE AS M_NEXTQUARTERLYDATE,ML.NEXTHALFYEARLYDATE AS M_NEXTHALFYEARLYDATE,T.NEXTBIMONTHLYDATE AS T_NEXTBIMONTHLYDATE,T.NEXTQUARTERLYDATE AS T_NEXTQUARTERLYDATE,T.NEXTHALFYEARLYDATE AS T_NEXTHALFYEARLYDATE,T.NEXTWEEKLYDATE AS T_NEXTWEEKLYDATE FROM   MERCHANTLOCATION ML LEFT JOIN TERMINAL T ON T.MERCHANTID=ML.MERCHANTID WHERE ML.STATUS NOT IN(?,?)  ";
 
         if (Configurations.STARTING_EOD_STATUS.equals(status.getINITIAL_STATUS())) {
             query += " AND ML.MERCHANTID NOT IN (SELECT EM.MID FROM EODERRORMERCHANT EM WHERE EM.STATUS='" + status.getEOD_PENDING_STATUS() + "') ORDER BY ML.MERCHANTID";

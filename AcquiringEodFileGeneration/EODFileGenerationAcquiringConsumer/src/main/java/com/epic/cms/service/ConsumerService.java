@@ -1,10 +1,7 @@
 package com.epic.cms.service;
 
 
-import com.epic.cms.connector.MerchantCustomerStatementGenerationConnector;
-import com.epic.cms.connector.MerchantGLSummaryFileConnector;
-import com.epic.cms.connector.MerchantLocationStatementGenerationConnector;
-import com.epic.cms.connector.OutgoingIPMFileGenConnector;
+import com.epic.cms.connector.*;
 import com.epic.cms.util.Configurations;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.ComponentScan;
@@ -26,6 +23,9 @@ public class ConsumerService {
 
     @Autowired
     OutgoingIPMFileGenConnector outgoingIPMFileGenConnector;
+
+    @Autowired
+    OutgoingCUPFileConnector outgoingCUPFileConnector;
 
     @KafkaListener(topics = "merchantGLSummaryFile", groupId = "group_merchantGLSummaryFile")
     public void merchantGLSummaryConsumer(String uniqueID) throws Exception {
@@ -59,4 +59,11 @@ public class ConsumerService {
         System.out.println("Complete outgoing IPM File Gen Process");
     }
 
+    @KafkaListener(topics = "outgoingCupFile", groupId = "group_outgoingCupFile")
+    public void outgoingCUPFileGeneration(String uniqueID) throws Exception {
+        Configurations.eodUniqueId = uniqueID;
+        System.out.println("Start Outgoing CUP File Gen Process");
+        outgoingCUPFileConnector.startProcess(Configurations.PROCESS_ID_OUTGOING_CUP_FILE_GEN, uniqueID);
+        System.out.println("Complete Outgoing CUP File Gen Process");
+    }
 }

@@ -22,12 +22,6 @@ public class ConsumerService {
     AcquiringAdjustmentConnector acquiringAdjustmentConnector;
 
     @Autowired
-    MerchantPaymentFileConnector merchantPaymentFileConnector;
-
-    @Autowired
-    MerchantGLSummaryFileConnector merchantGLSummaryFileConnector;
-
-    @Autowired
     MerchantFeeConnector merchantFeeConnector;
 
     @Autowired
@@ -38,6 +32,9 @@ public class ConsumerService {
 
     @Autowired
     MerchantCommissionCalculationConnector commissionCalculationConnector;
+
+    @Autowired
+    EodParameterResetConnector eodParameterResetConnector;
 
     @Autowired
     MerchantCustomerStatementConnector merchantCustomerStatementConnector;
@@ -75,22 +72,6 @@ public class ConsumerService {
         System.out.println("Complete AcquiringAdjustment Process");
     }
 
-    @KafkaListener(topics = "MerchantPaymentFile", groupId = "group_MerchantPaymentFile")
-    public void MerchantPaymentFileConsumer(String uniqueID) throws Exception {
-        Configurations.eodUniqueId = uniqueID;
-        System.out.println("Start MerchantPaymentFile Process");
-        merchantPaymentFileConnector.startProcess(Configurations.PROCESS_ID_MERCHANT_PAYMENT_FILE_CREATION, uniqueID);
-        System.out.println("Complete MerchantPaymentFile Process");
-    }
-
-    @KafkaListener(topics = "MerchantGLSummaryFile", groupId = "group_MerchantGLSummaryFile")
-    public void MerchantGLSummaryFileConsumer(String uniqueID) throws Exception {
-        Configurations.eodUniqueId = uniqueID;
-        System.out.println("Start MerchantGLSummaryFile Process");
-        merchantGLSummaryFileConnector.startProcess(Configurations.PROCESS_ID_MERCHANT_GL_FILE_CREATION, uniqueID);
-        System.out.println("Complete MerchantGLSummaryFile Process");
-    }
-
     @KafkaListener(topics = "merchantFee", groupId = "group_merchantFee")
     public void merchantFeeConsumer(String uniqueID) throws Exception {
         Configurations.eodUniqueId = uniqueID;
@@ -119,6 +100,14 @@ public class ConsumerService {
         System.out.println("Start MerchantCommissionCalculation Process");
         commissionCalculationConnector.startProcess(Configurations.PROCESS_ID_COMMISSION_CALCULATION, uniqueID);
         System.out.println("Complete MerchantCommissionCalculation Process");
+    }
+
+    @KafkaListener(topics = "eodParameterReset", groupId = "group_eodParameterReset")
+    public void eodParameterResetConsumer(String uniqueID) throws Exception {
+        Configurations.eodUniqueId = uniqueID;
+        System.out.println("Start EOD Parameter Reset Process");
+        eodParameterResetConnector.startProcess(Configurations.PROCESS_ID_EOD_PARAMETER_RESET, uniqueID);
+        System.out.println("Complete EOD Parameter Reset Process");
     }
 
     @KafkaListener(topics = "merchantCustomerStatement", groupId = "group_merchantCustomerStatement")

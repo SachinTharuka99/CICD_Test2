@@ -55,7 +55,7 @@ public class AcqTxnUpdateService {
     public void processAcqTxnUpdate(Integer key, EodTransactionBean eodTransactionBean, HashMap<String, String> visaTxnFields, List<String> fuelMccList) throws Exception {
         if (!Configurations.isInterrupted) {
             LinkedHashMap details = new LinkedHashMap();
-            LinkedHashMap summery = new LinkedHashMap();
+//            LinkedHashMap summery = new LinkedHashMap();
             ProcessBean processBean = null;
             int issFailedTxn = 0;
             int acqFailedMerchants = 0;
@@ -187,7 +187,6 @@ public class AcqTxnUpdateService {
                             }
                         }
 
-
                     } catch (Exception e) {
 
                         //logInfo.info(logManager.logStartEnd(processHeader + " Completely  failed"));
@@ -196,6 +195,24 @@ public class AcqTxnUpdateService {
                     //logInfo.info(logManager.logDetails(details));
                     details.clear();
                 }
+                //***********************************************IMPORTANT ***********************************************
+                //Set card product for sync txn in eodmerchanttxn tabl
+
+                if (issFailedTxn > 0) {
+                    //CommonMethods.insertFailedEODCards(cardErrorList, conComitTrue, processHeader);
+//                    commonRepo.updateEodProcessSummery(Configurations.ERROR_EOD_ID, status.getERROR_STATUS(), Configurations.PROCESS_ID_ACQUIRING_TXN_UPDATE_PROCESS, Configurations.PROCESS_SUCCESS_COUNT, Configurations.PROCESS_FAILD_COUNT, CommonMethods.eodDashboardProcessProgress(Configurations.PROCESS_SUCCESS_COUNT, Configurations.PROCESS_TOTAL_NOOF_TRABSACTIONS));
+                    logInfo.info(logManager.logStartEnd(processHeader + "  completed with errors in card level"));
+                }
+                if (acqFailedMerchants > 0) {
+                    //CommonMethods.insertFailedEODMerchants(merchantErrorList, conComitTrue, processHeader);
+//                    commonRepo.updateEodProcessSummery(Configurations.ERROR_EOD_ID, status.getERROR_STATUS(), Configurations.PROCESS_ID_ACQUIRING_TXN_UPDATE_PROCESS, Configurations.PROCESS_SUCCESS_COUNT, Configurations.PROCESS_FAILD_COUNT, CommonMethods.eodDashboardProcessProgress(Configurations.PROCESS_SUCCESS_COUNT, Configurations.PROCESS_TOTAL_NOOF_TRABSACTIONS));
+                    logInfo.info(logManager.logStartEnd(processHeader + "  completed with errors in merchant level"));
+                }
+                if (issFailedTxn == 0 && acqFailedMerchants == 0) {
+//                    commonRepo.updateEodProcessSummery(Configurations.ERROR_EOD_ID, status.getSUCCES_STATUS(), Configurations.PROCESS_ID_ACQUIRING_TXN_UPDATE_PROCESS, Configurations.PROCESS_SUCCESS_COUNT, Configurations.PROCESS_FAILD_COUNT, CommonMethods.eodDashboardProcessProgress(Configurations.PROCESS_SUCCESS_COUNT, Configurations.PROCESS_TOTAL_NOOF_TRABSACTIONS));
+                    logInfo.info(logManager.logStartEnd(processHeader + "completed without errors"));
+                }
+
                 Configurations.totalTxnCount_AcqTxnUpdateProcess = totalTxnCount;
                 Configurations.failedTxnCount_AcqTxnUpdateProcess = issFailedTxn;
                 Configurations.acqFailedMerchantCount_AcqTxnUpdateProcess = acqFailedMerchants;

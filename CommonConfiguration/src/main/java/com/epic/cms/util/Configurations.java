@@ -142,7 +142,7 @@ public class Configurations {
 
 
     public static String SERVER_RUN_PLATFORM;
-    public static int PROCESS_ID_EOD_PARAMETER_RESET;
+    public static int PROCESS_ID_EOD_PARAMETER_RESET; //211
     public static boolean COMMIT_STATUS;
     public static boolean FLOW_STEP_COMPLETE_STATUS;
     public static boolean PROCESS_FLOW_STEP_COMPLETE_STATUS;
@@ -575,7 +575,7 @@ public class Configurations {
     public static String VISA_ACQ_BIN;
 
     // outgoing statement file (UPI) generation
-    public static int PROCESS_ID_OUTGOING_CUP_FILE_GEN;
+    public static int PROCESS_ID_OUTGOING_CUP_FILE_GEN;     //222
 
     public static int PROCESS_ID_OUTGOING_IPM_FILE_GEN;
     public static long MASTER_OUT_SEQUENCE_NUMBER = 0;
