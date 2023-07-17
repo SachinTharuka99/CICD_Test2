@@ -8,6 +8,7 @@
 package com.epic.cms.connector;
 
 import com.epic.cms.common.ProcessBuilder;
+import com.epic.cms.model.bean.CardBean;
 import com.epic.cms.model.bean.OtbBean;
 import com.epic.cms.repository.CommonRepo;
 import com.epic.cms.repository.KnockOffRepo;
@@ -25,6 +26,7 @@ import org.springframework.scheduling.concurrent.ThreadPoolTaskExecutor;
 import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
+import java.util.concurrent.atomic.AtomicInteger;
 
 
 @Service
@@ -32,6 +34,7 @@ public class KnockOffConnector extends ProcessBuilder {
 
     private static final Logger logInfo = LoggerFactory.getLogger("logInfo");
     private static final Logger logError = LoggerFactory.getLogger("logError");
+    public AtomicInteger faileCardCount = new AtomicInteger(0);
     @Autowired
     LogManager logManager;
     @Autowired
@@ -64,19 +67,22 @@ public class KnockOffConnector extends ProcessBuilder {
                 CommonMethods.eodDashboardProgressParametersReset();
                 summery.put("Accounts eligible for knock off process: ", custAccList.size());
 
-                for (OtbBean custAccBean : custAccList) {
-                    knockOffService.knockOff(custAccBean, cardList, paymentList);
-                }
+//                for (OtbBean custAccBean : custAccList) {
+//                    knockOffService.knockOff(custAccBean, cardList, paymentList);
+//                }
 
+                custAccList.forEach(custAccBean -> {
+                    knockOffService.knockOff(custAccBean, cardList, paymentList,faileCardCount);
+                });
                 //wait till all the threads are completed
                 while (!(taskExecutor.getActiveCount() == 0)) {
                     Thread.sleep(1000);
                 }
 
-                failedCount = Configurations.PROCESS_FAILD_COUNT;
+//                failedCount = Configurations.PROCESS_FAILD_COUNT;
                 Configurations.PROCESS_TOTAL_NOOF_TRABSACTIONS = (custAccList.size());
-                Configurations.PROCESS_SUCCESS_COUNT = (custAccList.size() - failedCount);
-                Configurations.PROCESS_FAILD_COUNT = (failedCount);
+//                Configurations.PROCESS_SUCCESS_COUNT = (custAccList.size() - failedCount);
+//                Configurations.PROCESS_FAILD_COUNT = (failedCount);
 
             } else {
                 summery.put("Accounts eligible for fee posting process ", 0 + "");
@@ -85,7 +91,7 @@ public class KnockOffConnector extends ProcessBuilder {
             Configurations.IS_PROCESS_COMPLETELY_FAILED = true;
             logError.error("Knock Off process Error", e);
         } finally {
-            logInfo.info(logManager.logSummery(summery));
+            //logInfo.info(logManager.logSummery(summery));
             try {
                 if (custAccList != null && custAccList.size() != 0) {
                     for (OtbBean custAccBean : custAccList) {
@@ -117,7 +123,7 @@ public class KnockOffConnector extends ProcessBuilder {
     @Override
     public void addSummaries() {
         summery.put("Number of transaction to sync", Configurations.PROCESS_TOTAL_NOOF_TRABSACTIONS);
-        summery.put("Number of success transaction", Configurations.PROCESS_SUCCESS_COUNT);
-        summery.put("Number of failure transaction", Configurations.PROCESS_FAILD_COUNT);
+        summery.put("Number of success transaction", Configurations.PROCESS_TOTAL_NOOF_TRABSACTIONS - faileCardCount.get());
+        summery.put("Number of failure transaction", faileCardCount.get());
     }
 }

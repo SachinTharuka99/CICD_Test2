@@ -44,8 +44,8 @@ public class InstallmentPaymentRepo implements InstallmentPaymentDao {
         SimpleDateFormat sdf = new SimpleDateFormat("dd-MMM-yy");
         List<ManualNpRequestBean> manualNpRequestList = new ArrayList<>();
         try {
-            String query = "SELECT REQUESTID, ACCOUNTNO, ACCSTATUS, MAINCARDNUMBER, NDIA, REQUESTTYPE, STATUS FROM MANUALNPREQUEST WHERE REQUESTTYPE = ? AND STATUS = ? AND TRUNC(CREATEDTIME) <= TO_DATE(?,'DD-MM-YY')";
-            manualNpRequestList = backendJdbcTemplate.query(query, new ManualNpRequestRowMapper(), reqType, status, sdf.format(Configurations.EOD_DATE));
+            //String query = "SELECT REQUESTID, ACCOUNTNO, ACCSTATUS, MAINCARDNUMBER, NDIA, REQUESTTYPE, STATUS FROM MANUALNPREQUEST WHERE REQUESTTYPE = ? AND STATUS = ? AND TRUNC(CREATEDTIME) <= TO_DATE(?,'DD-MM-YY')";
+            manualNpRequestList = backendJdbcTemplate.query(queryParametersList.getInstallmentPayment_getManualNpRequestDetails(), new ManualNpRequestRowMapper(), reqType, status, sdf.format(Configurations.EOD_DATE));
 
         } catch (Exception e) {
             throw e;
@@ -70,11 +70,16 @@ public class InstallmentPaymentRepo implements InstallmentPaymentDao {
     public List<DelinquentAccountBean> getDelinquentAccounts() throws Exception {
         List<DelinquentAccountBean> delinquentCardList = new ArrayList<>();
         try {
-            String query = "SELECT DL.* FROM DELINQUENTACCOUNT DL,CARD C WHERE C.CARDNUMBER=DL.CARDNUMBER AND DL.DELINQSTATUS NOT IN (?,?) AND C.CARDSTATUS <>? AND LASTUPDATEDEODID <> ? ";// Test Script AND DL.ACCOUNTNO = '212130002646'
+            //String query = "SELECT DL.* FROM DELINQUENTACCOUNT DL,CARD C WHERE C.CARDNUMBER=DL.CARDNUMBER AND DL.DELINQSTATUS NOT IN (?,?) AND C.CARDSTATUS <>? AND LASTUPDATEDEODID <> ?";// Test Script AND DL.ACCOUNTNO = '212130002646'
+            String query = queryParametersList.getInstallmentPayment_getDelinquentAccounts();
+
             if (Configurations.STARTING_EOD_STATUS.equals(statusList.getINITIAL_STATUS())) {
-                query += " AND DL.ACCOUNTNO NOT IN (SELECT EC.ACCOUNTNO FROM EODERRORCARDS EC WHERE EC.STATUS= ?)";
+               // query += "AND DL.ACCOUNTNO NOT IN (SELECT EC.ACCOUNTNO FROM EODERRORCARDS EC WHERE EC.STATUS= ?)";
+                query += queryParametersList.getInstallmentPayment_getDelinquentAccounts_Appender1();
+
             } else if (Configurations.STARTING_EOD_STATUS.equals(statusList.getERROR_STATUS())) {
-                query += " AND DL.ACCOUNTNO IN (SELECT EC.ACCOUNTNO FROM EODERRORCARDS EC WHERE EC.STATUS= ? AND EODID < ? AND PROCESSSTEPID <= ?)";
+                //query += "AND DL.ACCOUNTNO IN (SELECT EC.ACCOUNTNO FROM EODERRORCARDS EC WHERE EC.STATUS= ? AND EODID < ? AND PROCESSSTEPID <= ?)";
+                query += queryParametersList.getInstallmentPayment_getDelinquentAccounts_Appender2();
             }
             Object[] param = null;
             if (Configurations.STARTING_EOD_STATUS.equals(statusList.getINITIAL_STATUS())) {
@@ -95,8 +100,9 @@ public class InstallmentPaymentRepo implements InstallmentPaymentDao {
         double payment = 0;
         boolean isPaymentOnCurrentDay = false;
         try {
-            String query = "SELECT NVL(SUM(TRANSACTIONAMOUNT),0) AS TOTAL FROM EODTRANSACTION WHERE ACCOUNTNO = ? AND TRANSACTIONTYPE IN (?,?,?,?) AND SETTLEMENTDATE = TO_DATE(?, 'DD-MM-YY') AND STATUS NOT IN (?)";
-            payment = backendJdbcTemplate.queryForObject(query, Double.class, accNo, Configurations.TXN_TYPE_PAYMENT, Configurations.TXN_TYPE_REVERSAL, Configurations.TXN_TYPE_REFUND, Configurations.TXN_TYPE_MVISA_REFUND, sdf.format(eodDate), statusList.getCHEQUE_RETURN_STATUS());
+            //String query = "SELECT NVL(SUM(TRANSACTIONAMOUNT),0) AS TOTAL FROM EODTRANSACTION WHERE ACCOUNTNO = ? AND TRANSACTIONTYPE IN (?,?,?,?) AND SETTLEMENTDATE = TO_DATE(?, 'DD-MM-YY') AND STATUS NOT IN (?)";
+
+            payment = backendJdbcTemplate.queryForObject(queryParametersList.getInstallmentPayment_checkForPayment(), Double.class, accNo, Configurations.TXN_TYPE_PAYMENT, Configurations.TXN_TYPE_REVERSAL, Configurations.TXN_TYPE_REFUND, Configurations.TXN_TYPE_MVISA_REFUND, sdf.format(eodDate), statusList.getCHEQUE_RETURN_STATUS());
             //payment = backendJdbcTemplate.queryForObject(query, Double.class, accNo, "TTC023", "TTC003", "TTC041", "TTC048", sdf.format(eodDate), "CQRT");
 
         } catch (EmptyResultDataAccessException ex) {
@@ -111,8 +117,9 @@ public class InstallmentPaymentRepo implements InstallmentPaymentDao {
     public String[] getRiskClassOnNdia(int noOfDates) throws Exception {
         String[] newRiskClass = new String[3];
         try {
-            String query = "SELECT bucketid, minndia, maxndia FROM bucket WHERE CASE WHEN (SELECT MAX(maxndia) FROM bucket WHERE status = 'ACT') < ? THEN (SELECT MAX(bucketid) FROM bucket WHERE status = 'ACT') ELSE (SELECT bucketid FROM bucket WHERE status = 'ACT' AND minndia <= ? AND maxndia >= ?) END = bucketid";
-            backendJdbcTemplate.query(query, (ResultSet result) -> {
+           //String query = "SELECT bucketid, minndia, maxndia FROM bucket WHERE CASE WHEN (SELECT MAX(maxndia) FROM bucket WHERE status = 'ACT') < ? THEN (SELECT MAX(bucketid) FROM bucket WHERE status = 'ACT') ELSE (SELECT bucketid FROM bucket WHERE status = 'ACT' AND minndia <= ? AND maxndia >= ?) END = bucketid";
+
+            backendJdbcTemplate.query(queryParametersList.getInstallmentPayment_getRiskClassOnNdia(), (ResultSet result) -> {
                 while (result.next()) {
                     String riskClass = result.getString("BUCKETID");
                     String minNdia = result.getString("MINNDIA");
@@ -139,8 +146,8 @@ public class InstallmentPaymentRepo implements InstallmentPaymentDao {
     public String getNPRiskClass() throws Exception {
         String npRiskClass = null;
         try {
-            String query = "SELECT NVL(NONPERFORMINGRISKCLASS,'4') AS NONPERFORMINGRISKCLASS FROM COMMONCARDPARAMETER";
-            npRiskClass = backendJdbcTemplate.queryForObject(query, String.class);
+            //String query = "SELECT NVL(NONPERFORMINGRISKCLASS,'4') AS NONPERFORMINGRISKCLASS FROM COMMONCARDPARAMETER";
+            npRiskClass = backendJdbcTemplate.queryForObject(queryParametersList.getInstallmentPayment_getNPRiskClass(), String.class);
         } catch (Exception e) {
             throw e;
         }
@@ -150,9 +157,9 @@ public class InstallmentPaymentRepo implements InstallmentPaymentDao {
     @Override
     public String[] getNDIAOnRiskClass(String riskClass) throws Exception {
         String[] bucket = new String[3];
-        String query = "SELECT BUCKETID,MINNDIA,MAXNDIA FROM BUCKET WHERE BUCKETID =?";
+        //String query = "SELECT BUCKETID,MINNDIA,MAXNDIA FROM BUCKET WHERE BUCKETID =?";
         try {
-            backendJdbcTemplate.query(query, (ResultSet result) -> {
+            backendJdbcTemplate.query(queryParametersList.getInstallmentPayment_getNDIAOnRiskClass(), (ResultSet result) -> {
                         while (result.next()) {
                             bucket[0] = result.getString("BUCKETID");
                             bucket[1] = result.getString("MINNDIA");
@@ -172,8 +179,8 @@ public class InstallmentPaymentRepo implements InstallmentPaymentDao {
         SimpleDateFormat sdf = new SimpleDateFormat("dd-MMM-yy");
         double payment = 0;
         try {
-            String query = "SELECT M1 FROM MINIMUMPAYMENT WHERE CARDNO IN (SELECT CARDNUMBER FROM CARDACCOUNT WHERE ACCOUNTNO = ?)";
-            payment = backendJdbcTemplate.queryForObject(query, Double.class, accNo);
+            //String query = "SELECT M1 FROM MINIMUMPAYMENT WHERE CARDNO IN (SELECT CARDNUMBER FROM CARDACCOUNT WHERE ACCOUNTNO = ?)";
+            payment = backendJdbcTemplate.queryForObject(queryParametersList.getInstallmentPayment_checkLeastMinimumPayment(), Double.class, accNo);
         } catch (EmptyResultDataAccessException e) {
             return 0;
         } catch (Exception e) {
@@ -187,7 +194,7 @@ public class InstallmentPaymentRepo implements InstallmentPaymentDao {
         SimpleDateFormat sdf = new SimpleDateFormat("dd-MMM-yy");
         List<InstallmentBean> beanList = new ArrayList<>();
         try {
-            String query = "SELECT  B.CARDNUMBER,B.FIRSTINSTALLMENTAMOUNT,B.CURRINSTALLMENT,B.INSTALLMENTAMOUNT,B.INTERESTORFEETOTALAMOUNT,B.ACCELERATEDSTATUS,B.INTERESTORFEEAMOUNT,B.NEXTTXNDATE, B.REMAININGCOUNT,B.REQUESTID,B.RUNNINGSTATUS,B.TOTALAMOUNT,B.EFECTIVEDATE,B.STATUS,B.TXNID,B.TXNDESCRIPTION,P.DURATION,P.FEEAPPLYINFIRSTMONTH, P.FIRSTMONTHINCLUDE,P.INTERESTRATEORFEE,P.PROCESSINGFEETYPE,d.ACCOUNTNO,B.CURRENCYNUMCODE,B.TRACENO FROM " + tblName1 + " B LEFT JOIN " + tblName2 + " P ON B.PAYMENTPLAN    =P.PAYMENTPLANCODE LEFT JOIN CARDACCOUNTCUSTOMER D ON B.CARDNUMBER = D.CARDNUMBER WHERE( B.STATUS    IN(?) AND B.RUNNINGSTATUS = ? AND B.EFECTIVEDATE <= TO_DATE(?, 'DD-MM-YY')) OR (B.STATUS       IN(?) AND B.RUNNINGSTATUS = ? AND B.NEXTTXNDATE  <= TO_DATE(?, 'DD-MM-YY'))";
+            String query = "SELECT  B.CARDNUMBER,B.FIRSTINSTALLMENTAMOUNT,B.CURRINSTALLMENT,B.INSTALLMENTAMOUNT,B.INTERESTORFEETOTALAMOUNT,B.ACCELERATEDSTATUS,B.INTERESTORFEEAMOUNT,B.NEXTTXNDATE, B.REMAININGCOUNT,B.REQUESTID,B.RUNNINGSTATUS,B.TOTALAMOUNT,B.EFECTIVEDATE,B.STATUS,B.TXNID,B.TXNDESCRIPTION,P.DURATION,P.FEEAPPLYINFIRSTMONTH, P.FIRSTMONTHINCLUDE,P.INTERESTRATEORFEE,P.PROCESSINGFEETYPE,d.ACCOUNTNO,B.CURRENCYNUMCODE,B.TRACENO FROM \" + tblName1 + \" B LEFT JOIN \" + tblName2 + \" P ON B.PAYMENTPLAN    =P.PAYMENTPLANCODE LEFT JOIN CARDACCOUNTCUSTOMER D ON B.CARDNUMBER = D.CARDNUMBER WHERE( B.STATUS    IN(?) AND B.RUNNINGSTATUS = ? AND B.EFECTIVEDATE <= TO_DATE(?, 'DD-MM-YY')) OR (B.STATUS       IN(?) AND B.RUNNINGSTATUS = ? AND B.NEXTTXNDATE  <= TO_DATE(?, 'DD-MM-YY'))";
             beanList = backendJdbcTemplate.query(query, new InstallmentRowMapper(), statusList.getCOMMON_REQUEST_ACCEPTED(), 0, sdf.format(Configurations.EOD_DATE), statusList.getCOMMON_REQUEST_ACCEPTED(), 1, sdf.format(Configurations.EOD_DATE));
         } catch (Exception e) {
             throw e;
@@ -200,8 +207,8 @@ public class InstallmentPaymentRepo implements InstallmentPaymentDao {
         SimpleDateFormat sdf = new SimpleDateFormat("dd-MMM-yy");
         int count = 0;
         try {
-            String query = "INSERT INTO EODTRANSACTION (EODID,CARDNUMBER,ACCOUNTNO,TRANSACTIONAMOUNT,CURRENCYTYPE,SETTLEMENTDATE,TRANSACTIONDATE,TRANSACTIONTYPE,TRANSACTIONID,LASTUPDATEDUSER,CREATEDTIME,LASTUPDATEDTIME,STATUS,TRANSACTIONDESCRIPTION,CRDR,ONLYVISAFALSE,CARDASSOCIATION) VALUES (?,?,?,?,?,TO_DATE(?, 'DD-MM-YY'),TO_DATE(?, 'DD-MM-YY'),?,?,?,SYSDATE,SYSDATE,?,?,?,?,?)";
-            count = backendJdbcTemplate.update(query, Configurations.EOD_ID, cardNumber.toString(), accNo, txnAmount, curruncyCode, sdf.format(Configurations.EOD_DATE), sdf.format(Configurations.EOD_DATE), TXN_TYPE_SALE, txnID, Configurations.EOD_USER, statusList.getINITIAL_STATUS(), description, CrDr, object, cardAssociation);
+            //String query = "INSERT INTO EODTRANSACTION (EODID,CARDNUMBER,ACCOUNTNO,TRANSACTIONAMOUNT,CURRENCYTYPE,SETTLEMENTDATE,TRANSACTIONDATE,TRANSACTIONTYPE,TRANSACTIONID,LASTUPDATEDUSER,CREATEDTIME,LASTUPDATEDTIME,STATUS,TRANSACTIONDESCRIPTION,CRDR,ONLYVISAFALSE,CARDASSOCIATION) VALUES (?,?,?,?,?,TO_DATE(?, 'DD-MM-YY'),TO_DATE(?, 'DD-MM-YY'),?,?,?,SYSDATE,SYSDATE,?,?,?,?,?)";
+            count = backendJdbcTemplate.update(queryParametersList.getInstallmentPayment_insertInToEODTransactionOnlyVisaFalse(), Configurations.EOD_ID, cardNumber.toString(), accNo, txnAmount, curruncyCode, sdf.format(Configurations.EOD_DATE), sdf.format(Configurations.EOD_DATE), TXN_TYPE_SALE, txnID, Configurations.EOD_USER, statusList.getINITIAL_STATUS(), description, CrDr, object, cardAssociation);
         } catch (Exception e) {
             throw e;
         }
@@ -213,8 +220,8 @@ public class InstallmentPaymentRepo implements InstallmentPaymentDao {
         SimpleDateFormat sdf = new SimpleDateFormat("dd-MMM-yy");
         int count = 0;
         try {
-            String query = "INSERT INTO EODTRANSACTION (EODID,CARDNUMBER,ACCOUNTNO,TRANSACTIONAMOUNT,CURRENCYTYPE,SETTLEMENTDATE,TRANSACTIONDATE,TRANSACTIONTYPE,TRANSACTIONID,LASTUPDATEDUSER,CREATEDTIME,LASTUPDATEDTIME,STATUS,TRANSACTIONDESCRIPTION,CRDR,GLSTATUS,CARDASSOCIATION) VALUES (?,?,?,?,?,TO_DATE(?, 'DD-MM-YY'),TO_DATE(?, 'DD-MM-YY'),?,?,?,SYSDATE,SYSDATE,?,?,?,?,?)";
-            count = backendJdbcTemplate.update(query, Configurations.EOD_ID, cardnumber.toString(), accountNo, txnAmount, currencyType, sdf.format(Configurations.EOD_DATE), sdf.format(Configurations.EOD_DATE), txnType, txnId, Configurations.EOD_USER, statusList.getINITIAL_STATUS(), description, CrDr, i, cardAssociation);
+            //String query = "INSERT INTO EODTRANSACTION (EODID,CARDNUMBER,ACCOUNTNO,TRANSACTIONAMOUNT,CURRENCYTYPE,SETTLEMENTDATE,TRANSACTIONDATE,TRANSACTIONTYPE,TRANSACTIONID,LASTUPDATEDUSER,CREATEDTIME,LASTUPDATEDTIME,STATUS,TRANSACTIONDESCRIPTION,CRDR,GLSTATUS,CARDASSOCIATION) VALUES (?,?,?,?,?,TO_DATE(?, 'DD-MM-YY'),TO_DATE(?, 'DD-MM-YY'),?,?,?,SYSDATE,SYSDATE,?,?,?,?,?)";
+            count = backendJdbcTemplate.update(queryParametersList.getInstallmentPayment_insertInToEODTransactionWithoutGL(), Configurations.EOD_ID, cardnumber.toString(), accountNo, txnAmount, currencyType, sdf.format(Configurations.EOD_DATE), sdf.format(Configurations.EOD_DATE), txnType, txnId, Configurations.EOD_USER, statusList.getINITIAL_STATUS(), description, CrDr, i, cardAssociation);
         } catch (Exception e) {
             throw e;
         }
@@ -247,8 +254,8 @@ public class InstallmentPaymentRepo implements InstallmentPaymentDao {
     public int updateFeeToEDONInTransactionTable(StringBuffer cardNumber, String traceNumber, String transactionType) throws Exception {
         int count = 0;
         try {
-            String query = "UPDATE TRANSACTION SET EODSTATUS=? WHERE CARDNO=? AND TRACENO=? AND BACKENDTXNTYPE=?";
-            count = backendJdbcTemplate.update(query, statusList.getEOD_DONE_STATUS(), cardNumber.toString(), traceNumber, transactionType);
+            //String query = "UPDATE TRANSACTION SET EODSTATUS=? WHERE CARDNO=? AND TRACENO=? AND BACKENDTXNTYPE=?";
+            count = backendJdbcTemplate.update(queryParametersList.getInstallmentPayment_updateFeeToEDONInTransactionTable(), statusList.getEOD_DONE_STATUS(), cardNumber.toString(), traceNumber, transactionType);
         } catch (Exception e) {
             throw e;
         }
@@ -280,11 +287,11 @@ public class InstallmentPaymentRepo implements InstallmentPaymentDao {
 
     @Override
     public String getEodtxnDescription(String txnID) throws Exception {
-        String sql = "select TRANSACTIONDESCRIPTION from EODTRANSACTION where TRANSACTIONID = ? AND TRANSACTIONTYPE NOT IN(?,?)";
+        //String sql = "select TRANSACTIONDESCRIPTION from EODTRANSACTION where TRANSACTIONID = ? AND TRANSACTIONTYPE NOT IN(?,?)";
         String txtDescription = null;
 
         try {
-            txtDescription = backendJdbcTemplate.queryForObject(sql, String.class, txnID, Configurations.TXN_TYPE_INSTALLMENT, Configurations.TXN_TYPE_REVERSAL_INSTALLMENT);
+            txtDescription = backendJdbcTemplate.queryForObject(queryParametersList.getInstallmentPayment_getEodtxnDescription(), String.class, txnID, Configurations.TXN_TYPE_INSTALLMENT, Configurations.TXN_TYPE_REVERSAL_INSTALLMENT);
 
         } catch (Exception e) {
             throw e;
@@ -297,17 +304,8 @@ public class InstallmentPaymentRepo implements InstallmentPaymentDao {
         ArrayList<InstallmentBean> txnList = new ArrayList<>();
         SimpleDateFormat sdf = new SimpleDateFormat("dd-MMM-yy");
         try {
-            String sql = "SELECT e.RUNNINGSTATUS,  e.LASTEODTRANSACTIONID,NVL(e.CURRINSTALLMENT,0) AS CURRINSTALLMENT, e.TXNDESCRIPTION, e.INTERESTORFEETOTALAMOUNT, "
-                    + " e.ACCEDPTEDDATE, e.REQUESTID, e.EFECTIVEDATE,  NVL(e.NEXTTXNDATE,SYSDATE) AS NEXTTXNDATE,  e.ACCELERATEDSTATUS,"
-                    + " d.ACCOUNTNO,  e.CARDNUMBER, e.TXNAMOUNT,e.STATUS,e.INTERESTORFEEAMOUNT, p.DURATION, p.PROCESSINGFEETYPE, p.FEEAPPLYINFIRSTMONTH,"
-                    + " p.FIRSTMONTHINCLUDE, e.TXNID, e.INSTALLMENTAMOUNT,e.CURRENCYNUMCODE, e.REMAININGCOUNT, e.TRACENO "
-                    + " from EASYPAYMENTREQUEST e"
-                    + " LEFT JOIN paymentplan p"
-                    + " ON e.paymentplan = p.PAYMENTPLANCODE"
-                    + " LEFT JOIN CARDACCOUNTCUSTOMER d "
-                    + " ON d.cardnumber     =e.cardnumber "
-                    + " where(e.status       = ? AND e.RUNNINGSTATUS = ? "
-                    + " AND e.EFECTIVEDATE <= TO_DATE(?, 'dd-MM-YY')) OR (e.RUNNINGSTATUS = ? AND e.status  = ? AND e.NEXTTXNDATE  <= TO_DATE(?, 'DD-MM-YY'))";
+            //String sql = "SELECT e.RUNNINGSTATUS,  e.LASTEODTRANSACTIONID,NVL(e.CURRINSTALLMENT,0) AS CURRINSTALLMENT, e.TXNDESCRIPTION, e.INTERESTORFEETOTALAMOUNT, e.ACCEDPTEDDATE, e.REQUESTID, e.EFECTIVEDATE,  NVL(e.NEXTTXNDATE,SYSDATE) AS NEXTTXNDATE,  e.ACCELERATEDSTATUS, d.ACCOUNTNO,  e.CARDNUMBER, e.TXNAMOUNT,e.STATUS,e.INTERESTORFEEAMOUNT, p.DURATION, p.PROCESSINGFEETYPE, p.FEEAPPLYINFIRSTMONTH, p.FIRSTMONTHINCLUDE, e.TXNID, e.INSTALLMENTAMOUNT,e.CURRENCYNUMCODE, e.REMAININGCOUNT, e.TRACENO from EASYPAYMENTREQUEST e LEFT JOIN paymentplan p ON e.paymentplan = p.PAYMENTPLANCODE LEFT JOIN CARDACCOUNTCUSTOMER d ON d.cardnumber=e.cardnumber where(e.status=? AND e.RUNNINGSTATUS = ? AND e.EFECTIVEDATE <= TO_DATE(?,'dd-MM-YY')) OR (e.RUNNINGSTATUS = ? AND e.status  = ? AND e.NEXTTXNDATE  <= TO_DATE(?, 'DD-MM-YY'))";
+            String sql =  queryParametersList.getInstallmentPayment_getEasyPaymentDetails();
 
             sql += CommonMethods.checkForErrorCards("e.CARDNUMBER");
 

@@ -19,6 +19,7 @@ import java.math.RoundingMode;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.LinkedHashMap;
+import java.util.concurrent.atomic.AtomicInteger;
 
 
 @Service
@@ -37,7 +38,7 @@ public class CashBackService {
 
     @Async("ThreadPool_100")
     @Transactional(value = "transactionManager", propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
-    public void cashBack(CashBackBean cashbackBean) {
+    public void cashBack(CashBackBean cashbackBean, AtomicInteger faileCardCount) {
         if (!Configurations.isInterrupted) {
             LinkedHashMap details = new LinkedHashMap();
             SimpleDateFormat dateformat = new SimpleDateFormat("yyyy-MM-dd");
@@ -121,14 +122,15 @@ public class CashBackService {
                     }
                     //update TOTALCBAMOUNT column in cashback table that containing final cashback amount for this statement cycle. for reporting purpose
                     cashBackRepo.updateTotalCBAmount(cashbackBean.getAccountNumber());
-                    Configurations.PROCESS_SUCCESS_COUNT++;
+                    //Configurations.PROCESS_SUCCESS_COUNT++;
                     details.put("Process Status", "Passed");
 
                 } catch (Exception e) {
                     Configurations.errorCardList.add(new ErrorCardBean(Configurations.ERROR_EOD_ID, Configurations.EOD_DATE, new StringBuffer(cashbackBean.getAccountNumber()), e.getMessage(), Configurations.RUNNING_PROCESS_ID, Configurations.RUNNING_PROCESS_DESCRIPTION, 0, CardAccount.ACCOUNT));
                     logError.error("Cashback process failed for accountnumber " + cashbackBean.getAccountNumber(), e);
                     details.put("Process Status", "Failed");
-                    Configurations.PROCESS_FAILD_COUNT++;
+                    faileCardCount.addAndGet(1);
+                    //Configurations.PROCESS_FAILD_COUNT++;
                 }
             } catch (Exception e) {
                 logError.error("Error Occured while getting db connections ", e);

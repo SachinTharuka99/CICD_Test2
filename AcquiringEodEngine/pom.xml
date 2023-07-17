@@ -21,6 +21,9 @@
         <module>MerchantPaymentFileProcess</module>
         <module>OriginatorPushTxnUpdateProcess</module>
         <module>MerchantCustomerStatementProcess</module>
+        <module>RecipientPushTxnUpdateProcess</module>
+        <module>MerchantStatementProcess</module>
+
     </modules>
     <artifactId>AcquiringEodEngine</artifactId>
 

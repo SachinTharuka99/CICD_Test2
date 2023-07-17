@@ -17,6 +17,7 @@ import com.epic.cms.util.StatusVarList;
 import lombok.extern.slf4j.Slf4j;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import com.epic.cms.util.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.jdbc.core.JdbcTemplate;
@@ -44,19 +45,24 @@ public class EOMSupplementaryCardResetRepo implements EOMSupplementaryCardResetD
     @Autowired
     private JdbcTemplate onlineJdbcTemplate;
 
+    @Autowired
+    QueryParametersList queryParametersList;
+
     @Override
     public ArrayList getEligibleAccounts() throws Exception {
         SimpleDateFormat sdf = new SimpleDateFormat("dd-MMM-yy");
         ArrayList accNo = new ArrayList();
 
-        String query = "SELECT CA.ACCOUNTNO FROM CARDACCOUNT CA,CARD C"
-                + " WHERE CA.CARDNUMBER=C.CARDNUMBER AND CA.NEXTBILLINGDATE <= TO_DATE( ?, 'DD-MM-YY') AND C.CARDSTATUS NOT IN (?,?)";
+        //String query = "SELECT CA.ACCOUNTNO FROM CARDACCOUNT CA,CARD C WHERE CA.CARDNUMBER=C.CARDNUMBER AND CA.NEXTBILLINGDATE <= TO_DATE( ?, 'DD-MM-YY') AND C.CARDSTATUS NOT IN (?,?)";
+        String query = queryParametersList.getEOMSupplementaryCardReset_getEligibleAccounts();
 
         if (Configurations.STARTING_EOD_STATUS.equals(statusVarList.getINITIAL_STATUS())) {
-            query += " and CA.ACCOUNTNO not in (select ec.ACCOUNTNO from eoderrorcards ec where ec.status='"
+            //query += " and CA.ACCOUNTNO not in (select ec.ACCOUNTNO from eoderrorcards ec where ec.status='"
+            query += queryParametersList.getEOMSupplementaryCardReset_getEligibleAccounts_Appender1()
                     + statusVarList.getEOD_PENDING_STATUS() + "')";
         } else if (Configurations.STARTING_EOD_STATUS.equals(statusVarList.getERROR_STATUS())) {
-            query += " and CA.ACCOUNTNO in (select ec.ACCOUNTNO from eoderrorcards ec where ec.status='"
+            //query += " and CA.ACCOUNTNO in (select ec.ACCOUNTNO from eoderrorcards ec where ec.status='"
+             query += queryParametersList.getEOMSupplementaryCardReset_getEligibleAccounts_Appender2()
                     + statusVarList.getEOD_PENDING_STATUS() + "' and EODID < " + Configurations.ERROR_EOD_ID + " and PROCESSSTEPID <="
                     + Configurations.PROCESS_STEP_ID + ")";
         }
@@ -82,29 +88,11 @@ public class EOMSupplementaryCardResetRepo implements EOMSupplementaryCardResetD
     public ArrayList<StringBuffer> getAllTheCardsForAccount(StringBuffer accNo) throws Exception {
 
         ArrayList<StringBuffer> cardList = new ArrayList<>();
-        String sql = "SELECT CA.CARDNUMBER"
-                + " FROM CARDACCOUNTCUSTOMER CA,CARD CD"
-                + " WHERE CA.cardnumber = CD.CARDNUMBER"
-                + " AND CD.CARDSTATUS  NOT IN (?,?)"
-                + " AND CA.ACCOUNTNO  = ?"
-                + " ORDER BY CA.ACCOUNTNO,"
-                + "  CASE "
-                + "WHEN cd.cardcategorycode = ? "
-                + "OR cd.cardcategorycode = ? "
-                + "OR cd.cardcategorycode = ? "
-                + "OR cd.cardcategorycode = ? "
-                + "OR cd.cardcategorycode = ? THEN 1 "
-                + "WHEN cd.cardcategorycode = ? "
-                + "OR cd.cardcategorycode = ? "
-                + "OR cd.cardcategorycode = ? "
-                + "OR cd.cardcategorycode = ? "
-                + "OR cd.cardcategorycode = ? THEN 2 "
-                + "ELSE 3 END, "
-                + "  CD.CARDNUMBER";
+        //String sql = "SELECT CA.CARDNUMBER FROM CARDACCOUNTCUSTOMER CA,CARD CD WHERE CA.cardnumber = CD.CARDNUMBER AND CD.CARDSTATUS  NOT IN (?,?) AND CA.ACCOUNTNO  = ? ORDER BY CA.ACCOUNTNO,  CASE WHEN cd.cardcategorycode = ? OR cd.cardcategorycode = ? OR cd.cardcategorycode = ? OR cd.cardcategorycode = ? OR cd.cardcategorycode = ? THEN 1 WHEN cd.cardcategorycode = ? OR cd.cardcategorycode = ? OR cd.cardcategorycode = ? OR cd.cardcategorycode = ? OR cd.cardcategorycode = ? THEN 2 ELSE 3 END, CD.CARDNUMBER";
 
         try {
-            backendJdbcTemplate.query(sql
-                    , (ResultSet rs) -> {
+            backendJdbcTemplate.query(queryParametersList.getEOMSupplementaryCardReset_getAllTheCardsForAccount()
+                    ,(ResultSet rs) -> {
                         while (rs.next()) {
                             cardList.add(new StringBuffer(rs.getString("CARDNUMBER")));
                         }
@@ -137,11 +125,9 @@ public class EOMSupplementaryCardResetRepo implements EOMSupplementaryCardResetD
         HashMap<String, Double> cardBalance = new HashMap<String, Double>();
 
         try {
-            String query = "SELECT NVL(EODSTARTINGBAL,0) AS EODSTARTINGBAL ,NVL(EODCLOSINGBAL,0) AS EODCLOSINGBAL ,NVL(FINANCIALCHARGES,0) AS FINANCIALCHARGES ,NVL(CUMCASHADVANCES,0) AS CUMCASHADVANCES ,NVL(CUMTRANSACTIONS,0) AS CUMTRANSACTIONS ,"
-                    + "(SELECT CREDITLIMIT FROM CARD WHERE CARDNUMBER = ?) AS CREDITLIMIT, "
-                    + "(SELECT CASHLIMIT FROM CARD WHERE CARDNUMBER = ?) AS CASHLIMIT FROM EODCARDBALANCE WHERE CARDNUMBER = ?";
+            //String query = "SELECT NVL(EODSTARTINGBAL,0) AS EODSTARTINGBAL ,NVL(EODCLOSINGBAL,0) AS EODCLOSINGBAL ,NVL(FINANCIALCHARGES,0) AS FINANCIALCHARGES ,NVL(CUMCASHADVANCES,0) AS CUMCASHADVANCES ,NVL(CUMTRANSACTIONS,0) AS CUMTRANSACTIONS , (SELECT CREDITLIMIT FROM CARD WHERE CARDNUMBER = ?) AS CREDITLIMIT, (SELECT CASHLIMIT FROM CARD WHERE CARDNUMBER = ?) AS CASHLIMIT FROM EODCARDBALANCE WHERE CARDNUMBER = ?";
 
-            backendJdbcTemplate.query(query
+            backendJdbcTemplate.query(queryParametersList.getEOMSupplementaryCardReset_getCardBalances()
                     , (ResultSet rs) -> {
                         while (rs.next()) {
                             cardBalance.put("OpeningBal", rs.getDouble("EODSTARTINGBAL"));
@@ -178,9 +164,9 @@ public class EOMSupplementaryCardResetRepo implements EOMSupplementaryCardResetD
         EomCardBalanceDto cardBalanceDto = new EomCardBalanceDto();
 
         try {
-            String query = "SELECT CUMFINANCIALCHARGE,CUMCASHADVANCE,CUMTRANSACTION FROM EOMCARDBALANCE WHERE CARDNUMBER = ?";
+            //String query = "SELECT CUMFINANCIALCHARGE,CUMCASHADVANCE,CUMTRANSACTION FROM EOMCARDBALANCE WHERE CARDNUMBER = ?";
 
-            cardBalanceDto = backendJdbcTemplate.queryForObject(query
+            cardBalanceDto = backendJdbcTemplate.queryForObject(queryParametersList.getEOMSupplementaryCardReset_UpdateEOMCardBalance_Select()
                     , new RowMapper<EomCardBalanceDto>() {
                         @Override
                         public EomCardBalanceDto mapRow(ResultSet rs, int rowNum) throws SQLException {
@@ -199,12 +185,9 @@ public class EOMSupplementaryCardResetRepo implements EOMSupplementaryCardResetD
             sales = cardBalanceDto.getSales() + CardBal.get("txns");
 
             if (cardBalanceDto.isHasRecordInEOMBalance()) {
-                query = "UPDATE EOMCARDBALANCE SET LASTUPDATEDTIME = TO_DATE(?, 'DD-MM-YY'), "
-                        + "LASTUPDATEDUSER=?,CUMFINANCIALCHARGE=?,CUMCASHADVANCE=?, "
-                        + "CUMTRANSACTION=?,STATUS=?,EODID=? "
-                        + "WHERE CARDNUMBER =?";
+                //query = "UPDATE EOMCARDBALANCE SET LASTUPDATEDTIME = TO_DATE(?, 'DD-MM-YY'), LASTUPDATEDUSER=?,CUMFINANCIALCHARGE=?, CUMCASHADVANCE=?, CUMTRANSACTION=?,STATUS=?,EODID=? WHERE CARDNUMBER =?";
 
-                backendJdbcTemplate.update(query
+                backendJdbcTemplate.update(queryParametersList.getEOMSupplementaryCardReset_UpdateEOMCardBalance_Update()
                         , sdf.format(Configurations.EOD_DATE)
                         , Configurations.EOD_USER
                         , fee
@@ -215,12 +198,9 @@ public class EOMSupplementaryCardResetRepo implements EOMSupplementaryCardResetD
                         , cardNo
                 );
             } else {
-                query = "INSERT INTO EOMCARDBALANCE(CARDNUMBER,MAINCARDNUMBER, "
-                        + "CREATEDTIME,LASTUPDATEDTIME,LASTUPDATEDUSER,CUMFINANCIALCHARGE, "
-                        + "CUMCASHADVANCE,CUMTRANSACTION,STATUS,ISPRIMARY,EODID) "
-                        + "VALUES (?,?,TO_DATE(?,'DD-MM-YY'),TO_DATE(?, 'DD-MM-YY'),?,?,?,?,?,?,?)";
+                //query = "INSERT INTO EOMCARDBALANCE(CARDNUMBER,MAINCARDNUMBER, CREATEDTIME,LASTUPDATEDTIME,LASTUPDATEDUSER,CUMFINANCIALCHARGE, CUMCASHADVANCE,CUMTRANSACTION,STATUS,ISPRIMARY,EODID) VALUES (?,?,TO_DATE(?,'DD-MM-YY'),TO_DATE(?, 'DD-MM-YY'),?,?,?,?,?,?,?)";
 
-                backendJdbcTemplate.update(query
+                backendJdbcTemplate.update(queryParametersList.getEOMSupplementaryCardReset_UpdateEOMCardBalance_Insert()
                         , cardNo
                         , mainCardNo
                         , sdf.format(Configurations.EOD_DATE)
@@ -245,9 +225,9 @@ public class EOMSupplementaryCardResetRepo implements EOMSupplementaryCardResetD
         HashMap<String, Double> cardTempBalabce = new HashMap<String, Double>();
 
         try {
-            String query = "SELECT TEMPCREDITAMOUNT,TEMPCASHAMOUNT FROM CARD WHERE CARDNUMBER = ?";
+            //String query = "SELECT TEMPCREDITAMOUNT,TEMPCASHAMOUNT FROM CARD WHERE CARDNUMBER = ?";
 
-            backendJdbcTemplate.query(query
+            backendJdbcTemplate.query(queryParametersList.getEOMSupplementaryCardReset_getCardTempBalances()
                     , (ResultSet rs) -> {
                         while (rs.next()) {
                             cardTempBalabce.put("TEMPCREDITAMOUNT", rs.getDouble("TEMPCREDITAMOUNT"));
@@ -269,12 +249,9 @@ public class EOMSupplementaryCardResetRepo implements EOMSupplementaryCardResetD
         try {
             SimpleDateFormat sdf = new SimpleDateFormat("dd-MMM-yy");
 
-            String query = "UPDATE EODCARDBALANCE SET "
-                    + "EODSTARTINGBAL=(SELECT CREDITLIMIT FROM CARD WHERE CARDNUMBER = ?),EODCLOSINGBAL=(SELECT CREDITLIMIT FROM CARD WHERE CARDNUMBER = ?), "
-                    + "LASTUPDATEDTIME= TO_DATE(?, 'DD-MM-YY'),LASTUPDATEDUSER=?,FINANCIALCHARGES=?, "
-                    + "CUMCASHADVANCES=?,CUMTRANSACTIONS=? WHERE CARDNUMBER = ? ";
+            //String query = "UPDATE EODCARDBALANCE SET EODSTARTINGBAL=(SELECT CREDITLIMIT FROM CARD WHERE CARDNUMBER = ?),EODCLOSINGBAL=(SELECT CREDITLIMIT FROM CARD WHERE CARDNUMBER = ?), LASTUPDATEDTIME= TO_DATE(?, 'DD-MM-YY'),LASTUPDATEDUSER=?,FINANCIALCHARGES=?, CUMCASHADVANCES=?,CUMTRANSACTIONS=? WHERE CARDNUMBER = ?";
 
-            backendJdbcTemplate.update(query
+            backendJdbcTemplate.update(queryParametersList.getEOMSupplementaryCardReset_resetEodCardBallance()
                     , cardNo //1
                     , cardNo //2
                     , sdf.format(Configurations.EOD_DATE) //3
@@ -293,10 +270,10 @@ public class EOMSupplementaryCardResetRepo implements EOMSupplementaryCardResetD
     public HashMap<String, Double> getEOMCardBalanceFromSupplementary(StringBuffer cardNo) throws Exception {
         HashMap<String, Double> supCardBalance = new HashMap<String, Double>();
 
-        String sql = "SELECT NVL(CUMFINANCIALCHARGE,0) AS CUMFINANCIALCHARGE,NVL(CUMCASHADVANCE,0) AS CUMCASHADVANCE,NVL(CUMTRANSACTION,0) AS CUMTRANSACTION FROM EOMCARDBALANCE WHERE CARDNUMBER = ?";
+        //String sql = "SELECT NVL(CUMFINANCIALCHARGE,0) AS CUMFINANCIALCHARGE,NVL(CUMCASHADVANCE,0) AS CUMCASHADVANCE,NVL(CUMTRANSACTION,0) AS CUMTRANSACTION FROM EOMCARDBALANCE WHERE CARDNUMBER = ?";
 
         try {
-            backendJdbcTemplate.query(sql
+            backendJdbcTemplate.query(queryParametersList.getEOMSupplementaryCardReset_getEOMCardBalanceFromSupplementary()
                     , (ResultSet rs) -> {
                         while (rs.next()) {
 //                            supCardBalance = new HashMap<String, Double>();
@@ -319,11 +296,8 @@ public class EOMSupplementaryCardResetRepo implements EOMSupplementaryCardResetD
         SimpleDateFormat sdf = new SimpleDateFormat("dd-MMM-yy");
 
         try {
-            String query = "UPDATE EOMCARDBALANCE SET LASTUPDATEDTIME = TO_DATE(?, 'DD-MM-YY'), "
-                    + "LASTUPDATEDUSER=?,CUMFINANCIALCHARGE=?,CUMCASHADVANCE=?, "
-                    + "CUMTRANSACTION=?,STATUS=?,EODID=? "
-                    + "WHERE CARDNUMBER =?";
-            backendJdbcTemplate.update(query
+            //String query = "UPDATE EOMCARDBALANCE SET LASTUPDATEDTIME = TO_DATE(?, 'DD-MM-YY'), LASTUPDATEDUSER=?,CUMFINANCIALCHARGE=?,CUMCASHADVANCE=?, CUMTRANSACTION=?,STATUS=?,EODID=? WHERE CARDNUMBER =?";
+            backendJdbcTemplate.update(queryParametersList.getEOMSupplementaryCardReset_resetEOMCardBalance()
                     , sdf.format(Configurations.EOD_DATE) //1
                     , Configurations.EOD_USER //2
                     , 0 //3
@@ -342,9 +316,9 @@ public class EOMSupplementaryCardResetRepo implements EOMSupplementaryCardResetD
     public double calculateMainCardForwardPayments(StringBuffer mainCardNumber) throws Exception {
         double amount = 0.00;
         try {
-            String query = "select FORWARDAMOUNT from EODPAYMENT where CARDNUMBER = ? and STATUS = ? ";
+            //String query = "select FORWARDAMOUNT from EODPAYMENT where CARDNUMBER = ? and STATUS = ? ";
 
-            amount = backendJdbcTemplate.queryForObject(query, Double.class, mainCardNumber.toString(), Configurations.EOD_PENDING_STATUS);
+            amount = backendJdbcTemplate.queryForObject(queryParametersList.getEOMSupplementaryCardReset_calculateMainCardForwardPayments(), Double.class, mainCardNumber.toString(), Configurations.EOD_PENDING_STATUS);
         } catch (EmptyResultDataAccessException ex) {
             return 0;
         } catch (Exception e) {
@@ -358,10 +332,10 @@ public class EOMSupplementaryCardResetRepo implements EOMSupplementaryCardResetD
         double amount = 0.00;
 
         try {
-            String query = "select FORWARDAMOUNT from EODPAYMENT where CARDNUMBER IN (Select CARDNUMBER from EODPAYMENT where CARDNUMBER <> MAINCARDNO and STATUS IN( ?,?) and MAINCARDNO = ?) and STATUS IN( ?,?) ";
+            //String query = "select FORWARDAMOUNT from EODPAYMENT where CARDNUMBER IN (Select CARDNUMBER from EODPAYMENT where CARDNUMBER <> MAINCARDNO and STATUS IN( ?,?) and MAINCARDNO = ?) and STATUS IN( ?,?)";
 
 
-            amount = backendJdbcTemplate.queryForObject(query, Double.class, Configurations.EOD_PENDING_STATUS
+            amount = backendJdbcTemplate.queryForObject(queryParametersList.getEOMSupplementaryCardReset_calculateSupCardForwardPayments(), Double.class, Configurations.EOD_PENDING_STATUS
                     , Configurations.INITIAL_STATUS
                     , mainCard.toString()
                     , Configurations.EOD_PENDING_STATUS
@@ -377,13 +351,9 @@ public class EOMSupplementaryCardResetRepo implements EOMSupplementaryCardResetD
     @Override
     public void updateMainCardBal(StringBuffer mainCardNumber, Double totalSupTempCredit, Double totalSupTempCash, Double supFowardPayments) throws Exception {
         try {
-            String query = "update card set OTBCREDIT = OTBCREDIT - ?,"
-                    + " OTBCASH = OTBCASH - ?, "
-                    + " TEMPCREDITAMOUNT = TEMPCREDITAMOUNT + ?,"
-                    + " TEMPCASHAMOUNT = TEMPCASHAMOUNT + ? "
-                    + " where CARDNUMBER =? ";
+            //String query = "update card set OTBCREDIT = OTBCREDIT - ?, OTBCASH = OTBCASH - ?, TEMPCREDITAMOUNT = TEMPCREDITAMOUNT + ?, TEMPCASHAMOUNT = TEMPCASHAMOUNT + ? where CARDNUMBER =?";
 
-            backendJdbcTemplate.update(query
+            backendJdbcTemplate.update(queryParametersList.getEOMSupplementaryCardReset_updateMainCardBal()
                     , totalSupTempCredit
                     , totalSupTempCash
                     , totalSupTempCredit
@@ -397,13 +367,9 @@ public class EOMSupplementaryCardResetRepo implements EOMSupplementaryCardResetD
     @Override
     public void updateMainCardBalOnline(StringBuffer mainCardNumber, Double totalSupTempCredit, Double totalSupTempCash, Double supFowardPayments) throws Exception {
         try {
-            String query = "update ECMS_ONLINE_CARD set OTBCREDIT = OTBCREDIT - ? ,"
-                    + " OTBCASH = OTBCASH - ?, "
-                    + " TEMPCREDITAMOUNT = TEMPCREDITAMOUNT + ?,"
-                    + " TEMPCASHAMOUNT = TEMPCASHAMOUNT + ? "
-                    + " where CARDNUMBER = ? ";
+            //String query = "update ECMS_ONLINE_CARD set OTBCREDIT = OTBCREDIT - ? ,OTBCASH = OTBCASH - ?, TEMPCREDITAMOUNT = TEMPCREDITAMOUNT + ?, TEMPCASHAMOUNT = TEMPCASHAMOUNT + ? where CARDNUMBER = ?";
 
-            onlineJdbcTemplate.update(query
+            onlineJdbcTemplate.update(queryParametersList.getEOMSupplementaryCardReset_updateMainCardBalOnline()
                     , totalSupTempCredit
                     , totalSupTempCash
                     , totalSupTempCredit
@@ -413,7 +379,7 @@ public class EOMSupplementaryCardResetRepo implements EOMSupplementaryCardResetD
             if (Configurations.ONLINE_LOG_LEVEL == 1) {
                 //Only for troubleshoot
                 logInfo.info("================ updateMainCardBalOnline ===================" + Configurations.EOD_ID);
-                logInfo.info(query);
+                logInfo.info(queryParametersList.getEOMSupplementaryCardReset_updateMainCardBalOnline());
                 logInfo.info(Double.toString(totalSupTempCredit));
                 logInfo.info(Double.toString(supFowardPayments));
                 logInfo.info(Double.toString(totalSupTempCash));
@@ -431,9 +397,9 @@ public class EOMSupplementaryCardResetRepo implements EOMSupplementaryCardResetD
     public int updateSupplementaryEODPaymentsStatus(StringBuffer mainCardNo) throws Exception {
         int result = 0;
         try {
-            String query = "update EODPAYMENT set status =?  where CARDNUMBER IN (Select CARDNUMBER from EODPAYMENT where CARDNUMBER <> MAINCARDNO and status in(?,?) and MAINCARDNO = ?) and STATUS in(?,?) ";
+            //String query = "update EODPAYMENT set status =?  where CARDNUMBER IN (Select CARDNUMBER from EODPAYMENT where CARDNUMBER <> MAINCARDNO and status in(?,?) and MAINCARDNO = ?) and STATUS in(?,?)";
 
-            result = backendJdbcTemplate.update(query
+            result = backendJdbcTemplate.update(queryParametersList.getEOMSupplementaryCardReset_updateSupplementaryEODPaymentsStatus()
                     , Configurations.EOD_DONE_STATUS //1
                     , Configurations.EOD_PENDING_STATUS //2
                     , Configurations.INITIAL_STATUS //3
@@ -453,18 +419,17 @@ public class EOMSupplementaryCardResetRepo implements EOMSupplementaryCardResetD
         int count = 0;
 
         try {
-            String query = "SELECT NVL(MAX(SEQUENCENUMBER),0) AS  SEQUENCENUMBER FROM EODPAYMENT WHERE CARDNUMBER=? AND EODID=? ";
-            String query2 = "INSERT INTO EODPAYMENT(SEQUENCENUMBER,EODID,CARDNUMBER,MAINCARDNO,ISPRIMARY,AMOUNT,PAYMENTTYPE,TRACEID,FORWARDAMOUNT,STATUS,CREATEDTIME,LASTUPDATEDUSER,LASTUPDATEDDATE)"
-                    + " VALUES(?,?,?,?,?,?,?,?,?,?,sysdate,?,sysdate)";
+            //String query = "SELECT NVL(MAX(SEQUENCENUMBER),0) AS  SEQUENCENUMBER FROM EODPAYMENT WHERE CARDNUMBER=? AND EODID=?";
+            //String query2 = "INSERT INTO EODPAYMENT(SEQUENCENUMBER,EODID,CARDNUMBER,MAINCARDNO,ISPRIMARY,AMOUNT,PAYMENTTYPE,TRACEID,FORWARDAMOUNT,STATUS,CREATEDTIME,LASTUPDATEDUSER,LASTUPDATEDDATE) VALUES(?,?,?,?,?,?,?,?,?,?,sysdate,?,sysdate)";
 
-            sequenceNo = backendJdbcTemplate.queryForObject(query, Integer.class, mainCardNo.toString(), Configurations.EOD_ID);
+            sequenceNo = backendJdbcTemplate.queryForObject(queryParametersList.getEOMSupplementaryCardReset_insertNewEntryToEodPayment_Select(), Integer.class, mainCardNo.toString(), Configurations.EOD_ID);
             if (sequenceNo == 0) {
                 sequenceNo = 100000;
             } else {
                 sequenceNo++;
             }
 
-            backendJdbcTemplate.update(query2
+            backendJdbcTemplate.update(queryParametersList.getEOMSupplementaryCardReset_insertNewEntryToEodPayment_Insert()
                     , sequenceNo
                     , Configurations.EOD_ID //2
                     , mainCardNo.toString() //3
@@ -490,12 +455,9 @@ public class EOMSupplementaryCardResetRepo implements EOMSupplementaryCardResetD
         try {
             SimpleDateFormat sdf = new SimpleDateFormat("dd-MMM-yy");
 
-            String query = "UPDATE EODCARDBALANCE SET "
-                    + "EODSTARTINGBAL=?,EODCLOSINGBAL= ?, "
-                    + "LASTUPDATEDTIME= TO_DATE(?, 'DD-MM-YY'),LASTUPDATEDUSER=?,FINANCIALCHARGES=?, "
-                    + "CUMCASHADVANCES=?,CUMTRANSACTIONS=? WHERE CARDNUMBER = ? ";
+            //String query = "UPDATE EODCARDBALANCE SET EODSTARTINGBAL=?,EODCLOSINGBAL= ?, LASTUPDATEDTIME= TO_DATE(?, 'DD-MM-YY'),LASTUPDATEDUSER=?,FINANCIALCHARGES=?, CUMCASHADVANCES=?,CUMTRANSACTIONS=? WHERE CARDNUMBER = ?";
 
-            backendJdbcTemplate.update(query
+            backendJdbcTemplate.update(queryParametersList.getEOMSupplementaryCardReset_updateEodCardBallance()
                     , cardBal.get("OpeningBal")
                     , cardBal.get("closingBal")
                     , sdf.format(Configurations.EOD_DATE)
@@ -522,10 +484,9 @@ public class EOMSupplementaryCardResetRepo implements EOMSupplementaryCardResetD
         try {
             //this start from 1. bcz 1st element of this array is main card. So should skip the 1st element
             for (int i = 1; i < cardList.size(); i++) {
-                String query = "select amount,incrementtype,incordec from templimitincrement "
-                        + "where cardno =? and status = ?";
+                //String query = "select amount,incrementtype,incordec from templimitincrement where cardno =? and status = ?";
 
-                backendJdbcTemplate.queryForObject(query
+                backendJdbcTemplate.queryForObject(queryParametersList.getEOMSupplementaryCardReset_calculateOTBsAfterResetting()
                         , new RowMapper<CalculateOTBsDto>() {
                             @Override
                             public CalculateOTBsDto mapRow(ResultSet rs, int rowNum) throws SQLException {
@@ -568,9 +529,9 @@ public class EOMSupplementaryCardResetRepo implements EOMSupplementaryCardResetD
 
                 if (!(cardnumber.toString().equalsIgnoreCase(mainCardNo.toString()))) {
 
-                    String query = "UPDATE CARD SET OTBCREDIT=?,OTBCASH=?,TEMPCREDITAMOUNT=?,TEMPCASHAMOUNT=? where CARDNUMBER=?";
+                    //String query = "UPDATE CARD SET OTBCREDIT=?,OTBCASH=?,TEMPCREDITAMOUNT=?,TEMPCASHAMOUNT=? where CARDNUMBER=?";
 
-                    backendJdbcTemplate.update(query
+                    backendJdbcTemplate.update(queryParametersList.getEOMSupplementaryCardReset_resetSuplimentryBalanceInBackendCardTable()
                             , values[0]
                             , values[1]
                             , 0
@@ -592,9 +553,9 @@ public class EOMSupplementaryCardResetRepo implements EOMSupplementaryCardResetD
                 StringBuffer cardnumber = entry.getKey();
                 double[] values = entry.getValue();
                 if (!(cardnumber.toString().equalsIgnoreCase(mainCardNo.toString()))) {
-                    String query = "UPDATE ECMS_ONLINE_CARD SET OTBCREDIT=?,OTBCASH=?,TEMPCREDITAMOUNT=?,TEMPCASHAMOUNT=? where CARDNUMBER=?";
+                    //String query = "UPDATE ECMS_ONLINE_CARD SET OTBCREDIT=?,OTBCASH=?,TEMPCREDITAMOUNT=?,TEMPCASHAMOUNT=? where CARDNUMBER=?";
 
-                    onlineJdbcTemplate.update(query
+                    onlineJdbcTemplate.update(queryParametersList.getEOMSupplementaryCardReset_resetSuplimentryBalanceInOnlineCardTable()
                             , values[0]
                             , values[1]
                             , 0
@@ -604,7 +565,7 @@ public class EOMSupplementaryCardResetRepo implements EOMSupplementaryCardResetD
                     if (Configurations.ONLINE_LOG_LEVEL == 1) {
                         //Only for troubleshoot
                         logInfo.info("================ resetSuplimentryBalanceInOnlineCardTable ===================" + Configurations.EOD_ID);
-                        logInfo.info(query);
+                        logInfo.info(queryParametersList.getEOMSupplementaryCardReset_resetSuplimentryBalanceInOnlineCardTable());
                         logInfo.info(Double.toString(values[0]));
                         logInfo.info(Double.toString(values[1]));
                         logInfo.info("0,0");
@@ -624,9 +585,9 @@ public class EOMSupplementaryCardResetRepo implements EOMSupplementaryCardResetD
 
         int eodID = Integer.parseInt(prevEODID);
         try {
-            String query = "update EODERRORCARDS set STATUS = ? where EODID = ? and PROCESSSTEPID < ?";
+            //String query = "update EODERRORCARDS set STATUS = ? where EODID = ? and PROCESSSTEPID < ?";
 
-            result = backendJdbcTemplate.update(query, statusVarList.getEOD_DONE_STATUS(), eodID, stepId);
+            result = backendJdbcTemplate.update(queryParametersList.getEOMSupplementaryCardReset_updatePreviousEODErrorCardDetails(), statusVarList.getEOD_DONE_STATUS(), eodID, stepId);
 
         } catch (Exception e) {
             throw e;
@@ -637,9 +598,9 @@ public class EOMSupplementaryCardResetRepo implements EOMSupplementaryCardResetD
     @Override
     public int updateEodProcessSummery(int eodId, String status, int processId) throws Exception {
         int count = 0;
-        String Query = "UPDATE EODPROCESSSUMMERY SET ENDTIME = SYSDATE , STATUS = ?,LASTUPDATEDTIME = SYSDATE,LASTUPDATEDUSER = ? WHERE EODID = ? AND PROCESSID = ?";
+        //String Query = "UPDATE EODPROCESSSUMMERY SET ENDTIME = SYSDATE , STATUS = ?,LASTUPDATEDTIME = SYSDATE,LASTUPDATEDUSER = ? WHERE EODID = ? AND PROCESSID = ?";
         try {
-            count = onlineJdbcTemplate.update(Query, status, Configurations.EOD_USER, eodId, processId);
+            count = onlineJdbcTemplate.update(queryParametersList.getEOMSupplementaryCardReset_updateEodProcessSummery(), status, Configurations.EOD_USER, eodId, processId);
         } catch (Exception e) {
             throw e;
         }
@@ -650,9 +611,9 @@ public class EOMSupplementaryCardResetRepo implements EOMSupplementaryCardResetD
         double[] value = new double[2];
 
         try {
-            String query = "SELECT CREDITLIMIT, CASHLIMIT FROM CARD where CARDNUMBER=?";
+            //String query = "SELECT CREDITLIMIT, CASHLIMIT FROM CARD where CARDNUMBER=?";
 
-            backendJdbcTemplate.query(query
+            backendJdbcTemplate.query(queryParametersList.getEOMSupplementaryCardReset_getCreditCashLimit()
                     , (ResultSet rs) -> {
                         while (rs.next()) {
                             value[0] = rs.getDouble("CREDITLIMIT");

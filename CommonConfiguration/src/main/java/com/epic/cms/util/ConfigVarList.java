@@ -1091,4 +1091,17 @@ public class ConfigVarList {
     @Value("${file_code_dcf}")
     public String FILE_CODE_DCF;
 
+    @Value("${process_merchant_gl_file_process}")
+    public int process_merchant_gl_file_process;
+
+    @Value("${OUTPUT_FILE_PROD_CODE}")
+    public String OUTPUT_FILE_PROD_CODE;
+
+    //Acquiring
+    @Value("${process_id_originator_push_txn_update}")
+    public int process_id_originator_push_txn_update;
+
+    @Value("${process_id_recipient_push_txn_update}")
+    public int process_id_recipient_push_txn_update;
+
 }

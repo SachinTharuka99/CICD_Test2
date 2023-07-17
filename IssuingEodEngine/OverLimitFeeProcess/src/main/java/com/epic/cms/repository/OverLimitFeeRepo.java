@@ -32,10 +32,9 @@ public class OverLimitFeeRepo implements OverLimitFeeDao {
 
 
         try {
-            String query = "select CA.ACCOUNTNO,CA.OTBCREDIT,CA.OPENINGOTBCREDIT from CARDACCOUNT CA"
-                    + " where CA.OPENINGOTBCREDIT >=0 and CA.OTBCREDIT < 0 "
-                    + " and CA.ACCOUNTNO not in (select accountno from eodcardfee "
-                    + " where accountno = CA.ACCOUNTNO and feetype = ? and eodid like ? ) ";
+           // String query = "select CA.ACCOUNTNO,CA.OTBCREDIT,CA.OPENINGOTBCREDIT from CARDACCOUNT CA where CA.OPENINGOTBCREDIT >=0 and CA.OTBCREDIT < 0 and CA.ACCOUNTNO not in (select accountno from eodcardfee where accountno = CA.ACCOUNTNO and feetype = ? and eodid like ?)";
+            String query = queryParametersList.getOverLimitFee_getOverLimitAcc();
+
             if (Configurations.STARTING_EOD_STATUS.equals(statusList.getINITIAL_STATUS())) {
                 query += " and CA.ACCOUNTNO not in (select ec.ACCOUNTNO from eoderrorcards ec where ec.status='" + statusList.getEOD_PENDING_STATUS() + "')";
             } else if (Configurations.STARTING_EOD_STATUS.equals(statusList.getERROR_STATUS())) {
@@ -69,8 +68,8 @@ public class OverLimitFeeRepo implements OverLimitFeeDao {
         ArrayList<java.io.Serializable> cardNumberAndOpeningBal = new ArrayList<>();
         try {
 
-        String sql = "SELECT ECB.EODSTARTINGBAL, ECB.CARDNUMBER FROM EODCARDBALANCE ECB, CARDACCOUNTCUSTOMER CAC WHERE ECB.CARDNUMBER = CAC.CARDNUMBER AND CAC.ISPRIMARY ='YES' AND CAC.ACCOUNTNO = ? AND ECB.CARDNUMBER NOT IN (select OLDCARDNUMBER from cardreplace)";
-        backendJdbcTemplate.query(sql,
+        //String sql = "SELECT ECB.EODSTARTINGBAL, ECB.CARDNUMBER FROM EODCARDBALANCE ECB, CARDACCOUNTCUSTOMER CAC WHERE ECB.CARDNUMBER = CAC.CARDNUMBER AND CAC.ISPRIMARY ='YES' AND CAC.ACCOUNTNO = ? AND ECB.CARDNUMBER NOT IN (select OLDCARDNUMBER from cardreplace)";
+        backendJdbcTemplate.query(queryParametersList.getOverLimitFee_getMainCardOpeningBalance(),
                 (ResultSet rs) -> {
                     while (rs.next()) {
                         cardNumberAndOpeningBal.add(0, rs.getDouble("EODSTARTINGBAL"));

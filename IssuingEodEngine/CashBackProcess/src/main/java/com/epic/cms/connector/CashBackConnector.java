@@ -19,12 +19,14 @@ import org.springframework.scheduling.concurrent.ThreadPoolTaskExecutor;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
+import java.util.concurrent.atomic.AtomicInteger;
 
 @Service
 public class CashBackConnector extends ProcessBuilder {
 
     private static final Logger logInfo = LoggerFactory.getLogger("logInfo");
     private static final Logger logError = LoggerFactory.getLogger("logError");
+    public AtomicInteger faileCardCount = new AtomicInteger(0);
     @Autowired
     StatusVarList statusVarList;
     @Autowired
@@ -60,10 +62,12 @@ public class CashBackConnector extends ProcessBuilder {
                 Configurations.PROCESS_TOTAL_NOOF_TRABSACTIONS = beanList.size();
                 if (beanList != null && beanList.size() > 0) {
                     //create thread pool..
-                    for (CashBackBean bean : beanList) {
-                        cashBackService.cashBack(bean);
-                    }
-
+//                    for (CashBackBean bean : beanList) {
+//                        cashBackService.cashBack(bean);
+//                    }
+                    beanList.forEach(bean-> {
+                        cashBackService.cashBack(bean,faileCardCount);
+                    });
                     while (!(taskExecutor.getActiveCount() == 0)) {
                         Thread.sleep(1000);
                     }
@@ -100,7 +104,7 @@ public class CashBackConnector extends ProcessBuilder {
     public void addSummaries() {
         summery.put("Started Date", Configurations.EOD_DATE.toString());
         summery.put("Number of total Cards Count", Configurations.PROCESS_TOTAL_NOOF_TRABSACTIONS);
-        summery.put("Number of success Cards Count", Configurations.PROCESS_TOTAL_NOOF_TRABSACTIONS - failedCount);
-        summery.put("Number of failure Cards Count", failedCount);
+        summery.put("Number of success Cards Count", Configurations.PROCESS_TOTAL_NOOF_TRABSACTIONS - faileCardCount.get());
+        summery.put("Number of failure Cards Count", faileCardCount.get());
     }
 }

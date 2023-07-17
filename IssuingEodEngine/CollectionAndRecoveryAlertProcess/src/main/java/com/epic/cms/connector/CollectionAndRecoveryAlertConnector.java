@@ -19,6 +19,7 @@ import org.springframework.stereotype.Service;
 
 import java.util.HashMap;
 import java.util.Map;
+import java.util.concurrent.atomic.AtomicInteger;
 
 @Service
 public class CollectionAndRecoveryAlertConnector extends ProcessBuilder {
@@ -44,6 +45,7 @@ public class CollectionAndRecoveryAlertConnector extends ProcessBuilder {
 
     private static final Logger logInfo = LoggerFactory.getLogger("logInfo");
     private static final Logger logError = LoggerFactory.getLogger("logError");
+    public AtomicInteger faileCardCount = new AtomicInteger(0);
 
     HashMap<StringBuffer, String> confirmCardList = new HashMap<>();
 
@@ -60,36 +62,32 @@ public class CollectionAndRecoveryAlertConnector extends ProcessBuilder {
             Configurations.PROCESS_TOTAL_NOOF_TRABSACTIONS = confirmCardList.size();
 
             for (Map.Entry<StringBuffer, String> entry : confirmCardList.entrySet()) {
-                collectionAndRecoveryAlertService.processCollectionAndRecoveryAlertService(entry.getKey(), entry.getValue(), processBean);
+                collectionAndRecoveryAlertService.processCollectionAndRecoveryAlertService(entry.getKey(), entry.getValue(), processBean,faileCardCount);
             }
 
             while (!(taskExecutor.getActiveCount() == 0)) {
                 Thread.sleep(1000);
             }
             Configurations.PROCESS_TOTAL_NOOF_TRABSACTIONS = (Configurations.successCardNoCount_CollectionAndRecoveryAlert + Configurations.failedCardNoCount_CollectionAndRecoveryAlert);
-            Configurations.PROCESS_SUCCESS_COUNT = (Configurations.successCardNoCount_CollectionAndRecoveryAlert);
-            Configurations.PROCESS_FAILD_COUNT = (Configurations.failedCardNoCount_CollectionAndRecoveryAlert);
+            //Configurations.PROCESS_SUCCESS_COUNT = (Configurations.successCardNoCount_CollectionAndRecoveryAlert);
+            //Configurations.PROCESS_FAILD_COUNT = (Configurations.failedCardNoCount_CollectionAndRecoveryAlert);
 
         } catch (Exception e) {
             Configurations.IS_PROCESS_COMPLETELY_FAILED = true;
             logError.error("Collection and Recovery Alert process failed", e);
             throw e;
         } finally {
-            logInfo.info(logManager.logSummery(summery));
+            //logInfo.info(logManager.logSummery(summery));
             confirmCardList.clear();
         }
     }
 
     @Override
     public void addSummaries() {
-        if (confirmCardList != null) {
-            summery.put("Number of transaction to sync ", Configurations.PROCESS_TOTAL_NOOF_TRABSACTIONS);
-            summery.put("Number of success transaction", Configurations.PROCESS_SUCCESS_COUNT);
-            summery.put("Number of failure transaction", Configurations.PROCESS_FAILD_COUNT);
-        } else {
-            summery.put("Number of transaction to sync", 0);
-            summery.put("Number of success transaction", 0);
-            summery.put("Number of failure transaction", 0);
-        }
+
+        summery.put("Number of transaction to sync ", Configurations.PROCESS_TOTAL_NOOF_TRABSACTIONS);
+        summery.put("Number of success transaction", Configurations.PROCESS_TOTAL_NOOF_TRABSACTIONS - faileCardCount.get());
+        summery.put("Number of failure transaction", faileCardCount.get());
+
     }
 }

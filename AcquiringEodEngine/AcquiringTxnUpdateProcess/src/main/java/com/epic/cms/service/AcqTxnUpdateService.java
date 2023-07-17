@@ -7,7 +7,7 @@ import com.epic.cms.model.bean.ProcessBean;
 import com.epic.cms.repository.AcqTxnUpdateRepo;
 import com.epic.cms.repository.CommonRepo;
 import com.epic.cms.util.*;
-import lombok.extern.slf4j.Slf4j;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -41,9 +41,8 @@ public class AcqTxnUpdateService {
     private static final Logger logError = LoggerFactory.getLogger("logError");
     @Autowired
     AcqTxnUpdateRepo acqTxnUpdateRepo;
-    HashMap<Integer, ArrayList<EodTransactionBean>> txnMap;
-    ArrayList<EodTransactionBean> onusTxnList;
-    ArrayList<EodTransactionBean> txnList;
+
+
     String forexPercentage = "0";
     String fuelSurchargeRate = "0";
     String backendTxnType;
@@ -191,10 +190,10 @@ public class AcqTxnUpdateService {
 
                     } catch (Exception e) {
 
-                        logInfo.info(logManager.logStartEnd(processHeader + " Completely  failed"));
+                        //logInfo.info(logManager.logStartEnd(processHeader + " Completely  failed"));
                         logError.error(processHeader + " failed for while data selection at the initial level", e);
                     }
-                    logInfo.info(logManager.logDetails(details));
+                    //logInfo.info(logManager.logDetails(details));
                     details.clear();
                 }
                 Configurations.totalTxnCount_AcqTxnUpdateProcess = totalTxnCount;

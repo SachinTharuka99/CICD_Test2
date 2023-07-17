@@ -2,10 +2,7 @@ package com.epic.cms.repository;
 
 import com.epic.cms.dao.TxnDropRequestDao;
 import com.epic.cms.model.bean.DropRequestBean;
-import com.epic.cms.util.CommonMethods;
-import com.epic.cms.util.Configurations;
-import com.epic.cms.util.LogManager;
-import com.epic.cms.util.StatusVarList;
+import com.epic.cms.util.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.dao.EmptyResultDataAccessException;
@@ -31,13 +28,16 @@ public class TxnDropRequestRepo implements TxnDropRequestDao {
     StatusVarList statusList;
 
 
+    @Autowired
+    QueryParametersList queryParametersList;
+
     @Override
     public int getTransactionValidityPeriod() throws Exception {
         int txnValidPeriod = 0;
         try {
-            String query = "SELECT TXNVALIDPERIOD FROM COMMONPARAMETER";
+            //String query = "SELECT TXNVALIDPERIOD FROM COMMONPARAMETER";
 
-            txnValidPeriod = backendJdbcTemplate.queryForObject(query, Integer.class);
+            txnValidPeriod = backendJdbcTemplate.queryForObject(queryParametersList.getTxnDropRequest_getTransactionValidityPeriod(), Integer.class);
 
 
         } catch (EmptyResultDataAccessException e) {
@@ -53,7 +53,8 @@ public class TxnDropRequestRepo implements TxnDropRequestDao {
     public List<DropRequestBean> getDropTransactionList(int txnValidityPeriod) throws Exception {
         ArrayList<DropRequestBean> dropTransactionList = new ArrayList<>();
         try {
-            String query = "SELECT T.TXNID,T.CARDNO FROM TRANSACTION T WHERE T.EODSTATUS=? AND TRIM(T.TXNDATE) IS NOT NULL AND (TRUNC(TO_DATE(?,'yymmdd'))-TRUNC(TO_DATE(CONCAT(T.TXNDATE,EXTRACT(YEAR FROM T.CREATETIME)),'mmddyy')))>=? AND T.RESPONSECODE='00' AND T.STATUS NOT IN(?,?,?,?) AND T.TXNID NOT IN(SELECT DISTINCT TVR.TXNID FROM TXNVOIDREQUEST TVR) AND T.BACKENDTXNTYPE IN(?,?,?,?) AND ACQORISS=? AND EODCONSIDERSTATUS=? ";
+            //String query = "SELECT T.TXNID,T.CARDNO FROM TRANSACTION T WHERE T.EODSTATUS=? AND TRIM(T.TXNDATE) IS NOT NULL AND (TRUNC(TO_DATE(?,'yymmdd'))-TRUNC(TO_DATE(CONCAT(T.TXNDATE,EXTRACT(YEAR FROM T.CREATETIME)),'mmddyy')))>=? AND T.RESPONSECODE='00' AND T.STATUS NOT IN(?,?,?,?) AND T.TXNID NOT IN(SELECT DISTINCT TVR.TXNID FROM TXNVOIDREQUEST TVR) AND T.BACKENDTXNTYPE IN(?,?,?,?) AND ACQORISS=? AND EODCONSIDERSTATUS=?";
+            String query = queryParametersList.getTxnDropRequest_getDropTransactionList();
 
             query += CommonMethods.checkForErrorCards("T.CARDNO");
 
@@ -89,9 +90,9 @@ public class TxnDropRequestRepo implements TxnDropRequestDao {
     public boolean getTransactionReverseStatus(String txnId) throws Exception {
         boolean isReversed = false;
         try {
-            String query = "SELECT STATUS FROM ECMS_ONLINE_TRANSACTION WHERE TXNID=? ";
+            //String query = "SELECT STATUS FROM ECMS_ONLINE_TRANSACTION WHERE TXNID=?";
 
-            isReversed = Objects.requireNonNull(onlineJdbcTemplate.query(query,
+            isReversed = Objects.requireNonNull(onlineJdbcTemplate.query(queryParametersList.getTxnDropRequest_getTransactionReverseStatus(),
                     (ResultSet result) -> {
                         boolean tempIsReversed = false;
                         while (result.next()) {
@@ -116,10 +117,9 @@ public class TxnDropRequestRepo implements TxnDropRequestDao {
     @Override
     public void addTxnDropRequest(String txnId, StringBuffer cardNumber) throws Exception {
         try {
-            String sql = "INSERT INTO TXNVOIDREQUEST (CARDNUMBER,TXNID,REMARKS,STATUS,LASTUPDATEDUSER,LASTUPDATEDTIME,CREATEDTIME,REQUESTEDUSER,APPROVEDTIME"
-                    + ") VALUES(?,?,?,?,?,SYSDATE,SYSDATE,?,NULL)";
+            //String sql = "INSERT INTO TXNVOIDREQUEST (CARDNUMBER,TXNID,REMARKS,STATUS,LASTUPDATEDUSER,LASTUPDATEDTIME,CREATEDTIME,REQUESTEDUSER,APPROVEDTIME) VALUES(?,?,?,?,?,SYSDATE,SYSDATE,?,NULL)";
 
-            backendJdbcTemplate.update(sql, cardNumber.toString(),
+            backendJdbcTemplate.update(queryParametersList.getTxnDropRequest_addTxnDropRequest(), cardNumber.toString(),
                     txnId,
                     "Requested from EOD",
                     statusList.getCOMMON_REQUEST_INITIATE(),

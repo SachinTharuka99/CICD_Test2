@@ -11,6 +11,7 @@ import com.epic.cms.dao.EODEngineProducerDao;
 import com.epic.cms.model.bean.ProcessBean;
 import com.epic.cms.model.rowmapper.ProcessBeanRowMapper;
 import com.epic.cms.util.Configurations;
+import com.epic.cms.util.QueryParametersList;
 import com.epic.cms.util.StatusVarList;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.EmptyResultDataAccessException;
@@ -34,12 +35,15 @@ public class EODEngineProducerRepo implements EODEngineProducerDao {
     @Autowired
     StatusVarList statusList;
 
+    @Autowired
+    QueryParametersList queryParametersList;
+
     @Override
     public List<String> getEODStatusFromEODID(String eodID) {
         List<String> eodIdList = new ArrayList<String>();
         try {
-            String query = "SELECT STATUS FROM EOD WHERE EODID = ?";
-            eodIdList = backendJdbcTemplate.queryForList(query, String.class, eodID);
+           // String query = "SELECT STATUS FROM EOD WHERE EODID = ?";
+            eodIdList = backendJdbcTemplate.queryForList(queryParametersList.getEODEngineProducer_getEODStatusFromEODID(), String.class, eodID);
         } catch (Exception ex) {
             throw ex;
         }
@@ -50,17 +54,9 @@ public class EODEngineProducerRepo implements EODEngineProducerDao {
     public boolean checkUploadedFileStatus() {
         boolean flag = false;
         try {
-            String query = "select fileid from EODATMFILE where status not in (?, ?) " +
-                    "union " +
-                    "select fileid from EODDCFFILE where status not in (?, ?) " +
-                    "union " +
-                    "select fileid from EODMASTERFILE where status not in (?, ?) " +
-                    "union " +
-                    "select fileid from EODPAYMENTFILE where status not in (?, ?) " +
-                    "union " +
-                    "select fileid from EODVISAFILE where status not in (?, ?)";
+            //String query = "select fileid from EODATMFILE where status not in (?, ?) union select fileid from EODDCFFILE where status not in (?, ?) union select fileid from EODMASTERFILE where status not in (?, ?) union select fileid from EODPAYMENTFILE where status not in (?, ?) union select fileid from EODVISAFILE where status not in (?, ?)";
 
-            List<String> fileIdList = backendJdbcTemplate.queryForList(query, String.class, Configurations.COMPLETE_STATUS, Configurations.FAIL_STATUS,
+            List<String> fileIdList = backendJdbcTemplate.queryForList(queryParametersList.getEODEngineProducer_checkUploadedFileStatus(), String.class, Configurations.COMPLETE_STATUS, Configurations.FAIL_STATUS,
                     Configurations.COMPLETE_STATUS, Configurations.FAIL_STATUS,
                     Configurations.STATUS_FILE_COMP, Configurations.STATUS_FILE_REJECT,
                     Configurations.COMPLETE_STATUS, Configurations.FAIL_STATUS,
@@ -79,14 +75,9 @@ public class EODEngineProducerRepo implements EODEngineProducerDao {
     public List<ProcessBean> getProcessListByCategoryId(int categoryId) {
         List<ProcessBean> processList = new ArrayList<ProcessBean>();
         try {
-            String query = "SELECT EP.PROCESSID,EP.DESCRIPTION,EP.CRITICALSTATUS,EP.ROLLBACKSTATUS,"
-                    + "EP.SHEDULEDATE,EP.SHEDULETIME,EP.FREQUENCYTYPE,EP.CONTINUESFREQUENCYTYPE,EP.CONTINUESFREQUENCY,"
-                    + "EP.MULTIPLECYCLESTATUS,EF.PROCESSCATEGORYID,EP.DEPENDANCYSTATUS,EP.RUNNINGONMAIN,EP.RUNNINGONSUB,"
-                    + "EP.PROCESSTYPE,EP.STATUS,EP.SHEDULEDATETIME, EP.HOLIDAYACTION, EP.KAFKATOPICNAME, EP.KAFKAGROUPID, EP.EODMODULE"
-                    + " FROM EODPROCESSFLOW EF, EODPROCESS EP WHERE"
-                    + " EF.PROCESSCATEGORYID = ? AND EF.PROCESSID=EP.PROCESSID ORDER BY STEPID ASC";
+            //String query = "SELECT EP.PROCESSID,EP.DESCRIPTION,EP.CRITICALSTATUS,EP.ROLLBACKSTATUS,EP.SHEDULEDATE,EP.SHEDULETIME,EP.FREQUENCYTYPE,EP.CONTINUESFREQUENCYTYPE,EP.CONTINUESFREQUENCY, EP.MULTIPLECYCLESTATUS,EF.PROCESSCATEGORYID,EP.DEPENDANCYSTATUS,EP.RUNNINGONMAIN,EP.RUNNINGONSUB, EP.PROCESSTYPE,EP.STATUS,EP.SHEDULEDATETIME, EP.HOLIDAYACTION, EP.KAFKATOPICNAME, EP.KAFKAGROUPID, EP.EODMODULE FROM EODPROCESSFLOW EF, EODPROCESS EP WHERE EF.PROCESSCATEGORYID = ? AND EF.PROCESSID=EP.PROCESSID ORDER BY STEPID ASC";
 
-            processList = backendJdbcTemplate.query(query, new ProcessBeanRowMapper(), categoryId);
+            processList = backendJdbcTemplate.query(queryParametersList.getEODEngineProducer_getProcessListByCategoryId(), new ProcessBeanRowMapper(), categoryId);
         } catch (Exception ex) {
             throw ex;
         }
@@ -97,10 +88,9 @@ public class EODEngineProducerRepo implements EODEngineProducerDao {
     @Transactional(value = "transactionManager", propagation = Propagation.REQUIRES_NEW)
     public void insertToEODProcessCount(String uniqueId, int size, String includedProcess) {
         try {
-            String sql = "INSERT INTO EODPROCESSCOUNT (THREADID,PROCESSCOUNT,COMPLETEDCOUNT,INCLUDED_PROCESS)" +
-                    " VALUES (?,?,?,?)";
+            //String sql = "INSERT INTO EODPROCESSCOUNT (THREADID,PROCESSCOUNT,COMPLETEDCOUNT,INCLUDED_PROCESS) VALUES (?,?,?,?)";
 
-            backendJdbcTemplate.update(sql, uniqueId, size, 0, includedProcess);
+            backendJdbcTemplate.update(queryParametersList.getEODEngineProducer_insertToEODProcessCount(), uniqueId, size, 0, includedProcess);
         } catch (Exception ex) {
             throw ex;
         }
@@ -109,10 +99,10 @@ public class EODEngineProducerRepo implements EODEngineProducerDao {
     @Override
     public int getCompletedProcessCount(String uniqueId) throws SQLException {
         int count = 0;
-        String sql = "SELECT COMPLETEDCOUNT FROM EODPROCESSCOUNT WHERE THREADID = ?";
+        //String sql = "SELECT COMPLETEDCOUNT FROM EODPROCESSCOUNT WHERE THREADID = ?";
 
         try {
-            count = backendJdbcTemplate.queryForObject(sql, Integer.class, uniqueId);
+            count = backendJdbcTemplate.queryForObject(queryParametersList.getEODEngineProducer_getCompletedProcessCount(), Integer.class, uniqueId);
         }catch (EmptyResultDataAccessException e){
             return  0;
         }catch (Exception ex){
@@ -124,9 +114,9 @@ public class EODEngineProducerRepo implements EODEngineProducerDao {
     @Override
     public void clearEodProcessCountTable() throws Exception {
         try {
-            String sql = "DELETE FROM EODPROCESSCOUNT";
+            //String sql = "DELETE FROM EODPROCESSCOUNT";
 
-            backendJdbcTemplate.update(sql);
+            backendJdbcTemplate.update(queryParametersList.getEODEngineProducer_clearEodProcessCountTable());
         } catch (Exception ex) {
             throw ex;
         }
@@ -139,9 +129,9 @@ public class EODEngineProducerRepo implements EODEngineProducerDao {
 
         int eodID = Integer.parseInt(prevEODID);
         try {
-            String query = "update EODERRORCARDS set STATUS = ? where EODID < ?";
+            //String query = "update EODERRORCARDS set STATUS = ? where EODID < ?";
 
-            result = backendJdbcTemplate.update(query, statusList.getEOD_DONE_STATUS(), eodID);
+            result = backendJdbcTemplate.update(queryParametersList.getEODEngineProducer_updatePreviousEODErrorCardDetails(), statusList.getEOD_DONE_STATUS(), eodID);
 
         } catch (Exception e) {
             throw e;
@@ -156,9 +146,9 @@ public class EODEngineProducerRepo implements EODEngineProducerDao {
 
         int eodID = Integer.parseInt(prevEODID);
         try {
-            String query = "update EODERRORMERCHANT set STATUS = ? where EODID < ?";
+            //String query = "update EODERRORMERCHANT set STATUS = ? where EODID < ?";
 
-            result = backendJdbcTemplate.update(query, statusList.getEOD_DONE_STATUS(), eodID);
+            result = backendJdbcTemplate.update(queryParametersList.getEODEngineProducer_updatePreviousEODErrorMerchantDetails(), statusList.getEOD_DONE_STATUS(), eodID);
 
         } catch (Exception e) {
             throw e;
@@ -170,10 +160,10 @@ public class EODEngineProducerRepo implements EODEngineProducerDao {
     @Transactional(value = "transactionManager", propagation = Propagation.REQUIRES_NEW)
     public int updateEodProcessProgress() throws Exception {
         int count = 0;
-        String Query = "UPDATE EODPROCESSSUMMERY SET SUCCESSCOUNT = ? , FAILEDCOUNT = ? ,PROCESSPROGRESS = ? ,LASTUPDATEDUSER = ?,LASTUPDATEDTIME=SYSDATE WHERE EODID = ? AND PROCESSID = ?";
+        //String Query = "UPDATE EODPROCESSSUMMERY SET SUCCESSCOUNT = ? , FAILEDCOUNT = ? ,PROCESSPROGRESS = ? ,LASTUPDATEDUSER = ?,LASTUPDATEDTIME=SYSDATE WHERE EODID = ? AND PROCESSID = ?";
 
         try {
-            count = backendJdbcTemplate.update(Query,
+            count = backendJdbcTemplate.update(queryParametersList.getEODEngineProducer_updateEodProcessProgress(),
                     Configurations.PROCESS_SUCCESS_COUNT,
                     Configurations.PROCESS_FAILD_COUNT,
                     Configurations.PROCESS_PROGRESS,
@@ -190,9 +180,9 @@ public class EODEngineProducerRepo implements EODEngineProducerDao {
     public List<String> getErrorProcessIdList() throws Exception {
         List<String> processIdList = new ArrayList<String>();
         try {
-            String query = "SELECT PROCESSID FROM EODPROCESSSUMMERY WHERE STATUS='EROR' AND SUCCESSCOUNT=0 AND FAILEDCOUNT=0 AND EODID=?";
+            //String query = "SELECT PROCESSID FROM EODPROCESSSUMMERY WHERE STATUS='EROR' AND SUCCESSCOUNT=0 AND FAILEDCOUNT=0 AND EODID=?";
 
-            processIdList = backendJdbcTemplate.queryForList(query, String.class, Configurations.ERROR_EOD_ID);
+            processIdList = backendJdbcTemplate.queryForList(queryParametersList.getEODEngineProducer_getErrorProcessIdList(), String.class, Configurations.ERROR_EOD_ID);
         } catch (Exception e) {
             throw e;
         }
@@ -203,8 +193,8 @@ public class EODEngineProducerRepo implements EODEngineProducerDao {
     @Transactional(value = "transactionManager", propagation = Propagation.REQUIRES_NEW)
     public void updateProcessProgressForErrorProcess(String processId) throws Exception {
         try {
-            String query = "UPDATE EODPROCESSSUMMERY SET PROCESSPROGRESS='0%' WHERE EODID=? AND PROCESSID=? ";
-            backendJdbcTemplate.update(query, Configurations.ERROR_EOD_ID, processId);
+            //String query = "UPDATE EODPROCESSSUMMERY SET PROCESSPROGRESS='0%' WHERE EODID=? AND PROCESSID=?";
+            backendJdbcTemplate.update(queryParametersList.getEODEngineProducer_updateProcessProgressForErrorProcess(), Configurations.ERROR_EOD_ID, processId);
         } catch (Exception e) {
             throw e;
         }
@@ -214,11 +204,9 @@ public class EODEngineProducerRepo implements EODEngineProducerDao {
     @Transactional(value = "transactionManager", propagation = Propagation.REQUIRES_NEW)
     public int updateEodProcessStateCount() throws Exception {
         int count = 0;
-        String query = "UPDATE EOD SET NOOFSUCCESSPROCESS=(SELECT COUNT(*) FROM EODPROCESSSUMMERY WHERE EODID=? AND STATUS=?),"
-                + "NOOFERRORPAROCESS=(SELECT COUNT(*) FROM EODPROCESSSUMMERY WHERE EODID=? AND STATUS=?),"
-                + "LASTUPDATEDUSER=?,LASTUPDATEDTIME=SYSDATE WHERE EODID=?";
+        //String query = "UPDATE EOD SET NOOFSUCCESSPROCESS=(SELECT COUNT(*) FROM EODPROCESSSUMMERY WHERE EODID=? AND STATUS=?), NOOFERRORPAROCESS=(SELECT COUNT(*) FROM EODPROCESSSUMMERY WHERE EODID=? AND STATUS=?), LASTUPDATEDUSER=?,LASTUPDATEDTIME=SYSDATE WHERE EODID=?";
         try {
-            count = backendJdbcTemplate.update(query, Configurations.ERROR_EOD_ID,
+            count = backendJdbcTemplate.update(queryParametersList.getEODEngineProducer_updateEodProcessStateCount(), Configurations.ERROR_EOD_ID,
                     Configurations.COMPLETE_STATUS,
                     Configurations.ERROR_EOD_ID,
                     "EROR",
@@ -234,9 +222,9 @@ public class EODEngineProducerRepo implements EODEngineProducerDao {
     @Transactional(value = "transactionManager", propagation = Propagation.REQUIRES_NEW)
     public void updateEodStatus(int errorEodId, String status) throws Exception {
         try {
-            String query = "UPDATE EOD SET STATUS = ?,STARTTIME = SYSDATE,LASTUPDATEDTIME = SYSDATE,LASTUPDATEDUSER = ? WHERE EODID = ?";
+            //String query = "UPDATE EOD SET STATUS = ?,STARTTIME = SYSDATE,LASTUPDATEDTIME = SYSDATE,LASTUPDATEDUSER = ? WHERE EODID = ?";
 
-            backendJdbcTemplate.update(query, status, Configurations.EOD_USER, errorEodId);
+            backendJdbcTemplate.update(queryParametersList.getEODEngineProducer_updateEodStatus(), status, Configurations.EOD_USER, errorEodId);
         }catch (Exception e){
             throw e;
         }
@@ -244,13 +232,13 @@ public class EODEngineProducerRepo implements EODEngineProducerDao {
 
     @Override
     public boolean hasErrorforLastEOD() throws Exception {
-        String query = null;
+        //String query = null;
         boolean flag = false;
         try {
-            query = "SELECT EPS.STATUS FROM EODPROCESSSUMMERY EPS INNER JOIN EODPROCESS EP ON EP.PROCESSID=EPS.PROCESSID WHERE EPS.STATUS=? AND EPS.EODID=? and EPS.CREATEDTIME >=TO_DATE(SYSDATE,'DD-MON-YY') and EP.EODMODULE = ? ";
+            //query = "SELECT EPS.STATUS FROM EODPROCESSSUMMERY EPS INNER JOIN EODPROCESS EP ON EP.PROCESSID=EPS.PROCESSID WHERE EPS.STATUS=? AND EPS.EODID=? and EPS.CREATEDTIME >=TO_DATE(SYSDATE,'DD-MON-YY') and EP.EODMODULE = ?";
 
             RowCountCallbackHandler countCallback = new RowCountCallbackHandler();
-            backendJdbcTemplate.query(query, countCallback, statusList.getERROR_STATUS(), Configurations.EOD_ID, Configurations.EOD_ENGINE);
+            backendJdbcTemplate.query(queryParametersList.getEODEngineProducer_hasErrorforLastEOD(), countCallback, statusList.getERROR_STATUS(), Configurations.EOD_ID, Configurations.EOD_ENGINE);
             int rowCount = countCallback.getRowCount();
 
             if (rowCount > 0) {
@@ -269,9 +257,9 @@ public class EODEngineProducerRepo implements EODEngineProducerDao {
     @Transactional(value = "transactionManager", propagation = Propagation.REQUIRES_NEW)
     public void updateEodEndStatus(int errorEodId, String status) throws Exception {
         try {
-            String query = "UPDATE EOD SET STATUS =?,ENDTIME =SYSDATE,LASTUPDATEDTIME = SYSDATE,LASTUPDATEDUSER = ? WHERE EODID = ?";
+            //String query = "UPDATE EOD SET STATUS =?,ENDTIME =SYSDATE,LASTUPDATEDTIME = SYSDATE,LASTUPDATEDUSER = ? WHERE EODID = ?";
 
-            backendJdbcTemplate.update(query, status, Configurations.EOD_USER, errorEodId);
+            backendJdbcTemplate.update(queryParametersList.getEODEngineProducer_updateEodEndStatus(), status, Configurations.EOD_USER, errorEodId);
         }catch (Exception e){
             throw e;
         }
@@ -281,8 +269,8 @@ public class EODEngineProducerRepo implements EODEngineProducerDao {
     public int getNextRunningEodId() {
         int eodId =0;
         try {
-            String sql = "SELECT EODID FROM EOD WHERE STATUS IN ('INIT' , 'EROR')";
-            eodId = backendJdbcTemplate.queryForObject(sql, Integer.class);
+            //String sql = "SELECT EODID FROM EOD WHERE STATUS IN ('INIT' , 'EROR')";
+            eodId = backendJdbcTemplate.queryForObject(queryParametersList.getEODEngineProducer_getNextRunningEodId(), Integer.class);
         }catch (EmptyResultDataAccessException ex){
             return 0;
         }catch (Exception e){

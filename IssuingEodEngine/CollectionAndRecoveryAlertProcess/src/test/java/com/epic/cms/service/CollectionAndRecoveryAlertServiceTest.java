@@ -14,6 +14,7 @@ import org.mockito.Mockito;
 
 import java.sql.Timestamp;
 import java.time.LocalDateTime;
+import java.util.concurrent.atomic.AtomicInteger;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
@@ -23,6 +24,7 @@ import static org.mockito.Mockito.*;
 class CollectionAndRecoveryAlertServiceTest {
 
     private CollectionAndRecoveryAlertService collectionAndRecoveryAlertServiceUnderTest;
+    public AtomicInteger faileCardCount = new AtomicInteger(0);
 
     @BeforeEach
     void setUp() {
@@ -77,7 +79,7 @@ class CollectionAndRecoveryAlertServiceTest {
 
 
         // Run the test
-        collectionAndRecoveryAlertServiceUnderTest.processCollectionAndRecoveryAlertService(cardNumber, value, processBean);
+        collectionAndRecoveryAlertServiceUnderTest.processCollectionAndRecoveryAlertService(cardNumber, value, processBean,faileCardCount);
 
         // Verify the results
         verify(collectionAndRecoveryAlertServiceUnderTest.collectionAndRecoveryAlertRepo, times(1)).updateAlertGenStatus(

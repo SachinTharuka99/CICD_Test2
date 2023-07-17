@@ -26,6 +26,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.util.ArrayList;
 import java.util.LinkedHashMap;
+import java.util.concurrent.atomic.AtomicInteger;
 
 
 @Service
@@ -42,7 +43,7 @@ public class TransactionPostService {
 
     @Async("taskExecutor2")
     @Transactional(value = "transactionManager", propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
-    public void transactionList(OtbBean bean) throws Exception {
+    public void transactionList(OtbBean bean, AtomicInteger faileCardCount) {
         if (!Configurations.isInterrupted) {
             ArrayList<OtbBean> txnList;
             LinkedHashMap details = new LinkedHashMap();
@@ -179,12 +180,13 @@ public class TransactionPostService {
                                 details.put("Aft Amount", card.getAft());
                             }
                         }
-                        Configurations.PROCESS_SUCCESS_COUNT++;
+                        //Configurations.PROCESS_SUCCESS_COUNT++;
 
                     } catch (Exception ex) {
                         Configurations.errorCardList.add(new ErrorCardBean(Configurations.ERROR_EOD_ID, Configurations.EOD_DATE, new StringBuffer(cardBean.getCardnumber()), ex.getMessage(), Configurations.RUNNING_PROCESS_ID, Configurations.RUNNING_PROCESS_DESCRIPTION, 0, CardAccount.ACCOUNT));
                         logError.error("Transaction post process failed for account " + bean.getAccountnumber(), ex);
-                        Configurations.PROCESS_FAILD_COUNT++;
+                        //Configurations.PROCESS_FAILD_COUNT++;
+                        faileCardCount.addAndGet(1);
                         break;
                     }
                     iterator++;

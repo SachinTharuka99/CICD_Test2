@@ -25,6 +25,7 @@ import org.springframework.stereotype.Service;
 import java.util.ArrayList;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.concurrent.atomic.AtomicInteger;
 import java.util.Queue;
 import java.util.concurrent.ArrayBlockingQueue;
 import java.util.concurrent.BlockingQueue;
@@ -48,6 +49,7 @@ public class AdjustmentConnector extends ProcessBuilder {
     LogManager logManager;
 
     public AtomicInteger ADJUSTMENT_SEQUENCE_NO = new AtomicInteger(0);
+    public AtomicInteger faileCardCount = new AtomicInteger(0);
     int capacity = 200000;
     BlockingQueue<Integer> failCount = new ArrayBlockingQueue<>(capacity);
     BlockingQueue<Integer> successCount = new ArrayBlockingQueue<>(capacity);

@@ -20,7 +20,7 @@ public class TxnMismatchPostRepo implements TxnMismatchPostDao {
     private JdbcTemplate backendJdbcTemplate;
 
     @Autowired
-    QueryParametersList query;
+    QueryParametersList queryParametersList;
 
     @Autowired
     StatusVarList status;
@@ -29,30 +29,10 @@ public class TxnMismatchPostRepo implements TxnMismatchPostDao {
     public ArrayList<OtbBean> getInitEodTxnMismatchPostCustAcc() throws Exception {
         ArrayList<OtbBean> custAccList = new ArrayList<OtbBean>();
 
-        String query = "SELECT DISTINCT CAC.CUSTOMERID, CAC.ACCOUNTNO "
-                + "FROM EODTRANSACTION ET "
-                + "INNER JOIN CARD C ON C.CARDNUMBER = ET.CARDNUMBER "
-                + "INNER JOIN CARDACCOUNTCUSTOMER CAC ON CAC.CARDNUMBER = C.MAINCARDNO "
-                + "LEFT OUTER JOIN TRANSACTION T ON T.TXNID = ET.TRANSACTIONID "
-                + "WHERE ET.STATUS = ? AND ET.EODID = ? AND ET.ONLYVISAFALSE NOT IN(?) "
-                + "AND ((ET.TRANSACTIONTYPE = ? AND ET.CRDR = ?) "
-                + "OR (ET.TRANSACTIONTYPE = ? AND ET.CRDR = ?) "
-                + "OR (ET.TRANSACTIONTYPE = ? AND ET.CRDR = ?) "
-                + "OR (ET.TRANSACTIONTYPE = ? AND ET.CRDR = ?) "
-                + "OR (ET.TRANSACTIONTYPE = ? AND ET.CRDR = ?) "
-                + "OR (ET.TRANSACTIONTYPE = ? AND ET.CRDR = ?) "
-                + "OR (ET.TRANSACTIONTYPE = ? AND ET.CRDR = ?) "
-                + "OR (ET.TRANSACTIONTYPE = ? AND ET.CRDR = ?) "
-                + "OR (ET.TRANSACTIONTYPE = ? AND ET.CRDR = ?) "
-                + "OR (ET.TRANSACTIONTYPE = ? AND ET.CRDR = ?)) "
-                + " AND CAC.ACCOUNTNO not in "
-                + " (select ec.ACCOUNTNO from eoderrorcards ec where ec.status= ? ) "
-                + "GROUP BY CAC.CUSTOMERID, CAC.ACCOUNTNO "
-                + " HAVING SUM(NVL(ET.TRANSACTIONAMOUNT,0)-NVL((CASE WHEN T.TXNCURRENCY = ? THEN T.TXNAMOUNT ELSE T.BILLINGAMOUNT END)/100,0)) != 0 "
-                + "ORDER BY CAC.CUSTOMERID, CAC.ACCOUNTNO ";
+        String query = "SELECT DISTINCT CAC.CUSTOMERID, CAC.ACCOUNTNO FROM EODTRANSACTION ET INNER JOIN CARD C ON C.CARDNUMBER = ET.CARDNUMBER INNER JOIN CARDACCOUNTCUSTOMER CAC ON CAC.CARDNUMBER = C.MAINCARDNO LEFT OUTER JOIN TRANSACTION T ON T.TXNID = ET.TRANSACTIONID WHERE ET.STATUS = ? AND ET.EODID = ? AND ET.ONLYVISAFALSE NOT IN(?) AND ((ET.TRANSACTIONTYPE = ? AND ET.CRDR = ?) OR (ET.TRANSACTIONTYPE = ? AND ET.CRDR = ?) OR (ET.TRANSACTIONTYPE = ? AND ET.CRDR = ?) OR (ET.TRANSACTIONTYPE = ? AND ET.CRDR = ?) OR (ET.TRANSACTIONTYPE = ? AND ET.CRDR = ?) OR (ET.TRANSACTIONTYPE = ? AND ET.CRDR = ?) OR (ET.TRANSACTIONTYPE = ? AND ET.CRDR = ?) OR (ET.TRANSACTIONTYPE = ? AND ET.CRDR = ?) OR (ET.TRANSACTIONTYPE = ? AND ET.CRDR = ?) OR (ET.TRANSACTIONTYPE = ? AND ET.CRDR = ?)) AND CAC.ACCOUNTNO not in (select ec.ACCOUNTNO from eoderrorcards ec where ec.status= ? ) GROUP BY CAC.CUSTOMERID, CAC.ACCOUNTNO HAVING SUM(NVL(ET.TRANSACTIONAMOUNT,0)-NVL((CASE WHEN T.TXNCURRENCY = ? THEN T.TXNAMOUNT ELSE T.BILLINGAMOUNT END)/100,0)) != 0 ORDER BY CAC.CUSTOMERID, CAC.ACCOUNTNO";
 
         try {
-            custAccList = (ArrayList<OtbBean>) backendJdbcTemplate.query(query,
+            custAccList = (ArrayList<OtbBean>) backendJdbcTemplate.query(query,//queryParametersList.getTxnMismatchPost_getInitEodTxnMismatchPostCustAcc(),
                     new RowMapperResultSetExtractor<>((result, rowNum) -> {
                         OtbBean bean = new OtbBean();
                         bean.setCustomerid(result.getString("CUSTOMERID"));
@@ -96,7 +76,7 @@ public class TxnMismatchPostRepo implements TxnMismatchPostDao {
         ArrayList<OtbBean> custAccList = new ArrayList<OtbBean>();
 
         try {
-            custAccList = (ArrayList<OtbBean>) backendJdbcTemplate.query(query.getTxnMismatchPost_getErrorEodTxnMismatchPostCustAcc(),
+            custAccList = (ArrayList<OtbBean>) backendJdbcTemplate.query(queryParametersList.getTxnMismatchPost_getErrorEodTxnMismatchPostCustAcc(),
                     new RowMapperResultSetExtractor<>((result, rowNum) -> {
                         OtbBean bean = new OtbBean();
                         bean.setCustomerid(result.getString("CUSTOMERID"));
@@ -136,32 +116,13 @@ public class TxnMismatchPostRepo implements TxnMismatchPostDao {
     }
 
     @Override
-    public ArrayList<OtbBean> getInitTxnMismatch(String accountNumber) throws Exception {
+    public ArrayList<OtbBean> getInitTxnMismatch(String accountNumber) {
         ArrayList<OtbBean> txnList = new ArrayList<OtbBean>();
 
-        String query = "SELECT ET.CARDNUMBER, TT.TRANSACTIONCODE, TT.DESCRIPTION,ET.CRDR, "
-                + "(CASE WHEN ET.CRDR='CR' THEN -1*SUM(NVL(ET.TRANSACTIONAMOUNT,0)-NVL((CASE WHEN T.TXNCURRENCY = ? THEN T.TXNAMOUNT ELSE T.BILLINGAMOUNT END)/100,0))"
-                + "ELSE SUM(NVL(ET.TRANSACTIONAMOUNT,0)-NVL((CASE WHEN T.TXNCURRENCY = ? THEN T.TXNAMOUNT ELSE T.BILLINGAMOUNT END)/100,0)) END) AS TXNMISMATCHAMOUNT  "
-                + "FROM EODTRANSACTION ET "
-                + "LEFT JOIN TRANSACTION T ON T.TXNID = ET.TRANSACTIONID "
-                + "INNER JOIN TRANSACTIONTYPE TT ON TT.TRANSACTIONCODE = ET.TRANSACTIONTYPE "
-                + "WHERE ET.STATUS = ? AND ET.EODID = ? AND ET.ONLYVISAFALSE NOT IN(?)"
-                + "AND ((ET.TRANSACTIONTYPE = ? AND ET.CRDR = ?) "
-                + "OR (ET.TRANSACTIONTYPE = ? AND ET.CRDR = ?) "
-                + "OR (ET.TRANSACTIONTYPE = ? AND ET.CRDR = ?) "
-                + "OR (ET.TRANSACTIONTYPE = ? AND ET.CRDR = ?) "
-                + "OR (ET.TRANSACTIONTYPE = ? AND ET.CRDR = ?) "
-                + "OR (ET.TRANSACTIONTYPE = ? AND ET.CRDR = ?) "
-                + "OR (ET.TRANSACTIONTYPE = ? AND ET.CRDR = ?) "
-                + "OR (ET.TRANSACTIONTYPE = ? AND ET.CRDR = ?) "
-                + "OR (ET.TRANSACTIONTYPE = ? AND ET.CRDR = ?) "
-                + "OR (ET.TRANSACTIONTYPE = ? AND ET.CRDR = ?)) "
-                + "AND ET.ACCOUNTNO = ? "
-                + "GROUP BY ET.CARDNUMBER, TT.TRANSACTIONCODE, TT.DESCRIPTION, ET.CRDR "
-                + "HAVING SUM(NVL(ET.TRANSACTIONAMOUNT,0)-NVL((CASE WHEN T.TXNCURRENCY = ? THEN T.TXNAMOUNT ELSE T.BILLINGAMOUNT END)/100,0)) != 0 ";
+        String query = "SELECT ET.CARDNUMBER, TT.TRANSACTIONCODE, TT.DESCRIPTION,ET.CRDR, (CASE WHEN ET.CRDR='CR' THEN -1*SUM(NVL(ET.TRANSACTIONAMOUNT,0)-NVL((CASE WHEN T.TXNCURRENCY = ? THEN T.TXNAMOUNT ELSE T.BILLINGAMOUNT END)/100,0))ELSE SUM(NVL(ET.TRANSACTIONAMOUNT,0)-NVL((CASE WHEN T.TXNCURRENCY = ? THEN T.TXNAMOUNT ELSE T.BILLINGAMOUNT END)/100,0)) END) AS TXNMISMATCHAMOUNT  FROM EODTRANSACTION ET LEFT JOIN TRANSACTION T ON T.TXNID = ET.TRANSACTIONID INNER JOIN TRANSACTIONTYPE TT ON TT.TRANSACTIONCODE = ET.TRANSACTIONTYPE WHERE ET.STATUS = ? AND ET.EODID = ? AND ET.ONLYVISAFALSE NOT IN(?)AND ((ET.TRANSACTIONTYPE = ? AND ET.CRDR = ?) OR (ET.TRANSACTIONTYPE = ? AND ET.CRDR = ?) OR (ET.TRANSACTIONTYPE = ? AND ET.CRDR = ?) OR (ET.TRANSACTIONTYPE = ? AND ET.CRDR = ?) OR (ET.TRANSACTIONTYPE = ? AND ET.CRDR = ?) OR (ET.TRANSACTIONTYPE = ? AND ET.CRDR = ?) OR (ET.TRANSACTIONTYPE = ? AND ET.CRDR = ?) OR (ET.TRANSACTIONTYPE = ? AND ET.CRDR = ?) OR (ET.TRANSACTIONTYPE = ? AND ET.CRDR = ?) OR (ET.TRANSACTIONTYPE = ? AND ET.CRDR = ?)) AND ET.ACCOUNTNO = ? GROUP BY ET.CARDNUMBER, TT.TRANSACTIONCODE, TT.DESCRIPTION, ET.CRDR HAVING SUM(NVL(ET.TRANSACTIONAMOUNT,0)-NVL((CASE WHEN T.TXNCURRENCY = ? THEN T.TXNAMOUNT ELSE T.BILLINGAMOUNT END)/100,0)) != 0";
 
         try {
-            txnList = (ArrayList<OtbBean>) backendJdbcTemplate.query(query,
+            txnList = (ArrayList<OtbBean>) backendJdbcTemplate.query(query,//queryParametersList.getTxnMismatchPost_getInitTxnMismatch(),
                     new RowMapperResultSetExtractor<>((result, rowNum) -> {
                         OtbBean bean = new OtbBean();
 //                        bean.setCustomerid(result.getString("CUSTOMERID"));
@@ -173,33 +134,33 @@ public class TxnMismatchPostRepo implements TxnMismatchPostDao {
                         bean.setTxnAmount(result.getDouble("TXNMISMATCHAMOUNT"));
                         return bean;
                     })
-                    , Configurations.BASE_CURRENCY
-                    , Configurations.BASE_CURRENCY
-                    , Configurations.EOD_DONE_STATUS
-                    , Configurations.EOD_ID
-                    , 1
-                    , Configurations.TXN_TYPE_SALE
-                    , Configurations.DEBIT
-                    , Configurations.TXN_TYPE_CASH_ADVANCE
-                    , Configurations.DEBIT
-                    , Configurations.TXN_TYPE_PAYMENT
-                    , Configurations.CREDIT
-                    , Configurations.TXN_TYPE_REVERSAL
-                    , Configurations.CREDIT
-                    , Configurations.TXN_TYPE_REFUND
-                    , Configurations.CREDIT
-                    , Configurations.TXN_TYPE_MVISA_REFUND
-                    , Configurations.CREDIT
-                    , Configurations.TXN_TYPE_MVISA_ORIGINATOR
-                    , Configurations.DEBIT
-                    , Configurations.TXN_TYPE_MONEY_SEND
-                    , Configurations.CREDIT
-                    , Configurations.TXN_TYPE_MONEY_SEND_REVERSAL
-                    , Configurations.DEBIT
-                    , Configurations.TXN_TYPE_AFT
-                    , Configurations.DEBIT
-                    , accountNumber
-                    , Configurations.BASE_CURRENCY
+                    , Configurations.BASE_CURRENCY //1
+                    , Configurations.BASE_CURRENCY //2
+                    , Configurations.EOD_DONE_STATUS //3
+                    , Configurations.EOD_ID //4
+                    , 1 //5
+                    , Configurations.TXN_TYPE_SALE //6
+                    , Configurations.DEBIT //7
+                    , Configurations.TXN_TYPE_CASH_ADVANCE //8
+                    , Configurations.DEBIT //9
+                    , Configurations.TXN_TYPE_PAYMENT //10
+                    , Configurations.CREDIT //11
+                    , Configurations.TXN_TYPE_REVERSAL //12
+                    , Configurations.CREDIT //13
+                    , Configurations.TXN_TYPE_REFUND //14
+                    , Configurations.CREDIT //15
+                    , Configurations.TXN_TYPE_MVISA_REFUND //16
+                    , Configurations.CREDIT //17
+                    , Configurations.TXN_TYPE_MVISA_ORIGINATOR //18
+                    , Configurations.DEBIT //19
+                    , Configurations.TXN_TYPE_MONEY_SEND //20
+                    , Configurations.CREDIT //21
+                    , Configurations.TXN_TYPE_MONEY_SEND_REVERSAL //22
+                    , Configurations.DEBIT //23
+                    , Configurations.TXN_TYPE_AFT //24
+                    , Configurations.DEBIT //25
+                    , accountNumber //26
+                    , Configurations.BASE_CURRENCY //27
             );
         } catch (Exception e) {
             throw e;

@@ -31,6 +31,7 @@ import java.io.FileWriter;
 import java.text.SimpleDateFormat;
 import java.util.*;
 
+
 /**
  * 1- Select list of merchant Customers & Locations according to their payment
  * file status on corresponding next payment date.

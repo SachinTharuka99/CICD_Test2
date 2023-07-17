@@ -12,7 +12,7 @@ import com.epic.cms.util.CommonMethods;
 import com.epic.cms.util.Configurations;
 import com.epic.cms.util.LogManager;
 import com.epic.cms.util.StatusVarList;
-import lombok.extern.slf4j.Slf4j;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -116,16 +116,16 @@ public class AcqTxnUpdateConnector extends ProcessBuilder {
                 if (issFailedTxn > 0) {
                     //CommonMethods.insertFailedEODCards(cardErrorList, conComitTrue, processHeader);
 //                    commonRepo.updateEodProcessSummery(Configurations.ERROR_EOD_ID, status.getERROR_STATUS(), Configurations.PROCESS_ID_ACQUIRING_TXN_UPDATE_PROCESS, Configurations.PROCESS_SUCCESS_COUNT, Configurations.PROCESS_FAILD_COUNT, CommonMethods.eodDashboardProcessProgress(Configurations.PROCESS_SUCCESS_COUNT, Configurations.PROCESS_TOTAL_NOOF_TRABSACTIONS));
-                    logInfo.info(logManager.logStartEnd(processHeader + "  completed with errors in card level"));
+                    //logInfo.info(logManager.logStartEnd(processHeader + "  completed with errors in card level"));
                 }
                 if (acqFailedMerchants > 0) {
                     //CommonMethods.insertFailedEODMerchants(merchantErrorList, conComitTrue, processHeader);
 //                    commonRepo.updateEodProcessSummery(Configurations.ERROR_EOD_ID, status.getERROR_STATUS(), Configurations.PROCESS_ID_ACQUIRING_TXN_UPDATE_PROCESS, Configurations.PROCESS_SUCCESS_COUNT, Configurations.PROCESS_FAILD_COUNT, CommonMethods.eodDashboardProcessProgress(Configurations.PROCESS_SUCCESS_COUNT, Configurations.PROCESS_TOTAL_NOOF_TRABSACTIONS));
-                    logInfo.info(logManager.logStartEnd(processHeader + "  completed with errors in merchant level"));
+                    //logInfo.info(logManager.logStartEnd(processHeader + "  completed with errors in merchant level"));
                 }
                 if (issFailedTxn == 0 && acqFailedMerchants == 0) {
 //                    commonRepo.updateEodProcessSummery(Configurations.ERROR_EOD_ID, status.getSUCCES_STATUS(), Configurations.PROCESS_ID_ACQUIRING_TXN_UPDATE_PROCESS, Configurations.PROCESS_SUCCESS_COUNT, Configurations.PROCESS_FAILD_COUNT, CommonMethods.eodDashboardProcessProgress(Configurations.PROCESS_SUCCESS_COUNT, Configurations.PROCESS_TOTAL_NOOF_TRABSACTIONS));
-                    logInfo.info(logManager.logStartEnd(processHeader + "completed without errors"));
+                    //logInfo.info(logManager.logStartEnd(processHeader + "completed without errors"));
                 }
             }
         }catch (Exception e){
@@ -142,7 +142,7 @@ public class AcqTxnUpdateConnector extends ProcessBuilder {
                 logError.error("Failed Acq Txn Update Process ",e2);
             }
         } finally {
-            logInfo.info(logManager.logSummery(summery));
+            //logInfo.info(logManager.logSummery(summery));
             try {
                 /* PADSS Change -
                 variables handling card data should be nullified

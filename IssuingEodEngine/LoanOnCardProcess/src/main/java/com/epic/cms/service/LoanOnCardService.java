@@ -19,6 +19,7 @@ import java.util.Date;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.UUID;
+import java.util.concurrent.atomic.AtomicInteger;
 
 @Service
 public class LoanOnCardService {
@@ -124,7 +125,7 @@ public class LoanOnCardService {
 
     @Async("ThreadPool_100")
     @Transactional(value = "transactionManager", propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
-    public void startLOCProcess(InstallmentBean installmentBean, ProcessBean processBean) throws Exception {
+    public void startLOCProcess(InstallmentBean installmentBean, ProcessBean processBean, AtomicInteger faileCardCount) {
         if (!Configurations.isInterrupted) {
             LinkedHashMap details = new LinkedHashMap();
             try {
@@ -257,9 +258,10 @@ public class LoanOnCardService {
                         installmentPaymentRepo.updateEasyPaymentTable(installmentBean, "LOANONCARDREQUEST");
                     }
                     details.put("Process Status", "Passed");
-                    Configurations.PROCESS_SUCCESS_COUNT++;
+                   // Configurations.PROCESS_SUCCESS_COUNT++;
                 } catch (Exception e) {
-                    Configurations.FAILED_LOAN_ON_CARDS++;
+                    //Configurations.FAILED_LOAN_ON_CARDS++;
+                    faileCardCount.addAndGet(1);
                     Configurations.PROCESS_FAILD_COUNT++;
                     Configurations.errorCardList.add(new ErrorCardBean(Configurations.ERROR_EOD_ID, Configurations.EOD_DATE, installmentBean.getCardNumber(), e.getMessage(), Configurations.RUNNING_PROCESS_ID, Configurations.RUNNING_PROCESS_DESCRIPTION, 0, CardAccount.CARD));
                     logError.error("Loan On Card process failed for cardnumber " + CommonMethods.cardInfo(maskedCardNumber, processBean), e);

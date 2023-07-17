@@ -9,6 +9,7 @@ package com.epic.cms.repository;
 
 import com.epic.cms.dao.CardRenewLetterDao;
 import com.epic.cms.util.Configurations;
+import com.epic.cms.util.QueryParametersList;
 import com.epic.cms.util.StatusVarList;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.jdbc.core.JdbcTemplate;
@@ -26,12 +27,16 @@ public class CardRenewLetterRepo implements CardRenewLetterDao {
     @Autowired
     private JdbcTemplate backendJdbcTemplate;
 
+    @Autowired
+    QueryParametersList queryParametersList;
+
 
     @Override
     public ArrayList<StringBuffer> getRenewalCardsToGenerateLetters() throws Exception {
         ArrayList<StringBuffer> renewalCardList = new ArrayList<>();
         try {
-            String sql = "SELECT cr.cardnumber FROM cardrenew cr WHERE cr.status = ? and LETTERGENERATIONSTATUS <> ? ";
+            //String sql = "SELECT cr.cardnumber FROM cardrenew cr WHERE cr.status = ? and LETTERGENERATIONSTATUS <> ?";
+            String sql = queryParametersList.getCardRenewLetter_getRenewalCardsToGenerateLetters();
 
             if (!Configurations.STARTING_EOD_STATUS.equals(statusList.getERROR_STATUS())) {
                 sql = sql + "and cr.cardnumber not in (select cardno from eoderrorcards where status = ? ) ";
@@ -64,8 +69,8 @@ public class CardRenewLetterRepo implements CardRenewLetterDao {
     public int updateLettergenStatusInCardRenew(StringBuffer cardNo, String letterGenStatus) throws Exception {
         int count = 0;
         try {
-            String updatePay = "update cardrenew set LETTERGENERATIONSTATUS=? where cardnumber=?";
-            count = backendJdbcTemplate.update(updatePay, letterGenStatus, cardNo.toString());
+            //String updatePay = "update cardrenew set LETTERGENERATIONSTATUS=? where cardnumber=?";
+            count = backendJdbcTemplate.update(queryParametersList.getCardRenewLetter_updateLettergenStatusInCardRenew(), letterGenStatus, cardNo.toString());
 
         } catch (Exception e) {
             throw e;

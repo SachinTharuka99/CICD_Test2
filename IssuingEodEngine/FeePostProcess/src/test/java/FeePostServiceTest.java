@@ -12,6 +12,7 @@ import org.mockito.MockedStatic;
 import org.mockito.Mockito;
 
 import java.util.List;
+import java.util.concurrent.atomic.AtomicInteger;
 
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.any;
@@ -21,6 +22,7 @@ import static org.mockito.Mockito.*;
 class FeePostServiceTest {
     private FeePostService feePostServiceUnderTest;
     static MockedStatic<CommonMethods> common;
+    public AtomicInteger faileCardCount = new AtomicInteger(0);
 
     @BeforeAll
     public static void init() {
@@ -80,7 +82,7 @@ class FeePostServiceTest {
         common.when(() -> CommonMethods.cardNumberMask(any(StringBuffer.class))).thenReturn("456788******8888");
 
         // Run the test
-        feePostServiceUnderTest.proceedFeePost(bean);
+        feePostServiceUnderTest.proceedFeePost(bean,faileCardCount);
 
         // Verify the results
         assertEquals(1, feePostServiceUnderTest.feePostDao.updateCardOtb(any(OtbBean.class)));

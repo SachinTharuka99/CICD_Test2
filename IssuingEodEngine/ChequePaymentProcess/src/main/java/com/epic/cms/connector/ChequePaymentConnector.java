@@ -18,11 +18,13 @@ import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.concurrent.atomic.AtomicInteger;
 
 @Service
 public class ChequePaymentConnector extends ProcessBuilder {
     private static final Logger logInfo = LoggerFactory.getLogger("logInfo");
     private static final Logger logError = LoggerFactory.getLogger("logError");
+    public AtomicInteger faileCardCount = new AtomicInteger(0);
     /**
      * This process syncs the cheque payments and backs up all the current EOD sales,
      * charges and payments.
@@ -60,9 +62,13 @@ public class ChequePaymentConnector extends ProcessBuilder {
                 }
 
                 if (chqList.size() > 0) {
-                    for (ReturnChequePaymentDetailBean bean : chqList) {
-                        chequePaymentService.processChequePayment(bean);
-                    }
+//                    for (ReturnChequePaymentDetailBean bean : chqList) {
+//                        chequePaymentService.processChequePayment(bean);
+//                    }
+                    chqList.forEach(bean->  {
+                        chequePaymentService.processChequePayment(bean,faileCardCount);
+                    });
+
                 }
             } catch (Exception e) {
                 logError.error("Failed Cheque Payment Process ", e);
@@ -72,7 +78,7 @@ public class ChequePaymentConnector extends ProcessBuilder {
             Configurations.IS_PROCESS_COMPLETELY_FAILED = true;
             logError.error("Failed Cheque Payment Process Exception ", e);
         } finally {
-            logInfo.info(logManager.logSummery(summery));
+            //logInfo.info(logManager.logSummery(summery));
             try {
                 if (chqList != null && chqList.size() != 0) {
                     /** PADSS Change -
@@ -92,7 +98,10 @@ public class ChequePaymentConnector extends ProcessBuilder {
 
     @Override
     public void addSummaries() {
-        summery.put("Cheque Payments Processed", Statusts.SUMMARY_FOR_CHEQUE_PAYMENTS + "");
-        summery.put("No of fail Cheque Payments ", Configurations.PROCESS_FAILD_COUNT);
+//        summery.put("Cheque Payments Processed", Statusts.SUMMARY_FOR_CHEQUE_PAYMENTS + "");
+//        summery.put("No of fail Cheque Payments ", Configurations.PROCESS_FAILD_COUNT);
+
+        summery.put("Cheque Payments Processed",  Configurations.PROCESS_TOTAL_NOOF_TRABSACTIONS + "");
+        summery.put("No of fail Cheque Payments ", faileCardCount.get());
     }
 }

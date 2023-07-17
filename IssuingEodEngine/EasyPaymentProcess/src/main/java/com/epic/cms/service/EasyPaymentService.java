@@ -26,6 +26,7 @@ import java.math.RoundingMode;
 import java.util.Date;
 import java.util.LinkedHashMap;
 import java.util.List;
+import java.util.concurrent.atomic.AtomicInteger;
 
 @Service
 public class EasyPaymentService {
@@ -228,7 +229,7 @@ public class EasyPaymentService {
 
     //@Async("ThreadPool_100")
     @Transactional(value = "transactionManager", propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
-    public void startEasyPaymentProcess(InstallmentBean easyPaymentBean, ProcessBean processBean) throws Exception {
+    public void startEasyPaymentProcess(InstallmentBean easyPaymentBean, ProcessBean processBean, AtomicInteger faileCardCount)  {
         if (!Configurations.isInterrupted) {
             LinkedHashMap details = new LinkedHashMap();
             try {
@@ -375,11 +376,12 @@ public class EasyPaymentService {
 
                         installmentPaymentRepo.updateEasyPaymentTable(easyPaymentBean, "EASYPAYMENTREQUEST");
                     }
-                    Configurations.PROCESS_SUCCESS_COUNT++;
+                    //Configurations.PROCESS_SUCCESS_COUNT++;
                     details.put("Process Status", "Passed");
                 } catch (Exception e) {
+                    faileCardCount.addAndGet(1);
                     Configurations.FAILED_EASY_PAYMENTS++;
-                    Configurations.PROCESS_FAILD_COUNT++;
+                    //Configurations.PROCESS_FAILD_COUNT++;
                     Configurations.errorCardList.add(new ErrorCardBean(Configurations.ERROR_EOD_ID, Configurations.EOD_DATE, new StringBuffer(easyPaymentBean.getCardNumber()), e.getMessage(), Configurations.RUNNING_PROCESS_ID, Configurations.RUNNING_PROCESS_DESCRIPTION, 0, CardAccount.CARD));
 
                     logError.error("Easy Payment  process failed for cardnumber " + CommonMethods.cardInfo(maskedCardNumber, processBean), e);

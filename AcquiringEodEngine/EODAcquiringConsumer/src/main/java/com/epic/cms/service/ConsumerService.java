@@ -45,6 +45,12 @@ public class ConsumerService {
     @Autowired
     OriginatorPushTxnUpdateConnector originatorPushTxnUpdateConnector;
 
+    @Autowired
+    RecipientPushTxnUpdateConnector recipientPushTxnUpdateController;
+
+    @Autowired
+    MerchantStatementConnector merchantStatementConnector;
+
     @KafkaListener(topics = "acqTxnUpdate", groupId = "group_acqTxnUpdate")
     public void acqTxnUpdateConsumer(String uniqueID) throws Exception {
         Configurations.eodUniqueId = uniqueID;
@@ -129,4 +135,17 @@ public class ConsumerService {
         System.out.println("Complete OriginatorPushTxnUpdate Process");
     }
 
+    @KafkaListener(topics = "recipientPushTransaction", groupId = "group_recipientPushTransaction")
+    public void recipientPushTransaction(String uniqueID) throws Exception {
+        System.out.println("Start recipientPushTransaction Process");
+        recipientPushTxnUpdateController.startProcess(Configurations.PROCESS_ID_RECIPIENT_PUSH_TXN_UPDATE, uniqueID);
+        System.out.println("Complete recipientPushTransaction Process");
+    }
+
+    @KafkaListener(topics = "merchantStatement", groupId = "group_merchantStatement")
+    public void merchantStatement(String uniqueID) throws Exception {
+        System.out.println("Start merchantStatement Process");
+        merchantStatementConnector.startProcess(Configurations.PROCESS_ID_MERCHANT_STATEMENT, uniqueID);
+        System.out.println("Complete merchantStatement Process");
+    }
 }

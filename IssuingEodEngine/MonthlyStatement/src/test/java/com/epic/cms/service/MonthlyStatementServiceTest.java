@@ -12,6 +12,7 @@ import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.GregorianCalendar;
 import java.util.List;
+import java.util.concurrent.atomic.AtomicInteger;
 
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
@@ -20,6 +21,8 @@ import static org.mockito.Mockito.*;
 class MonthlyStatementServiceTest {
 
     private MonthlyStatementService monthlyStatementServiceUnderTest;
+
+    public AtomicInteger faileCardCount = new AtomicInteger(0);
 
     @BeforeEach
     void setUp() {
@@ -72,7 +75,7 @@ class MonthlyStatementServiceTest {
                 .thenReturn(statementBean);
 
         // Run the test
-        monthlyStatementServiceUnderTest.monthlyStatement("4862950000698568", accDetails);
+        monthlyStatementServiceUnderTest.monthlyStatement("4862950000698568", accDetails, faileCardCount);
 
         // Verify the results
         verify(monthlyStatementServiceUnderTest.monthlyStatementRepo, times(1)).UpdateStatementDeatils(

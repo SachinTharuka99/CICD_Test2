@@ -17,6 +17,7 @@ import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.LinkedHashMap;
+import java.util.concurrent.atomic.AtomicInteger;
 
 
 @Service
@@ -31,7 +32,7 @@ public class OverLimitFeeService {
 
     @Async("ThreadPool_100")
     @Transactional(value = "transactionManager", propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
-    public void addOverLimitFee(String accNumber, StringBuffer cardNumber, ProcessBean processBean, String processHeader) {
+    public void addOverLimitFee(String accNumber, StringBuffer cardNumber, ProcessBean processBean, String processHeader, AtomicInteger faileCardCount) {
         if (!Configurations.isInterrupted) {
             LinkedHashMap details = new LinkedHashMap();
             String maskedCardNumber = CommonMethods.cardNumberMask(cardNumber);
@@ -42,9 +43,10 @@ public class OverLimitFeeService {
                 //add fee count
                 commonRepo.addCardFeeCount(cardNumber, Configurations.OVER_LIMIT_FEE, 0);
                 details.put("Process Status", "Passed");
-                Configurations.PROCESS_SUCCESS_COUNT++;
+                //Configurations.PROCESS_SUCCESS_COUNT++;
             } catch (Exception e) {
-                Configurations.PROCESS_FAILD_COUNT++;
+                faileCardCount.addAndGet(1);
+               // Configurations.PROCESS_FAILD_COUNT++;
                 Configurations.errorCardList.add(new ErrorCardBean(Configurations.ERROR_EOD_ID, Configurations.EOD_DATE, new StringBuffer(cardNumber), e.getMessage(), Configurations.RUNNING_PROCESS_ID, Configurations.RUNNING_PROCESS_DESCRIPTION, 0, CardAccount.CARD));
                 logError.error("OverLimit Fee process failed for cardNumber " + CommonMethods.cardInfo(maskedCardNumber, processBean), e);
                 details.put("Process Status", "Failed");

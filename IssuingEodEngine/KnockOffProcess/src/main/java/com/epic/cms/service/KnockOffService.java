@@ -16,12 +16,14 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.util.ArrayList;
 import java.util.LinkedHashMap;
+import java.util.concurrent.atomic.AtomicInteger;
 
 @Service
 public class KnockOffService {
 
     private static final Logger logInfo = LoggerFactory.getLogger("logInfo");
     private static final Logger logError = LoggerFactory.getLogger("logError");
+
     @Autowired
     LogManager logManager;
     @Autowired
@@ -33,7 +35,7 @@ public class KnockOffService {
 
     @Async("ThreadPool_100")
     @Transactional(value = "transactionManager", propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
-    public void knockOff(OtbBean custAccBean, ArrayList<OtbBean> cardList, ArrayList<OtbBean> paymentList) throws Exception {
+    public void knockOff(OtbBean custAccBean, ArrayList<OtbBean> cardList, ArrayList<OtbBean> paymentList, AtomicInteger faileCardCount)  {
         if (!Configurations.isInterrupted) {
             LinkedHashMap details = new LinkedHashMap();
             int cardIteration = 1;
@@ -279,12 +281,13 @@ public class KnockOffService {
                         knockOffRepo.OnlineupdateCustomerOtb(custAccBean);
                     }
                     cardIteration++;
-                    Configurations.PROCESS_SUCCESS_COUNT++;
+                    //Configurations.PROCESS_SUCCESS_COUNT++;
 
                 } catch (Exception e) {
                     Configurations.errorCardList.add(new ErrorCardBean(Configurations.ERROR_EOD_ID, Configurations.EOD_DATE, new StringBuffer(custAccBean.getCardnumber()), e.getMessage(), Configurations.RUNNING_PROCESS_ID, Configurations.RUNNING_PROCESS_DESCRIPTION, 0, CardAccount.ACCOUNT));
                     logError.error("Knock off process failed for account " + custAccBean.getAccountnumber(), e);
-                    Configurations.PROCESS_FAILD_COUNT++;
+                    //Configurations.PROCESS_FAILD_COUNT++;
+                    faileCardCount.addAndGet(1);
                     break;
                 } finally {
                     logInfo.info(logManager.logDetails(details));

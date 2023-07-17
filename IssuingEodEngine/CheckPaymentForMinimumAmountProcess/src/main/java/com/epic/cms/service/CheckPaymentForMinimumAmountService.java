@@ -18,6 +18,7 @@ import org.springframework.transaction.annotation.Transactional;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.LinkedHashMap;
+import java.util.concurrent.atomic.AtomicInteger;
 
 
 @Service
@@ -36,7 +37,7 @@ public class CheckPaymentForMinimumAmountService {
 
     @Async("ThreadPool_100")
     @Transactional(value = "transactionManager", propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
-    public void CheckPaymentForMinimumAmount(LastStatementSummeryBean lastStatement) {
+    public void CheckPaymentForMinimumAmount(LastStatementSummeryBean lastStatement, AtomicInteger faileCardCount) {
         LinkedHashMap details = new LinkedHashMap();
         Date checkDueDate = null;
         ProcessBean processBean = null;

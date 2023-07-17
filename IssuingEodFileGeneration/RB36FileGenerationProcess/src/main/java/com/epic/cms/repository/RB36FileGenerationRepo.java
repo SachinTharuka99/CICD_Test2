@@ -12,6 +12,7 @@ import com.epic.cms.model.bean.GlAccountBean;
 import com.epic.cms.model.bean.GlBean;
 import com.epic.cms.util.CommonMethods;
 import com.epic.cms.util.Configurations;
+import com.epic.cms.util.QueryParametersList;
 import com.epic.cms.util.StatusVarList;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.EmptyResultDataAccessException;
@@ -33,13 +34,16 @@ public class RB36FileGenerationRepo implements RB36FileGenerationDao {
     @Autowired
     private StatusVarList statusVarList;
 
+    @Autowired
+    QueryParametersList queryParametersList;
+
     @Override
     public ArrayList<StringBuffer> getNPCard() throws Exception {
         ArrayList<StringBuffer> npCardList = new ArrayList<>();
         try {
-            String sql = "SELECT DISTINCT C.CARDNUMBER AS CARDNUMBER FROM CARD C,DELINQUENTACCOUNT D WHERE D.ACCSTATUS IN (?) AND C.MAINCARDNO=D.CARDNUMBER";
+            //String sql = "SELECT DISTINCT C.CARDNUMBER AS CARDNUMBER FROM CARD C,DELINQUENTACCOUNT D WHERE D.ACCSTATUS IN (?) AND C.MAINCARDNO=D.CARDNUMBER";
 
-            backendJdbcTemplate.query(sql, (ResultSet rs) -> {
+            backendJdbcTemplate.query(queryParametersList.getRB36FileGeneration_getNPCard(), (ResultSet rs) -> {
                 while (rs.next()) {
                     npCardList.add(new StringBuffer(rs.getString("CARDNUMBER")));
                 }
@@ -58,12 +62,9 @@ public class RB36FileGenerationRepo implements RB36FileGenerationDao {
         ArrayList<String> glTypes = new ArrayList<>();
 
         try {
-            String sql = "SELECT ID,EODID,CARDNO ,NVL(GLTYPE,'--') AS GLTYPE,NVL(PAYMENTTYPE,'CASH') AS PAYMENTTYPE,AMOUNT,CRDR,CARDNO"
-                    + " FROM EODGLACCOUNT "
-                    + " WHERE EODSTATUS = ?"
-                    + " AND GLTYPE IN (?,?) ";
+            //String sql = "SELECT ID,EODID,CARDNO ,NVL(GLTYPE,'--') AS GLTYPE,NVL(PAYMENTTYPE,'CASH') AS PAYMENTTYPE,AMOUNT,CRDR,CARDNO FROM EODGLACCOUNT WHERE EODSTATUS = ? AND GLTYPE IN (?,?)";
 
-            backendJdbcTemplate.query(sql, (ResultSet rs) -> {
+            backendJdbcTemplate.query(queryParametersList.getRB36FileGeneration_getPaymentDataFromEODGl(), (ResultSet rs) -> {
                         while (rs.next()) {
                             ArrayList<GlAccountBean> list;
                             GlAccountBean bean = new GlAccountBean();
@@ -107,17 +108,9 @@ public class RB36FileGenerationRepo implements RB36FileGenerationDao {
     public HashMap<String, GlBean> getGLAccData() throws Exception {
         HashMap<String, GlBean> hmap = new HashMap<>();
         try {
-            String sql = "SELECT NVL(G.GLACCOUNTCODE,'00') AS GLACCOUNTCODE,"
-                    + " NVL(G.BRANCH,'00')             AS BRANCH,"
-                    + " NVL(G.CLIENTNO,'00')           AS CLIENTNO,"
-                    + " NVL(C.CURRENCYALPHACODE,'00')           AS CURRENCY,"
-                    + " NVL(G.PROFITCENTRE,'00')       AS PROFITCENTRE,"
-                    + " NVL(G.PRODUCTCATEGORY,'00')       AS PRODCATEGORY"
-                    + " FROM GLACCOUNT G, CURRENCY C"
-                    + " WHERE G.currency=C.CURRENCYNUMCODE"
-                    + " AND G.STATUS = ? ";
+            //String sql = "SELECT NVL(G.GLACCOUNTCODE,'00') AS GLACCOUNTCODE, NVL(G.BRANCH,'00') AS BRANCH, NVL(G.CLIENTNO,'00') AS CLIENTNO, NVL(C.CURRENCYALPHACODE,'00') AS CURRENCY, NVL(G.PROFITCENTRE,'00') AS PROFITCENTRE, NVL(G.PRODUCTCATEGORY,'00') AS PRODCATEGORY FROM GLACCOUNT G, CURRENCY C WHERE G.currency=C.CURRENCYNUMCODE AND G.STATUS = ?";
 
-            backendJdbcTemplate.query(sql, (ResultSet rs) -> {
+            backendJdbcTemplate.query(queryParametersList.getRB36FileGeneration_getGLAccData(), (ResultSet rs) -> {
                 while (rs.next()) {
                     GlBean bean = new GlBean();
                     String glAcc = rs.getString("GLACCOUNTCODE");
@@ -142,8 +135,8 @@ public class RB36FileGenerationRepo implements RB36FileGenerationDao {
     public int updateEodGLAccount(int key) throws Exception {
         int count = 0;
         try {
-            String sql = "UPDATE EODGLACCOUNT SET EODSTATUS = ? WHERE ID = ? ";
-            count = backendJdbcTemplate.update(sql, statusVarList.getEOD_DONE_STATUS(), key);
+            //String sql = "UPDATE EODGLACCOUNT SET EODSTATUS = ? WHERE ID = ?";
+            count = backendJdbcTemplate.update(queryParametersList.getRB36FileGeneration_updateEodGLAccount(), statusVarList.getEOD_DONE_STATUS(), key);
 
         }catch (Exception e){
             throw e;
@@ -168,7 +161,7 @@ public class RB36FileGenerationRepo implements RB36FileGenerationDao {
     }
 
     private boolean isHoliday(Date today) {
-        String query = "SELECT COUNT(*) FROM HOLIDAY WHERE YEAR = ? AND MONTH=? AND DAY=?";
+        //String query = "SELECT COUNT(*) FROM HOLIDAY WHERE YEAR = ? AND MONTH=? AND DAY=?";
         Calendar calendar = Calendar.getInstance();
 
         calendar.setTime(today);
@@ -177,7 +170,7 @@ public class RB36FileGenerationRepo implements RB36FileGenerationDao {
             String year = String.valueOf(calendar.get(Calendar.YEAR));
             String month = String.valueOf(calendar.get(Calendar.MONTH));
             String day = String.valueOf(calendar.get(Calendar.DATE));
-            count = backendJdbcTemplate.queryForObject(query, Integer.class, year, month, day);
+            count = backendJdbcTemplate.queryForObject(queryParametersList.getRB36FileGeneration_isHoliday(), Integer.class, year, month, day);
 
             if (count > 0) {
                 return true;

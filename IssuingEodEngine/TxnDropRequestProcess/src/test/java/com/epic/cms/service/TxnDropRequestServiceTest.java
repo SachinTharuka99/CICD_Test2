@@ -15,6 +15,7 @@ import org.mockito.Mockito;
 
 import java.sql.Timestamp;
 import java.time.LocalDateTime;
+import java.util.concurrent.atomic.AtomicInteger;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
@@ -24,6 +25,7 @@ import static org.mockito.Mockito.*;
 class TxnDropRequestServiceTest {
 
     private TxnDropRequestService txnDropRequestServiceUnderTest;
+    public AtomicInteger faileCardCount = new AtomicInteger(0);
 
     @BeforeEach
     void setUp() {
@@ -70,7 +72,7 @@ class TxnDropRequestServiceTest {
         when(txnDropRequestServiceUnderTest.txnDropRequestRepo.getTransactionReverseStatus("txnId")).thenReturn(false);
 
         // Run the test
-        txnDropRequestServiceUnderTest.processTxnDropRequest(bean, processBean);
+        txnDropRequestServiceUnderTest.processTxnDropRequest(bean, processBean,faileCardCount);
 
         // Verify the results
         verify(txnDropRequestServiceUnderTest.txnDropRequestRepo,times(1)).addTxnDropRequest(eq("txnId"),

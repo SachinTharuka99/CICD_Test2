@@ -25,6 +25,7 @@ import org.springframework.transaction.annotation.Transactional;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
+import java.util.concurrent.atomic.AtomicInteger;
 
 
 @Service
@@ -38,7 +39,7 @@ public class EOMSupplementaryCardResetService {
 
     @Async("taskExecutor2")
     @Transactional(value = "transactionManager", propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
-    public void SupplementryResetThread(Object acclist) {
+    public void SupplementryResetThread(Object acclist, AtomicInteger faileCardCount) {
         if (!Configurations.isInterrupted) {
             double totalSupTempCredit = 0.00;
             double totalSupTempCash = 0.00;
@@ -107,10 +108,11 @@ public class EOMSupplementaryCardResetService {
 
                 details.put("Account Number", accountNo);
                 details.put("Ststus", "Success");
-                Configurations.PROCESS_SUCCESS_COUNT++;
+                //Configurations.PROCESS_SUCCESS_COUNT++;
                 CommonMethods.clearStringBuffer(mainCardNo);
             } catch (Exception ex) {
-                Configurations.PROCESS_FAILD_COUNT++;
+                //Configurations.PROCESS_FAILD_COUNT++;
+                faileCardCount.addAndGet(1);
                 Configurations.errorCardList.add(new ErrorCardBean(Configurations.ERROR_EOD_ID, Configurations.EOD_DATE, new StringBuffer(accountNo.toString()), ex.toString(), Configurations.RUNNING_PROCESS_ID, Configurations.RUNNING_PROCESS_DESCRIPTION, 0, CardAccount.ACCOUNT));
                 logError.error("Supplementary Card Reset process failed for accountnumber " + accountNo, ex);
                 details.put("Account Number", accountNo);

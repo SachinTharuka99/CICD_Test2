@@ -6,6 +6,7 @@ import com.epic.cms.model.bean.ProcessBean;
 import com.epic.cms.model.rowmapper.ProcessBeanRowMapper;
 import com.epic.cms.util.Configurations;
 import com.epic.cms.util.LogManager;
+import com.epic.cms.util.QueryParametersList;
 import com.epic.cms.util.StatusVarList;
 import lombok.extern.slf4j.Slf4j;
 import org.slf4j.Logger;
@@ -36,13 +37,19 @@ public class ManualNpRepo implements ManualNpDao {
     @Autowired
     LogManager logManager;
 
+    @Autowired
+    QueryParametersList queryParametersList;
+
+
     @Override
     @Transactional(value = "backendDb")
     public ProcessBean getProcessDetails(int processId) throws Exception {
         ProcessBean processDetails = null;
         try {
-            String query = "SELECT PROCESSID,DESCRIPTION,CRITICALSTATUS,ROLLBACKSTATUS,SHEDULEDATE,SHEDULETIME,FREQUENCYTYPE,CONTINUESFREQUENCYTYPE,CONTINUESFREQUENCY,MULTIPLECYCLESTATUS,PROCESSCATEGORYID,DEPENDANCYSTATUS,RUNNINGONMAIN,RUNNINGONSUB,PROCESSTYPE,STATUS,SHEDULEDATETIME,HOLIDAYACTION, HOLIDAYACTION, KAFKATOPICNAME, KAFKAGROUPID FROM EODPROCESS WHERE PROCESSID = ? ";//AND SHEDULEDATETIME <= to_date(?,'MM/dd/YYYY HH:mi:ss AM') ";
-            processDetails = backendJdbcTemplate.queryForObject(query, new ProcessBeanRowMapper(), processId
+            //String query = "SELECT PROCESSID,DESCRIPTION,CRITICALSTATUS,ROLLBACKSTATUS,SHEDULEDATE,SHEDULETIME,FREQUENCYTYPE,CONTINUESFREQUENCYTYPE,CONTINUESFREQUENCY,MULTIPLECYCLESTATUS,PROCESSCATEGORYID,DEPENDANCYSTATUS,RUNNINGONMAIN,RUNNINGONSUB,PROCESSTYPE,STATUS,SHEDULEDATETIME,HOLIDAYACTION, HOLIDAYACTION, KAFKATOPICNAME, KAFKAGROUPID FROM EODPROCESS WHERE PROCESSID = ? ";//AND SHEDULEDATETIME <= to_date(?,'MM/dd/YYYY HH:mi:ss AM') ";
+            //processDetails = backendJdbcTemplate.queryForObject(query, new ProcessBeanRowMapper(), processId
+            //String query = "SELECT PROCESSID,DESCRIPTION,CRITICALSTATUS,ROLLBACKSTATUS,SHEDULEDATE,SHEDULETIME,FREQUENCYTYPE,CONTINUESFREQUENCYTYPE,CONTINUESFREQUENCY,MULTIPLECYCLESTATUS,PROCESSCATEGORYID,DEPENDANCYSTATUS,RUNNINGONMAIN,RUNNINGONSUB,PROCESSTYPE,STATUS,SHEDULEDATETIME,HOLIDAYACTION, HOLIDAYACTION, KAFKATOPICNAME, KAFKAGROUPID FROM EODPROCESS WHERE PROCESSID = ? ";//AND SHEDULEDATETIME <= to_date(?,'MM/dd/YYYY HH:mi:ss AM')";
+            processDetails = backendJdbcTemplate.queryForObject(queryParametersList.getManualNpRepo_updateLoyaltyRedeemRequest(),new ProcessBeanRowMapper(),processId
             );
         } catch (Exception e) {
             throw e;
@@ -57,8 +64,8 @@ public class ManualNpRepo implements ManualNpDao {
         SimpleDateFormat sdf = new SimpleDateFormat("dd-MMM-yy");
         try {
 
-            String sql = "SELECT REQUESTID, ACCOUNTNO, ACCSTATUS, MAINCARDNUMBER, NDIA, REQUESTTYPE, STATUS FROM MANUALNPREQUEST WHERE REQUESTTYPE = ? AND STATUS = ? AND TRUNC(CREATEDTIME) <= TO_DATE(?,'DD-MM-YY')";
-            manualNpMap = Objects.requireNonNull(backendJdbcTemplate.query(sql,
+            //String sql = "SELECT REQUESTID, ACCOUNTNO, ACCSTATUS, MAINCARDNUMBER, NDIA, REQUESTTYPE, STATUS FROM MANUALNPREQUEST WHERE REQUESTTYPE = ? AND STATUS = ? AND TRUNC(CREATEDTIME) <= TO_DATE(?,'DD-MM-YY')";
+            manualNpMap = Objects.requireNonNull(backendJdbcTemplate.query(queryParametersList.getManualNpRepo_getManualNpRequestDetails(),
                     (ResultSet rs) -> {
                         String[] accDetails = new String[4];
                         HashMap<String, String[]> tempManualNpMap = new HashMap<String, String[]>();
@@ -89,8 +96,8 @@ public class ManualNpRepo implements ManualNpDao {
 
         int flag = 0;
         try {
-            String sql = "UPDATE CARDACCOUNT SET NPSTATUS = ? WHERE ACCOUNTNO = ?";
-            flag = backendJdbcTemplate.update(sql,
+            //String sql = "UPDATE CARDACCOUNT SET NPSTATUS = ? WHERE ACCOUNTNO = ?";
+            flag = backendJdbcTemplate.update(queryParametersList.getManualNpRepo_updateNpStatusCardAccount(),
                     npstatus,
                     accNo
             );
@@ -104,9 +111,9 @@ public class ManualNpRepo implements ManualNpDao {
     public int insertIntoDelinquentHistory(StringBuffer cardNumber, String accNo, String remark) throws Exception {
 
         int flag = 0;
-        String sql = "INSERT INTO DELINQUENTHISTORY (CARDNUMBER, ACCOUNTNO,REMARK, LASTUPDATEDUSER, LASTUPDATEDTIME, CREATEDTIME ) VALUES (?,?,?,?,TO_DATE(SYSDATE, 'DD-MM-YY') ,TO_DATE(SYSDATE, 'DD-MM-YY'))";
+        //String sql = "INSERT INTO DELINQUENTHISTORY (CARDNUMBER, ACCOUNTNO,REMARK, LASTUPDATEDUSER, LASTUPDATEDTIME, CREATEDTIME ) VALUES (?,?,?,?,TO_DATE(SYSDATE, 'DD-MM-YY') ,TO_DATE(SYSDATE, 'DD-MM-YY'))";
         try {
-            flag = backendJdbcTemplate.update(sql,
+            flag = backendJdbcTemplate.update(queryParametersList.getManualNpRepo_insertIntoDelinquentHistory(),
                     cardNumber,
                     accNo,
                     remark,
@@ -124,11 +131,14 @@ public class ManualNpRepo implements ManualNpDao {
         int count = 0;
         String sql = null;
         if (manualNp) {
-            sql = "SELECT NVL(B.INTEREST,0) AS INTEREST, ";
+            //sql = "SELECT NVL(B.INTEREST,0) AS INTEREST, ";
+            sql = queryParametersList.getManualNpRepo_insertIntoDelinquentHistory_Appender1();
         } else {
-            sql = "SELECT (SELECT NVL(SUM(INTEREST),0) FROM (SELECT ROWNUM RN, A.INTEREST FROM (SELECT BS.CARDNO, BS.INTEREST FROM BILLINGSTATEMENT BS WHERE BS.CARDNO = ? ORDER BY BS.DUEDATE DESC ) A ) B WHERE B.RN < 4 ) AS INTEREST, ";
+            //sql = "SELECT (SELECT NVL(SUM(INTEREST),0) FROM (SELECT ROWNUM RN, A.INTEREST FROM (SELECT BS.CARDNO, BS.INTEREST FROM BILLINGSTATEMENT BS WHERE BS.CARDNO = ? ORDER BY BS.DUEDATE DESC ) A ) B WHERE B.RN < 4 ) AS INTEREST,";
+            sql = queryParametersList.getManualNpRepo_insertIntoDelinquentHistory_Appender2();
         }
-        sql += " (NVL(B.THISBILLCLOSINGBALANCE,0) + NVL(Y.TOTALOUTSTANING,0)) AS THISBILLCLOSINGBALANCE FROM BILLINGLASTSTATEMENTSUMMARY BS INNER JOIN BILLINGSTATEMENT B ON B.STATEMENTID=BS.STATEMENTID LEFT JOIN   (SELECT X.CARDNO,     SUM(X.TOTALAMOUNT) AS TOTALOUTSTANING   FROM     (SELECT BLS.CARDNO,       SUM(       CASE         WHEN ECF.CRDR = 'CR'         THEN -1 * ECF.FEEAMOUNT         ELSE ECF.FEEAMOUNT       END) AS TOTALAMOUNT     FROM BILLINGLASTSTATEMENTSUMMARY BLS     INNER JOIN BILLINGSTATEMENT BS     ON BLS.STATEMENTID = BS.STATEMENTID     LEFT JOIN EODCARDFEE ECF     ON BS.ACCOUNTNO      = ECF.ACCOUNTNO     WHERE ECF.EFFECTDATE > BLS.STATEMENTENDDATE     AND ECF.EFFECTDATE  <= TO_DATE(?,'DD-MM-YY')    AND ECF.STATUS       = ?     AND BLS.CARDNO       = ?     GROUP BY BLS.CARDNO     UNION ALL     SELECT BLS.CARDNO,       SUM(       CASE         WHEN E.CRDR = 'CR'         THEN -1 * E.TRANSACTIONAMOUNT         ELSE E.TRANSACTIONAMOUNT       END) AS TOTALAMOUNT     FROM BILLINGLASTSTATEMENTSUMMARY BLS     INNER JOIN BILLINGSTATEMENT BS     ON BLS.STATEMENTID = BS.STATEMENTID     LEFT JOIN EODTRANSACTION E     ON BS.ACCOUNTNO        = E.ACCOUNTNO     WHERE E.SETTLEMENTDATE > BLS.STATEMENTENDDATE     AND E.SETTLEMENTDATE  <= TO_DATE(?,'DD-MM-YY')     AND E.STATUS           = ?     AND BLS.CARDNO         = ?     GROUP BY BLS.CARDNO     ) X   GROUP BY X.CARDNO   ) Y ON B.CARDNO = Y.CARDNO WHERE 1           =1 AND B.CARDNO      =?";
+        //sql += "(NVL(B.THISBILLCLOSINGBALANCE,0) + NVL(Y.TOTALOUTSTANING,0)) AS THISBILLCLOSINGBALANCE FROM BILLINGLASTSTATEMENTSUMMARY BS INNER JOIN BILLINGSTATEMENT B ON B.STATEMENTID=BS.STATEMENTID LEFT JOIN   (SELECT X.CARDNO, SUM(X.TOTALAMOUNT) AS TOTALOUTSTANING FROM (SELECT BLS.CARDNO, SUM(CASE WHEN ECF.CRDR = 'CR' THEN -1 * ECF.FEEAMOUNT ELSE ECF.FEEAMOUNT END) AS TOTALAMOUNT FROM BILLINGLASTSTATEMENTSUMMARY BLS INNER JOIN BILLINGSTATEMENT BS ON BLS.STATEMENTID = BS.STATEMENTID LEFT JOIN EODCARDFEE ECF ON BS.ACCOUNTNO = ECF.ACCOUNTNO WHERE ECF.EFFECTDATE > BLS.STATEMENTENDDATE AND ECF.EFFECTDATE  <= TO_DATE(?,'DD-MM-YY') AND ECF.STATUS = ? AND BLS.CARDNO = ? GROUP BY BLS.CARDNO  UNION ALL SELECT BLS.CARDNO, SUM(CASE WHEN E.CRDR = 'CR' THEN -1 * E.TRANSACTIONAMOUNT ELSE E.TRANSACTIONAMOUNT END) AS TOTALAMOUNT FROM BILLINGLASTSTATEMENTSUMMARY BLS INNER JOIN BILLINGSTATEMENT BS ON BLS.STATEMENTID = BS.STATEMENTID LEFT JOIN EODTRANSACTION E ON BS.ACCOUNTNO= E.ACCOUNTNO WHERE E.SETTLEMENTDATE > BLS.STATEMENTENDDATE AND E.SETTLEMENTDATE  <= TO_DATE(?,'DD-MM-YY') AND E.STATUS= ? AND BLS.CARDNO = ? GROUP BY BLS.CARDNO) X GROUP BY X.CARDNO) Y ON B.CARDNO = Y.CARDNO WHERE 1=1 AND B.CARDNO=?";
+        sql += queryParametersList.getManualNpRepo_insertIntoDelinquentHistory_Appender3();
 
         try {
             SimpleDateFormat sdf = new SimpleDateFormat("dd-MMM-yy");
@@ -186,7 +196,8 @@ public class ManualNpRepo implements ManualNpDao {
     public DelinquentAccountBean setDelinquentAccountDetails(StringBuffer cardNo) throws Exception {
         DelinquentAccountBean delinquentAccountBean = new DelinquentAccountBean();
         try {
-            String sql = "SELECT C.CARDCATEGORYCODE, C.NAMEONCARD, C.IDTYPE, C.IDNUMBER, CAC.ACCOUNTNO, CA.STATUS, CAC.CUSTOMERID, B.STATEMENTENDDATE, B.DUEDATE,  B.MINAMOUNT, NVL(DA.NDIA,0) AS NDIA  FROM CARD C, CARDACCOUNTCUSTOMER CAC, BILLINGLASTSTATEMENTSUMMARY B, CARDACCOUNT CA LEFT JOIN DELINQUENTACCOUNT DA ON DA.ACCOUNTNO = CA.ACCOUNTNO  WHERE CAC.CARDNUMBER = C.CARDNUMBER AND CA.CARDNUMBER = C.MAINCARDNO AND C.CARDNUMBER = C.MAINCARDNO AND B.CARDNO = C.MAINCARDNO  AND C.MAINCARDNO = ? ";
+            //String sql = "SELECT C.CARDCATEGORYCODE, C.NAMEONCARD, C.IDTYPE, C.IDNUMBER, CAC.ACCOUNTNO, CA.STATUS, CAC.CUSTOMERID, B.STATEMENTENDDATE, B.DUEDATE,  B.MINAMOUNT, NVL(DA.NDIA,0) AS NDIA  FROM CARD C, CARDACCOUNTCUSTOMER CAC, BILLINGLASTSTATEMENTSUMMARY B, CARDACCOUNT CA LEFT JOIN DELINQUENTACCOUNT DA ON DA.ACCOUNTNO = CA.ACCOUNTNO  WHERE CAC.CARDNUMBER = C.CARDNUMBER AND CA.CARDNUMBER = C.MAINCARDNO AND C.CARDNUMBER = C.MAINCARDNO AND B.CARDNO = C.MAINCARDNO  AND C.MAINCARDNO = ?";
+            String sql = queryParametersList.getManualNpRepo_setDelinquentAccountDetails();
             DelinquentAccountBean tempDelinquentAccountBean = new DelinquentAccountBean();
             delinquentAccountBean = Objects.requireNonNull(backendJdbcTemplate.query(sql,
                     (ResultSet rs) -> {
@@ -212,7 +223,9 @@ public class ManualNpRepo implements ManualNpDao {
             if (delinquentAccountBean.getCardCategory().equals(Configurations.CARD_CATEGORY_MAIN)
                     || delinquentAccountBean.getCardCategory().equals(Configurations.CARD_CATEGORY_AFFINITY)
                     || delinquentAccountBean.getCardCategory().equals(Configurations.CARD_CATEGORY_CO_BRANDED)) {
-                sql = "SELECT NAMEWITHINITIAL ,CONTACTNO ,EMAIL FROM CARDMAINCUSTOMERDETAIL WHERE CUSTOMERID = ?";
+                //sql = "SELECT NAMEWITHINITIAL ,CONTACTNO ,EMAIL FROM CARDMAINCUSTOMERDETAIL WHERE CUSTOMERID = ?";
+                sql = queryParametersList.getManualNpRepo_setDelinquentAccountDetails_Appender1();
+
                 delinquentAccountBean = Objects.requireNonNull(backendJdbcTemplate.query(sql,
                         (ResultSet rs) -> {
                             while (rs.next()) {
@@ -226,7 +239,9 @@ public class ManualNpRepo implements ManualNpDao {
                 ));
 
             } else if (delinquentAccountBean.getCardCategory().equals(Configurations.CARD_CATEGORY_FD)) {
-                sql = "SELECT CUSTOMERNAME ,CONTACTNO ,EMAIL FROM CARDFDCUSTOMERDETAIL WHERE CUSTOMERID = ?";
+                //sql = "SELECT CUSTOMERNAME ,CONTACTNO ,EMAIL FROM CARDFDCUSTOMERDETAIL WHERE CUSTOMERID = ?";
+                sql = queryParametersList.getManualNpRepo_setDelinquentAccountDetails_Appender2();
+
                 delinquentAccountBean = Objects.requireNonNull(backendJdbcTemplate.query(sql,
                         (ResultSet rs) -> {
                             while (rs.next()) {
@@ -240,7 +255,8 @@ public class ManualNpRepo implements ManualNpDao {
                 ));
 
             } else if (delinquentAccountBean.getCardCategory().equals(Configurations.CARD_CATEGORY_ESTABLISHMENT)) {
-                sql = "SELECT NAMEOFTHECOMPANY ,CONTACTNUMBERSLAND ,CONTACTEMAIL FROM CARDESTCUSTOMERDETAILS WHERE CUSTOMERID = ?";
+                //sql = "SELECT NAMEOFTHECOMPANY ,CONTACTNUMBERSLAND ,CONTACTEMAIL FROM CARDESTCUSTOMERDETAILS WHERE CUSTOMERID = ?";
+                sql = queryParametersList.getManualNpRepo_setDelinquentAccountDetails_Appender3();
                 delinquentAccountBean = Objects.requireNonNull(backendJdbcTemplate.query(sql,
                         (ResultSet rs) -> {
                             while (rs.next()) {
@@ -265,8 +281,8 @@ public class ManualNpRepo implements ManualNpDao {
         double payment = 0;
         SimpleDateFormat sdf = new SimpleDateFormat("dd-MMM-yy");
         try {
-            String sql = "SELECT NVL(SUM(TRANSACTIONAMOUNT),0) AS TOTAL FROM EODTRANSACTION WHERE ACCOUNTNO = ? AND TRANSACTIONTYPE IN (?,?,?,?)  AND SETTLEMENTDATE > TO_DATE(?, 'DD-MM-YY')  AND SETTLEMENTDATE <= TO_DATE(?, 'DD-MM-YY')  AND STATUS NOT IN (?)";
-            payment = Objects.requireNonNull(backendJdbcTemplate.query(sql,
+            //String sql = "SELECT NVL(SUM(TRANSACTIONAMOUNT),0) AS TOTAL FROM EODTRANSACTION WHERE ACCOUNTNO = ? AND TRANSACTIONTYPE IN (?,?,?,?)  AND SETTLEMENTDATE > TO_DATE(?, 'DD-MM-YY')  AND SETTLEMENTDATE <= TO_DATE(?, 'DD-MM-YY')  AND STATUS NOT IN (?)";
+            payment = Objects.requireNonNull(backendJdbcTemplate.query(queryParametersList.getManualNpRepo_getTotalPaymentSinceLastDue(),
                     (ResultSet rs) -> {
                         double temp = 0;
                         while (rs.next()) {
@@ -292,11 +308,11 @@ public class ManualNpRepo implements ManualNpDao {
     @Override
     public String[] getRiskclassOnNdia(int noOfDates) throws Exception {
         String[] newRiskClass = new String[3];
-        String sql = null;
+       // String sql = null;
         try {
-            sql = "SELECT BUCKETID,MINNDIA FROM BUCKET WHERE MINNDIA <= ? AND MAXNDIA >= ? ";
+           // sql = "SELECT BUCKETID,MINNDIA FROM BUCKET WHERE MINNDIA <= ? AND MAXNDIA >= ?";
             newRiskClass[0] = Integer.toString(noOfDates);
-            backendJdbcTemplate.query(sql,
+            backendJdbcTemplate.query(queryParametersList.getManualNpRepo_getRiskclassOnNdia(),
                     (ResultSet rs) -> {
                         newRiskClass[1] = rs.getString("BUCKETID");
                         newRiskClass[2] = rs.getString("MINNDIA");
@@ -318,8 +334,8 @@ public class ManualNpRepo implements ManualNpDao {
         int count = 0;
         SimpleDateFormat sdf = new SimpleDateFormat("dd-MMM-yy");
         try {
-            String sql = "INSERT INTO EODGLACCOUNT (EODID,GLDATE,CARDNO,GLTYPE,AMOUNT,CRDR,PAYMENTTYPE) VALUES (?,TO_DATE(?, 'DD-MM-YY'),?,?,to_char(?,'9999999999.99'),?,?)";
-            count = backendJdbcTemplate.update(sql,
+            //String sql = "INSERT INTO EODGLACCOUNT (EODID,GLDATE,CARDNO,GLTYPE,AMOUNT,CRDR,PAYMENTTYPE) VALUES (?,TO_DATE(?, 'DD-MM-YY'),?,?,to_char(?,'9999999999.99'),?,?)";
+            count = backendJdbcTemplate.update(queryParametersList.getManualNpRepo_insertIntoEodGLAccount(),
                     eodID,
                     sdf.format(glDate),
                     cardNo,
@@ -341,7 +357,9 @@ public class ManualNpRepo implements ManualNpDao {
         boolean status = false;
         SimpleDateFormat sdf = new SimpleDateFormat("dd-MMM-yy");
         try {
-            String sql = "SELECT DELINQSTATUS FROM DELINQUENTACCOUNT WHERE CARDNUMBER = ?";
+            //String sql = "SELECT DELINQSTATUS FROM DELINQUENTACCOUNT WHERE CARDNUMBER = ?";
+            String sql = queryParametersList.getManualNpRepo_addDetailsForManualNPToDelinquentAccountTable_Select();
+
             RowCountCallbackHandler countCallback = new RowCountCallbackHandler();
             backendJdbcTemplate.query(sql, countCallback, delinquentAccountBean.getCardNumber());
             int rowCount = countCallback.getRowCount();
@@ -349,7 +367,8 @@ public class ManualNpRepo implements ManualNpDao {
                 status = true;
             }
             if (status) {
-                sql = "UPDATE DELINQUENTACCOUNT SET NPINTEREST = ?, NPOUTSTANDING = ?, NPDATE = TO_DATE(?,'DD-MM-YY'),  NPACCRUEDINTEREST = ?, NPACCRUEDFEES = ?, NPACCRUEDOVERLIMITFEES = ?, NPACCRUEDLATEPAYFEES = ?, DELINQSTATUS = ?, ACCSTATUS = ? WHERE ACCOUNTNO = ? ";
+                //sql = "UPDATE DELINQUENTACCOUNT SET NPINTEREST = ?, NPOUTSTANDING = ?, NPDATE = TO_DATE(?,'DD-MM-YY'),  NPACCRUEDINTEREST = ?, NPACCRUEDFEES = ?, NPACCRUEDOVERLIMITFEES = ?, NPACCRUEDLATEPAYFEES = ?, DELINQSTATUS = ?, ACCSTATUS = ? WHERE ACCOUNTNO = ?";
+                sql = queryParametersList.getManualNpRepo_addDetailsForManualNPToDelinquentAccountTable_Update();
                 count = backendJdbcTemplate.update(sql,
                         delinquentAccountBean.getNpInterest(),
                         delinquentAccountBean.getNpOutstanding(),
@@ -363,7 +382,8 @@ public class ManualNpRepo implements ManualNpDao {
                         delinquentAccountBean.getAccNo()
                 );
             } else {
-                sql = "INSERT INTO DELINQUENTACCOUNT(CARDNUMBER,MAINCARDNO,ACCOUNTNO,CIF,NAMEONCARD,NAMEINFULL,IDTYPE,IDNUMBER,NDIA,MIA,RISKCLASS,DUEAMOUNT,ACCSTATUS,CARDCATEGORYCODE,LASTSTATEMENTDATE,LASTUPDATEDUSER,LASTUPDATEDTIME,CREATEDTIME,CONTACTNO,DUEDATE,DELINQSTATUS,ASSIGNEE,ASSIGNSTATUS,SUPERVISOR,REMAINDUE,LASTUPDATEDEODID)  VALUES(?,?,?,?,?,?,?,?,?,?,?,?,?,?,TO_DATE(?, 'DD-MM-YY'),?,TO_DATE(SYSDATE, 'DD-MM-YY') ,TO_DATE(SYSDATE, 'DD-MM-YY'),?,TO_DATE(?, 'DD-MM-YY'),?,?,?,?,?,?)";
+                //sql = "INSERT INTO DELINQUENTACCOUNT(CARDNUMBER,MAINCARDNO,ACCOUNTNO,CIF,NAMEONCARD,NAMEINFULL,IDTYPE,IDNUMBER,NDIA,MIA,RISKCLASS,DUEAMOUNT,ACCSTATUS,CARDCATEGORYCODE,LASTSTATEMENTDATE,LASTUPDATEDUSER,LASTUPDATEDTIME,CREATEDTIME,CONTACTNO,DUEDATE,DELINQSTATUS,ASSIGNEE,ASSIGNSTATUS,SUPERVISOR,REMAINDUE,LASTUPDATEDEODID)  VALUES(?,?,?,?,?,?,?,?,?,?,?,?,?,?,TO_DATE(?, 'DD-MM-YY'),?,TO_DATE(SYSDATE, 'DD-MM-YY') ,TO_DATE(SYSDATE, 'DD-MM-YY'),?,TO_DATE(?, 'DD-MM-YY'),?,?,?,?,?,?)";
+                sql = queryParametersList.getManualNpRepo_addDetailsForManualNPToDelinquentAccountTable_Insert();
                 count = backendJdbcTemplate.update(sql,
                         delinquentAccountBean.getCardNumber(),
                         delinquentAccountBean.getCardNumber(),
@@ -399,11 +419,11 @@ public class ManualNpRepo implements ManualNpDao {
 
     @Override
     public int updateManualNPtoComplete(int reqID, String status) throws Exception {
-        String sql = null;
+        //String sql = null;
         int flag = 0;
         try {
-            sql = "UPDATE MANUALNPREQUEST SET STATUS = ? WHERE REQUESTID = ?";
-            flag = backendJdbcTemplate.update(sql,
+            //sql = "UPDATE MANUALNPREQUEST SET STATUS = ? WHERE REQUESTID = ?";
+            flag = backendJdbcTemplate.update(queryParametersList.getManualNpRepo_updateManualNPtoComplete(),
                     status,
                     reqID
             );
@@ -417,8 +437,8 @@ public class ManualNpRepo implements ManualNpDao {
     public String getNPRiskClass() throws Exception {
         String npRiskClass = null;
         try {
-            String query = "SELECT NVL(NONPERFORMINGRISKCLASS,'4') AS NONPERFORMINGRISKCLASS FROM COMMONCARDPARAMETER";
-            npRiskClass = Objects.requireNonNull(backendJdbcTemplate.query(query,
+            //String query = "SELECT NVL(NONPERFORMINGRISKCLASS,'4') AS NONPERFORMINGRISKCLASS FROM COMMONCARDPARAMETER";
+            npRiskClass = Objects.requireNonNull(backendJdbcTemplate.query(queryParametersList.getManualNpRepo_getNPRiskClass(),
                     (ResultSet rs) -> {
                         String tempNpRiskClass = null;
                         while (rs.next()) {
@@ -436,10 +456,10 @@ public class ManualNpRepo implements ManualNpDao {
     @Override
     public String[] getNDIAOnRiskClass(String riskClass) throws Exception {
         String[] bucket = new String[3];
-        String query = null;
+        //String query = null;
         try {
-            query = "SELECT BUCKETID,MINNDIA,MAXNDIA,NOOFDAYSINAREERS FROM BUCKET WHERE BUCKETID =? ";
-            backendJdbcTemplate.query(query,
+            //query = "SELECT BUCKETID,MINNDIA,MAXNDIA,NOOFDAYSINAREERS FROM BUCKET WHERE BUCKETID =?";
+            backendJdbcTemplate.query(queryParametersList.getManualNpRepo_getNDIAOnRiskClass(),
                     (ResultSet rs) -> {
                         while (rs.next()) {
                             bucket[0] = rs.getString("BUCKETID");
@@ -460,8 +480,8 @@ public class ManualNpRepo implements ManualNpDao {
     public int getNPDetailsForNpGl(String accNo, DelinquentAccountBean delinquentAccountBean) throws Exception {
         int count = 0;
         try {
-            String sql = "SELECT NPINTEREST, NPOUTSTANDING, NPDATE, NPACCRUEDINTEREST, NPACCRUEDFEES, NPACCRUEDOVERLIMITFEES, NPACCRUEDLATEPAYFEES FROM DELINQUENTACCOUNT WHERE ACCOUNTNO = ?";
-            count = Objects.requireNonNull(backendJdbcTemplate.query(sql,
+            //String sql = "SELECT NPINTEREST, NPOUTSTANDING, NPDATE, NPACCRUEDINTEREST, NPACCRUEDFEES, NPACCRUEDOVERLIMITFEES, NPACCRUEDLATEPAYFEES FROM DELINQUENTACCOUNT WHERE ACCOUNTNO = ?";
+            count = Objects.requireNonNull(backendJdbcTemplate.query(queryParametersList.getManualNpRepo_getNPDetailsForNpGl(),
                     (ResultSet rs) -> {
                         int temp = 0;
                         while (rs.next()) {
@@ -486,11 +506,11 @@ public class ManualNpRepo implements ManualNpDao {
 
     @Override
     public int updateDelinquentAccountForManualNP(String accNo, DelinquentAccountBean bean) throws Exception {
-        String query = null;
+        //String query = null;
         int flag = 0;
         try {
-            query = "UPDATE DELINQUENTACCOUNT SET NPINTEREST = ?, NPOUTSTANDING = ?, NPDATE = NULL,  NPACCRUEDINTEREST = ?, NPACCRUEDFEES = ?, NPACCRUEDOVERLIMITFEES = ?, NPACCRUEDLATEPAYFEES = ?, DELINQSTATUS = ?, ACCSTATUS = ? WHERE ACCOUNTNO = ? ";
-            flag = backendJdbcTemplate.update(query,
+            //query = "UPDATE DELINQUENTACCOUNT SET NPINTEREST = ?, NPOUTSTANDING = ?, NPDATE = NULL,  NPACCRUEDINTEREST = ?, NPACCRUEDFEES = ?, NPACCRUEDOVERLIMITFEES = ?, NPACCRUEDLATEPAYFEES = ?, DELINQSTATUS = ?, ACCSTATUS = ? WHERE ACCOUNTNO = ?";
+            flag = backendJdbcTemplate.update(queryParametersList.getManualNpRepo_updateDelinquentAccountForManualNP(),
                     bean.getNpInterest(),
                     bean.getNpOutstanding(),
                     bean.getAccruedInterest(),
@@ -511,8 +531,8 @@ public class ManualNpRepo implements ManualNpDao {
     public int updateAccountStatus(String accNo, String status) throws Exception {
         int flag = 0;
         try {
-            String sql = "UPDATE CARDACCOUNT SET STATUS=?,LASTUPDATEDUSER=?,LASTUPDATEDTIME=SYSDATE WHERE ACCOUNTNO=? ";
-            flag = backendJdbcTemplate.update(sql,
+            //String sql = "UPDATE CARDACCOUNT SET STATUS=?,LASTUPDATEDUSER=?,LASTUPDATEDTIME=SYSDATE WHERE ACCOUNTNO=?";
+            flag = backendJdbcTemplate.update(queryParametersList.getManualNpRepo_updateAccountStatus(),
                     status,
                     Configurations.EOD_USER,
                     accNo
@@ -528,8 +548,8 @@ public class ManualNpRepo implements ManualNpDao {
 
         int flag = 0;
         try {
-            String sql = "UPDATE ECMS_ONLINE_ACCOUNT SET STATUS=? WHERE ACCOUNTNUMBER=? ";
-            flag = onlineJdbcTemplate.update(sql,
+            //String sql = "UPDATE ECMS_ONLINE_ACCOUNT SET STATUS=? WHERE ACCOUNTNUMBER=?";
+            flag = onlineJdbcTemplate.update(queryParametersList.getManualNpRepo_updateOnlineAccountStatus(),
                     status,
                     accNo
             );
@@ -537,7 +557,7 @@ public class ManualNpRepo implements ManualNpDao {
             if (Configurations.ONLINE_LOG_LEVEL == 1) {
                 /**Only for troubleshoot*/
                 logInfo.info("================ updateOnlineAccountStatus ===================" + Configurations.EOD_ID);
-                logInfo.info(sql);
+                logInfo.info(queryParametersList.getManualNpRepo_updateOnlineAccountStatus());
                 logInfo.info(Integer.toString(status));
                 logInfo.info(accNo);
                 logInfo.info("================ updateOnlineAccountStatus END ===================");

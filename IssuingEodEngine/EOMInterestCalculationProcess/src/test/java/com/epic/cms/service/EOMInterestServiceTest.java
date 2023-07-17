@@ -18,6 +18,7 @@ import org.mockito.Mockito;
 import java.sql.Timestamp;
 import java.time.LocalDateTime;
 import java.util.*;
+import java.util.concurrent.atomic.AtomicInteger;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
@@ -27,6 +28,7 @@ import static org.mockito.Mockito.*;
 class EOMInterestServiceTest {
 
     private EOMInterestService eomInterestServiceUnderTest;
+    public AtomicInteger faileCardCount = new AtomicInteger(0);
 
     @BeforeEach
     void setUp() {
@@ -111,7 +113,7 @@ class EOMInterestServiceTest {
                 eq("TXN_TYPE_INTEREST_INCOME"), eq(0.0), eq("DEBIT"), eq("payType"))).thenReturn(0);
 
         // Run the test
-        eomInterestServiceUnderTest.EOMInterestCalculation(processBean, eomCardBean);
+        eomInterestServiceUnderTest.EOMInterestCalculation(processBean, eomCardBean,faileCardCount);
 
         // Verify the results
         verify(eomInterestServiceUnderTest.eomInterestRepo,times(1)).clearEomInterest(eomCardBean.getCardNo());

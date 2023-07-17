@@ -1,6 +1,7 @@
 package com.epic.cms.connector;
 
 import com.epic.cms.common.ProcessBuilder;
+import com.epic.cms.model.bean.CardBean;
 import com.epic.cms.model.bean.ErrorCardBean;
 import com.epic.cms.model.bean.ProcessBean;
 import com.epic.cms.repository.CommonRepo;
@@ -21,6 +22,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.atomic.AtomicInteger;
 
 
 @Service
@@ -28,6 +30,8 @@ public class ManualNpConnector extends ProcessBuilder {
     private static final Logger logInfo = LoggerFactory.getLogger("logInfo");
     private static final Logger logError = LoggerFactory.getLogger("logError");
     public List<ErrorCardBean> cardErrorList = new ArrayList<ErrorCardBean>();
+    public AtomicInteger faileCardCount = new AtomicInteger(0);
+    public AtomicInteger faileCardCountDe = new AtomicInteger(0);
     int manualNpTotalCount = 0;
     int manualNpSuccesssCount = 0;
     int manualNpFailedCount = 0;
@@ -70,9 +74,10 @@ public class ManualNpConnector extends ProcessBuilder {
                     arrList.add(new StringBuffer(temp[0]));
                     arrList.add(new StringBuffer(temp[1]));
                     arrList.add(new StringBuffer(temp[2]));
-                    manualNpService.manualNpClassification(arrList);
+                    manualNpService.manualNpClassification(arrList,faileCardCount);
 
                 }
+
                 while (!(taskExecutor.getActiveCount() == 0)) {
                     Thread.sleep(1000);
                 }
@@ -91,17 +96,28 @@ public class ManualNpConnector extends ProcessBuilder {
                 selectedaccounts = 0;
                 successCounts = 0;
                 FailedCounts = 0;
+
+
                 Configurations.PROCESS_TOTAL_NOOF_TRABSACTIONS += accMap.size();
 
-                for (Map.Entry<String, String[]> acc : accMap.entrySet()) {
+//                for (Map.Entry<String, String[]> acc : accMap.entrySet()) {
+//                    ArrayList<StringBuffer> arrList = new ArrayList<>();
+//                    String[] temp = acc.getValue();
+//                    arrList.add(new StringBuffer(acc.getKey()));
+//                    arrList.add(new StringBuffer(temp[0]));
+//                    arrList.add(new StringBuffer(temp[1]));
+//                    arrList.add(new StringBuffer(temp[2]));
+//                    manualNpService.manualNpDeClassification(arrList);
+//                }
+
+                accMap.forEach((key, value) -> {
                     ArrayList<StringBuffer> arrList = new ArrayList<>();
-                    String[] temp = acc.getValue();
-                    arrList.add(new StringBuffer(acc.getKey()));
-                    arrList.add(new StringBuffer(temp[0]));
-                    arrList.add(new StringBuffer(temp[1]));
-                    arrList.add(new StringBuffer(temp[2]));
-                    manualNpService.manualNpDeClassification(arrList);
-                }
+                    arrList.add(new StringBuffer(key));
+                    arrList.add(new StringBuffer(value[0]));
+                    arrList.add(new StringBuffer(value[1]));
+                    arrList.add(new StringBuffer(value[2]));
+                    manualNpService.manualNpDeClassification(arrList, faileCardCountDe);
+                });
 
                 while (!(taskExecutor.getActiveCount() == 0)) {
                     Thread.sleep(1000);
@@ -128,19 +144,20 @@ public class ManualNpConnector extends ProcessBuilder {
                 logError.error("Exception", e2);
             }
         } finally {
-            logInfo.info(logManager.logSummery(summery));
+            //logInfo.info(logManager.logSummery(summery));
         }
     }
 
     @Override
     public void addSummaries() {
         summery.put("Selected Account for manual NP", selectedaccounts);
-        summery.put("No of Success Accounts", successCounts);
-        summery.put("No of Failed Accounts", FailedCounts);
+        summery.put("No of Success Accounts", selectedaccounts-faileCardCount.get());
+        summery.put("No of Failed Accounts", faileCardCount.get());
         summery.put("Process Status for Manual NP", "Passed");
+
         summery.put("Selected Acc for manual NP De-classified ", Configurations.PROCESS_TOTAL_NOOF_TRABSACTIONS);
-        summery.put("No of Success Accounts ", Configurations.PROCESS_SUCCESS_COUNT);
-        summery.put("No of Failed Accounts ", Configurations.PROCESS_FAILD_COUNT);
+        summery.put("No of Success Accounts ", Configurations.PROCESS_TOTAL_NOOF_TRABSACTIONS-faileCardCountDe.get());
+        summery.put("No of Failed Accounts ", faileCardCountDe.get());
         summery.put("Process Status for Manual NP De-classified", "Passed");
     }
 }

@@ -11,6 +11,7 @@ import com.epic.cms.dao.CashBackFileGenDao;
 import com.epic.cms.model.bean.GlAccountBean;
 import com.epic.cms.util.Configurations;
 import com.epic.cms.util.LogManager;
+import com.epic.cms.util.QueryParametersList;
 import com.epic.cms.util.StatusVarList;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.jdbc.core.JdbcTemplate;
@@ -27,24 +28,22 @@ public class CashBackFileGenRepo implements CashBackFileGenDao {
     @Autowired
     private JdbcTemplate backendJdbcTemplate;
 
+    @Autowired
+    private StatusVarList statusVarList;
+
+    @Autowired
+    LogManager logManager;
+
+    @Autowired
+    QueryParametersList queryParametersList;
+
     @Override
     public ArrayList<GlAccountBean> getCahsBackRedeemList() throws Exception {
         ArrayList<GlAccountBean> list = new ArrayList<>();
         try {
-            String sql = "SELECT DISTINCT CBR.ID,"
-                    + " CBR.ACCOUNTNUMBER AS ACCOUNTNUMBER,"
-                    + " CA.CARDNUMBER,"
-                    + " CBR.AMOUNT,"
-                    + " CA.CBDEBITACCOUNTNO,NVL(B.STATEMENTENDDATE,SYSDATE) AS STATEMENTENDDATE"
-                    + " FROM CASHBACKEXPREDEEM CBR"
-                    + " INNER JOIN CARDACCOUNT CA"
-                    + " ON CA.ACCOUNTNO      =CBR.ACCOUNTNUMBER"
-                    + " INNER JOIN BILLINGLASTSTATEMENTSUMMARY B ON CA.CARDNUMBER=B.CARDNO"
-                    + " WHERE CBR.FILESTATUS<>1"
-                    + " AND CBR.GLSTATUS     =1"
-                    + " AND CBR.STATUS       =0 ";
+            //String sql = "SELECT DISTINCT CBR.ID,CBR.ACCOUNTNUMBER AS ACCOUNTNUMBER, CA.CARDNUMBER, CBR.AMOUNT, CA.CBDEBITACCOUNTNO,NVL(B.STATEMENTENDDATE,SYSDATE) AS STATEMENTENDDATE FROM CASHBACKEXPREDEEM CBR INNER JOIN CARDACCOUNT CA ON CA.ACCOUNTNO=CBR.ACCOUNTNUMBER INNER JOIN BILLINGLASTSTATEMENTSUMMARY B ON CA.CARDNUMBER=B.CARDNO WHERE CBR.FILESTATUS<>1 AND CBR.GLSTATUS=1 AND CBR.STATUS=0";
 
-            list = (ArrayList<GlAccountBean>) backendJdbcTemplate.query(sql, new RowMapperResultSetExtractor<>((rs, rowNum) -> {
+            list = (ArrayList<GlAccountBean>) backendJdbcTemplate.query(queryParametersList.getCashBackFileGen_getCahsBackRedeemList(), new RowMapperResultSetExtractor<>((rs, rowNum) -> {
                 GlAccountBean bean = new GlAccountBean();
                 bean.setId(rs.getInt("ID"));
                 bean.setCardNo(new StringBuffer(rs.getString("ACCOUNTNUMBER")));
@@ -66,13 +65,9 @@ public class CashBackFileGenRepo implements CashBackFileGenDao {
     public String getCashBackDebitAccount() throws Exception {
         String debitAccountNumber = null;
         try {
-            String sql = "SELECT GLT.TRANSACTIONCODE,"
-                    + "(CASE WHEN GL.CRDR=? THEN GLT.DEBITACCOUNT ELSE GLT.CREDITACCOUNT END) AS ACCOUNTNO"
-                    + " FROM GLTRANSACTION GLT INNER JOIN GLTXNTYPE GL "
-                    + " ON GL.GLTXNTYPECODE=GLT.TRANSACTIONCODE"
-                    + " WHERE TRANSACTIONCODE=?";
+            //String sql = "SELECT GLT.TRANSACTIONCODE,(CASE WHEN GL.CRDR=? THEN GLT.DEBITACCOUNT ELSE GLT.CREDITACCOUNT END) AS ACCOUNTNO FROM GLTRANSACTION GLT INNER JOIN GLTXNTYPE GL ON GL.GLTXNTYPECODE=GLT.TRANSACTIONCODE WHERE TRANSACTIONCODE=?";
 
-            debitAccountNumber = backendJdbcTemplate.query(sql, (ResultSet rs) -> {
+            debitAccountNumber = backendJdbcTemplate.query(queryParametersList.getCashBackFileGen_getCashBackDebitAccount(), (ResultSet rs) -> {
                 String accountNumber = null;
                 while (rs.next()) {
                     accountNumber = rs.getString("ACCOUNTNO");
@@ -90,8 +85,8 @@ public class CashBackFileGenRepo implements CashBackFileGenDao {
     public int updateCashBackRedeemExp(int key) throws Exception {
         int count = 0;
         try {
-            String query = "UPDATE CASHBACKEXPREDEEM SET FILESTATUS = 1 WHERE ID = ? ";
-            count = backendJdbcTemplate.update(query, key);
+            //String query = "UPDATE CASHBACKEXPREDEEM SET FILESTATUS = 1 WHERE ID = ?";
+            count = backendJdbcTemplate.update(queryParametersList.getCashBackFileGen_updateCashBackRedeemExp(), key);
         } catch (Exception e) {
             throw e;
         }

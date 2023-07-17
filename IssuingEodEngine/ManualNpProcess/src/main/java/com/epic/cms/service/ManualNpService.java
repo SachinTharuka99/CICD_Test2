@@ -17,6 +17,7 @@ import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.ArrayList;
+import java.util.concurrent.atomic.AtomicInteger;
 
 
 @Service
@@ -35,7 +36,7 @@ public class ManualNpService {
 
     @Async("taskExecutor2")
     @Transactional(value = "transactionManager", propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
-    public void manualNpClassification(ArrayList<StringBuffer> accDetails) {
+    public void manualNpClassification(ArrayList<StringBuffer> accDetails, AtomicInteger faileCardCount) {
 
         if (!Configurations.isInterrupted) {
             selectedaccounts++;
@@ -114,10 +115,11 @@ public class ManualNpService {
                     logInfo.info(logManager.logStartEnd("Failed to update id:" + reqID + " RQAC -> COMP"));
                 }
                 successCounts++;
-                Configurations.PROCESS_SUCCESS_COUNT++;
+                //Configurations.PROCESS_SUCCESS_COUNT++;
             } catch (Exception ex) {
                 FailedCounts++;
-                Configurations.PROCESS_FAILD_COUNT++;
+                //Configurations.PROCESS_FAILD_COUNT++;
+                faileCardCount.addAndGet(1);
                 Configurations.errorCardList.add(new ErrorCardBean(Configurations.ERROR_EOD_ID, Configurations.EOD_DATE, new StringBuffer(cardNo), ex.getMessage(), Configurations.RUNNING_PROCESS_ID, Configurations.RUNNING_PROCESS_DESCRIPTION, 0, CardAccount.CARD));
                 logError.error("Manual NP process failed when going to classified NP for account: " + accNo, ex);
             }
@@ -126,7 +128,7 @@ public class ManualNpService {
 
     @Async("taskExecutor2")
     @Transactional(value = "transactionManager", propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
-    public void manualNpDeClassification(ArrayList<StringBuffer> accDetails) {
+    public void manualNpDeClassification(ArrayList<StringBuffer> accDetails,AtomicInteger faileCardCountDe) {
 
         if (!Configurations.isInterrupted) {
             selectedaccounts++;
@@ -188,12 +190,13 @@ public class ManualNpService {
                 }
 
                 manualNpRepo.updateManualNPtoComplete(reqID, status.getCOMMON_COMPLETED());
-                successCounts++;
-                Configurations.PROCESS_SUCCESS_COUNT++;
+//                successCounts++;
+//                Configurations.PROCESS_SUCCESS_COUNT++;
 
             } catch (Exception ex) {
-                FailedCounts++;
-                Configurations.PROCESS_FAILD_COUNT++;
+//                FailedCounts++;
+//                Configurations.PROCESS_FAILD_COUNT++;
+                faileCardCountDe.addAndGet(1);
                 Configurations.errorCardList.add(new ErrorCardBean(Configurations.ERROR_EOD_ID, Configurations.EOD_DATE, new StringBuffer(cardNo), ex.getMessage(), Configurations.RUNNING_PROCESS_ID, Configurations.RUNNING_PROCESS_DESCRIPTION, 0, CardAccount.CARD));
                 logError.error("Manual NP process failed when going to De-classified NP for account: " + accNo, ex);
             }

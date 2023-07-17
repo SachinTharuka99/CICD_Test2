@@ -16,6 +16,7 @@ import org.springframework.stereotype.Service;
 import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.LinkedHashMap;
+import java.util.concurrent.atomic.AtomicInteger;
 
 
 @Service
@@ -31,7 +32,7 @@ public class LoyaltyPointsCalculationService {
     LoyaltyPointsCalculationRepo loyaltyPointsCalculationRepo;
 
     @Async("ThreadPool_100")
-    public void calculateLoyaltyPoints(LoyaltyBean loyaltyBean) {
+    public void calculateLoyaltyPoints(LoyaltyBean loyaltyBean, AtomicInteger faileCardCount) {
         int noOfAccounts = 0;
         int failedAccounts = 0;
         double accumilationPointVal, redeemLoyalty, expiredLoyalty, purchases, closingLoyalty, adjustLoyalty, thisMonthClosing, availableLoyalty;

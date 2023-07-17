@@ -11,6 +11,7 @@ import org.junit.jupiter.api.Test;
 
 import java.math.BigDecimal;
 import java.sql.Date;
+import java.util.concurrent.atomic.AtomicInteger;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.mockito.ArgumentMatchers.any;
@@ -20,6 +21,7 @@ import static org.mockito.Mockito.*;
 class CashBackServiceTest {
 
     private CashBackService cashBackServiceUnderTest;
+    public AtomicInteger faileCardCount = new AtomicInteger(0);
 
     @BeforeEach
     void setUp() {
@@ -71,7 +73,7 @@ class CashBackServiceTest {
         when(cashBackServiceUnderTest.cashBackRepo.updateTotalCBAmount("accountNumber")).thenReturn(0);
 
         // Run the test
-        cashBackServiceUnderTest.cashBack(cashbackBean);
+        cashBackServiceUnderTest.cashBack(cashbackBean,faileCardCount);
 
         // Verify the results
 
@@ -124,7 +126,7 @@ class CashBackServiceTest {
         when(cashBackServiceUnderTest.cashBackRepo.expireCashbacks(any(CashBackBean.class))).thenReturn(0);
 
         // Run the test
-        cashBackServiceUnderTest.cashBack(cashbackBean);
+        cashBackServiceUnderTest.cashBack(cashbackBean,faileCardCount);
 
         verify(cashBackServiceUnderTest.cashBackRepo,times(1)).expireNonPerformingCashbacks(any(CashBackBean.class), any(BigDecimal.class));
         verify(cashBackServiceUnderTest.cashBackRepo,times(1)).getCashbackAmountToBeExpireForAccount("4862950000698568");
@@ -164,7 +166,7 @@ class CashBackServiceTest {
         when(cashBackServiceUnderTest.cashBackRepo.expireCashbacks(any(CashBackBean.class))).thenReturn(0);
 
         // Run the test
-        cashBackServiceUnderTest.cashBack(cashbackBean);
+        cashBackServiceUnderTest.cashBack(cashbackBean,faileCardCount);
 
         verify(cashBackServiceUnderTest.cashBackRepo,times(1)).expireCardCloseCashbacks(any(CashBackBean.class), any(BigDecimal.class));
         verify(cashBackServiceUnderTest.cashBackRepo,times(1)).getCashbackAmountToBeExpireForAccount("4862950000698568");

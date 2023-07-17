@@ -17,6 +17,7 @@ import org.springframework.transaction.annotation.Transactional;
 import java.util.HashSet;
 import java.util.LinkedHashMap;
 import java.util.Set;
+import java.util.concurrent.atomic.AtomicInteger;
 
 @Service
 public class TxnDropRequestService {
@@ -32,7 +33,7 @@ public class TxnDropRequestService {
 
     @Async("ThreadPool_100")
     @Transactional(value = "transactionManager", propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
-    public void processTxnDropRequest(DropRequestBean bean, ProcessBean processBean) {
+    public void processTxnDropRequest(DropRequestBean bean, ProcessBean processBean, AtomicInteger faileCardCount) {
 
         if (!Configurations.isInterrupted) {
             LinkedHashMap details = new LinkedHashMap();
@@ -51,13 +52,12 @@ public class TxnDropRequestService {
                     txnDropRequestRepo.addTxnDropRequest(bean.getTxnId(), bean.getCardNumber());
                 }
                 Configurations.SuccessCount_TxnDropRequest++;
-                Configurations.PROCESS_SUCCESS_COUNT++;
                 details.put("Process Status", "Passed");
 
             } catch (Exception e) {
                 Configurations.FailedCards_TxnDropRequest++;
-                Configurations.FailedCount_TxnDropRequest++;
-                Configurations.PROCESS_FAILD_COUNT++;
+                //Configurations.PROCESS_FAILD_COUNT++;
+                faileCardCount.addAndGet(1);
                 logError.error("Transaction Drop Request process failed for card number " + CommonMethods.cardInfo(maskedCardNumber, processBean) + " txnid: " + bean.getTxnId(), e);
                 details.put("Process Status", "Failed");
                 Configurations.errorCardList.add(new ErrorCardBean(Configurations.ERROR_EOD_ID, Configurations.EOD_DATE, new StringBuffer(bean.getCardNumber()), e.getMessage(), Configurations.RUNNING_PROCESS_ID, Configurations.RUNNING_PROCESS_DESCRIPTION, 0, CardAccount.CARD));

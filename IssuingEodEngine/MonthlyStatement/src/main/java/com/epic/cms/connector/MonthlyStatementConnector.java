@@ -45,7 +45,6 @@ import com.epic.cms.util.CommonMethods;
 import com.epic.cms.util.Configurations;
 import com.epic.cms.util.LogManager;
 import com.epic.cms.util.StatusVarList;
-import lombok.extern.slf4j.Slf4j;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -57,12 +56,15 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.Map;
+import java.util.concurrent.atomic.AtomicInteger;
+import java.util.concurrent.atomic.AtomicReference;
 
 @Service
 public class MonthlyStatementConnector extends ProcessBuilder {
 
     private static final Logger logInfo = LoggerFactory.getLogger("logInfo");
     private static final Logger logError = LoggerFactory.getLogger("logError");
+    public AtomicInteger faileCardCount = new AtomicInteger(0);
     @Autowired
     StatusVarList statusList;
     @Autowired
@@ -96,8 +98,15 @@ public class MonthlyStatementConnector extends ProcessBuilder {
                 for (Map.Entry<String, ArrayList<CardBean>> entry : cardAccountMap.entrySet()) {
                     accNo = entry.getKey();
                     ArrayList<CardBean> CardBeanList = entry.getValue();
-                    monthlyStatementService.monthlyStatement(accNo, CardBeanList);
+                    monthlyStatementService.monthlyStatement(accNo, CardBeanList,faileCardCount);
                 }
+
+//                cardAccountMap.forEach((entryKey, entryValue) -> {
+//                     accNo.set(entryKey);
+//                    ArrayList<CardBean> cardBeanList = entryValue;
+//                    monthlyStatementService.monthlyStatement(accNo.get(), cardBeanList,faileCardCount);
+//                });
+
                 while (!(taskExecutor.getActiveCount() == 0)) {
                     Thread.sleep(1000);
                 }
@@ -110,14 +119,14 @@ public class MonthlyStatementConnector extends ProcessBuilder {
             logError.error("Error!!! Monthly Statement Process Complete with Errors ", e);
             throw e;
         } finally {
-            logInfo.info(logManager.logSummery(summery));
+            //logInfo.info(logManager.logSummery(summery));
         }
     }
 
     @Override
     public void addSummaries() {
         summery.put("Total No of Effected Cards ", Configurations.PROCESS_TOTAL_NOOF_TRABSACTIONS);
-        summery.put("Total Success Cards ", Configurations.PROCESS_SUCCESS_COUNT);
-        summery.put("Total Fail Cards ", Configurations.PROCESS_FAILD_COUNT);
+        summery.put("Total Success Cards ", Configurations.PROCESS_TOTAL_NOOF_TRABSACTIONS - faileCardCount.get());
+        summery.put("Total Fail Cards ", faileCardCount.get());
     }
 }

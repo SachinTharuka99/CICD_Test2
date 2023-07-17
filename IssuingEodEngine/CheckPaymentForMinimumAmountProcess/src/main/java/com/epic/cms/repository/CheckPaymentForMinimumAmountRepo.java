@@ -8,6 +8,7 @@ import com.epic.cms.model.rowmapper.MinimumPaymentRowMapper;
 import com.epic.cms.util.CommonMethods;
 import com.epic.cms.util.Configurations;
 import com.epic.cms.util.StatusVarList;
+import com.epic.cms.util.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.jdbc.core.JdbcTemplate;
@@ -28,12 +29,20 @@ public class CheckPaymentForMinimumAmountRepo implements CheckPaymentForMinimumA
     @Autowired
     private JdbcTemplate backendJdbcTemplate;
 
+    @Autowired
+    LogManager logManager;
+
+    @Autowired
+    QueryParametersList queryParametersList;
+
     @Override
     public List<LastStatementSummeryBean> getStatementCardList() throws Exception {
         List<LastStatementSummeryBean> cardList = new ArrayList<LastStatementSummeryBean>();
 
         try {
-            String query = "SELECT BS.CARDNO, CAC.ACCOUNTNO,bs.duedate,bs.minamount,bs.statementstartdate,bs.statementenddate, bs.openingbalance,bs.closingbalance,bs.CLOSINGLOYALTYPOINT FROM CARD C, BILLINGLASTSTATEMENTSUMMARY BS, CARDACCOUNTCUSTOMER CAC WHERE bs.cardno=c.cardnumber AND CAC.CARDNUMBER = c.cardnumber and c.cardstatus not in (?,?,?)";
+            //String query = "SELECT BS.CARDNO, CAC.ACCOUNTNO,bs.duedate,bs.minamount,bs.statementstartdate,bs.statementenddate, bs.openingbalance,bs.closingbalance,bs.CLOSINGLOYALTYPOINT FROM CARD C, BILLINGLASTSTATEMENTSUMMARY BS, CARDACCOUNTCUSTOMER CAC WHERE bs.cardno=c.cardnumber AND CAC.CARDNUMBER = c.cardnumber and c.cardstatus not in (?,?,?)";
+
+            String query = queryParametersList.getCheckPaymentForMinimumAmount_getStatementCardList();
 
             query += CommonMethods.checkForErrorCards("c.cardnumber");
 
@@ -55,9 +64,9 @@ public class CheckPaymentForMinimumAmountRepo implements CheckPaymentForMinimumA
         String accNo = null;
 
         try {
-            String query = "SELECT ACCOUNTNO FROM CARDACCOUNTCUSTOMER WHERE CARDNUMBER=?";
+            //String query = "SELECT ACCOUNTNO FROM CARDACCOUNTCUSTOMER WHERE CARDNUMBER=?";
 
-            accNo = backendJdbcTemplate.queryForObject(query, String.class, cardNo.toString());
+            accNo = backendJdbcTemplate.queryForObject(queryParametersList.getCheckPaymentForMinimumAmount_getAccountNoOnCard(), String.class, cardNo.toString());
 
         } catch (EmptyResultDataAccessException e) {
             return accNo;
@@ -73,18 +82,18 @@ public class CheckPaymentForMinimumAmountRepo implements CheckPaymentForMinimumA
         Boolean flag = false;
         int month = 0;
 
-        String allPayments = "select * from minimumpayment where cardno=?";// and lasteodid=?";
-        String allPamentsSameDay = "select * from minimumpayment where cardno=? and lasteodid=?";
-        String insertQuery = "INSERT INTO MINIMUMPAYMENT (CARDNO,M1,M1DATE,STATUS,COUNT,LASTEODID) values (?,?,?,?,1,?)";
+        //String allPayments = "select * from minimumpayment where cardno=?";// and lasteodid=?";
+        //String allPamentsSameDay = "select * from minimumpayment where cardno=? and lasteodid=?";
+        //String insertQuery = "INSERT INTO MINIMUMPAYMENT (CARDNO,M1,M1DATE,STATUS,COUNT,LASTEODID) values (?,?,?,?,1,?)";
 
         try {
-            minimumPaymentBean = backendJdbcTemplate.queryForObject(allPayments, new MinimumPaymentRowMapper(), cardNo);
+            minimumPaymentBean = backendJdbcTemplate.queryForObject(queryParametersList.getCheckPaymentForMinimumAmount_insertToMinPayTable_Select_allPayments(), new MinimumPaymentRowMapper(), cardNo);
 
             int count = 0;
             boolean sameDay = false;
 
             RowCountCallbackHandler countCallback = new RowCountCallbackHandler();
-            backendJdbcTemplate.query(allPamentsSameDay, countCallback, cardNo, statementDayEODID);
+            backendJdbcTemplate.query(queryParametersList.getCheckPaymentForMinimumAmount_insertToMinPayTable_Select_allPaymentsallPamentsSameDay(), countCallback, cardNo, statementDayEODID);
             int recordCount = countCallback.getRowCount();
 
             if (recordCount > 0) {
@@ -157,7 +166,7 @@ public class CheckPaymentForMinimumAmountRepo implements CheckPaymentForMinimumA
                 }
             }
 
-            String updateQuery = "UPDATE MINIMUMPAYMENT SET M" + month + "=?,M" + month + "DATE=?, STATUS=?, COUNT =?, LASTEODID=?,LASTUPDATEDTIME=sysdate WHERE CARDNO=?";
+            //String updateQuery = "UPDATE MINIMUMPAYMENT SET M" + month + "=?,M" + month + "DATE=?, STATUS=?, COUNT =?, LASTEODID=?,LASTUPDATEDTIME=sysdate WHERE CARDNO=?";
             String status = statusList.getEOD_PENDING_STATUS();
 
             if (month >= Configurations.NO_OF_MONTHS_FOR_PERMENANT_BLOCK) {//TODO 3 should be a variable.
@@ -168,11 +177,13 @@ public class CheckPaymentForMinimumAmountRepo implements CheckPaymentForMinimumA
                 status = statusList.getCARD_TEMPORARY_BLOCK_Status();
             }
 
-            backendJdbcTemplate.update(updateQuery, fee - totalPayment, dueDate, status, count, Configurations.EOD_ID, cardNo.toString());
+            backendJdbcTemplate.update(queryParametersList.getCheckPaymentForMinimumAmount_insertToMinPayTable_Update(), fee - totalPayment, dueDate, status, count, Configurations.EOD_ID, cardNo.toString());
             flag = true;
 
         } catch (EmptyResultDataAccessException ex) {
-            backendJdbcTemplate.update(insertQuery, cardNo.toString(), fee - totalPayment, dueDate, statusList.getEOD_PENDING_STATUS(), Configurations.EOD_ID);
+            //backendJdbcTemplate.update(queryParametersList.getCheckPaymentForMinimumAmount_insertToMinPayTable_Insert(), cardNo.toString(), fee - totalPayment, dueDate, statusList.getEOD_PENDING_STATUS(), Configurations.EOD_ID);
+            //logManager.logError("--no result found--",errorLogger);
+            backendJdbcTemplate.update(queryParametersList.getCheckPaymentForMinimumAmount_insertToMinPayTable_Insert(), cardNo.toString(), fee - totalPayment, dueDate, statusList.getEOD_PENDING_STATUS(), Configurations.EOD_ID);
             flag = true;
         } catch (Exception ex) {
             throw ex;
@@ -185,9 +196,9 @@ public class CheckPaymentForMinimumAmountRepo implements CheckPaymentForMinimumA
         double paymentAmount = 0;
 
         try {
-            String query = "SELECT NVL(SUM(TRANSACTIONAMOUNT),0) AS TOTALPAY FROM EODTRANSACTION WHERE TRANSACTIONTYPE IN (?,?,?,?) AND EODID > ? AND EODID <= ? AND STATUS NOT IN(?) AND ACCOUNTNO IN (?) ";
+            //String query = "SELECT NVL(SUM(TRANSACTIONAMOUNT),0) AS TOTALPAY FROM EODTRANSACTION WHERE TRANSACTIONTYPE IN (?,?,?,?) AND EODID > ? AND EODID <= ? AND STATUS NOT IN(?) AND ACCOUNTNO IN (?) ";
 
-            paymentAmount = backendJdbcTemplate.queryForObject(query, Double.class,
+            paymentAmount = backendJdbcTemplate.queryForObject(queryParametersList.getCheckPaymentForMinimumAmount_getPaymentAmount(), Double.class,
                     Configurations.TXN_TYPE_PAYMENT,
                     Configurations.TXN_TYPE_REVERSAL,
                     Configurations.TXN_TYPE_REFUND,
@@ -211,9 +222,9 @@ public class CheckPaymentForMinimumAmountRepo implements CheckPaymentForMinimumA
         double paymentAmount = 0;
 
         try {
-            String query = "SELECT NVL(SUM(TRANSACTIONAMOUNT),0) AS TOTALPAY FROM EODTRANSACTION WHERE TRANSACTIONTYPE IN (?,?,?,?) AND EODID > ? AND EODID < ? AND STATUS NOT IN(?) AND ACCOUNTNO IN (?) ";
+            //String query = "SELECT NVL(SUM(TRANSACTIONAMOUNT),0) AS TOTALPAY FROM EODTRANSACTION WHERE TRANSACTIONTYPE IN (?,?,?,?) AND EODID > ? AND EODID < ? AND STATUS NOT IN(?) AND ACCOUNTNO IN (?)";
 
-            paymentAmount = backendJdbcTemplate.queryForObject(query, Double.class,
+            paymentAmount = backendJdbcTemplate.queryForObject(queryParametersList.getCheckPaymentForMinimumAmount_getTotalPaymentExceptDueDate(), Double.class,
                     Configurations.TXN_TYPE_PAYMENT,
                     Configurations.TXN_TYPE_REVERSAL,
                     Configurations.TXN_TYPE_REFUND,

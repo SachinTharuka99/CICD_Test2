@@ -15,6 +15,7 @@ import org.mockito.MockedStatic;
 import org.mockito.Mockito;
 
 import java.util.*;
+import java.util.concurrent.atomic.AtomicInteger;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
@@ -24,6 +25,7 @@ import static org.mockito.Mockito.*;
 class ClearMinAmountAndTempBlockServiceTest {
 
     private ClearMinAmountAndTempBlockService clearMinAmountAndTempBlockServiceUnderTest;
+    public AtomicInteger faileCardCount = new AtomicInteger(0);
 
     @BeforeEach
     void setUp() {
@@ -97,7 +99,7 @@ class ClearMinAmountAndTempBlockServiceTest {
         when(clearMinAmountAndTempBlockServiceUnderTest.statusList.getCARD_BLOCK_STATUS()).thenReturn("result");
 
         // Run the test
-        clearMinAmountAndTempBlockServiceUnderTest.processClearMinAmountAndTempBlock(lastStatement);
+        clearMinAmountAndTempBlockServiceUnderTest.processClearMinAmountAndTempBlock(lastStatement,faileCardCount);
 
         // Verify the results
         //verify(clearMinAmountAndTempBlockServiceUnderTest.cardBlockRepo).deactivateCardBlock(any(StringBuffer.class));
