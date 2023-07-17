@@ -17,6 +17,7 @@ import org.springframework.scheduling.concurrent.ThreadPoolTaskExecutor;
 import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
+import java.util.concurrent.atomic.AtomicInteger;
 
 @Service
 public class TxnMismatchPostConnector extends ProcessBuilder {
@@ -38,6 +39,8 @@ public class TxnMismatchPostConnector extends ProcessBuilder {
     private ArrayList<OtbBean> txnList;
     private int failedCount = 0;
 
+    public AtomicInteger faileCardCount = new AtomicInteger(0);
+
     @Override
     public void concreteProcess() throws Exception {
         try {
@@ -50,28 +53,36 @@ public class TxnMismatchPostConnector extends ProcessBuilder {
                 custAccList = txnMismatchPostRepo.getErrorEodTxnMismatchPostCustAcc();
             }
 
-            for (OtbBean bean : custAccList) {
+//            for (OtbBean bean : custAccList) {
+//
+//                txnList = txnMismatchPostRepo.getInitTxnMismatch(bean.getAccountnumber());
+//                Configurations.PROCESS_TOTAL_NOOF_TRABSACTIONS += txnList.size();
+//                int iterator = 1;
+//
+//                txnMismatchPostService.processTxnMismatch(txnList, bean, iterator,faileCardCount);
+//
+//                iterator++;
+//            }
 
+            custAccList.forEach(bean -> {
                 txnList = txnMismatchPostRepo.getInitTxnMismatch(bean.getAccountnumber());
                 Configurations.PROCESS_TOTAL_NOOF_TRABSACTIONS += txnList.size();
                 int iterator = 1;
 
-                txnMismatchPostService.processTxnMismatch(txnList, bean, iterator);
-
-                iterator++;
-            }
+                txnMismatchPostService.processTxnMismatch(txnList, bean, iterator,faileCardCount);
+                });
             //wait till all the threads are completed
             while (!(taskExecutor.getActiveCount() == 0)) {
                 Thread.sleep(1000);
             }
 
-            failedCount = Configurations.failedCount_TxnMisMatchProcess;
+            //failedCount = Configurations.failedCount_TxnMisMatchProcess;
 
         } catch (Exception e) {
             Configurations.IS_PROCESS_COMPLETELY_FAILED = true;
             logError.error(String.valueOf(e));
         } finally {
-            logInfo.info(logManager.logSummery(summery));
+           logInfo.info(logManager.logSummery(summery));
             try {
                 /* PADSS Change -
                 variables handling card data should be nullified by replacing the value of variable with zero and call NULL function */
@@ -100,7 +111,7 @@ public class TxnMismatchPostConnector extends ProcessBuilder {
     @Override
     public void addSummaries() {
         summery.put("Number of accounts to fee post ", Configurations.PROCESS_TOTAL_NOOF_TRABSACTIONS);
-        summery.put("Number of success fee post ", Configurations.PROCESS_TOTAL_NOOF_TRABSACTIONS - failedCount);
-        summery.put("Number of failure fee post ", failedCount);
+        summery.put("Number of success fee post ", Configurations.PROCESS_TOTAL_NOOF_TRABSACTIONS - faileCardCount.get());
+        summery.put("Number of failure fee post ", faileCardCount.get());
     }
 }

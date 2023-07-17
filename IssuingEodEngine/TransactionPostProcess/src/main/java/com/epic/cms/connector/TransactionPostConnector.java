@@ -25,6 +25,7 @@ import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
 import java.util.LinkedHashMap;
+import java.util.concurrent.atomic.AtomicInteger;
 
 @Service
 public class TransactionPostConnector extends ProcessBuilder {
@@ -42,6 +43,7 @@ public class TransactionPostConnector extends ProcessBuilder {
 
     private static final Logger logInfo = LoggerFactory.getLogger("logInfo");
     private static final Logger logError = LoggerFactory.getLogger("logError");
+    public AtomicInteger faileCardCount = new AtomicInteger(0);
 
     @Autowired
     @Qualifier("ThreadPool_100")
@@ -64,9 +66,15 @@ public class TransactionPostConnector extends ProcessBuilder {
             }
             Configurations.PROCESS_TOTAL_NOOF_TRABSACTIONS = custAccList.size();
 
-            for (OtbBean bean : custAccList) {
-                transactionPostService.transactionList(bean);
-            }
+//            for (OtbBean bean : custAccList) {
+//                transactionPostService.transactionList(bean);
+//            }
+
+            custAccList.forEach(bean -> {
+                transactionPostService.transactionList(bean, faileCardCount);
+            });
+
+
             //wait till all the threads are completed
             while (!(taskExecutor.getActiveCount() == 0)) {
                 Thread.sleep(1000);
@@ -76,7 +84,7 @@ public class TransactionPostConnector extends ProcessBuilder {
             Configurations.IS_PROCESS_COMPLETELY_FAILED = true;
             logError.error("Failed Transaction Post Process Completely ", e);
         } finally {
-            logInfo.info(logManager.logSummery(summery));
+            //logInfo.info(logManager.logSummery(summery));
             try {
                /* PADSS Change -
             variables handling card data should be nullified by replacing the value of variable with zero and call NULL function */
@@ -104,7 +112,7 @@ public class TransactionPostConnector extends ProcessBuilder {
     @Override
     public void addSummaries() {
         summery.put("Number of accounts to fee post ", Configurations.PROCESS_TOTAL_NOOF_TRABSACTIONS);
-        summery.put("Number of success fee post ", Configurations.PROCESS_TOTAL_NOOF_TRABSACTIONS - Configurations.PROCESS_FAILD_COUNT);
-        summery.put("Number of failure fee post ", Configurations.PROCESS_FAILD_COUNT);
+        summery.put("Number of success fee post ", Configurations.PROCESS_TOTAL_NOOF_TRABSACTIONS - faileCardCount.get());
+        summery.put("Number of failure fee post ", faileCardCount.get());
     }
 }

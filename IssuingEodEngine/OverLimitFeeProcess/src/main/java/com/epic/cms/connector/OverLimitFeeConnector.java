@@ -19,6 +19,7 @@ import org.springframework.stereotype.Service;
 
 import java.util.HashMap;
 import java.util.Map;
+import java.util.concurrent.atomic.AtomicInteger;
 
 
 @Service
@@ -60,6 +61,7 @@ public class OverLimitFeeConnector extends ProcessBuilder {
 
     private static final Logger logInfo = LoggerFactory.getLogger("logInfo");
     private static final Logger logError = LoggerFactory.getLogger("logError");
+    public AtomicInteger faileCardCount = new AtomicInteger(0);
 
     public String processHeader = "OVERLIMIT FEE PROCESS";
 
@@ -78,8 +80,9 @@ public class OverLimitFeeConnector extends ProcessBuilder {
 
                 if (accMap.size() > 0) {
                     for (Map.Entry<String, StringBuffer> entry : accMap.entrySet()) {
-                        overLimitFeeService.addOverLimitFee(entry.getKey(), entry.getValue(), processBean, processHeader);
+                        overLimitFeeService.addOverLimitFee(entry.getKey(), entry.getValue(), processBean, processHeader,faileCardCount);
                     }
+
 
                     //wait till all the threads are completed
                     while (!(taskExecutor.getActiveCount() == 0)) {
@@ -108,7 +111,7 @@ public class OverLimitFeeConnector extends ProcessBuilder {
     public void addSummaries() {
         summery.put("Started Date", Configurations.EOD_DATE.toString());
         summery.put("No of Card effected", Configurations.PROCESS_TOTAL_NOOF_TRABSACTIONS);
-        summery.put("No of Success Card ", Configurations.PROCESS_SUCCESS_COUNT);
-        summery.put("No of fail Card ", Configurations.PROCESS_FAILD_COUNT);
+        summery.put("No of Success Card ", Configurations.PROCESS_TOTAL_NOOF_TRABSACTIONS-faileCardCount.get());
+        summery.put("No of fail Card ", faileCardCount.get());
     }
 }

@@ -20,6 +20,7 @@ import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.atomic.AtomicInteger;
 
 
 @Service
@@ -27,6 +28,7 @@ public class ChequeReturnConnector extends ProcessBuilder {
 
     private static final Logger logInfo = LoggerFactory.getLogger("logInfo");
     private static final Logger logError = LoggerFactory.getLogger("logError");
+    public AtomicInteger faileCardCount = new AtomicInteger(0);
     @Autowired
     LogManager logManager;
     @Autowired
@@ -60,6 +62,7 @@ public class ChequeReturnConnector extends ProcessBuilder {
                     Map.Entry pair = (Map.Entry) it.next();
                     chequeReturnService.proceedChequeReturn(pair);
                 }
+
                 //wait till all the threads are completed
                 while (!(taskExecutor.getActiveCount() == 0)) {
                     Thread.sleep(1000);

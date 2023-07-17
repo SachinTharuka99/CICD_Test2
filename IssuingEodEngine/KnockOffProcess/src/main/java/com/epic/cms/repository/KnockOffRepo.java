@@ -92,7 +92,7 @@ public class KnockOffRepo implements KnockOffDao {
     }
 
     @Override
-    public ArrayList<OtbBean> getKnockOffCardList(String customerid, String accountnumber) throws Exception {
+    public ArrayList<OtbBean> getKnockOffCardList(String customerid, String accountnumber)  {
         ArrayList<OtbBean> cardList = new ArrayList<OtbBean>();
 
         try {
@@ -117,7 +117,7 @@ public class KnockOffRepo implements KnockOffDao {
     }
 
     @Override
-    public OtbBean getMainCard(String accountnumber) throws Exception {
+    public OtbBean getMainCard(String accountnumber)  {
         OtbBean mainCardBean = null;
 
         try {

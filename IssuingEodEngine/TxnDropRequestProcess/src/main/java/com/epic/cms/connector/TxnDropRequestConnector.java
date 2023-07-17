@@ -21,6 +21,7 @@ import org.springframework.stereotype.Service;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
+import java.util.concurrent.atomic.AtomicInteger;
 
 @Service
 public class TxnDropRequestConnector extends ProcessBuilder {
@@ -40,6 +41,7 @@ public class TxnDropRequestConnector extends ProcessBuilder {
     StatusVarList statusList;
     @Autowired
     TxnDropRequestService txnDropRequestService;
+    public AtomicInteger faileCardCount = new AtomicInteger(0);
 
     @Override
     public void concreteProcess() throws Exception {
@@ -67,9 +69,14 @@ public class TxnDropRequestConnector extends ProcessBuilder {
                 Configurations.PROCESS_TOTAL_NOOF_TRABSACTIONS = dropTransactionList.size();
 
                 if (dropTransactionList.size() > 0) {
-                    for (DropRequestBean bean : dropTransactionList) {
-                        txnDropRequestService.processTxnDropRequest(bean, processBean);
-                    }
+//                    for (DropRequestBean bean : dropTransactionList) {
+//                        txnDropRequestService.processTxnDropRequest(bean, processBean,faileCardCount);
+//                    }
+
+                    dropTransactionList.forEach(bean -> {
+                        txnDropRequestService.processTxnDropRequest(bean, processBean,faileCardCount);
+                    });
+
                 }
 
                 while (!(taskExecutor.getActiveCount() == 0)) {
@@ -98,7 +105,7 @@ public class TxnDropRequestConnector extends ProcessBuilder {
                 logError.error("Exception in Transaction Drop Request", e2);
             }
         } finally {
-            logInfo.info(logManager.logSummery(summery));
+            //logInfo.info(logManager.logSummery(summery));
             try {
                 /** PADSS Change -
                  variables handling card data should be nullified by replacing the value of variable with zero and call NULL function */
@@ -119,8 +126,14 @@ public class TxnDropRequestConnector extends ProcessBuilder {
     @Override
     public void addSummaries() {
         summery.put("Started Date ", Configurations.EOD_DATE.toString());
-        summery.put("No of Drop Requests ", Configurations.PROCESS_SUCCESS_COUNT);
-        summery.put("No of Fail Requests ", Configurations.PROCESS_FAILD_COUNT);
+        summery.put("Total Number of Total Request ", Configurations.PROCESS_TOTAL_NOOF_TRABSACTIONS);
+        summery.put("No of Drop Requests ", Configurations.PROCESS_TOTAL_NOOF_TRABSACTIONS - faileCardCount.get());
+        summery.put("No of Fail Requests ", faileCardCount.get());
+
+//        summery.put("No of Drop Requests ", Configurations.PROCESS_SUCCESS_COUNT);
+//        summery.put("No of Fail Requests ", Configurations.PROCESS_FAILD_COUNT);
         summery.put("No of Fail Cards ", Configurations.FailedCards_TxnDropRequest);
+
+
     }
 }

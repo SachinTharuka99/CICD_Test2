@@ -15,7 +15,7 @@ import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
 import java.util.List;
-
+import java.util.concurrent.atomic.AtomicInteger;
 
 
 @Service
@@ -41,6 +41,7 @@ public class ClearMinAmountAndTempBlockConnector extends ProcessBuilder {
 
     private static final Logger logInfo = LoggerFactory.getLogger("logInfo");
     private static final Logger logError = LoggerFactory.getLogger("logError");
+    public AtomicInteger faileCardCount = new AtomicInteger(0);
 
     @Override
     public void concreteProcess() throws Exception {
@@ -53,9 +54,12 @@ public class ClearMinAmountAndTempBlockConnector extends ProcessBuilder {
 
             summery.put("Checking cards for min payment", cardList.size() + "");
 
-            for (LastStatementSummeryBean lastStatement : cardList) {
-                clearMinAmountAndTempBlockService.processClearMinAmountAndTempBlock(lastStatement);
-            }
+//            for (LastStatementSummeryBean lastStatement : cardList) {
+//                clearMinAmountAndTempBlockService.processClearMinAmountAndTempBlock(lastStatement);
+//            }
+            cardList.forEach(lastStatement-> {
+                clearMinAmountAndTempBlockService.processClearMinAmountAndTempBlock(lastStatement,faileCardCount);
+            });
             while (!(taskExecutor.getActiveCount() == 0)) {
                 Thread.sleep(1000);
             }
@@ -82,7 +86,7 @@ public class ClearMinAmountAndTempBlockConnector extends ProcessBuilder {
     public void addSummaries() {
             summery.put("Started Date", Configurations.EOD_DATE.toString());
             summery.put("Number of transaction Cards Count", Configurations.PROCESS_TOTAL_NOOF_TRABSACTIONS);
-            summery.put("Number of success Cards Count", Configurations.PROCESS_TOTAL_NOOF_TRABSACTIONS - Configurations.PROCESS_FAILED_COUNT.get());
-            summery.put("Number of failure Cards Count", Configurations.PROCESS_FAILED_COUNT.get());
+            summery.put("Number of success Cards Count", Configurations.PROCESS_TOTAL_NOOF_TRABSACTIONS -faileCardCount.get());
+            summery.put("Number of failure Cards Count", faileCardCount.get());
     }
 }

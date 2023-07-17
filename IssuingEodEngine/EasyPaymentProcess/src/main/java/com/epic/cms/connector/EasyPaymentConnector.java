@@ -28,6 +28,7 @@ import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.concurrent.atomic.AtomicInteger;
 
 
 @Service
@@ -35,6 +36,7 @@ public class EasyPaymentConnector extends ProcessBuilder {
 
     private static final Logger logInfo = LoggerFactory.getLogger("logInfo");
     private static final Logger logError = LoggerFactory.getLogger("logError");
+    public AtomicInteger faileCardCount = new AtomicInteger(0);
     @Autowired
     LogManager logManager;
     @Autowired
@@ -68,9 +70,13 @@ public class EasyPaymentConnector extends ProcessBuilder {
                  */
                 txnList = installmentPaymentRepo.getEasyPaymentDetails();
                 Configurations.PROCESS_TOTAL_NOOF_TRABSACTIONS += txnList.size();
-                for (InstallmentBean installmentBean : txnList) {
-                    easyPaymentService.startEasyPaymentProcess(installmentBean, processBean);
-                }
+//                for (InstallmentBean installmentBean : txnList) {
+//                    easyPaymentService.startEasyPaymentProcess(installmentBean, processBean);
+//                }
+                txnList.forEach(installmentBean -> {
+                    easyPaymentService.startEasyPaymentProcess(installmentBean, processBean,faileCardCount);
+                });
+
                 //wait till all the threads are completed
                 while (!(taskExecutor.getActiveCount() == 0)) {
                     Thread.sleep(1000);
@@ -78,13 +84,13 @@ public class EasyPaymentConnector extends ProcessBuilder {
 
                 Configurations.PROCESS_TOTAL_NOOF_TRABSACTIONS = Configurations.NO_OF_EASY_PAYMENTS;
                 Configurations.PROCESS_SUCCESS_COUNT = (Configurations.NO_OF_EASY_PAYMENTS - Configurations.FAILED_EASY_PAYMENTS);
-                Configurations.PROCESS_FAILD_COUNT = Configurations.FAILED_EASY_PAYMENTS;
+               // Configurations.PROCESS_FAILD_COUNT = Configurations.FAILED_EASY_PAYMENTS;
             }
         } catch (Exception e) {
             Configurations.IS_PROCESS_COMPLETELY_FAILED = true;
             logError.error("Easy Payment process failed", e);
         } finally {
-            logInfo.info(logManager.logSummery(summery));
+            //logInfo.info(logManager.logSummery(summery));
             /** PADSS Change -
              variables handling card data should be nullified by replacing the value of variable with zero and call NULL function */
             if (txnList != null && txnList.size() != 0) {
@@ -99,8 +105,8 @@ public class EasyPaymentConnector extends ProcessBuilder {
     @Override
     public void addSummaries() {
         summery.put("Started Date", Configurations.EOD_DATE.toString());
-        summery.put("No of Card effected", Integer.toString(Configurations.NO_OF_EASY_PAYMENTS));
-        summery.put("No of Success Card ", Integer.toString(Configurations.NO_OF_EASY_PAYMENTS - Configurations.FAILED_EASY_PAYMENTS));
-        summery.put("No of fail Card ", Integer.toString(Configurations.FAILED_EASY_PAYMENTS));
+        summery.put("No of Card effected", Configurations.PROCESS_TOTAL_NOOF_TRABSACTIONS);
+        summery.put("No of Success Card ",Configurations.PROCESS_TOTAL_NOOF_TRABSACTIONS - faileCardCount.get());
+        summery.put("No of fail Card ",faileCardCount.get());
     }
 }

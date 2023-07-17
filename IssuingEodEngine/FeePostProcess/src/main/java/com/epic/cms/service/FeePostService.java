@@ -15,6 +15,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.util.LinkedHashMap;
 import java.util.List;
+import java.util.concurrent.atomic.AtomicInteger;
 
 @Service
 public class FeePostService {
@@ -33,7 +34,7 @@ public class FeePostService {
 
     @Async("ThreadPool_100")
     @Transactional(value = "transactionManager", propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
-    public void proceedFeePost(OtbBean bean) {
+    public void proceedFeePost(OtbBean bean, AtomicInteger faileCardCount) {
         if (!Configurations.isInterrupted) {
             LinkedHashMap detail = new LinkedHashMap();
 
@@ -119,9 +120,10 @@ public class FeePostService {
                     iterator++;
                 }
                 if (feeAdditionSuccess) {
-                    Configurations.PROCESS_SUCCESS_COUNT++;
+                    //Configurations.PROCESS_SUCCESS_COUNT++;
                 } else {
-                    Configurations.PROCESS_FAILD_COUNT++;
+                    //Configurations.PROCESS_FAILD_COUNT++;
+                    faileCardCount.addAndGet(1);
                 }
                 feeAdditionSuccess = false;
             } catch (Exception ex) {

@@ -18,16 +18,19 @@ import org.mockito.Mockito;
 import java.text.SimpleDateFormat;
 import java.time.LocalDate;
 import java.util.*;
+import java.util.concurrent.atomic.AtomicInteger;
 
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.*;
 import static org.mockito.Mockito.*;
 
 class RunnableFeeServiceTest {
+    public AtomicInteger faileCardCount = new AtomicInteger(0);
     final static SimpleDateFormat sdf = new SimpleDateFormat("yyMMdd");
     private RunnableFeeService runnableFeeServiceUnderTest;
     static MockedStatic<CommonMethods> common;
     static String EOD_ID = "22110400";
+
 
     @BeforeAll
     public static void init() throws Exception {

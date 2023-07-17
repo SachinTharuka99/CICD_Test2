@@ -12,6 +12,7 @@ import org.mockito.MockedStatic;
 import org.mockito.Mockito;
 
 import java.util.Date;
+import java.util.concurrent.atomic.AtomicInteger;
 
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.*;
@@ -19,6 +20,7 @@ import static org.mockito.Mockito.*;
 class ChequePaymentServiceTest {
 
     private ChequePaymentService chequePaymentServiceUnderTest;
+    public AtomicInteger faileCardCount = new AtomicInteger(0);
 
     @BeforeEach
     void setUp(){
@@ -63,7 +65,7 @@ class ChequePaymentServiceTest {
         when(chequePaymentServiceUnderTest.chequePaymentRepo.updateChequePayment(bean)).thenReturn(0);
 
         //run the test
-        chequePaymentServiceUnderTest.processChequePayment(bean);
+        chequePaymentServiceUnderTest.processChequePayment(bean,faileCardCount);
 
         //verify the result
         verify(chequePaymentServiceUnderTest.chequePaymentRepo).insertChequePayments(
@@ -94,7 +96,7 @@ class ChequePaymentServiceTest {
         when(chequePaymentServiceUnderTest.chequePaymentRepo.updateChequePayment(bean)).thenReturn(1);
 
         //run the test
-        chequePaymentServiceUnderTest.processChequePayment(bean);
+        chequePaymentServiceUnderTest.processChequePayment(bean,faileCardCount);
 
         //verify the result
         verify(chequePaymentServiceUnderTest.chequePaymentRepo).insertChequePayments(

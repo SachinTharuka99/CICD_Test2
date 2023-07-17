@@ -25,6 +25,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.concurrent.atomic.AtomicInteger;
 
 
 @Service
@@ -41,7 +42,7 @@ public class MonthlyStatementService {
 
     @Async("taskExecutor2")
     @Transactional(value = "transactionManager", propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
-    public void monthlyStatement(String accNo, ArrayList<CardBean> accDetails) {
+    public void monthlyStatement(String accNo, ArrayList<CardBean> accDetails, AtomicInteger faileCardCount) {
         if (!Configurations.isInterrupted) {
             try {
 
@@ -50,11 +51,12 @@ public class MonthlyStatementService {
                 stBean = monthlyStatementRepo.CheckBillingCycleChangeRequest(accNo);
                 monthlyStatementRepo.UpdateStatementDeatils(CardBeanList, stBean, accNo);
 
-                Configurations.PROCESS_SUCCESS_COUNT++;
+                //Configurations.PROCESS_SUCCESS_COUNT++;
 
             } catch (Exception ex) {
                 Configurations.errorCardList.add(new ErrorCardBean(Configurations.ERROR_EOD_ID, Configurations.EOD_DATE, new StringBuffer(accNo), ex.getMessage(), Configurations.RUNNING_PROCESS_ID, Configurations.RUNNING_PROCESS_DESCRIPTION, 0, CardAccount.ACCOUNT));
-                Configurations.PROCESS_FAILD_COUNT++;
+                //Configurations.PROCESS_FAILD_COUNT++;
+                faileCardCount.addAndGet(1);
                 logError.error("Error Occurs, when running monthly statement process for account " + accNo + " ", ex);
             }
         }

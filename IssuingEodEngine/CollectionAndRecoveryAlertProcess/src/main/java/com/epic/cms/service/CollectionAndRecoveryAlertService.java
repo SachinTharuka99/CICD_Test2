@@ -18,6 +18,7 @@ import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.LinkedHashMap;
+import java.util.concurrent.atomic.AtomicInteger;
 
 @Service
 public class CollectionAndRecoveryAlertService {
@@ -35,7 +36,7 @@ public class CollectionAndRecoveryAlertService {
 
     @Async("ThreadPool_100")
     @Transactional(value = "transactionManager", propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
-    public void processCollectionAndRecoveryAlertService(StringBuffer cardNumber, String val, ProcessBean processBean) {
+    public void processCollectionAndRecoveryAlertService(StringBuffer cardNumber, String val, ProcessBean processBean, AtomicInteger faileCardCount) {
         if (!Configurations.isInterrupted) {
             boolean status = false;
             LinkedHashMap adjustDetails = new LinkedHashMap();
@@ -99,12 +100,13 @@ public class CollectionAndRecoveryAlertService {
 
                 collectionAndRecoveryAlertRepo.updateAlertGenStatus(cardNumber, val);
 
-                Configurations.successCardNoCount_CollectionAndRecoveryAlert++;
-                Configurations.PROCESS_SUCCESS_COUNT++;
+                //Configurations.successCardNoCount_CollectionAndRecoveryAlert++;
+               // Configurations.PROCESS_SUCCESS_COUNT++;
                 adjustDetails.put("Collection & Recovery Alert Process Status", "Passed");
             } catch (Exception e) {
-                Configurations.failedCardNoCount_CollectionAndRecoveryAlert++;
-                Configurations.PROCESS_FAILD_COUNT++;
+                //Configurations.failedCardNoCount_CollectionAndRecoveryAlert++;
+                faileCardCount.addAndGet(1);
+                //Configurations.PROCESS_FAILD_COUNT++;
                 Configurations.errorCardList.add(new ErrorCardBean(Configurations.ERROR_EOD_ID, Configurations.EOD_DATE, new StringBuffer(cardNumber), e.getMessage(), Configurations.RUNNING_PROCESS_ID, Configurations.RUNNING_PROCESS_DESCRIPTION, 0, CardAccount.CARD));
                 adjustDetails.put("Collection & Recovery Alert Process Status", "Failed");
                 logError.error("Error Occurs, when running collection & recovery alert process for cardnumber " + CommonMethods.cardNumberMask(cardNumber) + " ", e);

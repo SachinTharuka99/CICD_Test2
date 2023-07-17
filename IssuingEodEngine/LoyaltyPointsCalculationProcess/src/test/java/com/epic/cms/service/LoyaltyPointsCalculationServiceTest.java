@@ -13,6 +13,7 @@ import org.mockito.MockedStatic;
 import org.mockito.Mockito;
 
 import java.util.*;
+import java.util.concurrent.atomic.AtomicInteger;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
@@ -23,6 +24,7 @@ class LoyaltyPointsCalculationServiceTest {
 
     private LoyaltyPointsCalculationService loyaltyPointsCalculationServiceUnderTest;
     private CommonMethods commonMethods;
+    public AtomicInteger faileCardCount = new AtomicInteger(0);
 
     @BeforeEach
     void setUp() {
@@ -85,7 +87,7 @@ class LoyaltyPointsCalculationServiceTest {
                 new GregorianCalendar(2020, Calendar.JANUARY, 1).getTime())).thenReturn(0.0);
 
         // Run the test
-        loyaltyPointsCalculationServiceUnderTest.calculateLoyaltyPoints(loyaltyBean);
+        loyaltyPointsCalculationServiceUnderTest.calculateLoyaltyPoints(loyaltyBean, faileCardCount);
 
         // Verify the results
         verify(loyaltyPointsCalculationServiceUnderTest.loyaltyPointsCalculationRepo,times(1)).getLastStmtClosingLoyalty(

@@ -56,9 +56,16 @@ public class StampDutyFeeConnector extends ProcessBuilder {
             Configurations.PROCESS_TOTAL_NOOF_TRABSACTIONS = statementAccountList.size();
             noOfCards = statementAccountList.size();
 
-            for (StampDutyBean stampDutyAcoountBean : statementAccountList) {
+//            for (StampDutyBean stampDutyAcoountBean : statementAccountList) {
+//                stampDutyFeeService.StampDutyFee(stampDutyAcoountBean,faileCardCount);
+//            }
+
+            statementAccountList.forEach(stampDutyAcoountBean -> {
                 stampDutyFeeService.StampDutyFee(stampDutyAcoountBean,faileCardCount);
-            }
+            });
+
+
+
 
             //wait till all the threads are completed
             while (!(taskExecutor.getActiveCount() == 0)) {

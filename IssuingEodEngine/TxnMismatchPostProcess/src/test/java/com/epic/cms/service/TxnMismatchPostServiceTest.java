@@ -10,6 +10,7 @@ import org.junit.jupiter.api.Test;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.concurrent.atomic.AtomicInteger;
 
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.*;
@@ -17,6 +18,8 @@ import static org.mockito.Mockito.*;
 class TxnMismatchPostServiceTest {
 
     private TxnMismatchPostService txnMismatchPostServiceUnderTest;
+
+    public AtomicInteger faileCardCount = new AtomicInteger(0);
 
     @BeforeEach
     void setUp() {
@@ -69,7 +72,7 @@ class TxnMismatchPostServiceTest {
                 .thenReturn(new StringBuffer("4380433458012"));
 
         // Run the test
-        txnMismatchPostServiceUnderTest.processTxnMismatch(txnList, bean, 0);
+        txnMismatchPostServiceUnderTest.processTxnMismatch(txnList, bean, 0, faileCardCount);
 
         // Verify the results
         verify(txnMismatchPostServiceUnderTest.commonRepo, times(1)).updateCardOtb(any(OtbBean.class));
@@ -122,7 +125,7 @@ class TxnMismatchPostServiceTest {
                 .thenReturn(new StringBuffer("4380433458012"));
 
         // Run the test
-        txnMismatchPostServiceUnderTest.processTxnMismatch(txnList, bean, 0);
+        txnMismatchPostServiceUnderTest.processTxnMismatch(txnList, bean, 0, faileCardCount);
 
         // Verify the results
         verify(txnMismatchPostServiceUnderTest.commonRepo, times(1)).updateCardOtb(any(OtbBean.class));
@@ -178,7 +181,7 @@ class TxnMismatchPostServiceTest {
                 .thenReturn(new StringBuffer("4380433458012"));
 
         // Run the test
-        txnMismatchPostServiceUnderTest.processTxnMismatch(txnList, bean, 0);
+        txnMismatchPostServiceUnderTest.processTxnMismatch(txnList, bean, 0, faileCardCount);
 
         // Verify the results
         verify(txnMismatchPostServiceUnderTest.commonRepo, times(1)).updateCardOtb(any(OtbBean.class));
@@ -230,7 +233,7 @@ class TxnMismatchPostServiceTest {
                 .thenReturn(new StringBuffer("4380433458012"));
 
         // Run the test
-        txnMismatchPostServiceUnderTest.processTxnMismatch(txnList, bean, 0);
+        txnMismatchPostServiceUnderTest.processTxnMismatch(txnList, bean, 0, faileCardCount);
 
         // Verify the results
         verify(txnMismatchPostServiceUnderTest.commonRepo, times(1)).updateCardOtb(any(OtbBean.class));

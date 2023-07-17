@@ -19,6 +19,7 @@ import org.springframework.scheduling.concurrent.ThreadPoolTaskExecutor;
 import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
+import java.util.concurrent.atomic.AtomicInteger;
 
 
 @Service
@@ -26,6 +27,7 @@ public class IncrementLimitExpireConnector extends ProcessBuilder {
 
     private static final Logger logInfo = LoggerFactory.getLogger("logInfo");
     private static final Logger logError = LoggerFactory.getLogger("logError");
+    public AtomicInteger faileCardCount = new AtomicInteger(0);
     public int configProcess = Configurations.PROCESS_ID_INCREMENT_LIMIT_EXPIRE;
     public String processHeader = "LIMIT INCEREMENT EXPIRE PROCESS";
     @Autowired
@@ -47,7 +49,6 @@ public class IncrementLimitExpireConnector extends ProcessBuilder {
         ArrayList<LimitIncrementBean> cardList = new ArrayList<LimitIncrementBean>();
         int noOfCards = 0;
         int failedCards = 0;
-        ProcessBean processBean = null;
         try {
             Configurations.RUNNING_PROCESS_ID = Configurations.PROCESS_ID_INCREMENT_LIMIT_EXPIRE;
             CommonMethods.eodDashboardProgressParametersReset();
@@ -61,9 +62,15 @@ public class IncrementLimitExpireConnector extends ProcessBuilder {
                 noOfCards = Configurations.PROCESS_TOTAL_NOOF_TRABSACTIONS;
 
                 /** Limit Expiring card one by one*/
-                for (LimitIncrementBean limitIncrementBean : cardList) {
-                    incrementLimitExpireService.processCreditLimitExpire(limitIncrementBean, processBean, configProcess, processHeader);
-                }
+//                for (LimitIncrementBean limitIncrementBean : cardList) {
+//                    incrementLimitExpireService.processCreditLimitExpire(limitIncrementBean, processBean, configProcess, processHeader);
+//                }
+
+                cardList.forEach(limitIncrementBean -> {
+                    incrementLimitExpireService.processCreditLimitExpire(limitIncrementBean, processBean, configProcess, processHeader, faileCardCount);
+                });
+
+
                 /**wait till all the threads are completed*/
                 while (!(taskExecutor.getActiveCount() == 0)) {
                     Thread.sleep(1000);
@@ -110,8 +117,8 @@ public class IncrementLimitExpireConnector extends ProcessBuilder {
     @Override
     public void addSummaries() {
         summery.put("Started Date", Configurations.EOD_DATE.toString());
-        summery.put("No of Card effected", Integer.toString(Configurations.PROCESS_TOTAL_NOOF_TRABSACTIONS));
-        summery.put("No of Success Card ", Integer.toString(Configurations.PROCESS_SUCCESS_COUNT));
-        summery.put("No of fail Card ", Integer.toString(Configurations.PROCESS_FAILD_COUNT));
+        summery.put("No of Card effected", Configurations.PROCESS_TOTAL_NOOF_TRABSACTIONS);
+        summery.put("No of Success Card ", Configurations.PROCESS_TOTAL_NOOF_TRABSACTIONS - faileCardCount.get());
+        summery.put("No of fail Card ",faileCardCount.get());
     }
 }
