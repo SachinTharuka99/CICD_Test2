@@ -42,6 +42,13 @@ spring:
           filters:
             - AuthenticationFilter
 
+#        - id: swagger
+#          predicates:
+#            - Path=/product-dashboard-docs/**
+#          filters:
+#            - RewritePath=/product-dashboard-docs/(?<path>.*), /$\{path}/product-dashboard-docs
+#          uri: http://localhost:${server.port}
+
 # Eureka config
 eureka:
   client:
@@ -52,7 +59,7 @@ eureka:
     leaseRenewalIntervalInSeconds: 1
     leaseExpirationDurationInSeconds: 2
     preferIpAddress: true
-    ip-address: ${HERE-GOES-YOUR-PUBLIC-IP:192.168.1.122}
+#    ip-address: ${HERE-GOES-YOUR-PUBLIC-IP:192.168.1.122}
 
 
 # Ribbon config
@@ -61,3 +68,28 @@ ribbon:
     enabled: true
 server:
   port: 8989
+
+  servlet:
+    context-path: /
+
+springdoc:
+  enable-native-support: true
+  api-docs:
+    enabled: true
+  swagger-ui:
+    enabled: true
+    path: /swagger-ui.html
+    config-url: /v3/api-docs/swagger-config
+    urls:
+      - url: /v3/api-docs
+        name: API Gateway Service
+        primaryName: API Gateway Service
+      - url: /DashboardService/v3/api-docs
+        name: Dashboard Service
+        primaryName: Dashboard Service
+
+#springdoc:
+#  api-docs:
+#    path: /GatewayService/v3/api-docs
+#  swagger-ui:
+#    path: /GatewayService/swagger-ui.html

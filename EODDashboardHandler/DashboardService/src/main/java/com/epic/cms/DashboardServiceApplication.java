@@ -19,7 +19,7 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.ComponentScan;
 
 @SpringBootApplication
-@OpenAPIDefinition(info = @Info(title = "EOD Dashboard API", version = "1.0", description = "EOD Product Dashboard API Information"))
+//@OpenAPIDefinition(info = @Info(title = "EOD Dashboard API", version = "1.0", description = "EOD Product Dashboard API Information"))
 @ComponentScan(basePackages = {"com.epic.cms.*"})
 @EnableDiscoveryClient
 @EntityScan(basePackages = "com.epic.cms.model.*")

@@ -1082,4 +1082,7 @@ public class ConfigVarList {
     @Value("${process_id_originator_push_txn_update}")
     public int process_id_originator_push_txn_update;
 
+    @Value("${processing_mode}")
+    public String processing_mode;
+
 }

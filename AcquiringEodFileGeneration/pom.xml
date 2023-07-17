@@ -14,6 +14,7 @@
         <module>MerchantGLSummaryFileProcess</module>
         <module>MerchantLocationStatementGenerationProcess</module>
         <module>MerchantCustomerStatementGenerationProcess</module>
+        <module>OutgoingIPMFileGenProcess</module>
     </modules>
     <artifactId>AcquiringEodFileGeneration</artifactId>
 

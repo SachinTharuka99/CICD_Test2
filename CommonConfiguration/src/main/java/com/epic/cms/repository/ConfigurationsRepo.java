@@ -553,6 +553,7 @@ public class ConfigurationsRepo implements ConfigurationsDao {
 
             //Acquring
             Configurations.PROCESS_ID_ORIGINATOR_PUSH_TXN_UPDATE = configVarList.getProcess_id_originator_push_txn_update();
+            Configurations.PROCESSING_MODE = configVarList.getProcessing_mode();
 
         } catch (Exception e) {
             throw e;

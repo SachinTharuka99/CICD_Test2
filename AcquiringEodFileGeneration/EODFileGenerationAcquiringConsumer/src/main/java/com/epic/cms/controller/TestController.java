@@ -21,7 +21,7 @@ import org.springframework.web.bind.annotation.RestController;
 import java.text.SimpleDateFormat;
 
 @RestController
-@RequestMapping("eod-engine")
+@RequestMapping("eod-file-gen-engine/acq")
 public class TestController {
 
     @Autowired

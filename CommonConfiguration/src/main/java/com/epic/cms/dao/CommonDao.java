@@ -6,6 +6,7 @@ import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
+import java.util.Map;
 
 public interface CommonDao {
     ProcessBean getProcessDetails(int processId) throws Exception;

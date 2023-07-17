@@ -62,7 +62,7 @@ public abstract class ProcessBuilder {
         SimpleDateFormat sdf = new SimpleDateFormat("dd-MM-yyyy");
         try {
             ProcessBean processBean = processBuilderRepo.getProcessDetails(processId);
-            Configurations.EOD_ID = processBuilderRepo.getRuninngEODId(statusVarList.getINPROGRESS_STATUS(), statusVarList.getERROR_INPR_STATUS());
+            //Configurations.EOD_ID = processBuilderRepo.getRuninngEODId(statusVarList.getINPROGRESS_STATUS(), statusVarList.getERROR_INPR_STATUS());
             Configurations.ERROR_EOD_ID = Configurations.EOD_ID;
             System.out.println("EOD ID :" + Configurations.ERROR_EOD_ID);
             Configurations.EOD_DATE = getDateFromEODID(Configurations.EOD_ID);
@@ -139,6 +139,7 @@ public abstract class ProcessBuilder {
 
     void insertFailedEODCards(int processId) throws Exception {
         int failedCardListSize = Configurations.errorCardList.size();
+        int merchantErrorList = Configurations.merchantErrorList.size();
         if (failedCardListSize == 0) {
             commonRepo.updateEodProcessSummery(Configurations.ERROR_EOD_ID, statusVarList.getSUCCES_STATUS(), processId, Configurations.PROCESS_SUCCESS_COUNT, Configurations.PROCESS_FAILD_COUNT, eodDashboardProcessProgress(Configurations.PROCESS_SUCCESS_COUNT, Configurations.PROCESS_TOTAL_NOOF_TRABSACTIONS));
         } else {
@@ -146,6 +147,18 @@ public abstract class ProcessBuilder {
                 commonRepo.insertErrorEODCard(Configurations.errorCardList.get(i));
             }
             if (failedCardListSize > 0) {
+                Configurations.errorCardList.clear();
+                throw new FailedCardException(processHeader);
+            }
+        }
+
+        if (merchantErrorList == 0) {
+            commonRepo.updateEodProcessSummery(Configurations.ERROR_EOD_ID, statusVarList.getSUCCES_STATUS(), processId, Configurations.PROCESS_SUCCESS_COUNT, Configurations.PROCESS_FAILD_COUNT, eodDashboardProcessProgress(Configurations.PROCESS_SUCCESS_COUNT, Configurations.PROCESS_TOTAL_NOOF_TRABSACTIONS));
+        } else {
+            for (int i = 0; i < merchantErrorList; i++) {
+                commonRepo.insertErrorEODCard(Configurations.errorCardList.get(i));
+            }
+            if (merchantErrorList > 0) {
                 Configurations.errorCardList.clear();
                 throw new FailedCardException(processHeader);
             }
