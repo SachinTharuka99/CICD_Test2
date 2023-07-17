@@ -1085,4 +1085,10 @@ public class ConfigVarList {
     @Value("${processing_mode}")
     public String processing_mode;
 
+    @Value("${file_code_mastercard_t67}")
+    public String FILE_CODE_MASTERCARD_T67;
+
+    @Value("${file_code_dcf}")
+    public String FILE_CODE_DCF;
+
 }

@@ -242,7 +242,7 @@ public class MasterFileClearingService {
             }
         } finally {
             try {
-                //infoLoggerEFPE.info(logManager.processDetailsStyles(details));
+                logInfo.info(logManager.logDetails(details));
                 System.out.flush();
                 if (is != null) {
                     is.close();

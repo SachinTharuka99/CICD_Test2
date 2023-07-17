@@ -17,6 +17,7 @@ import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.concurrent.atomic.AtomicInteger;
 
 
 @Service
@@ -36,7 +37,8 @@ public class CardFeeConnector extends ProcessBuilder {
     LogManager logManager;
 
     private static final Logger logInfo = LoggerFactory.getLogger("logInfo");
-    private static final Logger logError = LoggerFactory.getLogger("logError");
+
+    public AtomicInteger faileCardCount = new AtomicInteger(0);
 
     @Override
     public void concreteProcess() throws Exception {
@@ -54,9 +56,10 @@ public class CardFeeConnector extends ProcessBuilder {
             Configurations.PROCESS_TOTAL_NOOF_TRABSACTIONS = cardRecordList.size();
 
             if (cardRecordList != null && cardRecordList.size() > 0) {
-                for (CardFeeBean cardBean : cardRecordList) {
-                    cardFeeService.cardFeeCalculate(cardBean);
-                }
+
+                cardRecordList.forEach(cardBean -> {
+                    cardFeeService.cardFeeCalculate(cardBean,faileCardCount);
+                });
             } else {
                 summery.put("Fee not found", 0 + "");
             }
@@ -70,7 +73,6 @@ public class CardFeeConnector extends ProcessBuilder {
             Configurations.IS_PROCESS_COMPLETELY_FAILED = true;
             throw ex;
         } finally {
-            logInfo.info(logManager.logSummery(summery));
             /** PADSS Change -
              variables handling card data should be nullified by replacing the value of variable with zero and call NULL function */
             for (CardFeeBean cardFeeBean : cardRecordList) {
@@ -84,7 +86,7 @@ public class CardFeeConnector extends ProcessBuilder {
     @Override
     public void addSummaries() {
         summery.put("Number of accounts to fee post ", Configurations.PROCESS_TOTAL_NOOF_TRABSACTIONS);
-        summery.put("Number of success fee post ", Configurations.PROCESS_TOTAL_NOOF_TRABSACTIONS - Configurations.PROCESS_FAILD_COUNT);
-        summery.put("Number of failure fee post ", Configurations.PROCESS_FAILD_COUNT);
+        summery.put("Number of success fee post ", Configurations.PROCESS_TOTAL_NOOF_TRABSACTIONS - faileCardCount.get());
+        summery.put("Number of failure fee post ", faileCardCount.get());
     }
 }

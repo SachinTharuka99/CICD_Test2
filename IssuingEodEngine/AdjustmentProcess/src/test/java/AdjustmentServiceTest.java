@@ -14,6 +14,9 @@ import org.mockito.Mockito;
 
 import java.util.Calendar;
 import java.util.GregorianCalendar;
+import java.util.concurrent.ArrayBlockingQueue;
+import java.util.concurrent.BlockingQueue;
+import java.util.concurrent.atomic.AtomicInteger;
 
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.any;
@@ -29,6 +32,11 @@ class AdjustmentServiceTest {
     private final String TRANSACTION_ADJUSTMENT_TYPE = "2";
     private final String CASH_ADVANCE_ADJUSTMENT_TYPE = "5";
     static MockedStatic<CommonMethods> common;
+
+    public AtomicInteger ADJUSTMENT_SEQUENCE_NO = new AtomicInteger(0);
+    int capacity = 200000;
+    BlockingQueue<Integer> failCount = new ArrayBlockingQueue<>(capacity);
+    BlockingQueue<Integer> successCount = new ArrayBlockingQueue<>(capacity);
 
     @BeforeAll
     public static void init() {
@@ -84,7 +92,7 @@ class AdjustmentServiceTest {
         when(adjustmentServiceUnderTest.adjustmentDao.updateTransactionToEDON(anyString())).thenReturn(1);
 
         //run the test
-        adjustmentServiceUnderTest.proceedAdjustment(adjustmentBean);
+        adjustmentServiceUnderTest.proceedAdjustment(adjustmentBean, ADJUSTMENT_SEQUENCE_NO, failCount, successCount);
 
         //verify
         assertEquals(adjustmentBean.getCardNumber(), adjustmentServiceUnderTest.commonRepo.getMainCardNumber(adjustmentBean.getCardNumber()));
@@ -131,7 +139,7 @@ class AdjustmentServiceTest {
         when(adjustmentServiceUnderTest.adjustmentDao.updateTransactionToEDON(anyString())).thenReturn(1);
 
         //run the test
-        adjustmentServiceUnderTest.proceedAdjustment(adjustmentBean);
+        adjustmentServiceUnderTest.proceedAdjustment(adjustmentBean, ADJUSTMENT_SEQUENCE_NO, failCount, successCount);
 
         //verify
         assertEquals("1", adjustmentServiceUnderTest.adjustmentDao.getCardAssociationFromCardBin("456788"));

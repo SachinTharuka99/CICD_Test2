@@ -13,7 +13,7 @@ import org.junit.jupiter.api.Test;
 import org.mockito.MockedStatic;
 import org.mockito.Mockito;
 
-import java.util.Map;
+import java.util.concurrent.atomic.AtomicInteger;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
@@ -22,6 +22,8 @@ import static org.mockito.Mockito.*;
 class CardReplaceServiceTest {
 
     private CardReplaceService cardReplaceServiceUnderTest;
+    public AtomicInteger faileCardCount = new AtomicInteger(0);
+
 
     static MockedStatic<LogManager> common;
     @BeforeAll
@@ -62,7 +64,7 @@ class CardReplaceServiceTest {
             assertThat(maskCardNo).isEqualTo(CommonMethods.cardNumberMask(cardReplaceBean.getOldCardNo()));
         }
         // Run the test
-        cardReplaceServiceUnderTest.cardReplace(cardReplaceBean);
+        cardReplaceServiceUnderTest.cardReplace(cardReplaceBean, faileCardCount);
 
         // Verify the results
         verify(cardReplaceServiceUnderTest.cardReplaceRepo).updateBackendOldCardFromNewCard(any(CardReplaceBean.class));

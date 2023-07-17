@@ -17,7 +17,6 @@ import com.epic.cms.util.CommonMethods;
 import com.epic.cms.util.Configurations;
 import com.epic.cms.util.LogManager;
 import com.epic.cms.util.StatusVarList;
-import lombok.extern.slf4j.Slf4j;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -26,6 +25,7 @@ import org.springframework.stereotype.Service;
 import java.math.BigDecimal;
 import java.text.SimpleDateFormat;
 import java.util.Date;
+import java.util.concurrent.atomic.AtomicInteger;
 
 
 /**
@@ -82,6 +82,8 @@ public class AutoSettlementConnector extends FileGenProcessBuilder {
 
     private static final Logger logInfo = LoggerFactory.getLogger("logInfo");
     private static final Logger logError = LoggerFactory.getLogger("logError");
+
+    public AtomicInteger faileCardCount = new AtomicInteger(0);
 
 
     @Override
@@ -173,7 +175,7 @@ public class AutoSettlementConnector extends FileGenProcessBuilder {
                     Configurations.PROCESS_SUCCESS_COUNT++;
 
                 } catch (Exception e) {
-                    Configurations.PROCESS_FAILD_COUNT++;
+                    faileCardCount.getAndAdd(1);
                     logInfo.info(logManager.logStartEnd("AutoSettlement Process Fails"));
                 } finally {
                     try {
@@ -201,8 +203,6 @@ public class AutoSettlementConnector extends FileGenProcessBuilder {
             } catch (Exception e2) {
                 logError.error("Exception ", e2);
             }
-        } finally {
-            logInfo.info(logManager.logSummery(summery));
         }
     }
 
@@ -210,6 +210,6 @@ public class AutoSettlementConnector extends FileGenProcessBuilder {
     public void addSummaries() {
         summery.put("Started Date ", Configurations.EOD_DATE.toString());
         summery.put("Process Success Count ", Configurations.PROCESS_SUCCESS_COUNT);
-        summery.put("Process Failed Count ", Configurations.PROCESS_FAILD_COUNT);
+        summery.put("Process Failed Count ", faileCardCount.get());
     }
 }

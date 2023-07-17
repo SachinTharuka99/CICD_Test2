@@ -10,7 +10,6 @@ import com.epic.cms.util.CommonMethods;
 import com.epic.cms.util.Configurations;
 import com.epic.cms.util.LogManager;
 import com.epic.cms.util.StatusVarList;
-import lombok.extern.slf4j.Slf4j;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -19,36 +18,30 @@ import org.springframework.scheduling.concurrent.ThreadPoolTaskExecutor;
 import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
+import java.util.concurrent.atomic.AtomicInteger;
 
 
 @Service
 public class CardPermanentBlockConnector extends ProcessBuilder {
 
+    private static final Logger logInfo = LoggerFactory.getLogger("logInfo");
+    private static final Logger logError = LoggerFactory.getLogger("logError");
+    public AtomicInteger faileCardCount = new AtomicInteger(0);
     @Autowired
     LogManager logManager;
-
     @Autowired
     @Qualifier("taskExecutor2")
     ThreadPoolTaskExecutor taskExecutor;
-
     @Autowired
     CommonRepo commonRepo;
-
     @Autowired
     StatusVarList statusList;
-
     @Autowired
     CardPermanentBlockService cardPermanentBlockService;
-
     @Autowired
     CardBlockRepo cardPermanentBlockRepo;
-
-    private static final Logger logInfo = LoggerFactory.getLogger("logInfo");
-    private static final Logger logError = LoggerFactory.getLogger("logError");
-
     ArrayList<BlockCardBean> cardList = null;
     ProcessBean processBean = new ProcessBean();
-    private int failedCount = 0;
 
     @Override
     public void concreteProcess() throws Exception {
@@ -60,22 +53,18 @@ public class CardPermanentBlockConnector extends ProcessBuilder {
             if (processBean != null) {
                 Configurations.NO_OF_MONTHS_FOR_PERMENANT_BLOCK = cardPermanentBlockRepo.getBlockTheshholdPeriod("PERMENANTBLKTHRESHOLD");
                 cardList = cardPermanentBlockRepo.getCardListFromMinPayment(statusList.getCARD_TEMPORARY_BLOCK_Status(), Configurations.NO_OF_MONTHS_FOR_PERMENANT_BLOCK); //CATB
+                Configurations.PROCESS_TOTAL_NOOF_TRABSACTIONS = cardList.size();
 
                 if (cardList != null && cardList.size() > 0) {
-
-                    for (BlockCardBean blockCardBean : cardList) {
-                        cardPermanentBlockService.processCardPermanentBlock(blockCardBean, processBean);
-                    }
+                    cardList.forEach(blockCardBean -> {
+                        cardPermanentBlockService.processCardPermanentBlock(blockCardBean, processBean, faileCardCount);
+                    });
                 }
 
                 while (!(taskExecutor.getActiveCount() == 0)) {
                     Thread.sleep(1000);
                 }
 
-                failedCount = Configurations.PROCESS_FAILD_COUNT;
-                Configurations.PROCESS_TOTAL_NOOF_TRABSACTIONS = cardList.size();
-                Configurations.PROCESS_SUCCESS_COUNT = (cardList.size() - failedCount);
-                Configurations.PROCESS_FAILD_COUNT = failedCount;
 
             }
         } catch (Exception e) {
@@ -101,9 +90,9 @@ public class CardPermanentBlockConnector extends ProcessBuilder {
     @Override
     public void addSummaries() {
 
-            summery.put("Started Date", Configurations.EOD_DATE.toString());
-            summery.put("No of Card effected", Configurations.PROCESS_TOTAL_NOOF_TRABSACTIONS);
-            summery.put("No of Success Card", Configurations.PROCESS_SUCCESS_COUNT);
-            summery.put("No of fail Card", Configurations.PROCESS_FAILD_COUNT);
+        summery.put("Started Date", Configurations.EOD_DATE.toString());
+        summery.put("No of Card effected", Configurations.PROCESS_TOTAL_NOOF_TRABSACTIONS);
+        summery.put("No of Success Card", Configurations.PROCESS_TOTAL_NOOF_TRABSACTIONS - faileCardCount.get());
+        summery.put("No of fail Card", faileCardCount.get());
     }
 }
