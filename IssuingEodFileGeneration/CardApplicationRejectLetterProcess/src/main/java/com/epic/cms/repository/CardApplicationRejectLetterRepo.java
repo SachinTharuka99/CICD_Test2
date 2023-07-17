@@ -29,6 +29,9 @@ public class CardApplicationRejectLetterRepo implements CardApplicationRejectLet
     @Autowired
     private JdbcTemplate backendJdbcTemplate;
 
+    @Autowired
+    QueryParametersList queryParametersList;
+
     @Override
     public ArrayList<String> getRejectApplictionIDsToGenerateLetters(String StartEodStatus, boolean isErrorProcessInLastEod, boolean isProcessCompletlyFail) throws Exception {
 
