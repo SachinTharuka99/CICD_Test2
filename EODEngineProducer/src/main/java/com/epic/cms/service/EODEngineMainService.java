@@ -217,12 +217,12 @@ public class EODEngineMainService {
         List<String> errorProcessList;
 
         try {
-            if (Configurations.PROCESS_SUCCESS_COUNT != 0 && Configurations.PROCESS_TOTAL_NOOF_TRABSACTIONS != 0) {
-                progress = ((Configurations.PROCESS_SUCCESS_COUNT * 100 / Configurations.PROCESS_TOTAL_NOOF_TRABSACTIONS));
+            if (Configurations.successCount.size() != 0 && Configurations.PROCESS_TOTAL_NOOF_TRABSACTIONS != 0) {
+                progress = ((Configurations.successCount.size() * 100 / Configurations.PROCESS_TOTAL_NOOF_TRABSACTIONS));
 
                 Configurations.PROCESS_PROGRESS = progress + "%";
 
-            } else if (Configurations.PROCESS_SUCCESS_COUNT == 0 && Configurations.PROCESS_TOTAL_NOOF_TRABSACTIONS != 0) {
+            } else if (Configurations.successCount.size() == 0 && Configurations.PROCESS_TOTAL_NOOF_TRABSACTIONS != 0) {
                 Configurations.PROCESS_PROGRESS = "0%";
             } else {
                 Configurations.PROCESS_PROGRESS = "100%";
