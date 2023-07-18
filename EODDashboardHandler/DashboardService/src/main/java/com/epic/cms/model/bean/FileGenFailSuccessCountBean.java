@@ -7,11 +7,13 @@
 
 package com.epic.cms.model.bean;
 
+import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.Setter;
 
 @Getter
 @Setter
+@AllArgsConstructor
 public class FileGenFailSuccessCountBean {
     private Integer fileGenNoOfSuccessProcess;
     private Integer fileGenNoOfErrorProcess;
