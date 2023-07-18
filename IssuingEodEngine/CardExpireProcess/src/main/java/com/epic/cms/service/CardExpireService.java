@@ -14,7 +14,7 @@ import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.LinkedHashMap;
-import java.util.concurrent.atomic.AtomicInteger;
+import java.util.concurrent.BlockingQueue;
 
 @Service
 public class CardExpireService {
@@ -36,7 +36,7 @@ public class CardExpireService {
 
     @Async("ThreadPool_100")
     @Transactional(value = "transactionManager", propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
-    public void processCardExpire(CardBean cardBean, AtomicInteger faileCardCount) {
+    public void processCardExpire(CardBean cardBean, BlockingQueue<Integer> successCount, BlockingQueue<Integer> failCount) {
         if (!Configurations.isInterrupted) {
             LinkedHashMap details = new LinkedHashMap();
             try {
@@ -61,9 +61,9 @@ public class CardExpireService {
                 details.put("Expire date", cardBean.getExpiryDate());
                 details.put("Old Status", cardBean.getCardStatus());
                 details.put("New Status", statusList.getCARD_EXPIRED_STATUS());
-
+                successCount.add(1);
             } catch (Exception e) {
-                faileCardCount.addAndGet(1);
+                failCount.add(1);
                 Configurations.errorCardList.add(new ErrorCardBean(Configurations.ERROR_EOD_ID, Configurations.EOD_DATE, new StringBuffer(cardBean.getCardnumber()), e.getMessage(), Configurations.RUNNING_PROCESS_ID, Configurations.RUNNING_PROCESS_DESCRIPTION, 0, CardAccount.CARD));
                 logError.error("Card expire process failed for card number " + CommonMethods.cardNumberMask(cardBean.getCardnumber()), e);
                 Configurations.PROCESS_FAILED_COUNT.set(Configurations.PROCESS_FAILED_COUNT.getAndIncrement());

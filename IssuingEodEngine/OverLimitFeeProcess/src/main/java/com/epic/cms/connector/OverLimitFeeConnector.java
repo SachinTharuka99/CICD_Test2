@@ -19,6 +19,9 @@ import org.springframework.stereotype.Service;
 
 import java.util.HashMap;
 import java.util.Map;
+import java.util.concurrent.ArrayBlockingQueue;
+import java.util.concurrent.BlockingQueue;
+import java.util.concurrent.LinkedBlockingDeque;
 import java.util.concurrent.atomic.AtomicInteger;
 
 
@@ -58,11 +61,11 @@ public class OverLimitFeeConnector extends ProcessBuilder {
 
     @Autowired
     OverLimitFeeService overLimitFeeService;
-
+    int capacity = 200000;
+    BlockingQueue<Integer> successCount = new ArrayBlockingQueue<Integer>(capacity);
+    BlockingQueue<Integer> failCount = new ArrayBlockingQueue <Integer>(capacity);
     private static final Logger logInfo = LoggerFactory.getLogger("logInfo");
     private static final Logger logError = LoggerFactory.getLogger("logError");
-    public AtomicInteger faileCardCount = new AtomicInteger(0);
-
     public String processHeader = "OVERLIMIT FEE PROCESS";
 
     @Override
@@ -80,7 +83,7 @@ public class OverLimitFeeConnector extends ProcessBuilder {
 
                 if (accMap.size() > 0) {
                     for (Map.Entry<String, StringBuffer> entry : accMap.entrySet()) {
-                        overLimitFeeService.addOverLimitFee(entry.getKey(), entry.getValue(), processBean, processHeader,faileCardCount);
+                        overLimitFeeService.addOverLimitFee(entry.getKey(), entry.getValue(), processBean, processHeader,successCount,failCount);
                     }
 
 
@@ -111,7 +114,7 @@ public class OverLimitFeeConnector extends ProcessBuilder {
     public void addSummaries() {
         summery.put("Started Date", Configurations.EOD_DATE.toString());
         summery.put("No of Card effected", Configurations.PROCESS_TOTAL_NOOF_TRABSACTIONS);
-        summery.put("No of Success Card ", Configurations.PROCESS_TOTAL_NOOF_TRABSACTIONS-faileCardCount.get());
-        summery.put("No of fail Card ", faileCardCount.get());
+        summery.put("No of Success Card ", successCount.size());
+        summery.put("No of fail Card ",failCount.size());
     }
 }

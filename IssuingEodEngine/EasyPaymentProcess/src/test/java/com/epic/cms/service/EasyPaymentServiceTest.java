@@ -22,16 +22,19 @@ import java.util.Calendar;
 import java.util.Date;
 import java.util.GregorianCalendar;
 import java.util.List;
+import java.util.concurrent.ArrayBlockingQueue;
+import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.atomic.AtomicInteger;
 
 import static org.mockito.ArgumentMatchers.anyInt;
 import static org.mockito.Mockito.*;
 
 class EasyPaymentServiceTest {
+    int capacity = 200000;
+    BlockingQueue<Integer> successCount = new ArrayBlockingQueue<Integer>(capacity);
+    BlockingQueue<Integer> failCount = new ArrayBlockingQueue<Integer>(capacity);
     private EasyPaymentService easyPaymentServiceUnderTest;
     private EasyPaymentService spyEasyPaymentServiceUnderTest;
-    public AtomicInteger faileCardCount = new AtomicInteger(0);
-
     @BeforeEach
     void setUp() {
         easyPaymentServiceUnderTest = new EasyPaymentService();
@@ -220,7 +223,7 @@ class EasyPaymentServiceTest {
         }
 
         // Run the test
-        easyPaymentServiceUnderTest.startEasyPaymentProcess(easyPaymentBean, processBean,faileCardCount);
+        easyPaymentServiceUnderTest.startEasyPaymentProcess(easyPaymentBean, processBean,successCount,failCount);
 
         // Verify the results
         if(easyPaymentBean.getRunningStatus() != 1){

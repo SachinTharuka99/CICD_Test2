@@ -14,6 +14,8 @@ import org.mockito.Mockito;
 
 import java.sql.Timestamp;
 import java.time.LocalDateTime;
+import java.util.concurrent.ArrayBlockingQueue;
+import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.atomic.AtomicInteger;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -22,10 +24,10 @@ import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.*;
 
 class IncrementLimitExpireServiceTest {
-
+    int capacity = 200000;
+    BlockingQueue<Integer> successCount = new ArrayBlockingQueue<Integer>(capacity);
+    BlockingQueue<Integer> failCount = new ArrayBlockingQueue<Integer>(capacity);
     private IncrementLimitExpireService incrementLimitExpireServiceUnderTest;
-    public AtomicInteger faileCardCount = new AtomicInteger(0);
-
     @BeforeEach
     void setUp() {
         incrementLimitExpireServiceUnderTest = new IncrementLimitExpireService();
@@ -104,7 +106,7 @@ class IncrementLimitExpireServiceTest {
 
         // Run the test
         incrementLimitExpireServiceUnderTest.processCreditLimitExpire(limitIncrementBean, processBean, 0,
-                "processHeader",  faileCardCount);
+                "processHeader", successCount,failCount);
 
         // Verify the results
         verify(incrementLimitExpireServiceUnderTest.incrementLimitExpireRepo).limitExpireOnAccount(

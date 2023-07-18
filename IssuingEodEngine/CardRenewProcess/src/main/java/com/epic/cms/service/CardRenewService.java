@@ -27,7 +27,7 @@ import java.text.SimpleDateFormat;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.LinkedHashMap;
-import java.util.concurrent.atomic.AtomicInteger;
+import java.util.concurrent.BlockingQueue;
 
 
 @Service
@@ -46,7 +46,7 @@ public class CardRenewService {
 
     @Async("taskExecutor2")
     @Transactional(value = "transactionManager", propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
-    public void cardRenewProcess(CardRenewBean CRBean, int noOfNormalRenewals, int noOfEarlyRenewals, AtomicInteger faileCardCount) {
+    public void cardRenewProcess(CardRenewBean CRBean, int noOfNormalRenewals, int noOfEarlyRenewals, BlockingQueue<Integer> successCount, BlockingQueue<Integer> failCount) {
         if (!Configurations.isInterrupted) {
             if (!Configurations.isInterrupted) {
                 LinkedHashMap details = new LinkedHashMap();
@@ -119,11 +119,11 @@ public class CardRenewService {
                         cardRenewDao.updateCardRenewTable(CRBean.getCardNumber());
                         cardRenewDao.updateOnlineCardTable(CRBean.getCardNumber(), newExpireDate);
                     }
-
+                    successCount.add(1);
                 } catch (Exception ex) {
                     details.put("ReNew Status", "Fail");
                     logError.error("Renew Process Fails for Card " + CommonMethods.cardNumberMask(CRBean.getCardNumber()), ex);
-                    faileCardCount.addAndGet(1);
+                    failCount.add(1);
                 } finally {
                     logInfo.info(logManager.logDetails(details));
                 }

@@ -17,6 +17,8 @@ import org.mockito.Mockito;
 
 import java.text.SimpleDateFormat;
 import java.util.*;
+import java.util.concurrent.ArrayBlockingQueue;
+import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.atomic.AtomicInteger;
 
 import static org.junit.jupiter.api.Assertions.*;
@@ -24,13 +26,15 @@ import static org.mockito.ArgumentMatchers.*;
 import static org.mockito.Mockito.*;
 
 class LoanOnCardServiceTest {
+    int capacity = 200000;
+    BlockingQueue<Integer> successCount = new ArrayBlockingQueue<Integer>(capacity);
+    BlockingQueue<Integer> failCount = new ArrayBlockingQueue<Integer>(capacity);
     final static SimpleDateFormat sdf = new SimpleDateFormat("yyMMdd");
     final static String condition1 = "no_payment_on_current_day";
     final static String condition2 = "payment_on_current_day_less_than_min_payment";
     private LoanOnCardService loanOnCardServiceUnderTest;
     static MockedStatic<CommonMethods> common;
     static String EOD_ID = "22110400";
-    public AtomicInteger faileCardCount = new AtomicInteger(0);
 
     @BeforeAll
     public static void init() throws Exception {
@@ -219,7 +223,7 @@ class LoanOnCardServiceTest {
         when(loanOnCardServiceUnderTest.installmentPaymentRepo.updateFeeToEDONInTransactionTable(any(StringBuffer.class), anyString(), eq("TTC034"))).thenReturn(1);
 
         // Run the test
-        loanOnCardServiceUnderTest.startLOCProcess(installmentBean, processBean, faileCardCount);
+        loanOnCardServiceUnderTest.startLOCProcess(installmentBean, processBean, successCount,failCount);
 
         // Verify the results
         assertEquals(1, loanOnCardServiceUnderTest.installmentPaymentRepo.insertInToEODTransactionOnlyVisaFalse(installmentBean.getCardNumber(), installmentBean.getAccNo(), Double.parseDouble(installmentBean.getTxnAmount()), installmentBean.getCurruncyCode(), "TEST", "TEST",
@@ -298,7 +302,7 @@ class LoanOnCardServiceTest {
         when(loanOnCardServiceUnderTest.installmentPaymentRepo.updateEasyPaymentTable(any(InstallmentBean.class), eq("LOANONCARDREQUEST"))).thenReturn(1);
 
         // Run the test
-        loanOnCardServiceUnderTest.startLOCProcess(installmentBean, processBean,faileCardCount);
+        loanOnCardServiceUnderTest.startLOCProcess(installmentBean, processBean,successCount,failCount);
 
         // Verify the result
         if (feeApplyOnFirstMonth.equals("NO")) {

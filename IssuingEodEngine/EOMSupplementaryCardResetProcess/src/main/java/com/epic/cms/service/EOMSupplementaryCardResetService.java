@@ -13,7 +13,6 @@ import com.epic.cms.util.CardAccount;
 import com.epic.cms.util.CommonMethods;
 import com.epic.cms.util.Configurations;
 import com.epic.cms.util.LogManager;
-import lombok.extern.slf4j.Slf4j;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -25,7 +24,7 @@ import org.springframework.transaction.annotation.Transactional;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
-import java.util.concurrent.atomic.AtomicInteger;
+import java.util.concurrent.BlockingQueue;
 
 
 @Service
@@ -39,7 +38,7 @@ public class EOMSupplementaryCardResetService {
 
     @Async("taskExecutor2")
     @Transactional(value = "transactionManager", propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
-    public void SupplementryResetThread(Object acclist, AtomicInteger faileCardCount) {
+    public void SupplementryResetThread(Object acclist, BlockingQueue<Integer> successCount, BlockingQueue<Integer> failCount) {
         if (!Configurations.isInterrupted) {
             double totalSupTempCredit = 0.00;
             double totalSupTempCash = 0.00;
@@ -109,10 +108,11 @@ public class EOMSupplementaryCardResetService {
                 details.put("Account Number", accountNo);
                 details.put("Ststus", "Success");
                 //Configurations.PROCESS_SUCCESS_COUNT++;
+                successCount.add(1);
                 CommonMethods.clearStringBuffer(mainCardNo);
             } catch (Exception ex) {
                 //Configurations.PROCESS_FAILD_COUNT++;
-                faileCardCount.addAndGet(1);
+                failCount.add(1);
                 Configurations.errorCardList.add(new ErrorCardBean(Configurations.ERROR_EOD_ID, Configurations.EOD_DATE, new StringBuffer(accountNo.toString()), ex.toString(), Configurations.RUNNING_PROCESS_ID, Configurations.RUNNING_PROCESS_DESCRIPTION, 0, CardAccount.ACCOUNT));
                 logError.error("Supplementary Card Reset process failed for accountnumber " + accountNo, ex);
                 details.put("Account Number", accountNo);

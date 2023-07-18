@@ -11,6 +11,9 @@ import org.junit.jupiter.api.Test;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.ArrayBlockingQueue;
+import java.util.concurrent.BlockingQueue;
+import java.util.concurrent.LinkedBlockingDeque;
 import java.util.concurrent.atomic.AtomicInteger;
 
 import static org.mockito.ArgumentMatchers.any;
@@ -20,6 +23,9 @@ import static org.mockito.Mockito.*;
 class TransactionPostServiceTest {
 
     private TransactionPostService transactionPostServiceUnderTest;
+    int capacity = 200000;
+    BlockingQueue<Integer> successCount = new ArrayBlockingQueue<Integer>(capacity);
+    BlockingQueue<Integer> failCount = new ArrayBlockingQueue <Integer>(capacity);
 
     @BeforeEach
     void setUp() {
@@ -77,7 +83,7 @@ class TransactionPostServiceTest {
         when(transactionPostServiceUnderTest.transactionPostDao.updateEODTRANSACTION(any(String.class))).thenReturn(1);
 
         // Run the test
-        transactionPostServiceUnderTest.transactionList(bean, faileCardCount);
+        transactionPostServiceUnderTest.transactionList(bean, successCount, failCount);
 
         // Verify the results
         verify(transactionPostServiceUnderTest.transactionPostDao,times(1)).getTxnAmount(any());

@@ -18,13 +18,18 @@ import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.concurrent.ArrayBlockingQueue;
+import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.atomic.AtomicInteger;
 
 @Service
 public class ChequePaymentConnector extends ProcessBuilder {
+    int capacity = 200000;
+    BlockingQueue<Integer> successCount = new ArrayBlockingQueue<Integer>(capacity);
+    BlockingQueue<Integer> failCount = new ArrayBlockingQueue<Integer>(capacity);
     private static final Logger logInfo = LoggerFactory.getLogger("logInfo");
     private static final Logger logError = LoggerFactory.getLogger("logError");
-    public AtomicInteger faileCardCount = new AtomicInteger(0);
+
     /**
      * This process syncs the cheque payments and backs up all the current EOD sales,
      * charges and payments.
@@ -66,7 +71,7 @@ public class ChequePaymentConnector extends ProcessBuilder {
 //                        chequePaymentService.processChequePayment(bean);
 //                    }
                     chqList.forEach(bean->  {
-                        chequePaymentService.processChequePayment(bean,faileCardCount);
+                        chequePaymentService.processChequePayment(bean,successCount,failCount);
                     });
 
                 }
@@ -102,6 +107,7 @@ public class ChequePaymentConnector extends ProcessBuilder {
 //        summery.put("No of fail Cheque Payments ", Configurations.PROCESS_FAILD_COUNT);
 
         summery.put("Cheque Payments Processed",  Configurations.PROCESS_TOTAL_NOOF_TRABSACTIONS + "");
-        summery.put("No of fail Cheque Payments ", faileCardCount.get());
+        summery.put("No of Success Cheque Payments",  successCount.size() + "");
+        summery.put("No of fail Cheque Payments ", failCount.size());
     }
 }

@@ -16,15 +16,18 @@ import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.concurrent.ArrayBlockingQueue;
+import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.atomic.AtomicInteger;
 
 
 @Service
 public class CheckPaymentForMinimumAmountConnector extends ProcessBuilder {
-
+    int capacity = 200000;
+    BlockingQueue<Integer> successCount = new ArrayBlockingQueue<Integer>(capacity);
+    BlockingQueue<Integer> failCount = new ArrayBlockingQueue<Integer>(capacity);
     private static final Logger logInfo = LoggerFactory.getLogger("logInfo");
     private static final Logger logError = LoggerFactory.getLogger("logError");
-    public AtomicInteger faileCardCount = new AtomicInteger(0);
     @Autowired
     StatusVarList statusVarList;
     @Autowired
@@ -54,7 +57,7 @@ public class CheckPaymentForMinimumAmountConnector extends ProcessBuilder {
 //                checkPaymentForMinimumAmountService.CheckPaymentForMinimumAmount(lastStatement);
 //            }
             cardList.forEach(lastStatement-> {
-                checkPaymentForMinimumAmountService.CheckPaymentForMinimumAmount(lastStatement,faileCardCount);
+                checkPaymentForMinimumAmountService.CheckPaymentForMinimumAmount(lastStatement,successCount, failCount);
             });
 
 
@@ -64,7 +67,7 @@ public class CheckPaymentForMinimumAmountConnector extends ProcessBuilder {
             }
 
             Configurations.PROCESS_TOTAL_NOOF_TRABSACTIONS = cardList.size();
-            Configurations.PROCESS_SUCCESS_COUNT = (Configurations.PROCESS_TOTAL_NOOF_TRABSACTIONS - faileCardCount.get());
+            Configurations.PROCESS_SUCCESS_COUNT = successCount.size();
 
         } catch (Exception e) {
             Configurations.IS_PROCESS_COMPLETELY_FAILED = true;

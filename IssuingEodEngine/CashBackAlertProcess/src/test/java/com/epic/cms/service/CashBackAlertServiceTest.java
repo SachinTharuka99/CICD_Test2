@@ -14,6 +14,8 @@ import org.mockito.Mockito;
 import java.sql.Timestamp;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
+import java.util.concurrent.ArrayBlockingQueue;
+import java.util.concurrent.BlockingQueue;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
@@ -21,7 +23,9 @@ import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.*;
 
 class CashBackAlertServiceTest {
-
+    int capacity = 200000;
+    BlockingQueue<Integer> successCount = new ArrayBlockingQueue<Integer>(capacity);
+    BlockingQueue<Integer> failCount = new ArrayBlockingQueue<Integer>(capacity);
     private CashBackAlertService cashBackAlertServiceUnderTest;
 
     @BeforeEach
@@ -73,7 +77,7 @@ class CashBackAlertServiceTest {
         }
 
         // Run the test
-        cashBackAlertServiceUnderTest.processCashBackAlertService(accountNum, cashBackList ,processBean);
+        cashBackAlertServiceUnderTest.processCashBackAlertService(accountNum, cashBackList ,processBean, successCount, failCount);
 
         // Verify the results
 //        verify(cashBackAlertServiceUnderTest.alert, times(1)).alertGenerationCashBack(eq("CASH_BACK_SMS_CODE"),

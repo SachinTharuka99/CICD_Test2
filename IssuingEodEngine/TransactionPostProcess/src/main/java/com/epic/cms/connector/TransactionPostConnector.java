@@ -25,6 +25,9 @@ import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
 import java.util.LinkedHashMap;
+import java.util.concurrent.ArrayBlockingQueue;
+import java.util.concurrent.BlockingQueue;
+import java.util.concurrent.LinkedBlockingDeque;
 import java.util.concurrent.atomic.AtomicInteger;
 
 @Service
@@ -40,11 +43,11 @@ public class TransactionPostConnector extends ProcessBuilder {
 
     @Autowired
     LogManager logManager;
-
+    int capacity = 200000;
+    BlockingQueue<Integer> successCount = new ArrayBlockingQueue<Integer>(capacity);
+    BlockingQueue<Integer> failCount = new ArrayBlockingQueue <Integer>(capacity);
     private static final Logger logInfo = LoggerFactory.getLogger("logInfo");
     private static final Logger logError = LoggerFactory.getLogger("logError");
-    public AtomicInteger faileCardCount = new AtomicInteger(0);
-
     @Autowired
     @Qualifier("ThreadPool_100")
     ThreadPoolTaskExecutor taskExecutor;
@@ -71,7 +74,7 @@ public class TransactionPostConnector extends ProcessBuilder {
 //            }
 
             custAccList.forEach(bean -> {
-                transactionPostService.transactionList(bean, faileCardCount);
+                transactionPostService.transactionList(bean, successCount,failCount);
             });
 
 
@@ -112,7 +115,7 @@ public class TransactionPostConnector extends ProcessBuilder {
     @Override
     public void addSummaries() {
         summery.put("Number of accounts to fee post ", Configurations.PROCESS_TOTAL_NOOF_TRABSACTIONS);
-        summery.put("Number of success fee post ", Configurations.PROCESS_TOTAL_NOOF_TRABSACTIONS - faileCardCount.get());
-        summery.put("Number of failure fee post ", faileCardCount.get());
+        summery.put("Number of success fee post ", successCount.size());
+        summery.put("Number of failure fee post ", failCount.size());
     }
 }

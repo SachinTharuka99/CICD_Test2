@@ -18,6 +18,8 @@ import org.springframework.scheduling.concurrent.ThreadPoolTaskExecutor;
 import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
+import java.util.concurrent.ArrayBlockingQueue;
+import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.atomic.AtomicInteger;
 
 
@@ -43,9 +45,12 @@ public class LoyaltyPointsCalculationConnector extends ProcessBuilder {
     @Autowired
     LoyaltyPointsCalculationService loyaltyPointsCalculationService;
 
+    int capacity = 200000;
+    BlockingQueue<Integer> successCount = new ArrayBlockingQueue<Integer>(capacity);
+    BlockingQueue<Integer> failCount = new ArrayBlockingQueue<Integer>(capacity);
     private static final Logger logInfo = LoggerFactory.getLogger("logInfo");
     private static final Logger logError = LoggerFactory.getLogger("logError");
-    public AtomicInteger faileCardCount = new AtomicInteger(0);
+
 
     @Override
     public void concreteProcess() throws Exception {
@@ -71,7 +76,7 @@ public class LoyaltyPointsCalculationConnector extends ProcessBuilder {
 //                }
 
                 cardList.forEach(loyaltyBean -> {
-                    loyaltyPointsCalculationService.calculateLoyaltyPoints(loyaltyBean,faileCardCount);
+                    loyaltyPointsCalculationService.calculateLoyaltyPoints(loyaltyBean,successCount,failCount);
                 });
 
                 //wait till all the threads are completed

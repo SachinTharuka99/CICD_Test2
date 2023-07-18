@@ -15,7 +15,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.util.ArrayList;
 import java.util.LinkedHashMap;
-import java.util.concurrent.atomic.AtomicInteger;
+import java.util.concurrent.BlockingQueue;
 
 @Service
 public class CardLimitEnhancementService {
@@ -31,7 +31,7 @@ public class CardLimitEnhancementService {
 
     @Async("taskExecutor2")
     @Transactional(value = "transactionManager", propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
-    public void processCardLimitEnhancement(ArrayList<BalanceComponentBean> enhancementList, OtbBean bean, AtomicInteger faileCardCount) {
+    public void processCardLimitEnhancement(ArrayList<BalanceComponentBean> enhancementList, OtbBean bean, BlockingQueue<Integer> successCount, BlockingQueue<Integer> failCount) {
         if (!Configurations.isInterrupted) {
             LinkedHashMap details = new LinkedHashMap();
 
@@ -100,11 +100,11 @@ public class CardLimitEnhancementService {
                         }
 
                     }
-
+                    successCount.add(1);
                 } catch (Exception ex) {
                     logError.error("Fee post process failed for account " + bean.getAccountnumber(), ex);
                     Configurations.errorCardList.add(new ErrorCardBean(Configurations.ERROR_EOD_ID, Configurations.EOD_DATE, new StringBuffer(bean.getCardnumber()), ex.getMessage(), Configurations.PROCESS_LIMIT_ENHANCEMENT, "Card Limit Enhancement Process", 0, CardAccount.ACCOUNT));
-                    faileCardCount.addAndGet(1);
+                    failCount.add(1);
                 }
                 Configurations.Iterator_Card_Limit_Enhancement++;
             }

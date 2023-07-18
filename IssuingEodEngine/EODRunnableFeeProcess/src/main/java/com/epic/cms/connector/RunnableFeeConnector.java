@@ -27,7 +27,7 @@ import static com.epic.cms.util.Configurations.FAILED_CARDS;
 public class RunnableFeeConnector extends ProcessBuilder {
     private static final Logger logInfo = LoggerFactory.getLogger("logInfo");
     private static final Logger logError = LoggerFactory.getLogger("logError");
-    public AtomicInteger faileCardCount = new AtomicInteger(0);
+
     @Autowired
     LogManager logManager;
     @Autowired

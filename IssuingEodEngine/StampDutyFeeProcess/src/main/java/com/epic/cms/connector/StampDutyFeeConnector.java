@@ -17,6 +17,9 @@ import org.springframework.scheduling.concurrent.ThreadPoolTaskExecutor;
 import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
+import java.util.concurrent.ArrayBlockingQueue;
+import java.util.concurrent.BlockingQueue;
+import java.util.concurrent.LinkedBlockingDeque;
 import java.util.concurrent.atomic.AtomicInteger;
 
 @Service
@@ -35,8 +38,9 @@ public class StampDutyFeeConnector extends ProcessBuilder {
     @Autowired
     @Qualifier("ThreadPool_100")
     ThreadPoolTaskExecutor taskExecutor;
-
-    public AtomicInteger faileCardCount = new AtomicInteger(0);
+    int capacity = 200000;
+    BlockingQueue<Integer> successCount = new ArrayBlockingQueue<Integer>(capacity);
+    BlockingQueue<Integer> failCount = new ArrayBlockingQueue <Integer>(capacity);
 
     @Override
     public void concreteProcess() throws Exception {
@@ -61,7 +65,7 @@ public class StampDutyFeeConnector extends ProcessBuilder {
 //            }
 
             statementAccountList.forEach(stampDutyAcoountBean -> {
-                stampDutyFeeService.StampDutyFee(stampDutyAcoountBean,faileCardCount);
+                stampDutyFeeService.StampDutyFee(stampDutyAcoountBean,successCount,failCount);
             });
 
 
@@ -94,7 +98,7 @@ public class StampDutyFeeConnector extends ProcessBuilder {
     public void addSummaries() {
         summery.put("Started Date", Configurations.EOD_DATE.toString());
         summery.put("No of Card effected", Integer.toString(Configurations.PROCESS_TOTAL_NOOF_TRABSACTIONS));
-        summery.put("No of Success Card ", Integer.toString(Configurations.PROCESS_TOTAL_NOOF_TRABSACTIONS - faileCardCount.get()));
-        summery.put("No of fail Card ", Integer.toString(faileCardCount.get()));
+        summery.put("No of Success Card ", successCount.size());
+        summery.put("No of fail Card ", failCount.size());
     }
 }

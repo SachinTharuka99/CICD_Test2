@@ -26,14 +26,17 @@ import org.springframework.scheduling.concurrent.ThreadPoolTaskExecutor;
 import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
+import java.util.concurrent.ArrayBlockingQueue;
+import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.atomic.AtomicInteger;
 
 
 @Service
 public class DailyInterestCalculationConnector extends ProcessBuilder {
-
+    int capacity = 200000;
+    BlockingQueue<Integer> successCount = new ArrayBlockingQueue<Integer>(capacity);
+    BlockingQueue<Integer> failCount = new ArrayBlockingQueue<Integer>(capacity);
     private static final Logger logError = LoggerFactory.getLogger("logError");
-    public AtomicInteger faileCardCount = new AtomicInteger(0);
     @Autowired
     CommonRepo commonRepo;
     @Autowired
@@ -66,7 +69,7 @@ public class DailyInterestCalculationConnector extends ProcessBuilder {
 
                 if (accountList.size() > 0) {
                     accountList.forEach(statementBean -> {
-                        interestCalculationService.startDailyInterestCalculation(statementBean, faileCardCount);
+                        interestCalculationService.startDailyInterestCalculation(statementBean, successCount,failCount);
                     });
                 }
 
@@ -93,8 +96,8 @@ public class DailyInterestCalculationConnector extends ProcessBuilder {
     public void addSummaries() {
         summery.put("Started Date ", Configurations.EOD_DATE.toString());
         summery.put("No of Card effected ", Configurations.PROCESS_TOTAL_NOOF_TRABSACTIONS);
-        summery.put("No of Success Card ", Configurations.PROCESS_TOTAL_NOOF_TRABSACTIONS - faileCardCount.get());
-        summery.put("No of fail Card ", faileCardCount.get());
+        summery.put("No of Success Card ", successCount.size());
+        summery.put("No of fail Card ", failCount.size());
 
     }
 }

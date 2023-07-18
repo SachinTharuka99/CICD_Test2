@@ -22,6 +22,8 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.ArrayBlockingQueue;
+import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.atomic.AtomicInteger;
 
 
@@ -30,8 +32,12 @@ public class ManualNpConnector extends ProcessBuilder {
     private static final Logger logInfo = LoggerFactory.getLogger("logInfo");
     private static final Logger logError = LoggerFactory.getLogger("logError");
     public List<ErrorCardBean> cardErrorList = new ArrayList<ErrorCardBean>();
-    public AtomicInteger faileCardCount = new AtomicInteger(0);
-    public AtomicInteger faileCardCountDe = new AtomicInteger(0);
+    int capacity = 200000;
+    BlockingQueue<Integer> successCount = new ArrayBlockingQueue<Integer>(capacity);
+    BlockingQueue<Integer> failCount = new ArrayBlockingQueue<Integer>(capacity);
+    BlockingQueue<Integer> successCountDe = new ArrayBlockingQueue<Integer>(capacity);
+    BlockingQueue<Integer> failCountDe = new ArrayBlockingQueue<Integer>(capacity);
+
     int manualNpTotalCount = 0;
     int manualNpSuccesssCount = 0;
     int manualNpFailedCount = 0;
@@ -74,7 +80,7 @@ public class ManualNpConnector extends ProcessBuilder {
                     arrList.add(new StringBuffer(temp[0]));
                     arrList.add(new StringBuffer(temp[1]));
                     arrList.add(new StringBuffer(temp[2]));
-                    manualNpService.manualNpClassification(arrList,faileCardCount);
+                    manualNpService.manualNpClassification(arrList,successCount,failCount);
 
                 }
 
@@ -116,7 +122,7 @@ public class ManualNpConnector extends ProcessBuilder {
                     arrList.add(new StringBuffer(value[0]));
                     arrList.add(new StringBuffer(value[1]));
                     arrList.add(new StringBuffer(value[2]));
-                    manualNpService.manualNpDeClassification(arrList, faileCardCountDe);
+                    manualNpService.manualNpDeClassification(arrList, successCountDe,failCountDe);
                 });
 
                 while (!(taskExecutor.getActiveCount() == 0)) {
@@ -151,13 +157,13 @@ public class ManualNpConnector extends ProcessBuilder {
     @Override
     public void addSummaries() {
         summery.put("Selected Account for manual NP", selectedaccounts);
-        summery.put("No of Success Accounts", selectedaccounts-faileCardCount.get());
-        summery.put("No of Failed Accounts", faileCardCount.get());
+        summery.put("No of Success Accounts", successCount.size());
+        summery.put("No of Failed Accounts", failCount.size());
         summery.put("Process Status for Manual NP", "Passed");
 
         summery.put("Selected Acc for manual NP De-classified ", Configurations.PROCESS_TOTAL_NOOF_TRABSACTIONS);
-        summery.put("No of Success Accounts ", Configurations.PROCESS_TOTAL_NOOF_TRABSACTIONS-faileCardCountDe.get());
-        summery.put("No of Failed Accounts ", faileCardCountDe.get());
+        summery.put("No of Success Accounts ", successCountDe.size());
+        summery.put("No of Failed Accounts ", failCountDe.size());
         summery.put("Process Status for Manual NP De-classified", "Passed");
     }
 }

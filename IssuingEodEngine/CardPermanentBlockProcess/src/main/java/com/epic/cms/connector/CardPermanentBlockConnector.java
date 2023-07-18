@@ -18,15 +18,18 @@ import org.springframework.scheduling.concurrent.ThreadPoolTaskExecutor;
 import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
+import java.util.concurrent.ArrayBlockingQueue;
+import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.atomic.AtomicInteger;
 
 
 @Service
 public class CardPermanentBlockConnector extends ProcessBuilder {
-
+    int capacity = 200000;
+    BlockingQueue<Integer> successCount = new ArrayBlockingQueue<Integer>(capacity);
+    BlockingQueue<Integer> failCount = new ArrayBlockingQueue<Integer>(capacity);
     private static final Logger logInfo = LoggerFactory.getLogger("logInfo");
     private static final Logger logError = LoggerFactory.getLogger("logError");
-    public AtomicInteger faileCardCount = new AtomicInteger(0);
     @Autowired
     LogManager logManager;
     @Autowired
@@ -57,7 +60,7 @@ public class CardPermanentBlockConnector extends ProcessBuilder {
 
                 if (cardList != null && cardList.size() > 0) {
                     cardList.forEach(blockCardBean -> {
-                        cardPermanentBlockService.processCardPermanentBlock(blockCardBean, processBean, faileCardCount);
+                        cardPermanentBlockService.processCardPermanentBlock(blockCardBean, processBean, successCount, failCount);
                     });
                 }
 
@@ -92,7 +95,7 @@ public class CardPermanentBlockConnector extends ProcessBuilder {
 
         summery.put("Started Date", Configurations.EOD_DATE.toString());
         summery.put("No of Card effected", Configurations.PROCESS_TOTAL_NOOF_TRABSACTIONS);
-        summery.put("No of Success Card", Configurations.PROCESS_TOTAL_NOOF_TRABSACTIONS - faileCardCount.get());
-        summery.put("No of fail Card", faileCardCount.get());
+        summery.put("No of Success Card", successCount.size());
+        summery.put("No of fail Card", failCount.size());
     }
 }

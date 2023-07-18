@@ -28,7 +28,7 @@ public class ChequeReturnConnector extends ProcessBuilder {
 
     private static final Logger logInfo = LoggerFactory.getLogger("logInfo");
     private static final Logger logError = LoggerFactory.getLogger("logError");
-    public AtomicInteger faileCardCount = new AtomicInteger(0);
+
     @Autowired
     LogManager logManager;
     @Autowired

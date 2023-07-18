@@ -21,14 +21,18 @@ import org.springframework.stereotype.Service;
 import java.util.ArrayList;
 import java.util.LinkedHashMap;
 import java.util.List;
+import java.util.concurrent.ArrayBlockingQueue;
+import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.atomic.AtomicInteger;
 
 @Service
 public class LoanOnCardConnector extends ProcessBuilder {
 
+    int capacity = 200000;
+    BlockingQueue<Integer> successCount = new ArrayBlockingQueue<Integer>(capacity);
+    BlockingQueue<Integer> failCount = new ArrayBlockingQueue<Integer>(capacity);
     private static final Logger logInfo = LoggerFactory.getLogger("logInfo");
     private static final Logger logError = LoggerFactory.getLogger("logError");
-    public AtomicInteger faileCardCount = new AtomicInteger(0);
     @Autowired
     LogManager logManager;
     @Autowired
@@ -68,7 +72,7 @@ public class LoanOnCardConnector extends ProcessBuilder {
 //                }
 
                 txnList.forEach(installmentBean -> {
-                    loanOnCardService.startLOCProcess(installmentBean, processBean, faileCardCount);
+                    loanOnCardService.startLOCProcess(installmentBean, processBean, successCount,failCount);
                 });
 
                 //wait till all the threads are completed
@@ -100,7 +104,7 @@ public class LoanOnCardConnector extends ProcessBuilder {
     public void addSummaries() {
         summery.put("Started Date", Configurations.EOD_DATE.toString());
         summery.put("No of Card effected", Configurations.PROCESS_TOTAL_NOOF_TRABSACTIONS);
-        summery.put("No of Success Card ", Configurations.PROCESS_TOTAL_NOOF_TRABSACTIONS - faileCardCount.get());
-        summery.put("No of fail Card ",faileCardCount.get());
+        summery.put("No of Success Card ",successCount.size());
+        summery.put("No of fail Card ",failCount.size());
     }
 }

@@ -19,15 +19,18 @@ import org.springframework.scheduling.concurrent.ThreadPoolTaskExecutor;
 import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
+import java.util.concurrent.ArrayBlockingQueue;
+import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.atomic.AtomicInteger;
 
 
 @Service
 public class IncrementLimitExpireConnector extends ProcessBuilder {
-
+    int capacity = 200000;
+    BlockingQueue<Integer> successCount = new ArrayBlockingQueue<Integer>(capacity);
+    BlockingQueue<Integer> failCount = new ArrayBlockingQueue<Integer>(capacity);
     private static final Logger logInfo = LoggerFactory.getLogger("logInfo");
     private static final Logger logError = LoggerFactory.getLogger("logError");
-    public AtomicInteger faileCardCount = new AtomicInteger(0);
     public int configProcess = Configurations.PROCESS_ID_INCREMENT_LIMIT_EXPIRE;
     public String processHeader = "LIMIT INCEREMENT EXPIRE PROCESS";
     @Autowired
@@ -67,7 +70,7 @@ public class IncrementLimitExpireConnector extends ProcessBuilder {
 //                }
 
                 cardList.forEach(limitIncrementBean -> {
-                    incrementLimitExpireService.processCreditLimitExpire(limitIncrementBean, processBean, configProcess, processHeader, faileCardCount);
+                    incrementLimitExpireService.processCreditLimitExpire(limitIncrementBean, processBean, configProcess, processHeader, successCount, failCount);
                 });
 
 
@@ -118,7 +121,7 @@ public class IncrementLimitExpireConnector extends ProcessBuilder {
     public void addSummaries() {
         summery.put("Started Date", Configurations.EOD_DATE.toString());
         summery.put("No of Card effected", Configurations.PROCESS_TOTAL_NOOF_TRABSACTIONS);
-        summery.put("No of Success Card ", Configurations.PROCESS_TOTAL_NOOF_TRABSACTIONS - faileCardCount.get());
-        summery.put("No of fail Card ",faileCardCount.get());
+        summery.put("No of Success Card ", successCount.size());
+        summery.put("No of fail Card ",failCount.size());
     }
 }

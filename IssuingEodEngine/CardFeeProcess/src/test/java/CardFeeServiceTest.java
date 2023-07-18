@@ -11,6 +11,8 @@ import org.mockito.Mockito;
 
 import java.text.SimpleDateFormat;
 import java.util.Date;
+import java.util.concurrent.ArrayBlockingQueue;
+import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.atomic.AtomicInteger;
 
 import static org.junit.jupiter.api.Assertions.*;
@@ -21,7 +23,9 @@ class CardFeeServiceTest {
     SimpleDateFormat sdf = new SimpleDateFormat("yyMMdd");
     private CardFeeService cardFeeServiceUnderTest;
     static MockedStatic<CommonMethods> common;
-    public AtomicInteger faileCardCount = new AtomicInteger(0);
+    int capacity = 200000;
+    BlockingQueue<Integer> successCount = new ArrayBlockingQueue<Integer>(capacity);
+    BlockingQueue<Integer> failCount = new ArrayBlockingQueue<Integer>(capacity);
 
     @BeforeAll
     public static void init() {
@@ -101,7 +105,7 @@ class CardFeeServiceTest {
 
 
         // Run the test
-        cardFeeServiceUnderTest.cardFeeCalculate(cardBean, faileCardCount);
+        cardFeeServiceUnderTest.cardFeeCalculate(cardBean, successCount,failCount);
 
         // Verify the results
         assertEquals(cardFeeBean, cardFeeServiceUnderTest.cardFeeDao.getCardFeeCountForCard(cardFeeBean.getCardNumber(), cardBean.getAccNumber(), cardBean.getFeeCode()));

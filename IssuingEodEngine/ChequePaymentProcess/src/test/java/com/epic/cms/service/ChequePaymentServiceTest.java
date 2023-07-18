@@ -12,6 +12,8 @@ import org.mockito.MockedStatic;
 import org.mockito.Mockito;
 
 import java.util.Date;
+import java.util.concurrent.ArrayBlockingQueue;
+import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.atomic.AtomicInteger;
 
 import static org.mockito.ArgumentMatchers.any;
@@ -20,7 +22,9 @@ import static org.mockito.Mockito.*;
 class ChequePaymentServiceTest {
 
     private ChequePaymentService chequePaymentServiceUnderTest;
-    public AtomicInteger faileCardCount = new AtomicInteger(0);
+    int capacity = 200000;
+    BlockingQueue<Integer> successCount = new ArrayBlockingQueue<Integer>(capacity);
+    BlockingQueue<Integer> failCount = new ArrayBlockingQueue<Integer>(capacity);
 
     @BeforeEach
     void setUp(){
@@ -65,7 +69,7 @@ class ChequePaymentServiceTest {
         when(chequePaymentServiceUnderTest.chequePaymentRepo.updateChequePayment(bean)).thenReturn(0);
 
         //run the test
-        chequePaymentServiceUnderTest.processChequePayment(bean,faileCardCount);
+        chequePaymentServiceUnderTest.processChequePayment(bean,successCount,failCount);
 
         //verify the result
         verify(chequePaymentServiceUnderTest.chequePaymentRepo).insertChequePayments(
@@ -96,7 +100,7 @@ class ChequePaymentServiceTest {
         when(chequePaymentServiceUnderTest.chequePaymentRepo.updateChequePayment(bean)).thenReturn(1);
 
         //run the test
-        chequePaymentServiceUnderTest.processChequePayment(bean,faileCardCount);
+        chequePaymentServiceUnderTest.processChequePayment(bean,successCount,failCount);
 
         //verify the result
         verify(chequePaymentServiceUnderTest.chequePaymentRepo).insertChequePayments(

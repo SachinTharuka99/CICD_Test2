@@ -8,11 +8,16 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
 
+import java.util.concurrent.ArrayBlockingQueue;
+import java.util.concurrent.BlockingQueue;
+
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
 class OnlineToBackendTxnServiceTest {
-
+    int capacity = 200000;
+    BlockingQueue<Integer> successCount = new ArrayBlockingQueue<Integer>(capacity);
+    BlockingQueue<Integer> failCount = new ArrayBlockingQueue <Integer>(capacity);
     private OnlineToBackendTxnService onlineToBackendTxnServiceUnderTest;
 
     @BeforeEach

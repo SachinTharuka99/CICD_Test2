@@ -8,7 +8,6 @@ import com.epic.cms.util.CardAccount;
 import com.epic.cms.util.CommonMethods;
 import com.epic.cms.util.Configurations;
 import com.epic.cms.util.LogManager;
-import lombok.extern.slf4j.Slf4j;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -19,6 +18,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.util.ArrayList;
 import java.util.LinkedHashMap;
+import java.util.concurrent.BlockingQueue;
 
 
 @Service
@@ -35,7 +35,7 @@ public class CashBackAlertService {
 
     @Async("ThreadPool_100")
     @Transactional(value = "transactionManager", propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
-    public void processCashBackAlertService(String accountNumber, ArrayList<CashBackAlertBean> cashBackList, ProcessBean processBean) {
+    public void processCashBackAlertService(String accountNumber, ArrayList<CashBackAlertBean> cashBackList, ProcessBean processBean, BlockingQueue<Integer> successCount, BlockingQueue<Integer> failCount) {
 
         if (!Configurations.isInterrupted) {
             LinkedHashMap adjustDetails = new LinkedHashMap();
@@ -66,10 +66,13 @@ public class CashBackAlertService {
                         cashBackAlertRepo.updateBillingStatementAlertGenStatus(cashBackBean.getStatementId());
                         adjustDetails.put("Cash Back Alert Process Status", "Passed");
                         Configurations.successCardNoCount_CashBackAlert++;
-                        Configurations.PROCESS_SUCCESS_COUNT++;
+                        //Configurations.PROCESS_SUCCESS_COUNT++;
+                        successCount.add(1);
+
                     } catch (Exception ex) {
                         Configurations.failedCardNoCount_CashBackAlert++;
-                        Configurations.PROCESS_FAILD_COUNT++;
+                        failCount.add(1);
+                        //Configurations.PROCESS_FAILD_COUNT++;
                         adjustDetails.put("Cash Back Alert Process Status", "Failed");
                         Configurations.errorCardList.add(new ErrorCardBean(Configurations.ERROR_EOD_ID, Configurations.EOD_DATE, new StringBuffer(cashBackBean.getMainCardNo()), ex.getMessage(), Configurations.RUNNING_PROCESS_ID, Configurations.RUNNING_PROCESS_DESCRIPTION, 0, CardAccount.ACCOUNT));
                     }

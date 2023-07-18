@@ -20,11 +20,15 @@ import org.springframework.stereotype.Service;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.concurrent.ArrayBlockingQueue;
+import java.util.concurrent.BlockingQueue;
 
 
 @Service
 public class CashBackAlertConnector extends ProcessBuilder {
-
+    int capacity = 200000;
+    BlockingQueue<Integer> successCount = new ArrayBlockingQueue<Integer>(capacity);
+    BlockingQueue<Integer> failCount = new ArrayBlockingQueue<Integer>(capacity);
     private static final Logger logInfo = LoggerFactory.getLogger("logInfo");
     private static final Logger logError = LoggerFactory.getLogger("logError");
     @Autowired
@@ -57,7 +61,7 @@ public class CashBackAlertConnector extends ProcessBuilder {
                 for (Map.Entry<String, ArrayList<CashBackAlertBean>> entry : confirmAccountlist.entrySet()) {
                     Configurations.PROCESS_TOTAL_NOOF_TRABSACTIONS += entry.getValue().size();
 
-                    cashBackAlertService.processCashBackAlertService(entry.getKey(), entry.getValue(), processBean);
+                    cashBackAlertService.processCashBackAlertService(entry.getKey(), entry.getValue(), processBean,successCount,failCount);
                 }
 
                 while (!(taskExecutor.getActiveCount() == 0)) {
@@ -82,7 +86,7 @@ public class CashBackAlertConnector extends ProcessBuilder {
         summery.put("Process Name", processBean.getProcessDes());
         summery.put("Started Date", Configurations.EOD_DATE.toString());
         summery.put("No of Account effected", Configurations.PROCESS_TOTAL_NOOF_TRABSACTIONS);
-        summery.put("No of Success Account ", Configurations.PROCESS_SUCCESS_COUNT);
-        summery.put("No of fail Account ", Configurations.PROCESS_FAILD_COUNT);
+        summery.put("No of Success Account ", successCount.size());
+        summery.put("No of fail Account ",failCount.size());
     }
 }

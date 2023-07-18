@@ -15,7 +15,7 @@ import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
 import java.util.LinkedHashMap;
-import java.util.concurrent.atomic.AtomicInteger;
+import java.util.concurrent.BlockingQueue;
 
 @Service
 public class TxnMismatchPostService {
@@ -30,7 +30,7 @@ public class TxnMismatchPostService {
     private static final Logger logError = LoggerFactory.getLogger("logError");
 
     @Async("taskExecutor2")
-    public void processTxnMismatch(ArrayList<OtbBean> txnList, OtbBean bean, int iterator, AtomicInteger faileCardCount)  {
+    public void processTxnMismatch(ArrayList<OtbBean> txnList, OtbBean bean, int iterator, BlockingQueue<Integer> successCount, BlockingQueue<Integer> failCount)  {
         if (!Configurations.isInterrupted) {
             LinkedHashMap details = new LinkedHashMap();
             int failedCount = 0;
@@ -43,6 +43,7 @@ public class TxnMismatchPostService {
                     bean.setOtbcash(Double.parseDouble("0.00"));
 
                     try {
+
                         if (cardBean.getTxntype().equalsIgnoreCase(Configurations.TXN_TYPE_PAYMENT)) {
                             cardBean.setOtbcredit(cardBean.getTxnAmount());
                             bean.setOtbcredit(cardBean.getTxnAmount());
@@ -90,17 +91,19 @@ public class TxnMismatchPostService {
                                 details.put("Transaction Mismatch Amount", card.getTxnAmount());
                             }
                         }
+
+                        successCount.add(1);
                         //Configurations.PROCESS_SUCCESS_COUNT++;
                     } catch (Exception ex) {
                         Configurations.errorCardList.add(new ErrorCardBean(Configurations.ERROR_EOD_ID, Configurations.EOD_DATE, cardBean.getCardnumber(), ex.getMessage(), Configurations.RUNNING_PROCESS_ID, Configurations.RUNNING_PROCESS_DESCRIPTION, 0, CardAccount.CARD));
                         logError.error("Transaction mismatch post process failed for account " + bean.getAccountnumber(), ex);
-                        faileCardCount.addAndGet(1);
+                        failCount.add(1);
                     }
                 }
             } catch (Exception e) {
                 logError.error("Transaction mismatch post process failed", e);
             } finally {
-                logInfo.info(logManager.logDetails(details));
+               logInfo.info(logManager.logDetails(details));
             }
             Configurations.failedCount_TxnMisMatchProcess = failedCount;
         }

@@ -19,15 +19,19 @@ import org.springframework.scheduling.concurrent.ThreadPoolTaskExecutor;
 import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
+import java.util.concurrent.ArrayBlockingQueue;
+import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.atomic.AtomicInteger;
 
 
 @Service
 public class CollectionAndRecoveryConnector extends ProcessBuilder {
-
+    int capacity = 200000;
+    BlockingQueue<Integer> successCount = new ArrayBlockingQueue<Integer>(capacity);
+    BlockingQueue<Integer> failCount = new ArrayBlockingQueue<Integer>(capacity);
     private static final Logger logInfo = LoggerFactory.getLogger("logInfo");
     private static final Logger logError = LoggerFactory.getLogger("logError");
-    public AtomicInteger faileCardCount = new AtomicInteger(0);
+
 
     @Autowired
     LogManager logManager;
@@ -74,7 +78,7 @@ public class CollectionAndRecoveryConnector extends ProcessBuilder {
 //                        collectionAndRecoveryService.processX_DATES_BEFORE_FIRST_DUE_DATE(collectionAndRecoveryBean, processBean);
 //                    }
                     cardList.forEach(collectionAndRecoveryBean->{
-                     collectionAndRecoveryService.processX_DATES_BEFORE_FIRST_DUE_DATE(collectionAndRecoveryBean, processBean,faileCardCount);
+                     collectionAndRecoveryService.processX_DATES_BEFORE_FIRST_DUE_DATE(collectionAndRecoveryBean, processBean,successCount,failCount);
                     });
 
                     while (!(taskExecutor.getActiveCount() == 0)) {
@@ -92,7 +96,7 @@ public class CollectionAndRecoveryConnector extends ProcessBuilder {
 //                    for (CollectionAndRecoveryBean collectionAndRecoveryBean : cardList) {
 //                        collectionAndRecoveryService.processX_DATES_AFTER_FIRST_DUE_DATE(collectionAndRecoveryBean, processBean);
 //                    }
-                    cardList.forEach(collectionAndRecoveryBean-> collectionAndRecoveryService.processX_DATES_AFTER_FIRST_DUE_DATE(collectionAndRecoveryBean, processBean,faileCardCount));
+                    cardList.forEach(collectionAndRecoveryBean-> collectionAndRecoveryService.processX_DATES_AFTER_FIRST_DUE_DATE(collectionAndRecoveryBean, processBean,successCount,failCount));
 
                     while (!(taskExecutor.getActiveCount() == 0)) {
                         Thread.sleep(1000);
@@ -111,7 +115,7 @@ public class CollectionAndRecoveryConnector extends ProcessBuilder {
 //                        collectionAndRecoveryService.processON_THE_2ND_STATEMENT_DATE(collectionAndRecoveryBean, processBean);
 //                    }
 
-                    cardList.forEach(collectionAndRecoveryBean-> collectionAndRecoveryService.processON_THE_2ND_STATEMENT_DATE(collectionAndRecoveryBean, processBean,faileCardCount));
+                    cardList.forEach(collectionAndRecoveryBean-> collectionAndRecoveryService.processON_THE_2ND_STATEMENT_DATE(collectionAndRecoveryBean, processBean,successCount,failCount));
 
                     while (!(taskExecutor.getActiveCount() == 0)) {
                         Thread.sleep(1000);
@@ -128,7 +132,7 @@ public class CollectionAndRecoveryConnector extends ProcessBuilder {
 //                    for (CollectionAndRecoveryBean collectionAndRecoveryBean : cardList) {
 //                        collectionAndRecoveryService.processX_DATES_AFTER_SECOND_STATEMENT(collectionAndRecoveryBean, processBean);
 //                    }
-                    cardList.forEach(collectionAndRecoveryBean -> collectionAndRecoveryService.processX_DATES_AFTER_SECOND_STATEMENT(collectionAndRecoveryBean, processBean,faileCardCount));
+                    cardList.forEach(collectionAndRecoveryBean -> collectionAndRecoveryService.processX_DATES_AFTER_SECOND_STATEMENT(collectionAndRecoveryBean, processBean,successCount,failCount));
 
 
                     while (!(taskExecutor.getActiveCount() == 0)) {
@@ -146,7 +150,7 @@ public class CollectionAndRecoveryConnector extends ProcessBuilder {
 //                    for (CollectionAndRecoveryBean collectionAndRecoveryBean : cardList) {
 //                        collectionAndRecoveryService.processIMMEDIATELY_AFTER_THE_2ND_DUE_DATE(collectionAndRecoveryBean, processBean);
 //                    }
-                    cardList.forEach(collectionAndRecoveryBean-> collectionAndRecoveryService.processIMMEDIATELY_AFTER_THE_2ND_DUE_DATE(collectionAndRecoveryBean, processBean,faileCardCount));
+                    cardList.forEach(collectionAndRecoveryBean-> collectionAndRecoveryService.processIMMEDIATELY_AFTER_THE_2ND_DUE_DATE(collectionAndRecoveryBean, processBean,successCount,failCount));
 
 
                     while (!(taskExecutor.getActiveCount() == 0)) {
@@ -164,7 +168,7 @@ public class CollectionAndRecoveryConnector extends ProcessBuilder {
 //                    for (CollectionAndRecoveryBean collectionAndRecoveryBean : cardList) {
 //                        collectionAndRecoveryService.processON_THE_3RD_STATEMENT_DATE(collectionAndRecoveryBean, processBean);
 //                    }
-                    cardList.forEach(collectionAndRecoveryBean-> collectionAndRecoveryService.processON_THE_3RD_STATEMENT_DATE(collectionAndRecoveryBean, processBean,faileCardCount));
+                    cardList.forEach(collectionAndRecoveryBean-> collectionAndRecoveryService.processON_THE_3RD_STATEMENT_DATE(collectionAndRecoveryBean, processBean,successCount,failCount));
 
 
                     while (!(taskExecutor.getActiveCount() == 0)) {
@@ -182,7 +186,7 @@ public class CollectionAndRecoveryConnector extends ProcessBuilder {
 //                    for (CollectionAndRecoveryBean collectionAndRecoveryBean : cardList) {
 //                        collectionAndRecoveryService.processIMMEDIATELY_AFTER_THE_3RD_DUE_DATE(collectionAndRecoveryBean, processBean);
 //                    }
-                    cardList.forEach(collectionAndRecoveryBean-> collectionAndRecoveryService.processIMMEDIATELY_AFTER_THE_3RD_DUE_DATE(collectionAndRecoveryBean, processBean,faileCardCount));
+                    cardList.forEach(collectionAndRecoveryBean-> collectionAndRecoveryService.processIMMEDIATELY_AFTER_THE_3RD_DUE_DATE(collectionAndRecoveryBean, processBean,successCount,failCount));
 
                     while (!(taskExecutor.getActiveCount() == 0)) {
                         Thread.sleep(1000);
@@ -199,7 +203,7 @@ public class CollectionAndRecoveryConnector extends ProcessBuilder {
 //                    for (CollectionAndRecoveryBean collectionAndRecoveryBean : cardList) {
 //                        collectionAndRecoveryService.processON_THE_4TH_STATEMENT_DATE(collectionAndRecoveryBean, processBean);
 //                    }
-                    cardList.forEach(collectionAndRecoveryBean-> collectionAndRecoveryService.processON_THE_4TH_STATEMENT_DATE(collectionAndRecoveryBean, processBean,faileCardCount));
+                    cardList.forEach(collectionAndRecoveryBean-> collectionAndRecoveryService.processON_THE_4TH_STATEMENT_DATE(collectionAndRecoveryBean, processBean,successCount,failCount));
 
 
                     while (!(taskExecutor.getActiveCount() == 0)) {
@@ -217,7 +221,7 @@ public class CollectionAndRecoveryConnector extends ProcessBuilder {
 //                    for (CollectionAndRecoveryBean collectionAndRecoveryBean : cardList) {
 //                        collectionAndRecoveryService.processX_DAYS_AFTER_THE_4TH_STATEMENT_DATE(collectionAndRecoveryBean, processBean);
 //                    }
-                    cardList.forEach(collectionAndRecoveryBean -> collectionAndRecoveryService.processX_DAYS_AFTER_THE_4TH_STATEMENT_DATE(collectionAndRecoveryBean, processBean,faileCardCount));
+                    cardList.forEach(collectionAndRecoveryBean -> collectionAndRecoveryService.processX_DAYS_AFTER_THE_4TH_STATEMENT_DATE(collectionAndRecoveryBean, processBean,successCount,failCount));
 
 
                     while (!(taskExecutor.getActiveCount() == 0)) {
@@ -235,7 +239,7 @@ public class CollectionAndRecoveryConnector extends ProcessBuilder {
 //                    for (CollectionAndRecoveryBean collectionAndRecoveryBean : cardList) {
 //                        collectionAndRecoveryService.processWITHIN_X_DAYS_OF_THE_CRIB_INFO_LETTER_REMINDER(collectionAndRecoveryBean, processBean);
 //                    }
-                    cardList.forEach(collectionAndRecoveryBean -> collectionAndRecoveryService.processWITHIN_X_DAYS_OF_THE_CRIB_INFO_LETTER_REMINDER(collectionAndRecoveryBean, processBean,faileCardCount));
+                    cardList.forEach(collectionAndRecoveryBean -> collectionAndRecoveryService.processWITHIN_X_DAYS_OF_THE_CRIB_INFO_LETTER_REMINDER(collectionAndRecoveryBean, processBean,successCount,failCount));
 
                     while (!(taskExecutor.getActiveCount() == 0)) {
                         Thread.sleep(1000);
@@ -252,7 +256,7 @@ public class CollectionAndRecoveryConnector extends ProcessBuilder {
 //                    for (CollectionAndRecoveryBean collectionAndRecoveryBean : cardList) {
 //                        collectionAndRecoveryService.processIMMEDIATELY_AFTER_THE_4TH_DUE_DATE(collectionAndRecoveryBean, processBean);
 //                    }
-                    cardList.forEach(collectionAndRecoveryBean-> collectionAndRecoveryService.processIMMEDIATELY_AFTER_THE_4TH_DUE_DATE(collectionAndRecoveryBean, processBean,faileCardCount));
+                    cardList.forEach(collectionAndRecoveryBean-> collectionAndRecoveryService.processIMMEDIATELY_AFTER_THE_4TH_DUE_DATE(collectionAndRecoveryBean, processBean,successCount,failCount));
 
                     while (!(taskExecutor.getActiveCount() == 0)) {
                         Thread.sleep(1000);
@@ -306,7 +310,7 @@ public class CollectionAndRecoveryConnector extends ProcessBuilder {
 
         summery.put("Started Date", Configurations.EOD_DATE.toString());
         summery.put("No of Card effected", Configurations.PROCESS_TOTAL_NOOF_TRABSACTIONS);
-        summery.put("No of Success Card ", Configurations.PROCESS_TOTAL_NOOF_TRABSACTIONS - faileCardCount.get());
-        summery.put("No of fail Card ",faileCardCount.get());
+        summery.put("No of Success Card ", successCount.size());
+        summery.put("No of fail Card ",failCount.size());
     }
 }

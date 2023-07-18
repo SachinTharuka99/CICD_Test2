@@ -4,7 +4,6 @@ import com.epic.cms.dao.FeePostDao;
 import com.epic.cms.model.bean.ErrorCardBean;
 import com.epic.cms.model.bean.OtbBean;
 import com.epic.cms.util.*;
-import lombok.extern.slf4j.Slf4j;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -15,7 +14,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.util.LinkedHashMap;
 import java.util.List;
-import java.util.concurrent.atomic.AtomicInteger;
+import java.util.concurrent.BlockingQueue;
 
 @Service
 public class FeePostService {
@@ -34,7 +33,7 @@ public class FeePostService {
 
     @Async("ThreadPool_100")
     @Transactional(value = "transactionManager", propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
-    public void proceedFeePost(OtbBean bean, AtomicInteger faileCardCount) {
+    public void proceedFeePost(OtbBean bean, BlockingQueue<Integer> successCount, BlockingQueue<Integer> failCount) {
         if (!Configurations.isInterrupted) {
             LinkedHashMap detail = new LinkedHashMap();
 
@@ -121,9 +120,10 @@ public class FeePostService {
                 }
                 if (feeAdditionSuccess) {
                     //Configurations.PROCESS_SUCCESS_COUNT++;
+                    successCount.add(1);
                 } else {
                     //Configurations.PROCESS_FAILD_COUNT++;
-                    faileCardCount.addAndGet(1);
+                    failCount.add(1);
                 }
                 feeAdditionSuccess = false;
             } catch (Exception ex) {

@@ -12,6 +12,8 @@ import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.GregorianCalendar;
 import java.util.List;
+import java.util.concurrent.ArrayBlockingQueue;
+import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.atomic.AtomicInteger;
 
 import static org.mockito.ArgumentMatchers.any;
@@ -19,10 +21,10 @@ import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.*;
 
 class MonthlyStatementServiceTest {
-
+    int capacity = 200000;
+    BlockingQueue<Integer> successCount = new ArrayBlockingQueue<Integer>(capacity);
+    BlockingQueue<Integer> failCount = new ArrayBlockingQueue <Integer>(capacity);
     private MonthlyStatementService monthlyStatementServiceUnderTest;
-
-    public AtomicInteger faileCardCount = new AtomicInteger(0);
 
     @BeforeEach
     void setUp() {
@@ -75,7 +77,7 @@ class MonthlyStatementServiceTest {
                 .thenReturn(statementBean);
 
         // Run the test
-        monthlyStatementServiceUnderTest.monthlyStatement("4862950000698568", accDetails, faileCardCount);
+        monthlyStatementServiceUnderTest.monthlyStatement("4862950000698568", accDetails, successCount,failCount);
 
         // Verify the results
         verify(monthlyStatementServiceUnderTest.monthlyStatementRepo, times(1)).UpdateStatementDeatils(

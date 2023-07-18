@@ -5,7 +5,6 @@ import com.epic.cms.model.bean.ErrorCardBean;
 import com.epic.cms.model.bean.ProcessBean;
 import com.epic.cms.repository.TxnDropRequestRepo;
 import com.epic.cms.util.*;
-import lombok.extern.slf4j.Slf4j;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -17,7 +16,7 @@ import org.springframework.transaction.annotation.Transactional;
 import java.util.HashSet;
 import java.util.LinkedHashMap;
 import java.util.Set;
-import java.util.concurrent.atomic.AtomicInteger;
+import java.util.concurrent.BlockingQueue;
 
 @Service
 public class TxnDropRequestService {
@@ -33,7 +32,7 @@ public class TxnDropRequestService {
 
     @Async("ThreadPool_100")
     @Transactional(value = "transactionManager", propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
-    public void processTxnDropRequest(DropRequestBean bean, ProcessBean processBean, AtomicInteger faileCardCount) {
+    public void processTxnDropRequest(DropRequestBean bean, ProcessBean processBean, BlockingQueue<Integer> successCount, BlockingQueue<Integer> failCount) {
 
         if (!Configurations.isInterrupted) {
             LinkedHashMap details = new LinkedHashMap();
@@ -51,13 +50,14 @@ public class TxnDropRequestService {
                     /**add drop transaction request*/
                     txnDropRequestRepo.addTxnDropRequest(bean.getTxnId(), bean.getCardNumber());
                 }
+                successCount.add(1);
                 Configurations.SuccessCount_TxnDropRequest++;
                 details.put("Process Status", "Passed");
 
             } catch (Exception e) {
                 Configurations.FailedCards_TxnDropRequest++;
                 //Configurations.PROCESS_FAILD_COUNT++;
-                faileCardCount.addAndGet(1);
+                failCount.add(1);
                 logError.error("Transaction Drop Request process failed for card number " + CommonMethods.cardInfo(maskedCardNumber, processBean) + " txnid: " + bean.getTxnId(), e);
                 details.put("Process Status", "Failed");
                 Configurations.errorCardList.add(new ErrorCardBean(Configurations.ERROR_EOD_ID, Configurations.EOD_DATE, new StringBuffer(bean.getCardNumber()), e.getMessage(), Configurations.RUNNING_PROCESS_ID, Configurations.RUNNING_PROCESS_DESCRIPTION, 0, CardAccount.CARD));

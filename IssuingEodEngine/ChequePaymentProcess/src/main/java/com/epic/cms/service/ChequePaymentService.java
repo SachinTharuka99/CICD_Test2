@@ -4,7 +4,6 @@ import com.epic.cms.model.bean.ErrorCardBean;
 import com.epic.cms.model.bean.ReturnChequePaymentDetailBean;
 import com.epic.cms.repository.ChequePaymentRepo;
 import com.epic.cms.util.*;
-import lombok.extern.slf4j.Slf4j;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -13,7 +12,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.util.concurrent.atomic.AtomicInteger;
+import java.util.concurrent.BlockingQueue;
 
 
 @Service
@@ -30,7 +29,7 @@ public class ChequePaymentService {
 
     @Async("ThreadPool_100")
     @Transactional(value = "transactionManager", propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
-    public void processChequePayment(ReturnChequePaymentDetailBean bean, AtomicInteger faileCardCount) {
+    public void processChequePayment(ReturnChequePaymentDetailBean bean, BlockingQueue<Integer> successCount, BlockingQueue<Integer> failCount) {
         if (!Configurations.isInterrupted) {
             try {
                 chequePaymentRepo.insertChequePayments(bean);
@@ -40,10 +39,11 @@ public class ChequePaymentService {
                     Statusts.SUMMARY_FOR_CHEQUE_PAYMENTS++;
                 }
                 //Configurations.PROCESS_SUCCESS_COUNT++;
+                successCount.add(1);
             } catch (Exception e) {
                 logError.error("Failed Cheque Payment Process for Card" + CommonMethods.cardNumberMask(bean.getCardnumber()), e);
                 //Configurations.PROCESS_FAILD_COUNT++;
-                faileCardCount.addAndGet(1);
+                failCount.add(1);
                 Configurations.errorCardList.add(new ErrorCardBean(Configurations.ERROR_EOD_ID, Configurations.EOD_DATE, new StringBuffer(bean.getCardnumber()), e.getMessage(), Configurations.RUNNING_PROCESS_ID, Configurations.RUNNING_PROCESS_DESCRIPTION, 0, CardAccount.CARD));
             }
         }

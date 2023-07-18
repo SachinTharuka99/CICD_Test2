@@ -18,7 +18,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.util.ArrayList;
 import java.util.LinkedHashMap;
-import java.util.concurrent.atomic.AtomicInteger;
+import java.util.concurrent.BlockingQueue;
 
 
 @Service
@@ -35,7 +35,7 @@ public class StampDutyFeeService {
 
     @Async("ThreadPool_100")
     @Transactional(value = "transactionManager", propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
-    public void StampDutyFee(StampDutyBean stampDutyAccountBean, AtomicInteger faileCardCount) {
+    public void StampDutyFee(StampDutyBean stampDutyAccountBean, BlockingQueue<Integer> successCount, BlockingQueue<Integer> failCount) {
         if (!Configurations.isInterrupted) {
             LinkedHashMap details = new LinkedHashMap();
             ArrayList<StampDutyBean> statementCardList = null;
@@ -80,6 +80,7 @@ public class StampDutyFeeService {
                             cardFeeBean = null;
                         }
                         details.put("Process Status", "Passed");
+                        successCount.add(1);
                     } catch (Exception e) {
                         throw e;
                     }
@@ -87,7 +88,7 @@ public class StampDutyFeeService {
             } catch (Exception e) {
                 logError.error("Stamp Duty Fee process failed for account " + stampDutyAccountBean.getAccountNumber(), e);
                 details.put("Process Status", "Failed");
-                faileCardCount.getAndAdd(1);
+                failCount.add(1);
             } finally {
                 for (StringBuffer sb : oldcardnumbers) {
                     CommonMethods.clearStringBuffer(sb);

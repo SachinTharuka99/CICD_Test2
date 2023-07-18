@@ -14,7 +14,6 @@ import com.epic.cms.model.bean.ProcessBean;
 import com.epic.cms.model.bean.RiskCalculationBean;
 import com.epic.cms.repository.CommonRepo;
 import com.epic.cms.util.*;
-import lombok.extern.slf4j.Slf4j;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -28,7 +27,7 @@ import java.math.MathContext;
 import java.math.RoundingMode;
 import java.text.SimpleDateFormat;
 import java.util.*;
-import java.util.concurrent.atomic.AtomicInteger;
+import java.util.concurrent.BlockingQueue;
 
 @Service
 public class RiskCalculationService {
@@ -47,7 +46,7 @@ public class RiskCalculationService {
 
     @Async("ThreadPool_100")
     @Transactional(value = "transactionManager", propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
-    public void riskCalculationProcess(DelinquentAccountBean delinquentAccountBean, int configProcess, ProcessBean processBean, AtomicInteger faileCardCount) {
+    public void riskCalculationProcess(DelinquentAccountBean delinquentAccountBean, int configProcess, ProcessBean processBean, BlockingQueue<Integer> successCount, BlockingQueue<Integer> failCount) {
         if (!Configurations.isInterrupted) {
             String maskedCardNumber = CommonMethods.cardNumberMask(delinquentAccountBean.getCardNumber());
             String riskClass = delinquentAccountBean.getRiskClass();
@@ -300,7 +299,7 @@ public class RiskCalculationService {
                     detailsProvision.clear();
                 }
                 //Configurations.PROCESS_SUCCESS_COUNT++;
-
+                successCount.add(1);
                 details.put("Old Risk Class", logDetails.get(0));
                 details.put("New Risk Class", logDetails.get(1));
                 details.put("New Delinquent Status", logDetails.get(2));
@@ -314,7 +313,7 @@ public class RiskCalculationService {
                 Configurations.errorCardList.add(new ErrorCardBean(Configurations.ERROR_EOD_ID, Configurations.EOD_DATE, new StringBuffer(delinquentAccountBean.getCardNumber()), e.getMessage(), Configurations.RUNNING_PROCESS_ID, Configurations.RUNNING_PROCESS_DESCRIPTION, 0, CardAccount.CARD));
                 logError.error("RISK_CALCULATION_PROCESS Process for existing cards failed for cardnumber " + CommonMethods.cardInfo(maskedCardNumber, processBean), e);
                 //Configurations.PROCESS_FAILD_COUNT++;
-                faileCardCount.addAndGet(1);
+                failCount.add(1);
             } finally {
                 logInfo.info(logManager.logDetails(details));
                 details.clear();
@@ -1025,7 +1024,7 @@ public class RiskCalculationService {
 
     @Async("ThreadPool_100")
     @Transactional(value = "transactionManager", propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
-    public void freshCardToTable(RiskCalculationBean riskCalculationBean, ProcessBean processBean,AtomicInteger faileCardCount) {
+    public void freshCardToTable(RiskCalculationBean riskCalculationBean, ProcessBean processBean, BlockingQueue<Integer> successCount, BlockingQueue<Integer> failCount) {
         if (!Configurations.isInterrupted) {
             String[] newriskClass;
             String maskedCardNumber = CommonMethods.cardNumberMask(riskCalculationBean.getCardNo());
@@ -1078,9 +1077,10 @@ public class RiskCalculationService {
                     commonRepo.insertIntoDelinquentHistory(delinquentAccountBean.getCardNumber(), delinquentAccountBean.getAccNo(), remark);
                 }
                 //Configurations.PROCESS_SUCCESS_COUNT++;
+                successCount.add(1);
             } catch (Exception e) {
                 //Configurations.PROCESS_FAILD_COUNT++;
-                faileCardCount.addAndGet(1);
+                failCount.add(1);
                 Configurations.errorCardList.add(new ErrorCardBean(Configurations.ERROR_EOD_ID, Configurations.EOD_DATE, new StringBuffer(riskCalculationBean.getCardNo()), e.getMessage(), Configurations.RUNNING_PROCESS_ID, Configurations.RUNNING_PROCESS_DESCRIPTION, 0, CardAccount.CARD));
                 details.put("Process Status", "Failed");
                 logError.error("RISK_CALCULATION_PROCESS Process for new cards failed for cardnumber " + CommonMethods.cardInfo(maskedCardNumber, processBean), e);

@@ -15,6 +15,9 @@ import org.mockito.Mockito;
 
 import java.sql.Timestamp;
 import java.time.LocalDateTime;
+import java.util.concurrent.ArrayBlockingQueue;
+import java.util.concurrent.BlockingQueue;
+import java.util.concurrent.LinkedBlockingDeque;
 import java.util.concurrent.atomic.AtomicInteger;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -25,7 +28,9 @@ import static org.mockito.Mockito.*;
 class TxnDropRequestServiceTest {
 
     private TxnDropRequestService txnDropRequestServiceUnderTest;
-    public AtomicInteger faileCardCount = new AtomicInteger(0);
+    int capacity = 200000;
+    BlockingQueue<Integer> successCount = new ArrayBlockingQueue<Integer>(capacity);
+    BlockingQueue<Integer> failCount = new ArrayBlockingQueue <Integer>(capacity);
 
     @BeforeEach
     void setUp() {
@@ -72,7 +77,7 @@ class TxnDropRequestServiceTest {
         when(txnDropRequestServiceUnderTest.txnDropRequestRepo.getTransactionReverseStatus("txnId")).thenReturn(false);
 
         // Run the test
-        txnDropRequestServiceUnderTest.processTxnDropRequest(bean, processBean,faileCardCount);
+        txnDropRequestServiceUnderTest.processTxnDropRequest(bean, processBean,successCount,failCount);
 
         // Verify the results
         verify(txnDropRequestServiceUnderTest.txnDropRequestRepo,times(1)).addTxnDropRequest(eq("txnId"),

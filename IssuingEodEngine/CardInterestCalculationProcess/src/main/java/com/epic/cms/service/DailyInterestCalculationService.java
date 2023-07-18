@@ -26,7 +26,7 @@ import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.ArrayList;
-import java.util.concurrent.atomic.AtomicInteger;
+import java.util.concurrent.BlockingQueue;
 
 
 @Service
@@ -44,7 +44,7 @@ public class DailyInterestCalculationService {
 
     @Async("ThreadPool_100")
     @Transactional(value = "transactionManager", propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
-    public void startDailyInterestCalculation(StatementBean stmtBean, AtomicInteger faileCardCount) {
+    public void startDailyInterestCalculation(StatementBean stmtBean, BlockingQueue<Integer> successCount, BlockingQueue<Integer> failCount) {
         if (!Configurations.isInterrupted) {
             try {
                 InterestDetailBean interestDetailBean = interestCalculationRepo.getIntProf(stmtBean.getAccountNo()); /**get interest profile details  for given acc no*/
@@ -78,10 +78,11 @@ public class DailyInterestCalculationService {
                 stmtBean.setClosingBalance(stmtBean.getClosingBalance() + accumulateAmount); /**set new outstanding balance*/
                 interestCalculationRepo.updateEodInterest(stmtBean, accumulateInterest, interestDetailBean.getInterest()); /**insert or update a record to EODINTEREST table*/
 
+                successCount.add(1);
                 logInfo.info("Interest calculated for card number " + CommonMethods.cardNumberMask(stmtBean.getCardNo()));
             } catch (Exception ex) {
                 Configurations.errorCardList.add(new ErrorCardBean(Configurations.ERROR_EOD_ID, Configurations.EOD_DATE, new StringBuffer(stmtBean.getCardNo()), ex.getMessage(), Configurations.RUNNING_PROCESS_ID, Configurations.RUNNING_PROCESS_DESCRIPTION, 0, CardAccount.CARD));
-                faileCardCount.addAndGet(1);
+                failCount.add(1);
                 logError.error("Interest calculation process failed for card number " + CommonMethods.cardNumberMask(stmtBean.getCardNo()), ex);
             }
         }

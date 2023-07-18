@@ -18,6 +18,9 @@ import org.springframework.scheduling.concurrent.ThreadPoolTaskExecutor;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
+import java.util.concurrent.ArrayBlockingQueue;
+import java.util.concurrent.BlockingQueue;
+import java.util.concurrent.LinkedBlockingDeque;
 import java.util.concurrent.atomic.AtomicInteger;
 
 @Service
@@ -40,10 +43,11 @@ public class PaymentReversalsConnector extends ProcessBuilder {
 
     @Autowired
     PaymentReversalRepo paymentReversalRepo;
-
+    int capacity = 200000;
+    BlockingQueue<Integer> successCount = new ArrayBlockingQueue<Integer>(capacity);
+    BlockingQueue<Integer> failCount = new ArrayBlockingQueue <Integer>(capacity);
     private static final Logger logInfo = LoggerFactory.getLogger("logInfo");
     private static final Logger logError = LoggerFactory.getLogger("logError");
-    public AtomicInteger faileCardCount = new AtomicInteger(0);
     private List<PaymentBean> paymentReversals = null;
 
     @Override
@@ -70,7 +74,7 @@ public class PaymentReversalsConnector extends ProcessBuilder {
 //                }
 
                 paymentReversals.forEach(bean -> {
-                    paymentReversalService.setPaymentReversals(bean,faileCardCount);
+                    paymentReversalService.setPaymentReversals(bean,successCount,failCount);
 
                 });
             }
@@ -103,7 +107,7 @@ public class PaymentReversalsConnector extends ProcessBuilder {
     public void addSummaries() {
         summery.put("Process Name ", "Payment Reversal");
         summery.put("No Of Payment Reversals awaiting ", Configurations.PROCESS_TOTAL_NOOF_TRABSACTIONS);
-        summery.put("No of Payments successfully reversed ", Configurations.PROCESS_TOTAL_NOOF_TRABSACTIONS - faileCardCount.get());
-        summery.put("No of Payments not reversed ", faileCardCount.get());
+        summery.put("No of Payments successfully reversed ", failCount.size());
+        summery.put("No of Payments not reversed ", failCount.size());
     }
 }

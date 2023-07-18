@@ -19,14 +19,17 @@ import org.springframework.scheduling.concurrent.ThreadPoolTaskExecutor;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
+import java.util.concurrent.ArrayBlockingQueue;
+import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.atomic.AtomicInteger;
 
 @Service
 public class CashBackConnector extends ProcessBuilder {
-
+    int capacity = 200000;
+    BlockingQueue<Integer> successCount = new ArrayBlockingQueue<Integer>(capacity);
+    BlockingQueue<Integer> failCount = new ArrayBlockingQueue<Integer>(capacity);
     private static final Logger logInfo = LoggerFactory.getLogger("logInfo");
     private static final Logger logError = LoggerFactory.getLogger("logError");
-    public AtomicInteger faileCardCount = new AtomicInteger(0);
     @Autowired
     StatusVarList statusVarList;
     @Autowired
@@ -66,7 +69,7 @@ public class CashBackConnector extends ProcessBuilder {
 //                        cashBackService.cashBack(bean);
 //                    }
                     beanList.forEach(bean-> {
-                        cashBackService.cashBack(bean,faileCardCount);
+                        cashBackService.cashBack(bean,successCount,failCount);
                     });
                     while (!(taskExecutor.getActiveCount() == 0)) {
                         Thread.sleep(1000);
@@ -104,7 +107,7 @@ public class CashBackConnector extends ProcessBuilder {
     public void addSummaries() {
         summery.put("Started Date", Configurations.EOD_DATE.toString());
         summery.put("Number of total Cards Count", Configurations.PROCESS_TOTAL_NOOF_TRABSACTIONS);
-        summery.put("Number of success Cards Count", Configurations.PROCESS_TOTAL_NOOF_TRABSACTIONS - faileCardCount.get());
-        summery.put("Number of failure Cards Count", faileCardCount.get());
+        summery.put("Number of success Cards Count",successCount.size());
+        summery.put("Number of failure Cards Count", failCount.size());
     }
 }

@@ -21,6 +21,9 @@ import org.springframework.stereotype.Service;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
+import java.util.concurrent.ArrayBlockingQueue;
+import java.util.concurrent.BlockingQueue;
+import java.util.concurrent.LinkedBlockingDeque;
 import java.util.concurrent.atomic.AtomicInteger;
 
 @Service
@@ -41,7 +44,9 @@ public class TxnDropRequestConnector extends ProcessBuilder {
     StatusVarList statusList;
     @Autowired
     TxnDropRequestService txnDropRequestService;
-    public AtomicInteger faileCardCount = new AtomicInteger(0);
+    int capacity = 200000;
+    BlockingQueue<Integer> successCount = new ArrayBlockingQueue<Integer>(capacity);
+    BlockingQueue<Integer> failCount = new ArrayBlockingQueue <Integer>(capacity);
 
     @Override
     public void concreteProcess() throws Exception {
@@ -74,7 +79,7 @@ public class TxnDropRequestConnector extends ProcessBuilder {
 //                    }
 
                     dropTransactionList.forEach(bean -> {
-                        txnDropRequestService.processTxnDropRequest(bean, processBean,faileCardCount);
+                        txnDropRequestService.processTxnDropRequest(bean, processBean,successCount,failCount);
                     });
 
                 }
@@ -127,8 +132,8 @@ public class TxnDropRequestConnector extends ProcessBuilder {
     public void addSummaries() {
         summery.put("Started Date ", Configurations.EOD_DATE.toString());
         summery.put("Total Number of Total Request ", Configurations.PROCESS_TOTAL_NOOF_TRABSACTIONS);
-        summery.put("No of Drop Requests ", Configurations.PROCESS_TOTAL_NOOF_TRABSACTIONS - faileCardCount.get());
-        summery.put("No of Fail Requests ", faileCardCount.get());
+        summery.put("No of Drop Requests ", successCount.size());
+        summery.put("No of Fail Requests ", failCount.size());
 
 //        summery.put("No of Drop Requests ", Configurations.PROCESS_SUCCESS_COUNT);
 //        summery.put("No of Fail Requests ", Configurations.PROCESS_FAILD_COUNT);

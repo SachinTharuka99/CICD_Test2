@@ -5,7 +5,6 @@ import com.epic.cms.model.bean.OtbBean;
 import com.epic.cms.repository.CommonRepo;
 import com.epic.cms.repository.KnockOffRepo;
 import com.epic.cms.util.*;
-import lombok.extern.slf4j.Slf4j;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -16,7 +15,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.util.ArrayList;
 import java.util.LinkedHashMap;
-import java.util.concurrent.atomic.AtomicInteger;
+import java.util.concurrent.BlockingQueue;
 
 @Service
 public class KnockOffService {
@@ -35,7 +34,7 @@ public class KnockOffService {
 
     @Async("ThreadPool_100")
     @Transactional(value = "transactionManager", propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
-    public void knockOff(OtbBean custAccBean, ArrayList<OtbBean> cardList, ArrayList<OtbBean> paymentList, AtomicInteger faileCardCount)  {
+    public void knockOff(OtbBean custAccBean, ArrayList<OtbBean> cardList, ArrayList<OtbBean> paymentList, BlockingQueue<Integer> successCount, BlockingQueue<Integer> failCount)  {
         if (!Configurations.isInterrupted) {
             LinkedHashMap details = new LinkedHashMap();
             int cardIteration = 1;
@@ -282,12 +281,13 @@ public class KnockOffService {
                     }
                     cardIteration++;
                     //Configurations.PROCESS_SUCCESS_COUNT++;
+                    successCount.add(1);
 
                 } catch (Exception e) {
                     Configurations.errorCardList.add(new ErrorCardBean(Configurations.ERROR_EOD_ID, Configurations.EOD_DATE, new StringBuffer(custAccBean.getCardnumber()), e.getMessage(), Configurations.RUNNING_PROCESS_ID, Configurations.RUNNING_PROCESS_DESCRIPTION, 0, CardAccount.ACCOUNT));
                     logError.error("Knock off process failed for account " + custAccBean.getAccountnumber(), e);
                     //Configurations.PROCESS_FAILD_COUNT++;
-                    faileCardCount.addAndGet(1);
+                    failCount.add(1);
                     break;
                 } finally {
                     logInfo.info(logManager.logDetails(details));

@@ -21,6 +21,8 @@ import java.time.LocalDateTime;
 import java.util.Calendar;
 import java.util.GregorianCalendar;
 import java.util.Map;
+import java.util.concurrent.ArrayBlockingQueue;
+import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.atomic.AtomicInteger;
 
 import static org.mockito.ArgumentMatchers.any;
@@ -28,7 +30,9 @@ import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.*;
 
 class CollectionAndRecoveryServiceTest {
-    public AtomicInteger faileCardCount = new AtomicInteger(0);
+    int capacity = 200000;
+    BlockingQueue<Integer> successCount = new ArrayBlockingQueue<Integer>(capacity);
+    BlockingQueue<Integer> failCount = new ArrayBlockingQueue<Integer>(capacity);
 
     private CollectionAndRecoveryService collectionAndRecoveryServiceUnderTest;
     static MockedStatic<LogManager> common;
@@ -94,7 +98,7 @@ class CollectionAndRecoveryServiceTest {
 
         // Run the test
         collectionAndRecoveryServiceUnderTest.processX_DATES_BEFORE_FIRST_DUE_DATE(collectionAndRecoveryBean,
-                processBean,faileCardCount);
+                processBean,successCount,failCount);
 
         // Verify the results
         verify(collectionAndRecoveryServiceUnderTest.collectionAndRecoveryRepo).addCardToTriggerCards(
@@ -133,7 +137,7 @@ class CollectionAndRecoveryServiceTest {
 
         // Run the test
         collectionAndRecoveryServiceUnderTest.processX_DATES_AFTER_FIRST_DUE_DATE(collectionAndRecoveryBean,
-                processBean,faileCardCount);
+                processBean,successCount,failCount);
 
         // Verify the results
         verify(collectionAndRecoveryServiceUnderTest.collectionAndRecoveryRepo).updateTriggerCards(
@@ -171,7 +175,7 @@ class CollectionAndRecoveryServiceTest {
                 Map.ofEntries(Map.entry("value", "value")))).thenReturn("result");
 
         // Run the test
-        collectionAndRecoveryServiceUnderTest.processON_THE_2ND_STATEMENT_DATE(collectionAndRecoveryBean, processBean,faileCardCount);
+        collectionAndRecoveryServiceUnderTest.processON_THE_2ND_STATEMENT_DATE(collectionAndRecoveryBean, processBean,successCount,failCount);
 
         // Verify the results
         verify(collectionAndRecoveryServiceUnderTest.collectionAndRecoveryRepo).updateTriggerCards(
@@ -209,7 +213,7 @@ class CollectionAndRecoveryServiceTest {
 
         // Run the test
         collectionAndRecoveryServiceUnderTest.processX_DATES_AFTER_SECOND_STATEMENT(collectionAndRecoveryBean,
-                processBean,faileCardCount);
+                processBean,successCount,failCount);
 
         // Verify the results
         verify(collectionAndRecoveryServiceUnderTest.collectionAndRecoveryRepo).updateTriggerCards(
@@ -270,7 +274,7 @@ class CollectionAndRecoveryServiceTest {
 
         // Run the test
         collectionAndRecoveryServiceUnderTest.processIMMEDIATELY_AFTER_THE_2ND_DUE_DATE(collectionAndRecoveryBean,
-                processBean,faileCardCount);
+                processBean,successCount,failCount);
 
         // Verify the results
         verify(collectionAndRecoveryServiceUnderTest.collectionAndRecoveryRepo).updateTriggerCards(
@@ -308,7 +312,7 @@ class CollectionAndRecoveryServiceTest {
                 Map.ofEntries(Map.entry("value", "value")))).thenReturn("result");
 
         // Run the test
-        collectionAndRecoveryServiceUnderTest.processON_THE_3RD_STATEMENT_DATE(collectionAndRecoveryBean, processBean,faileCardCount);
+        collectionAndRecoveryServiceUnderTest.processON_THE_3RD_STATEMENT_DATE(collectionAndRecoveryBean, processBean,successCount,failCount);
 
         // Verify the results
         verify(collectionAndRecoveryServiceUnderTest.collectionAndRecoveryRepo).updateTriggerCards(
@@ -346,7 +350,7 @@ class CollectionAndRecoveryServiceTest {
 
         // Run the test
         collectionAndRecoveryServiceUnderTest.processIMMEDIATELY_AFTER_THE_3RD_DUE_DATE(collectionAndRecoveryBean,
-                processBean,faileCardCount);
+                processBean,successCount,failCount);
 
         // Verify the results
         verify(collectionAndRecoveryServiceUnderTest.collectionAndRecoveryRepo).updateTriggerCards(
@@ -383,7 +387,7 @@ class CollectionAndRecoveryServiceTest {
                 Map.ofEntries(Map.entry("value", "value")))).thenReturn("result");
 
         // Run the test
-        collectionAndRecoveryServiceUnderTest.processON_THE_4TH_STATEMENT_DATE(collectionAndRecoveryBean, processBean,faileCardCount);
+        collectionAndRecoveryServiceUnderTest.processON_THE_4TH_STATEMENT_DATE(collectionAndRecoveryBean, processBean,successCount,failCount);
 
         // Verify the results
         verify(collectionAndRecoveryServiceUnderTest.collectionAndRecoveryRepo).updateTriggerCards(
@@ -445,7 +449,7 @@ class CollectionAndRecoveryServiceTest {
 
         // Run the test
         collectionAndRecoveryServiceUnderTest.processX_DAYS_AFTER_THE_4TH_STATEMENT_DATE(collectionAndRecoveryBean,
-                processBean,faileCardCount);
+                processBean,successCount,failCount);
 
         // Verify the results
         verify(collectionAndRecoveryServiceUnderTest.collectionAndRecoveryRepo).updateTriggerCards(
@@ -483,7 +487,7 @@ class CollectionAndRecoveryServiceTest {
 
         // Run the test
         collectionAndRecoveryServiceUnderTest.processWITHIN_X_DAYS_OF_THE_CRIB_INFO_LETTER_REMINDER(
-                collectionAndRecoveryBean, processBean,faileCardCount);
+                collectionAndRecoveryBean, processBean,successCount,failCount);
 
         // Verify the results
         verify(collectionAndRecoveryServiceUnderTest.collectionAndRecoveryRepo).updateTriggerCards(
@@ -521,7 +525,7 @@ class CollectionAndRecoveryServiceTest {
 
         // Run the test
         collectionAndRecoveryServiceUnderTest.processIMMEDIATELY_AFTER_THE_4TH_DUE_DATE(collectionAndRecoveryBean,
-                processBean,faileCardCount);
+                processBean,successCount,failCount);
 
         // Verify the results
         verify(collectionAndRecoveryServiceUnderTest.collectionAndRecoveryRepo).updateTriggerCards(

@@ -13,6 +13,9 @@ import org.junit.jupiter.api.Test;
 
 import java.math.BigDecimal;
 import java.util.*;
+import java.util.concurrent.ArrayBlockingQueue;
+import java.util.concurrent.BlockingQueue;
+import java.util.concurrent.LinkedBlockingDeque;
 import java.util.concurrent.atomic.AtomicInteger;
 
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
@@ -23,6 +26,9 @@ import static org.mockito.Mockito.*;
 class RiskCalculationServiceTest {
 
     private RiskCalculationService riskCalculationServiceUnderTest;
+    int capacity = 200000;
+    BlockingQueue<Integer> successCount = new ArrayBlockingQueue<Integer>(capacity);
+    BlockingQueue<Integer> failCount = new ArrayBlockingQueue <Integer>(capacity);
 
     @BeforeEach
     void setUp() {
@@ -135,7 +141,7 @@ class RiskCalculationServiceTest {
 
 
         // Run the test
-        riskCalculationServiceUnderTest.riskCalculationProcess(delinquentAccountBean, 0, processBean, faileCardCount);
+        riskCalculationServiceUnderTest.riskCalculationProcess(delinquentAccountBean, 0, processBean, successCount,failCount);
 
         // Verify the results
         verify(riskCalculationServiceUnderTest.riskCalculationDao,times(1)).isManualNp(any());

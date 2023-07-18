@@ -7,7 +7,6 @@ import com.epic.cms.repository.CardBlockRepo;
 import com.epic.cms.repository.ClearMinAmountAndTempBlockRepo;
 import com.epic.cms.repository.CommonRepo;
 import com.epic.cms.util.*;
-import lombok.extern.slf4j.Slf4j;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -20,7 +19,7 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
-import java.util.concurrent.atomic.AtomicInteger;
+import java.util.concurrent.BlockingQueue;
 
 
 @Service
@@ -47,7 +46,7 @@ public class ClearMinAmountAndTempBlockService {
 
     @Async("taskExecutor2")
     @Transactional(value = "transactionManager", propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
-    public void processClearMinAmountAndTempBlock(LastStatementSummeryBean lastStatement, AtomicInteger faileCardCount) {
+    public void processClearMinAmountAndTempBlock(LastStatementSummeryBean lastStatement, BlockingQueue<Integer> successCount, BlockingQueue<Integer> failCount) {
         if (!Configurations.isInterrupted) {
             ArrayList<StringBuffer[]> allCardList = new ArrayList<>();
             LinkedHashMap details = new LinkedHashMap();
@@ -136,12 +135,14 @@ public class ClearMinAmountAndTempBlockService {
                         details.put("payments made", payments);
 
                         Statusts.SUMMARY_FOR_MINPAYMENT_RISK_REMOVED++;
+
                     }
                 }
+                successCount.add(1);
             } catch (Exception e) {
                 Configurations.errorCardList.add(new ErrorCardBean(Configurations.ERROR_EOD_ID, Configurations.EOD_DATE, new StringBuffer(lastStatement.getCardno()), e.getMessage(), Configurations.RUNNING_PROCESS_ID, Configurations.RUNNING_PROCESS_DESCRIPTION, 0, CardAccount.CARD));
                 logError.error("Failed Clear Min Amount And Temp Block Process " + CommonMethods.cardNumberMask(cardNo), e);
-                faileCardCount.addAndGet(1);
+                failCount.add(1);
                // Configurations.PROCESS_FAILED_COUNT.set(Configurations.PROCESS_FAILED_COUNT.getAndIncrement());
             } finally {
                 if (details.size() > 0 ) {

@@ -105,7 +105,6 @@ public class BalanceTransferConnector extends ProcessBuilder {
             }
         }
     }
-
     @Override
     public void addSummaries() {
         summery.put("Started Date", Configurations.EOD_DATE.toString());

@@ -7,7 +7,6 @@ import com.epic.cms.model.bean.ProcessBean;
 import com.epic.cms.repository.CommonRepo;
 import com.epic.cms.repository.EOMInterestRepo;
 import com.epic.cms.util.*;
-import lombok.extern.slf4j.Slf4j;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -19,7 +18,7 @@ import org.springframework.transaction.annotation.Transactional;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.LinkedHashMap;
-import java.util.concurrent.atomic.AtomicInteger;
+import java.util.concurrent.BlockingQueue;
 
 @Service
 public class EOMInterestService {
@@ -38,7 +37,7 @@ public class EOMInterestService {
 
     @Async("taskExecutor2")
     @Transactional(value = "transactionManager", propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
-    public void EOMInterestCalculation(ProcessBean processBean, EomCardBean eomCardBean, AtomicInteger faileCardCount) {
+    public void EOMInterestCalculation(ProcessBean processBean, EomCardBean eomCardBean, BlockingQueue<Integer> successCount, BlockingQueue<Integer> failCount) {
 
         if (!Configurations.isInterrupted) {
             int flag = 0;
@@ -90,11 +89,11 @@ public class EOMInterestService {
                     }
                     cardDetails.put("Process Status", "Passed");
                     //Configurations.PROCESS_SUCCESS_COUNT++;
-
+                    successCount.add(1);
                 } catch (Exception e) {
                     eomInterestRepo.clearTempTxnDetails(eomCardBean.getAccNo());
                     cardDetails.put("Process Status", "Failed");
-                    faileCardCount.addAndGet(1);
+                    failCount.add(1);
                     //Configurations.PROCESS_FAILD_COUNT++;
                     Configurations.errorCardList.add(new ErrorCardBean(Configurations.ERROR_EOD_ID, Configurations.EOD_DATE, new StringBuffer(eomCardBean.getAccNo()), e.getMessage(), Configurations.RUNNING_PROCESS_ID, Configurations.RUNNING_PROCESS_DESCRIPTION, 0, CardAccount.ACCOUNT));
                     logError.error("EOM interest calculation Process failed for account number " + CommonMethods.cardInfo(maskedCardNumber, processBean), e);

@@ -13,6 +13,8 @@ import org.mockito.MockedStatic;
 import org.mockito.Mockito;
 
 import java.util.*;
+import java.util.concurrent.ArrayBlockingQueue;
+import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.atomic.AtomicInteger;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -24,7 +26,9 @@ class LoyaltyPointsCalculationServiceTest {
 
     private LoyaltyPointsCalculationService loyaltyPointsCalculationServiceUnderTest;
     private CommonMethods commonMethods;
-    public AtomicInteger faileCardCount = new AtomicInteger(0);
+    int capacity = 200000;
+    BlockingQueue<Integer> successCount = new ArrayBlockingQueue<Integer>(capacity);
+    BlockingQueue<Integer> failCount = new ArrayBlockingQueue<Integer>(capacity);
 
     @BeforeEach
     void setUp() {
@@ -87,7 +91,7 @@ class LoyaltyPointsCalculationServiceTest {
                 new GregorianCalendar(2020, Calendar.JANUARY, 1).getTime())).thenReturn(0.0);
 
         // Run the test
-        loyaltyPointsCalculationServiceUnderTest.calculateLoyaltyPoints(loyaltyBean, faileCardCount);
+        loyaltyPointsCalculationServiceUnderTest.calculateLoyaltyPoints(loyaltyBean, successCount,failCount);
 
         // Verify the results
         verify(loyaltyPointsCalculationServiceUnderTest.loyaltyPointsCalculationRepo,times(1)).getLastStmtClosingLoyalty(

@@ -114,7 +114,6 @@ public class RunnableFeeService {
             details.put("exception in anniversary date for card:", CommonMethods.cardNumberMask(cardBean.getCardnumber()));
             Configurations.errorCardList.add(new ErrorCardBean(Configurations.ERROR_EOD_ID, Configurations.EOD_DATE, cardBean.getCardnumber(), ex.getMessage(), Configurations.RUNNING_PROCESS_ID, Configurations.RUNNING_PROCESS_DESCRIPTION, 0, CardAccount.CARD));
 
-            //faileCardCount.addAndGet(1);
             Configurations.FAILED_CARDS++;
             throw ex;
         }

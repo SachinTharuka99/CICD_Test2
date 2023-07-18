@@ -9,13 +9,17 @@ import com.epic.cms.util.StatusVarList;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import java.util.ArrayList;
+import java.util.concurrent.ArrayBlockingQueue;
+import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.atomic.AtomicInteger;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.*;
 
 class KnockOffServiceTest {
+    int capacity = 200000;
+    BlockingQueue<Integer> successCount = new ArrayBlockingQueue<Integer>(capacity);
+    BlockingQueue<Integer> failCount = new ArrayBlockingQueue<Integer>(capacity);
     private KnockOffService knockOffServiceUnderTest;
-    public AtomicInteger faileCardCount = new AtomicInteger(0);
 
     @BeforeEach
     void setUp() {
@@ -136,7 +140,7 @@ class KnockOffServiceTest {
        when(knockOffServiceUnderTest.knockOffRepo.OnlineupdateCustomerOtb(custAccBean)).thenReturn(1);
 
         // Run the test
-       knockOffServiceUnderTest.knockOff(custAccBean, cardList, paymentList, faileCardCount);
+       knockOffServiceUnderTest.knockOff(custAccBean, cardList, paymentList, successCount, failCount);
 
         // Verify the results
         verify(knockOffServiceUnderTest.knockOffRepo,times(1)).getKnockOffCardList(any(),any());

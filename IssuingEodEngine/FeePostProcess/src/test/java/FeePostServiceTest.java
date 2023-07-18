@@ -12,6 +12,8 @@ import org.mockito.MockedStatic;
 import org.mockito.Mockito;
 
 import java.util.List;
+import java.util.concurrent.ArrayBlockingQueue;
+import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.atomic.AtomicInteger;
 
 import static org.junit.jupiter.api.Assertions.*;
@@ -20,10 +22,11 @@ import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.*;
 
 class FeePostServiceTest {
+    int capacity = 200000;
+    BlockingQueue<Integer> successCount = new ArrayBlockingQueue<Integer>(capacity);
+    BlockingQueue<Integer> failCount = new ArrayBlockingQueue<Integer>(capacity);
     private FeePostService feePostServiceUnderTest;
     static MockedStatic<CommonMethods> common;
-    public AtomicInteger faileCardCount = new AtomicInteger(0);
-
     @BeforeAll
     public static void init() {
         System.out.println("--before all--");
@@ -82,7 +85,7 @@ class FeePostServiceTest {
         common.when(() -> CommonMethods.cardNumberMask(any(StringBuffer.class))).thenReturn("456788******8888");
 
         // Run the test
-        feePostServiceUnderTest.proceedFeePost(bean,faileCardCount);
+        feePostServiceUnderTest.proceedFeePost(bean,successCount,failCount);
 
         // Verify the results
         assertEquals(1, feePostServiceUnderTest.feePostDao.updateCardOtb(any(OtbBean.class)));

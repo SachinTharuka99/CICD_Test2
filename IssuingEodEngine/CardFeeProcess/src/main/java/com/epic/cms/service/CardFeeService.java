@@ -15,7 +15,7 @@ import org.springframework.transaction.annotation.Transactional;
 import java.sql.Date;
 import java.text.SimpleDateFormat;
 import java.util.LinkedHashMap;
-import java.util.concurrent.atomic.AtomicInteger;
+import java.util.concurrent.BlockingQueue;
 
 
 @Service
@@ -35,7 +35,7 @@ public class CardFeeService {
 
     @Async("ThreadPool_100")
     @Transactional(value = "transactionManager", propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
-    public void cardFeeCalculate(CardFeeBean cardBean, AtomicInteger faileCardCount) {
+    public void cardFeeCalculate(CardFeeBean cardBean, BlockingQueue<Integer> successCount, BlockingQueue<Integer> failCount) {
         if (!Configurations.isInterrupted) {
             LinkedHashMap detail = new LinkedHashMap();
             try {
@@ -94,15 +94,17 @@ public class CardFeeService {
                         }
                         //Statusts.SUMMARY_FOR_FEE_UPDATE++;
                     }
+                    successCount.add(1);
                 } catch (Exception ex) {
                     logError.error("Exceptions occurred for: " + CommonMethods.cardNumberMask(cardBean.getCardNumber()), ex);
                     Configurations.errorCardList.add(new ErrorCardBean(Configurations.ERROR_EOD_ID, Configurations.EOD_DATE, cardFeeBean.getCardNumber(), ex.getMessage(), Configurations.RUNNING_PROCESS_ID, Configurations.RUNNING_PROCESS_DESCRIPTION, 0, CardAccount.CARD));
-                    Configurations.PROCESS_FAILD_COUNT++;
+                    //Configurations.PROCESS_FAILD_COUNT++;
+                    failCount.add(1);
                 }
 
             } catch (Exception ex) {
                 logError.error("Error occurred while processing card number: " + CommonMethods.cardNumberMask(cardBean.getCardNumber()), ex);
-                faileCardCount.addAndGet(1);
+                failCount.add(1);
             } finally {
                 logInfo.info(logManager.logDetails(detail));
             }

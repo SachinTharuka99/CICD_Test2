@@ -12,11 +12,9 @@ import com.epic.cms.model.bean.*;
 import com.epic.cms.repository.CommonRepo;
 import com.epic.cms.repository.InstallmentPaymentRepo;
 import com.epic.cms.util.*;
-import lombok.extern.slf4j.Slf4j;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
@@ -26,7 +24,7 @@ import java.math.RoundingMode;
 import java.util.Date;
 import java.util.LinkedHashMap;
 import java.util.List;
-import java.util.concurrent.atomic.AtomicInteger;
+import java.util.concurrent.BlockingQueue;
 
 @Service
 public class EasyPaymentService {
@@ -229,7 +227,7 @@ public class EasyPaymentService {
 
     //@Async("ThreadPool_100")
     @Transactional(value = "transactionManager", propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
-    public void startEasyPaymentProcess(InstallmentBean easyPaymentBean, ProcessBean processBean, AtomicInteger faileCardCount)  {
+    public void startEasyPaymentProcess(InstallmentBean easyPaymentBean, ProcessBean processBean, BlockingQueue<Integer> successCount, BlockingQueue<Integer> failCount)  {
         if (!Configurations.isInterrupted) {
             LinkedHashMap details = new LinkedHashMap();
             try {
@@ -377,9 +375,10 @@ public class EasyPaymentService {
                         installmentPaymentRepo.updateEasyPaymentTable(easyPaymentBean, "EASYPAYMENTREQUEST");
                     }
                     //Configurations.PROCESS_SUCCESS_COUNT++;
+                    successCount.add(1);
                     details.put("Process Status", "Passed");
                 } catch (Exception e) {
-                    faileCardCount.addAndGet(1);
+                    failCount.add(1);
                     Configurations.FAILED_EASY_PAYMENTS++;
                     //Configurations.PROCESS_FAILD_COUNT++;
                     Configurations.errorCardList.add(new ErrorCardBean(Configurations.ERROR_EOD_ID, Configurations.EOD_DATE, new StringBuffer(easyPaymentBean.getCardNumber()), e.getMessage(), Configurations.RUNNING_PROCESS_ID, Configurations.RUNNING_PROCESS_DESCRIPTION, 0, CardAccount.CARD));

@@ -15,6 +15,8 @@ import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.concurrent.ArrayBlockingQueue;
+import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.atomic.AtomicInteger;
 
 
@@ -36,13 +38,13 @@ public class ClearMinAmountAndTempBlockConnector extends ProcessBuilder {
 
     @Autowired
     ClearMinAmountAndTempBlockService clearMinAmountAndTempBlockService;
-
+    int capacity = 200000;
+    BlockingQueue<Integer> successCount = new ArrayBlockingQueue<Integer>(capacity);
+    BlockingQueue<Integer> failCount = new ArrayBlockingQueue<Integer>(capacity);
     List<LastStatementSummeryBean> cardList = new ArrayList<>();
 
     private static final Logger logInfo = LoggerFactory.getLogger("logInfo");
     private static final Logger logError = LoggerFactory.getLogger("logError");
-    public AtomicInteger faileCardCount = new AtomicInteger(0);
-
     @Override
     public void concreteProcess() throws Exception {
         StringBuffer cardNo = null;
@@ -58,7 +60,7 @@ public class ClearMinAmountAndTempBlockConnector extends ProcessBuilder {
 //                clearMinAmountAndTempBlockService.processClearMinAmountAndTempBlock(lastStatement);
 //            }
             cardList.forEach(lastStatement-> {
-                clearMinAmountAndTempBlockService.processClearMinAmountAndTempBlock(lastStatement,faileCardCount);
+                clearMinAmountAndTempBlockService.processClearMinAmountAndTempBlock(lastStatement,successCount,failCount);
             });
             while (!(taskExecutor.getActiveCount() == 0)) {
                 Thread.sleep(1000);
@@ -86,7 +88,7 @@ public class ClearMinAmountAndTempBlockConnector extends ProcessBuilder {
     public void addSummaries() {
             summery.put("Started Date", Configurations.EOD_DATE.toString());
             summery.put("Number of transaction Cards Count", Configurations.PROCESS_TOTAL_NOOF_TRABSACTIONS);
-            summery.put("Number of success Cards Count", Configurations.PROCESS_TOTAL_NOOF_TRABSACTIONS -faileCardCount.get());
-            summery.put("Number of failure Cards Count", faileCardCount.get());
+            summery.put("Number of success Cards Count", successCount.size());
+            summery.put("Number of failure Cards Count", failCount.size());
     }
 }

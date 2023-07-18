@@ -5,7 +5,6 @@ import com.epic.cms.model.bean.PaymentBean;
 import com.epic.cms.repository.CommonRepo;
 import com.epic.cms.repository.PaymentReversalRepo;
 import com.epic.cms.util.*;
-import lombok.extern.slf4j.Slf4j;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -16,7 +15,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.util.LinkedHashMap;
 import java.util.List;
-import java.util.concurrent.atomic.AtomicInteger;
+import java.util.concurrent.BlockingQueue;
 
 @Service
 public class PaymentReversalService {
@@ -36,7 +35,7 @@ public class PaymentReversalService {
 
     @Async("taskExecutor2")
     @Transactional(value = "transactionManager", propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
-    public void setPaymentReversals(PaymentBean bean, AtomicInteger faileCardCount )  {
+    public void setPaymentReversals(PaymentBean bean, BlockingQueue<Integer> successCount, BlockingQueue<Integer> failCount)  {
 
         if (!Configurations.isInterrupted) {
             try {
@@ -58,11 +57,12 @@ public class PaymentReversalService {
                 details.put("Trace ID ", bean.getTraceid());
 
                 //Configurations.PROCESS_SUCCESS_COUNT++;
+                successCount.add(1);
             } catch (Exception e) {
                 logError.error("Exception occurred for card: " + CommonMethods.cardNumberMask(bean.getCardnumber()), e);
                 Configurations.errorCardList.add(new ErrorCardBean(Configurations.ERROR_EOD_ID, Configurations.EOD_DATE, new StringBuffer(bean.getCardnumber()), e.getMessage(), Configurations.RUNNING_PROCESS_ID, Configurations.RUNNING_PROCESS_DESCRIPTION, 0, CardAccount.CARD));
                 //Configurations.PROCESS_FAILD_COUNT++;
-                faileCardCount.addAndGet(1);
+                failCount.add(1);
             } finally {
                 logInfo.info(logManager.logDetails(details));
             }

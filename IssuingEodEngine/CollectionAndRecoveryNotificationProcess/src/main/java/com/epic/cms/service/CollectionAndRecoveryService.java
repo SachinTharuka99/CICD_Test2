@@ -16,7 +16,7 @@ import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.LinkedHashMap;
-import java.util.concurrent.atomic.AtomicInteger;
+import java.util.concurrent.BlockingQueue;
 
 @Service
 public class CollectionAndRecoveryService {
@@ -33,7 +33,7 @@ public class CollectionAndRecoveryService {
 
     @Async("taskExecutor2")
     @Transactional(value = "transactionManager", propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
-    public void processX_DATES_BEFORE_FIRST_DUE_DATE(CollectionAndRecoveryBean collectionAndRecoveryBean, ProcessBean processBean, AtomicInteger faileCardCount) {
+    public void processX_DATES_BEFORE_FIRST_DUE_DATE(CollectionAndRecoveryBean collectionAndRecoveryBean, ProcessBean processBean, BlockingQueue<Integer> successCount, BlockingQueue<Integer> failCount) {
         if (!Configurations.isInterrupted) {
             LinkedHashMap details = new LinkedHashMap();
             try {
@@ -52,11 +52,10 @@ public class CollectionAndRecoveryService {
                 collectionAndRecoveryBean.setLastTriger(Configurations.TP_X_DATES_BEFORE_FIRST_DUE_DATE);
                 collectionAndRecoveryRepo.addCardToTriggerCards(collectionAndRecoveryBean);
                 //Configurations.PROCESS_SUCCESS_COUNT++;
-
+                successCount.add(1);
                 details.put("Process Status", "Passed");
-
             } catch (Exception e) {
-                faileCardCount.addAndGet(1);
+                failCount.add(1);
                 //Configurations.PROCESS_FAILD_COUNT++;
                 details.put("Process Status", "Failed");
                 Configurations.failedCardsForCollectionAndRecoveryNotification++;
@@ -71,7 +70,7 @@ public class CollectionAndRecoveryService {
 
     @Async("taskExecutor2")
     @Transactional(value = "transactionManager", propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
-    public void processX_DATES_AFTER_FIRST_DUE_DATE(CollectionAndRecoveryBean collectionAndRecoveryBean, ProcessBean processBean,AtomicInteger faileCardCount) {
+    public void processX_DATES_AFTER_FIRST_DUE_DATE(CollectionAndRecoveryBean collectionAndRecoveryBean, ProcessBean processBean, BlockingQueue<Integer> successCount, BlockingQueue<Integer> failCount) {
         if (!Configurations.isInterrupted) {
             LinkedHashMap details = new LinkedHashMap();
             try {
@@ -85,11 +84,11 @@ public class CollectionAndRecoveryService {
                 collectionAndRecoveryBean.setLastTriger(Configurations.TP_X_DATES_AFTER_FIRST_DUE_DATE);
                 collectionAndRecoveryRepo.updateTriggerCards(collectionAndRecoveryBean);
                 //Configurations.PROCESS_SUCCESS_COUNT++;
-
+                successCount.add(1);
                 details.put("Process Status", "Passed");
 
             } catch (Exception e) {
-                faileCardCount.addAndGet(1);
+                failCount.add(1);
                 //Configurations.PROCESS_FAILD_COUNT++;
                 details.put("Process Status", "Failed");
                 Configurations.failedCardsForCollectionAndRecoveryNotification++;
@@ -104,7 +103,7 @@ public class CollectionAndRecoveryService {
 
     @Async("taskExecutor2")
     @Transactional(value = "transactionManager", propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
-    public void processON_THE_2ND_STATEMENT_DATE(CollectionAndRecoveryBean collectionAndRecoveryBean, ProcessBean processBean,AtomicInteger faileCardCount) {
+    public void processON_THE_2ND_STATEMENT_DATE(CollectionAndRecoveryBean collectionAndRecoveryBean, ProcessBean processBean, BlockingQueue<Integer> successCount, BlockingQueue<Integer> failCount) {
         if (!Configurations.isInterrupted) {
             LinkedHashMap details = new LinkedHashMap();
             try {
@@ -119,9 +118,9 @@ public class CollectionAndRecoveryService {
                 collectionAndRecoveryRepo.updateTriggerCards(collectionAndRecoveryBean);
                 //Configurations.PROCESS_SUCCESS_COUNT++;
                 details.put("Process Status", "Passed");
-
+                successCount.add(1);
             } catch (Exception e) {
-                faileCardCount.addAndGet(1);
+                failCount.add(1);
                 //Configurations.PROCESS_FAILD_COUNT++;
                 details.put("Process Status", "Failed");
                 Configurations.failedCardsForCollectionAndRecoveryNotification++;
@@ -136,7 +135,7 @@ public class CollectionAndRecoveryService {
 
     @Async("taskExecutor2")
     @Transactional(value = "transactionManager", propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
-    public void processX_DATES_AFTER_SECOND_STATEMENT(CollectionAndRecoveryBean collectionAndRecoveryBean, ProcessBean processBean, AtomicInteger faileCardCount) {
+    public void processX_DATES_AFTER_SECOND_STATEMENT(CollectionAndRecoveryBean collectionAndRecoveryBean, ProcessBean processBean, BlockingQueue<Integer> successCount, BlockingQueue<Integer> failCount) {
         if (!Configurations.isInterrupted) {
             LinkedHashMap details = new LinkedHashMap();
             try {
@@ -151,9 +150,9 @@ public class CollectionAndRecoveryService {
                 collectionAndRecoveryRepo.updateTriggerCards(collectionAndRecoveryBean);
                 //Configurations.PROCESS_SUCCESS_COUNT++;
                 details.put("Process Status", "Passed");
-
+                successCount.add(1);
             } catch (Exception e) {
-                faileCardCount.addAndGet(1);
+                failCount.add(1);
                 //Configurations.PROCESS_FAILD_COUNT++;
                 details.put("Process Status", "Failed");
                 Configurations.failedCardsForCollectionAndRecoveryNotification++;
@@ -168,7 +167,7 @@ public class CollectionAndRecoveryService {
 
     @Async("taskExecutor2")
     @Transactional(value = "transactionManager", propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
-    public void processIMMEDIATELY_AFTER_THE_2ND_DUE_DATE(CollectionAndRecoveryBean collectionAndRecoveryBean, ProcessBean processBean, AtomicInteger faileCardCount) {
+    public void processIMMEDIATELY_AFTER_THE_2ND_DUE_DATE(CollectionAndRecoveryBean collectionAndRecoveryBean, ProcessBean processBean, BlockingQueue<Integer> successCount, BlockingQueue<Integer> failCount) {
         if (!Configurations.isInterrupted) {
             LinkedHashMap details = new LinkedHashMap();
             try {
@@ -191,9 +190,9 @@ public class CollectionAndRecoveryService {
                 collectionAndRecoveryRepo.updateTriggerCards(collectionAndRecoveryBean);
                // Configurations.PROCESS_SUCCESS_COUNT++;
                 details.put("Process Status", "Passed");
-
+                successCount.add(1);
             } catch (Exception e) {
-                faileCardCount.addAndGet(1);
+                failCount.add(1);
                 //Configurations.PROCESS_FAILD_COUNT++;
                 details.put("Process Status", "Failed");
                 Configurations.failedCardsForCollectionAndRecoveryNotification++;
@@ -208,7 +207,7 @@ public class CollectionAndRecoveryService {
 
     @Async("taskExecutor2")
     @Transactional(value = "transactionManager", propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
-    public void processON_THE_3RD_STATEMENT_DATE(CollectionAndRecoveryBean collectionAndRecoveryBean, ProcessBean processBean, AtomicInteger faileCardCount) {
+    public void processON_THE_3RD_STATEMENT_DATE(CollectionAndRecoveryBean collectionAndRecoveryBean, ProcessBean processBean, BlockingQueue<Integer> successCount, BlockingQueue<Integer> failCount) {
         if (!Configurations.isInterrupted) {
             LinkedHashMap details = new LinkedHashMap();
             try {
@@ -223,9 +222,9 @@ public class CollectionAndRecoveryService {
                 collectionAndRecoveryRepo.updateTriggerCards(collectionAndRecoveryBean);
                // Configurations.PROCESS_SUCCESS_COUNT++;
                 details.put("Process Status", "Passed");
-
+                successCount.add(1);
             } catch (Exception e) {
-                faileCardCount.addAndGet(1);
+                failCount.add(1);
                 //Configurations.PROCESS_FAILD_COUNT++;
                 details.put("Process Status", "Failed");
                 Configurations.failedCardsForCollectionAndRecoveryNotification++;
@@ -240,7 +239,7 @@ public class CollectionAndRecoveryService {
 
     @Async("taskExecutor2")
     @Transactional(value = "transactionManager", propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
-    public void processIMMEDIATELY_AFTER_THE_3RD_DUE_DATE(CollectionAndRecoveryBean collectionAndRecoveryBean, ProcessBean processBean, AtomicInteger faileCardCount) {
+    public void processIMMEDIATELY_AFTER_THE_3RD_DUE_DATE(CollectionAndRecoveryBean collectionAndRecoveryBean, ProcessBean processBean, BlockingQueue<Integer> successCount, BlockingQueue<Integer> failCount) {
         if (!Configurations.isInterrupted) {
             LinkedHashMap details = new LinkedHashMap();
             try {
@@ -254,12 +253,12 @@ public class CollectionAndRecoveryService {
                 /**Insert the card details to TriggerCards table*/
                 collectionAndRecoveryBean.setLastTriger(Configurations.TP_IMMEDIATELY_AFTER_THE_3RD_DUE_DATE);
                 collectionAndRecoveryRepo.updateTriggerCards(collectionAndRecoveryBean);
-                faileCardCount.addAndGet(1);
+                successCount.add(1);
                 //Configurations.PROCESS_FAILD_COUNT++;
                 details.put("Process Status", "Passed");
 
             } catch (Exception e) {
-                faileCardCount.addAndGet(1);
+                failCount.add(1);
                 //Configurations.PROCESS_FAILD_COUNT++;
                 details.put("Process Status", "Failed");
                 Configurations.failedCardsForCollectionAndRecoveryNotification++;
@@ -274,7 +273,7 @@ public class CollectionAndRecoveryService {
 
     @Async("taskExecutor2")
     @Transactional(value = "transactionManager", propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
-    public void processON_THE_4TH_STATEMENT_DATE(CollectionAndRecoveryBean collectionAndRecoveryBean, ProcessBean processBean, AtomicInteger faileCardCount) {
+    public void processON_THE_4TH_STATEMENT_DATE(CollectionAndRecoveryBean collectionAndRecoveryBean, ProcessBean processBean, BlockingQueue<Integer> successCount, BlockingQueue<Integer> failCount) {
         if (!Configurations.isInterrupted) {
             LinkedHashMap details = new LinkedHashMap();
             try {
@@ -288,10 +287,11 @@ public class CollectionAndRecoveryService {
                 collectionAndRecoveryBean.setLastTriger(Configurations.TP_ON_THE_4TH_STATEMENT_DATE);
                 collectionAndRecoveryRepo.updateTriggerCards(collectionAndRecoveryBean);
                // Configurations.PROCESS_SUCCESS_COUNT++;
+                successCount.add(1);
                 details.put("Process Status", "Passed");
 
             } catch (Exception e) {
-                faileCardCount.addAndGet(1);
+                failCount.add(1);
                 //Configurations.PROCESS_FAILD_COUNT++;
                 details.put("Process Status", "Failed");
                 Configurations.failedCardsForCollectionAndRecoveryNotification++;
@@ -306,7 +306,7 @@ public class CollectionAndRecoveryService {
 
     @Async("taskExecutor2")
     @Transactional(value = "transactionManager", propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
-    public void processX_DAYS_AFTER_THE_4TH_STATEMENT_DATE(CollectionAndRecoveryBean collectionAndRecoveryBean, ProcessBean processBean, AtomicInteger faileCardCount) {
+    public void processX_DAYS_AFTER_THE_4TH_STATEMENT_DATE(CollectionAndRecoveryBean collectionAndRecoveryBean, ProcessBean processBean, BlockingQueue<Integer> successCount, BlockingQueue<Integer> failCount) {
         if (!Configurations.isInterrupted) {
             LinkedHashMap details = new LinkedHashMap();
             try {
@@ -328,10 +328,11 @@ public class CollectionAndRecoveryService {
                 collectionAndRecoveryBean.setLastTriger(Configurations.TP_X_DAYS_AFTER_THE_4TH_STATEMENT_DATE);
                 collectionAndRecoveryRepo.updateTriggerCards(collectionAndRecoveryBean);
                // Configurations.PROCESS_SUCCESS_COUNT++;
+                successCount.add(1);
                 details.put("Process Status", "Passed");
 
             } catch (Exception e) {
-                faileCardCount.addAndGet(1);
+                failCount.add(1);
                 //Configurations.PROCESS_FAILD_COUNT++;
                 details.put("Process Status", "Failed");
                 Configurations.failedCardsForCollectionAndRecoveryNotification++;
@@ -346,7 +347,7 @@ public class CollectionAndRecoveryService {
 
     @Async("taskExecutor2")
     @Transactional(value = "transactionManager", propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
-    public void processWITHIN_X_DAYS_OF_THE_CRIB_INFO_LETTER_REMINDER(CollectionAndRecoveryBean collectionAndRecoveryBean, ProcessBean processBean,AtomicInteger faileCardCount) {
+    public void processWITHIN_X_DAYS_OF_THE_CRIB_INFO_LETTER_REMINDER(CollectionAndRecoveryBean collectionAndRecoveryBean, ProcessBean processBean, BlockingQueue<Integer> successCount, BlockingQueue<Integer> failCount) {
         if (!Configurations.isInterrupted) {
             LinkedHashMap details = new LinkedHashMap();
             try {
@@ -360,10 +361,11 @@ public class CollectionAndRecoveryService {
                 collectionAndRecoveryBean.setLastTriger(Configurations.TP_WITHIN_X_DAYS_OF_THE_CRIB_INFO_LETTER_REMINDER);
                 collectionAndRecoveryRepo.updateTriggerCards(collectionAndRecoveryBean);
                 //Configurations.PROCESS_SUCCESS_COUNT++;
+                successCount.add(1);
                 details.put("Process Status", "Passed");
 
             } catch (Exception e) {
-                faileCardCount.addAndGet(1);
+                failCount.add(1);
                 //Configurations.PROCESS_FAILD_COUNT++;
                 details.put("Process Status", "Failed");
                 Configurations.failedCardsForCollectionAndRecoveryNotification++;
@@ -378,7 +380,7 @@ public class CollectionAndRecoveryService {
 
     @Async("taskExecutor2")
     @Transactional(value = "transactionManager", propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
-    public void processIMMEDIATELY_AFTER_THE_4TH_DUE_DATE(CollectionAndRecoveryBean collectionAndRecoveryBean, ProcessBean processBean, AtomicInteger faileCardCount) {
+    public void processIMMEDIATELY_AFTER_THE_4TH_DUE_DATE(CollectionAndRecoveryBean collectionAndRecoveryBean, ProcessBean processBean, BlockingQueue<Integer> successCount, BlockingQueue<Integer> failCount) {
         if (!Configurations.isInterrupted) {
             LinkedHashMap details = new LinkedHashMap();
             try {
@@ -393,10 +395,11 @@ public class CollectionAndRecoveryService {
                 collectionAndRecoveryBean.setLastTriger(Configurations.TP_IMMEDIATELY_AFTER_THE_4TH_DUE_DATE);
                 collectionAndRecoveryRepo.updateTriggerCards(collectionAndRecoveryBean);
                 //Configurations.PROCESS_SUCCESS_COUNT++;
+                successCount.add(1);
                 details.put("Process Status", "Passed");
 
             } catch (Exception e) {
-                faileCardCount.addAndGet(1);
+                failCount.add(1);
                 //Configurations.PROCESS_FAILD_COUNT++;
                 details.put("Process Status", "Failed");
                 Configurations.failedCardsForCollectionAndRecoveryNotification++;

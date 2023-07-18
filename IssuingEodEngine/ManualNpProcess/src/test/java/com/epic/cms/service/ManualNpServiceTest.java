@@ -13,6 +13,8 @@ import org.mockito.MockedStatic;
 import org.mockito.Mockito;
 
 import java.util.*;
+import java.util.concurrent.ArrayBlockingQueue;
+import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.atomic.AtomicInteger;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -22,7 +24,9 @@ import static org.mockito.Mockito.*;
 class ManualNpServiceTest {
 
     private ManualNpService manualNpServiceUnderTest;
-    public AtomicInteger faileCardCount = new AtomicInteger(0);
+    int capacity = 200000;
+    BlockingQueue<Integer> successCount = new ArrayBlockingQueue<Integer>(capacity);
+    BlockingQueue<Integer> failCount = new ArrayBlockingQueue<Integer>(capacity);
 
     @BeforeEach
     void setUp() {
@@ -86,7 +90,7 @@ class ManualNpServiceTest {
         when(manualNpServiceUnderTest.manualNpRepo.insertIntoDelinquentHistory(any(),anyString(),anyString())).thenReturn(0);
 
         // Run the test
-        manualNpServiceUnderTest.manualNpClassification(accDetails,  faileCardCount);
+        manualNpServiceUnderTest.manualNpClassification(accDetails, successCount, failCount);
 
         //verify
         verify(manualNpServiceUnderTest.manualNpRepo, times(1)).updateNpStatusCardAccount(anyString(), anyInt());

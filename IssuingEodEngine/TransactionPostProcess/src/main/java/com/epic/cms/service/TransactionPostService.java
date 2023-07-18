@@ -15,7 +15,6 @@ import com.epic.cms.util.CardAccount;
 import com.epic.cms.util.CommonMethods;
 import com.epic.cms.util.Configurations;
 import com.epic.cms.util.LogManager;
-import lombok.extern.slf4j.Slf4j;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -26,7 +25,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.util.ArrayList;
 import java.util.LinkedHashMap;
-import java.util.concurrent.atomic.AtomicInteger;
+import java.util.concurrent.BlockingQueue;
 
 
 @Service
@@ -43,7 +42,7 @@ public class TransactionPostService {
 
     @Async("taskExecutor2")
     @Transactional(value = "transactionManager", propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
-    public void transactionList(OtbBean bean, AtomicInteger faileCardCount) {
+    public void transactionList(OtbBean bean, BlockingQueue<Integer> successCount, BlockingQueue<Integer> failCount) {
         if (!Configurations.isInterrupted) {
             ArrayList<OtbBean> txnList;
             LinkedHashMap details = new LinkedHashMap();
@@ -180,13 +179,14 @@ public class TransactionPostService {
                                 details.put("Aft Amount", card.getAft());
                             }
                         }
+                        successCount.add(1);
                         //Configurations.PROCESS_SUCCESS_COUNT++;
 
                     } catch (Exception ex) {
                         Configurations.errorCardList.add(new ErrorCardBean(Configurations.ERROR_EOD_ID, Configurations.EOD_DATE, new StringBuffer(cardBean.getCardnumber()), ex.getMessage(), Configurations.RUNNING_PROCESS_ID, Configurations.RUNNING_PROCESS_DESCRIPTION, 0, CardAccount.ACCOUNT));
                         logError.error("Transaction post process failed for account " + bean.getAccountnumber(), ex);
                         //Configurations.PROCESS_FAILD_COUNT++;
-                        faileCardCount.addAndGet(1);
+                        failCount.add(1);
                         break;
                     }
                     iterator++;

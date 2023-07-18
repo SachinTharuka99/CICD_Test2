@@ -22,6 +22,8 @@ import org.mockito.Mockito;
 
 import java.sql.Timestamp;
 import java.time.LocalDateTime;
+import java.util.concurrent.ArrayBlockingQueue;
+import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.atomic.AtomicInteger;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -32,8 +34,9 @@ import static org.mockito.Mockito.*;
 class CardPermanentBlockServiceTest {
 
     private CardPermanentBlockService cardPermanentBlockServiceUnderTest;
-
-    public AtomicInteger faileCardCount = new AtomicInteger(0);
+    int capacity = 200000;
+    BlockingQueue<Integer> successCount = new ArrayBlockingQueue<Integer>(capacity);
+    BlockingQueue<Integer> failCount = new ArrayBlockingQueue<Integer>(capacity);
 
     @BeforeEach
     void setUp() {
@@ -94,7 +97,7 @@ class CardPermanentBlockServiceTest {
         when(cardPermanentBlockServiceUnderTest.statusList.getCARD_EXPIRED_STATUS()).thenReturn("result");
 
         // Run the test
-        cardPermanentBlockServiceUnderTest.processCardPermanentBlock(blockCardBean, processBean, faileCardCount);
+        cardPermanentBlockServiceUnderTest.processCardPermanentBlock(blockCardBean, processBean, successCount,failCount);
 
         // Verify the results
         verify(cardPermanentBlockServiceUnderTest.cardPermanentBlockRepo,times(1)).deactivateCardBlock(any(StringBuffer.class));
@@ -153,7 +156,7 @@ class CardPermanentBlockServiceTest {
         when(cardPermanentBlockServiceUnderTest.statusList.getONLINE_CARD_PERMANENTLY_BLOCKED_STATUS()).thenReturn(0);
 
         // Run the test
-        cardPermanentBlockServiceUnderTest.processCardPermanentBlock(blockCardBean, processBean, faileCardCount);
+        cardPermanentBlockServiceUnderTest.processCardPermanentBlock(blockCardBean, processBean, successCount,failCount);
 
         // Verify the results
         verify(cardPermanentBlockServiceUnderTest.cardPermanentBlockRepo,times(1)).deactivateCardBlock(any(StringBuffer.class));

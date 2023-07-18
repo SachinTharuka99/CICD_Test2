@@ -6,7 +6,6 @@ import com.epic.cms.model.bean.ProcessBean;
 import com.epic.cms.repository.CheckPaymentForMinimumAmountRepo;
 import com.epic.cms.repository.CommonRepo;
 import com.epic.cms.util.*;
-import lombok.extern.slf4j.Slf4j;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -18,7 +17,7 @@ import org.springframework.transaction.annotation.Transactional;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.LinkedHashMap;
-import java.util.concurrent.atomic.AtomicInteger;
+import java.util.concurrent.BlockingQueue;
 
 
 @Service
@@ -37,7 +36,7 @@ public class CheckPaymentForMinimumAmountService {
 
     @Async("ThreadPool_100")
     @Transactional(value = "transactionManager", propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
-    public void CheckPaymentForMinimumAmount(LastStatementSummeryBean lastStatement, AtomicInteger faileCardCount) {
+    public void CheckPaymentForMinimumAmount(LastStatementSummeryBean lastStatement, BlockingQueue<Integer> successCount, BlockingQueue<Integer> failCount) {
         LinkedHashMap details = new LinkedHashMap();
         Date checkDueDate = null;
         ProcessBean processBean = null;
@@ -75,8 +74,12 @@ public class CheckPaymentForMinimumAmountService {
                     Statusts.SUMMARY_FOR_MINPAYMENT_RISK_ADDED++;
                 }
             }
+            //Configurations.PROCESS_SUCCESS_COUNT++;
+            successCount.add(1);
         } catch (Exception e) {
             Configurations.errorCardList.add(new ErrorCardBean(Configurations.ERROR_EOD_ID, Configurations.EOD_DATE, new StringBuffer(lastStatement.getCardno()), e.getMessage(), Configurations.RUNNING_PROCESS_ID, Configurations.RUNNING_PROCESS_DESCRIPTION, 0, CardAccount.CARD));
+            //Configurations.PROCESS_FAILD_COUNT++;
+            failCount.add(1);
             Configurations.PROCESS_FAILED_COUNT.set(Configurations.PROCESS_FAILED_COUNT.getAndIncrement());
             logError.error("Error Occured for cardno :" + CommonMethods.cardInfo(String.valueOf(lastStatement.getCardno()), processBean), e);
         } finally {

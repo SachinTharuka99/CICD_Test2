@@ -11,6 +11,8 @@ import org.junit.jupiter.api.Test;
 
 import java.math.BigDecimal;
 import java.sql.Date;
+import java.util.concurrent.ArrayBlockingQueue;
+import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.atomic.AtomicInteger;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
@@ -19,7 +21,9 @@ import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.*;
 
 class CashBackServiceTest {
-
+    int capacity = 200000;
+    BlockingQueue<Integer> successCount = new ArrayBlockingQueue<Integer>(capacity);
+    BlockingQueue<Integer> failCount = new ArrayBlockingQueue<Integer>(capacity);
     private CashBackService cashBackServiceUnderTest;
     public AtomicInteger faileCardCount = new AtomicInteger(0);
 
@@ -73,7 +77,7 @@ class CashBackServiceTest {
         when(cashBackServiceUnderTest.cashBackRepo.updateTotalCBAmount("accountNumber")).thenReturn(0);
 
         // Run the test
-        cashBackServiceUnderTest.cashBack(cashbackBean,faileCardCount);
+        cashBackServiceUnderTest.cashBack(cashbackBean,successCount,failCount);
 
         // Verify the results
 
@@ -126,7 +130,7 @@ class CashBackServiceTest {
         when(cashBackServiceUnderTest.cashBackRepo.expireCashbacks(any(CashBackBean.class))).thenReturn(0);
 
         // Run the test
-        cashBackServiceUnderTest.cashBack(cashbackBean,faileCardCount);
+        cashBackServiceUnderTest.cashBack(cashbackBean,successCount,failCount);
 
         verify(cashBackServiceUnderTest.cashBackRepo,times(1)).expireNonPerformingCashbacks(any(CashBackBean.class), any(BigDecimal.class));
         verify(cashBackServiceUnderTest.cashBackRepo,times(1)).getCashbackAmountToBeExpireForAccount("4862950000698568");
@@ -166,7 +170,7 @@ class CashBackServiceTest {
         when(cashBackServiceUnderTest.cashBackRepo.expireCashbacks(any(CashBackBean.class))).thenReturn(0);
 
         // Run the test
-        cashBackServiceUnderTest.cashBack(cashbackBean,faileCardCount);
+        cashBackServiceUnderTest.cashBack(cashbackBean,successCount,failCount);
 
         verify(cashBackServiceUnderTest.cashBackRepo,times(1)).expireCardCloseCashbacks(any(CashBackBean.class), any(BigDecimal.class));
         verify(cashBackServiceUnderTest.cashBackRepo,times(1)).getCashbackAmountToBeExpireForAccount("4862950000698568");

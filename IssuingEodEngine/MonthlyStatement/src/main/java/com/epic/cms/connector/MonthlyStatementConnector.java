@@ -56,15 +56,18 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.Map;
+import java.util.concurrent.ArrayBlockingQueue;
+import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.atomic.AtomicReference;
 
 @Service
 public class MonthlyStatementConnector extends ProcessBuilder {
-
+    int capacity = 200000;
+    BlockingQueue<Integer> successCount = new ArrayBlockingQueue<Integer>(capacity);
+    BlockingQueue<Integer> failCount = new ArrayBlockingQueue <Integer>(capacity);
     private static final Logger logInfo = LoggerFactory.getLogger("logInfo");
     private static final Logger logError = LoggerFactory.getLogger("logError");
-    public AtomicInteger faileCardCount = new AtomicInteger(0);
     @Autowired
     StatusVarList statusList;
     @Autowired
@@ -98,7 +101,7 @@ public class MonthlyStatementConnector extends ProcessBuilder {
                 for (Map.Entry<String, ArrayList<CardBean>> entry : cardAccountMap.entrySet()) {
                     accNo = entry.getKey();
                     ArrayList<CardBean> CardBeanList = entry.getValue();
-                    monthlyStatementService.monthlyStatement(accNo, CardBeanList,faileCardCount);
+                    monthlyStatementService.monthlyStatement(accNo, CardBeanList,successCount,failCount);
                 }
 
 //                cardAccountMap.forEach((entryKey, entryValue) -> {
@@ -126,7 +129,7 @@ public class MonthlyStatementConnector extends ProcessBuilder {
     @Override
     public void addSummaries() {
         summery.put("Total No of Effected Cards ", Configurations.PROCESS_TOTAL_NOOF_TRABSACTIONS);
-        summery.put("Total Success Cards ", Configurations.PROCESS_TOTAL_NOOF_TRABSACTIONS - faileCardCount.get());
-        summery.put("Total Fail Cards ", faileCardCount.get());
+        summery.put("Total Success Cards ", successCount.size());
+        summery.put("Total Fail Cards ", failCount.size());
     }
 }

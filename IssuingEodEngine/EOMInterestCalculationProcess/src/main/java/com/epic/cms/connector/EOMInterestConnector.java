@@ -20,15 +20,18 @@ import org.springframework.stereotype.Service;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.concurrent.ArrayBlockingQueue;
+import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.atomic.AtomicInteger;
 
 
 @Service
 public class EOMInterestConnector extends ProcessBuilder {
-
+    int capacity = 200000;
+    BlockingQueue<Integer> successCount = new ArrayBlockingQueue<Integer>(capacity);
+    BlockingQueue<Integer> failCount = new ArrayBlockingQueue<Integer>(capacity);
     private static final Logger logInfo = LoggerFactory.getLogger("logInfo");
     private static final Logger logError = LoggerFactory.getLogger("logError");
-    public AtomicInteger faileCardCount = new AtomicInteger(0);
     @Autowired
     StatusVarList statusList;
     @Autowired
@@ -63,7 +66,7 @@ public class EOMInterestConnector extends ProcessBuilder {
 //                eomInterestService.EOMInterestCalculation(processBean, accountList.get(i));
 //            }
             accountList.forEach(account -> {
-                eomInterestService.EOMInterestCalculation(processBean, account,faileCardCount);
+                eomInterestService.EOMInterestCalculation(processBean, account,successCount,failCount);
             });
 
 
@@ -88,7 +91,7 @@ public class EOMInterestConnector extends ProcessBuilder {
         summery.put("Process Name ", processBean.getProcessDes());
         summery.put("Started Date ", Configurations.EOD_DATE.toString());
         summery.put("No of Accounts effected ", Configurations.PROCESS_TOTAL_NOOF_TRABSACTIONS);
-        summery.put("No of Success Accounts ", Configurations.PROCESS_TOTAL_NOOF_TRABSACTIONS - faileCardCount.get());
-        summery.put("No of fail Accounts ", faileCardCount.get());
+        summery.put("No of Success Accounts ",successCount.size());
+        summery.put("No of fail Accounts ", failCount.size());
     }
 }

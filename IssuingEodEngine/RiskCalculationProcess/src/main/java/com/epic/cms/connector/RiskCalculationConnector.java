@@ -29,13 +29,18 @@ import org.springframework.stereotype.Service;
 import java.util.ArrayList;
 import java.util.LinkedHashMap;
 import java.util.Optional;
+import java.util.concurrent.ArrayBlockingQueue;
+import java.util.concurrent.BlockingQueue;
+import java.util.concurrent.LinkedBlockingDeque;
 import java.util.concurrent.atomic.AtomicInteger;
 
 @Service
 public class RiskCalculationConnector extends ProcessBuilder {
+    int capacity = 200000;
+    BlockingQueue<Integer> successCount = new ArrayBlockingQueue<Integer>(capacity);
+    BlockingQueue<Integer> failCount = new ArrayBlockingQueue <Integer>(capacity);
     private static final Logger logInfo = LoggerFactory.getLogger("logInfo");
     private static final Logger logError = LoggerFactory.getLogger("logError");
-    public AtomicInteger faileCardCount = new AtomicInteger(0);
     @Autowired
     CommonRepo commonRepo;
     @Autowired
@@ -83,7 +88,7 @@ public class RiskCalculationConnector extends ProcessBuilder {
 //                }
 
                 delinquentCardList.forEach(delinquentAccountBean -> {
-                    riskCalculationService.riskCalculationProcess(delinquentAccountBean, configProcess, processBean,faileCardCount);
+                    riskCalculationService.riskCalculationProcess(delinquentAccountBean, configProcess, processBean,successCount,failCount);
                 });
 
                 //wait till all the threads are completed
@@ -103,7 +108,7 @@ public class RiskCalculationConnector extends ProcessBuilder {
 //                        riskCalculationService.freshCardToTable(riskCalculationBean, processBean,faileCardCount);
 //                    }
                     cardList.forEach(riskCalculationBean -> {
-                        riskCalculationService.freshCardToTable(riskCalculationBean, processBean,faileCardCount);
+                        riskCalculationService.freshCardToTable(riskCalculationBean, processBean,successCount,failCount);
                     });
 
 
@@ -133,7 +138,7 @@ public class RiskCalculationConnector extends ProcessBuilder {
     public void addSummaries() {
         summery.put("Started Date", Configurations.EOD_DATE.toString());
         summery.put("No of Card effected", Configurations.PROCESS_TOTAL_NOOF_TRABSACTIONS);
-        summery.put("No of Success Card ", Configurations.PROCESS_TOTAL_NOOF_TRABSACTIONS - faileCardCount.get());
-        summery.put("No of fail Card ", faileCardCount.get());
+        summery.put("No of Success Card ", successCount.size());
+        summery.put("No of fail Card ", failCount.size());
     }
 }
