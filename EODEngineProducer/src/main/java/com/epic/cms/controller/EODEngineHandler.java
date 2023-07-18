@@ -11,7 +11,8 @@ import com.epic.cms.repository.EODEngineProducerRepo;
 import com.epic.cms.service.EODEngineMainService;
 import com.epic.cms.service.KafkaMessageUpdator;
 import com.epic.cms.util.*;
-import lombok.extern.slf4j.Slf4j;
+import com.epic.cms.util.exception.FileProcessingNotCompletedException;
+import com.epic.cms.util.exception.InvalidEODEngineStatusException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -39,38 +40,52 @@ public class EODEngineHandler {
     KafkaMessageUpdator kafkaMessageUpdator;
 
     @Autowired
+    StatusVarList status;
+
+    @Autowired
     LogManager logManager;
 
     private static final Logger logInfo = LoggerFactory.getLogger("logInfo");
     private static final Logger logError = LoggerFactory.getLogger("logError");
 
     @GetMapping("/start")
-    public Map<String, Object> startEODEngine() throws Exception {
+    public synchronized Map<String, Object> startEODEngine() throws Exception {
         Map<String, Object> response = new HashMap<>();
-        int categoryId = 2;
-        int eodId =0;
+        Map<String, String> nextRunningEodInfo;
+        String eodId = null;
+        String eodStatus = null;
+        boolean fileProcessingStatus = true;
         try {
-            eodId =producerRepo.getNextRunningEodId();
-            String EodIdString = String.valueOf(eodId);
-            logInfo.info(logManager.processStartEndStyle("EOD-Engine Start for EODID:" + eodId));
-            Configurations.STARTING_EOD_STATUS = producerRepo.getEODStatusFromEODID(EodIdString)
-                    .stream()
-                    .findFirst()
-                    .orElseThrow(() -> new InvalidEodId("Invalid EOD ID:" + EodIdString));
-
-            boolean isFilesCompleted = producerRepo.checkUploadedFileStatus();
-
-            //isFilesCompleted = true;
-            if (isFilesCompleted) {
-                kafkaMessageUpdator.producerWithNoReturn(Configurations.STARTING_EOD_STATUS, "eodStartStatus");
-                //run the main service thread
-                eodEngineMainService.EODEngineMain(EodIdString, categoryId);
-                response.put(Util.STATUS_VALUE, Util.STATUS_SUCCESS);
+            logManager.logDashboardInfo("EOD Engine going to be started...");
+            nextRunningEodInfo = producerRepo.getNextRunningEodInfo();
+            if (!nextRunningEodInfo.isEmpty()) {
+                for (Map.Entry<String, String> entry : nextRunningEodInfo.entrySet()) {
+                    eodId = entry.getKey();
+                    eodStatus = entry.getValue();
+                    Configurations.STARTING_EOD_STATUS = eodStatus;
+                }
+                if (!eodStatus.equals(status.getINPROGRESS_STATUS())) {//INPR
+                    if (eodStatus.equals(status.getINITIAL_STATUS())) {//INIT
+                        //check file processing status
+                        fileProcessingStatus = producerRepo.checkUploadedFileStatus();
+                    }
+                    if (fileProcessingStatus) {//check file processing status
+                        kafkaMessageUpdator.producerWithNoReturn(Configurations.STARTING_EOD_STATUS, "eodStartStatus");//set starting EOD status on consumer side
+                        eodEngineMainService.startEodEngine(eodId);//run the eod engine main service thread
+                        //response.put(Util.STATUS_VALUE, Util.STATUS_SUCCESS);
+                    } else {
+                        throw new FileProcessingNotCompletedException("Cannot be started. File processing not completed for EOD ID: " + eodId);
+                    }
+                } else {
+                    throw new EODEngineStartFailException("Cannot be started. EOD Engine is already running for EOD ID: " + eodId);
+                }
             } else {
-                throw new UploadedFileNotCompleted("Uploaded file not completed.");
+                throw new EODEngineStartFailException("Cannot be started. EOD ID not found");
             }
         } catch (Exception ex) {
-            response.put(Util.STATUS_VALUE, Util.STATUS_FAILED);
+            throw ex;
+        } finally {
+//            logInfo.info(logManager.processStartEndStyle("EOD-Engine completed for EOD ID:" + eodId));
         }
         return response;
     }

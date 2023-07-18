@@ -24,7 +24,7 @@ public class EODEngineScheduler {
     public void eodEngineProducer(String eodID) throws Exception {
         int categoryId = 2;
         System.out.println("Start the EOD Engine Module");
-        eodEngineMainService.EODEngineMain(eodID, categoryId);
+        eodEngineMainService.startEodEngine(eodID);
     }
 
     @KafkaListener(topics = "eodEngineProcessStatus", groupId = "group_eodEngineProcessStatus")

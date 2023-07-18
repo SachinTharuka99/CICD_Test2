@@ -71,7 +71,7 @@ public class AdjustmentConnector extends ProcessBuilder {
             Configurations.IS_PROCESS_COMPLETELY_FAILED = true;
             throw ex;
         } finally {
-            logInfo.info(logManager.logSummery(summery));
+            //logInfo.info(logManager.logSummery(summery));
             /** PADSS Change -
              variables handling card data should be nullified
              by replacing the value of variable with zero and call NULL function */

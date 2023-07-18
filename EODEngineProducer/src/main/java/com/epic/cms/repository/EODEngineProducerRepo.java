@@ -10,20 +10,24 @@ package com.epic.cms.repository;
 import com.epic.cms.dao.EODEngineProducerDao;
 import com.epic.cms.model.bean.ProcessBean;
 import com.epic.cms.model.rowmapper.ProcessBeanRowMapper;
+import com.epic.cms.util.CommonBackendDbVarList;
 import com.epic.cms.util.Configurations;
+import com.epic.cms.util.EODEngineStartFailException;
 import com.epic.cms.util.StatusVarList;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.jdbc.core.JdbcTemplate;
+import org.springframework.jdbc.core.RowCallbackHandler;
 import org.springframework.jdbc.core.RowCountCallbackHandler;
+import org.springframework.jdbc.core.RowMapperResultSetExtractor;
 import org.springframework.stereotype.Repository;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.util.ArrayList;
-import java.util.Iterator;
-import java.util.List;
+import java.util.*;
+import java.util.stream.Collectors;
 
 @Repository
 public class EODEngineProducerRepo implements EODEngineProducerDao {
@@ -33,6 +37,9 @@ public class EODEngineProducerRepo implements EODEngineProducerDao {
 
     @Autowired
     StatusVarList statusList;
+
+    @Autowired
+    CommonBackendDbVarList commonBackendDbVarList;
 
     @Override
     public List<String> getEODStatusFromEODID(String eodID) {
@@ -48,7 +55,7 @@ public class EODEngineProducerRepo implements EODEngineProducerDao {
 
     @Override
     public boolean checkUploadedFileStatus() {
-        boolean flag = false;
+        boolean flag = true;
         try {
             String query = "select fileid from EODATMFILE where status not in (?, ?) " +
                     "union " +
@@ -67,7 +74,7 @@ public class EODEngineProducerRepo implements EODEngineProducerDao {
                     Configurations.STATUS_FILE_COMP, Configurations.STATUS_FILE_REJECT);
             Iterator<String> fileIdListIterator = fileIdList.iterator();
             if (fileIdListIterator.hasNext()) {
-                flag = true;
+                flag = false;
             }
         } catch (Exception ex) {
             throw ex;
@@ -113,9 +120,9 @@ public class EODEngineProducerRepo implements EODEngineProducerDao {
 
         try {
             count = backendJdbcTemplate.queryForObject(sql, Integer.class, uniqueId);
-        }catch (EmptyResultDataAccessException e){
-            return  0;
-        }catch (Exception ex){
+        } catch (EmptyResultDataAccessException e) {
+            return 0;
+        } catch (Exception ex) {
             throw ex;
         }
         return count;
@@ -224,7 +231,7 @@ public class EODEngineProducerRepo implements EODEngineProducerDao {
                     "EROR",
                     Configurations.EOD_USER,
                     Configurations.ERROR_EOD_ID);
-        }catch (Exception e){
+        } catch (Exception e) {
             throw e;
         }
         return count;
@@ -234,10 +241,9 @@ public class EODEngineProducerRepo implements EODEngineProducerDao {
     @Transactional(value = "transactionManager", propagation = Propagation.REQUIRES_NEW)
     public void updateEodStatus(int errorEodId, String status) throws Exception {
         try {
-            String query = "UPDATE EOD SET STATUS = ?,STARTTIME = SYSDATE,LASTUPDATEDTIME = SYSDATE,LASTUPDATEDUSER = ? WHERE EODID = ?";
-
+            String query = "UPDATE EOD SET STATUS = ?,STEPID=0,STARTTIME = SYSDATE,LASTUPDATEDTIME = SYSDATE,LASTUPDATEDUSER = ? WHERE EODID = ?";
             backendJdbcTemplate.update(query, status, Configurations.EOD_USER, errorEodId);
-        }catch (Exception e){
+        } catch (Exception e) {
             throw e;
         }
     }
@@ -257,9 +263,9 @@ public class EODEngineProducerRepo implements EODEngineProducerDao {
                 flag = true;
             }
 
-        }catch (EmptyResultDataAccessException e) {
+        } catch (EmptyResultDataAccessException e) {
             return false;
-        }catch (Exception e){
+        } catch (Exception e) {
             throw e;
         }
         return flag;
@@ -272,22 +278,87 @@ public class EODEngineProducerRepo implements EODEngineProducerDao {
             String query = "UPDATE EOD SET STATUS =?,ENDTIME =SYSDATE,LASTUPDATEDTIME = SYSDATE,LASTUPDATEDUSER = ? WHERE EODID = ?";
 
             backendJdbcTemplate.update(query, status, Configurations.EOD_USER, errorEodId);
-        }catch (Exception e){
+        } catch (Exception e) {
             throw e;
         }
     }
 
     @Override
-    public int getNextRunningEodId() {
-        int eodId =0;
+    @Transactional(value = "transactionManager", propagation = Propagation.REQUIRES_NEW)
+    public void updateEodStatus(int eodId, String status, int stepId) {
         try {
-            String sql = "SELECT EODID FROM EOD WHERE STATUS IN ('INIT' , 'EROR')";
-            eodId = backendJdbcTemplate.queryForObject(sql, Integer.class);
-        }catch (EmptyResultDataAccessException ex){
+            String query = "UPDATE EOD SET STATUS =?,STEPID=?,ENDTIME =SYSDATE,LASTUPDATEDTIME = SYSDATE,LASTUPDATEDUSER = ? WHERE EODID = ?";
+
+            backendJdbcTemplate.update(query, status, stepId, Configurations.EOD_USER, eodId);
+        } catch (Exception ex) {
+            throw ex;
+        }
+    }
+
+    @Override
+    public int getNextRunningEodId() {
+        int eodId = 0;
+        try {
+            String sql = "SELECT EODID FROM EOD WHERE STATUS IN (?,?,?)";
+            eodId = backendJdbcTemplate.queryForObject(sql, Integer.class, "INIT", "HOLD", "EROR");
+        } catch (EmptyResultDataAccessException ex) {
             return 0;
-        }catch (Exception e){
+        } catch (Exception e) {
             throw e;
         }
         return eodId;
     }
+
+    @Override
+    public Map<String, String> getNextRunningEodInfo() throws Exception {
+        Map<String, String> nextRunningEodInfo = new HashMap<>();
+        try {
+            String query = "SELECT EODID,STATUS FROM EOD ORDER BY EODID DESC LIMIT 1";
+            nextRunningEodInfo = backendJdbcTemplate.query(query,
+                    (ResultSet rs) -> {
+                        Map<String, String> nextRunningEodInfoTemp = new HashMap<>();
+                        while (rs.next()) {
+                            nextRunningEodInfoTemp.put(rs.getString("EODID"), rs.getString("STATUS"));
+                        }
+                        return nextRunningEodInfoTemp;
+                    });
+        } catch (Exception ex) {
+            throw ex;
+        }
+        return nextRunningEodInfo;
+    }
+
+    @Override
+    public List<ProcessBean> getProcessListByModule(String module) throws Exception {
+        List<ProcessBean> processList = new ArrayList<>();
+        try {
+            String query = "SELECT EP.PROCESSID,EP.DESCRIPTION,EP.CRITICALSTATUS,EP.ROLLBACKSTATUS," +
+                    "EP.SHEDULEDATE,EP.SHEDULETIME,EP.FREQUENCYTYPE,EP.CONTINUESFREQUENCYTYPE,EP.CONTINUESFREQUENCY," +
+                    "EP.MULTIPLECYCLESTATUS,EF.PROCESSCATEGORYID,EP.DEPENDANCYSTATUS,EP.RUNNINGONMAIN,EP.RUNNINGONSUB," +
+                    "EP.PROCESSTYPE,EP.STATUS,EP.SHEDULEDATETIME, EP.HOLIDAYACTION, EP.KAFKATOPICNAME, EP.KAFKAGROUPID, EP.EODMODULE,EF.STEPID " +
+                    "FROM EODPROCESSFLOW EF " +
+                    "LEFT JOIN EODPROCESS EP " +
+                    "ON EF.PROCESSID=EP.PROCESSID WHERE " +
+                    "EP.EODMODULE = ? ORDER BY EF.STEPID ASC";
+            processList = backendJdbcTemplate.query(query, new ProcessBeanRowMapper(), module);
+
+            if (List.of("HOLD", "FAIL").contains(Configurations.STARTING_EOD_STATUS)) {
+                try {
+                    String query2 = "SELECT STEPID FROM EOD WHERE EODID=?";
+                    final int nextStepId = backendJdbcTemplate.queryForObject(query2, Integer.class, Configurations.EOD_ID);
+                    processList = processList
+                            .stream()
+                            .filter(c -> c.getStepId() >= nextStepId)
+                            .collect(Collectors.toList());
+                } catch (Exception ex) {
+                    throw new EODEngineStartFailException("Unable to start EOD Engine. Error occurred when fetching the next step ID");
+                }
+
+            }
+        } catch (Exception ex) {
+            throw ex;
+        }
+        return processList;
+    }
+
 }
