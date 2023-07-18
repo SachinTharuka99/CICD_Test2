@@ -1,0 +1,8 @@
+2023-07-12 14:23:52,918 ERROR logError [http-nio-8055-exec-6] - [ExceptionHandlerControllerAdvice.java:39] EODEngineProducer Invalid EOD ID
+2023-07-12 14:26:57,982 ERROR logError [http-nio-8055-exec-1] - [ExceptionHandlerControllerAdvice.java:39] EODEngineProducer Invalid EOD ID
+2023-07-12 14:27:22,493 ERROR logError [http-nio-8055-exec-4] - [ExceptionHandlerControllerAdvice.java:39] EODEngineProducer Invalid EOD ID
+2023-07-12 14:27:43,420 ERROR logError [http-nio-8055-exec-7] - [ExceptionHandlerControllerAdvice.java:39] EODEngineProducer Invalid EOD ID
+2023-07-12 14:29:07,964 ERROR logError [http-nio-8055-exec-10] - [ExceptionHandlerControllerAdvice.java:39] EODEngineProducer Invalid EOD ID
+2023-07-12 16:24:34,851 ERROR logError [http-nio-8055-exec-3] - [ExceptionHandlerControllerAdvice.java:39] EODEngineProducer Invalid EOD ID
+2023-07-12 16:27:26,347 ERROR logError [http-nio-8055-exec-1] - [ExceptionHandlerControllerAdvice.java:52] EODEngineProducer File processing not completed
+2023-07-12 16:27:41,880 ERROR logError [http-nio-8055-exec-2] - [ExceptionHandlerControllerAdvice.java:52] EODEngineProducer File processing not completed
