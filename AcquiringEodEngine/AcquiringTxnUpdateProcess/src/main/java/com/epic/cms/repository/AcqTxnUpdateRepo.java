@@ -1,7 +1,7 @@
 package com.epic.cms.repository;
 
 import com.epic.cms.dao.AcqTxnUpdateDao;
-import com.epic.cms.util.LogManager;
+
 import com.epic.cms.util.QueryParametersList;
 import com.epic.cms.util.StatusVarList;
 import org.springframework.beans.factory.annotation.Autowired;

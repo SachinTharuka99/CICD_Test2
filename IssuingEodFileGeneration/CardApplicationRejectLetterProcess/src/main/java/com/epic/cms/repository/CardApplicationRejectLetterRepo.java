@@ -24,24 +24,24 @@ import java.util.ArrayList;
 public class CardApplicationRejectLetterRepo implements CardApplicationRejectLetterDao {
 
     @Autowired
-    QueryParametersList queryParametersList;
-
-    @Autowired
     StatusVarList statusVarList;
 
     @Autowired
     private JdbcTemplate backendJdbcTemplate;
 
+    @Autowired
+    QueryParametersList queryParametersList;
+
     @Override
     public ArrayList<String> getRejectApplictionIDsToGenerateLetters(String StartEodStatus, boolean isErrorProcessInLastEod, boolean isProcessCompletlyFail) throws Exception {
 
         ArrayList<String> cardNoList = new ArrayList<String>();
-        String query = "";
+        //String query = "";
         try {
 
             if (StartEodStatus.equals(statusVarList.getERROR_STATUS()) && isErrorProcessInLastEod) {
-                query = "SELECT C.APPLICATIONID FROM (SELECT EPF.STEPID,EPF.PROCESSID,EEC.CARDNO,EEC.STATUS FROM EODPROCESSFLOW EPF FULL OUTER JOIN EODERRORCARDS EEC ON EPF.PROCESSID = EEC.ERRORPROCESSID ORDER BY STEPID)T JOIN cardapplication c ON t.cardno = c.cardnumber WHERE T.STEPID <= (SELECT STEPID FROM EODPROCESSFLOW WHERE PROCESSID = ?) AND T.STATUS = ? AND T.CARDNO NOT IN (SELECT CARDNO FROM EODERRORCARDS WHERE EODID =? AND STATUS = ?)";
-                backendJdbcTemplate.query(query,
+               // query = "SELECT C.APPLICATIONID FROM (SELECT EPF.STEPID,EPF.PROCESSID,EEC.CARDNO,EEC.STATUS FROM EODPROCESSFLOW EPF FULL OUTER JOIN EODERRORCARDS EEC ON EPF.PROCESSID = EEC.ERRORPROCESSID ORDER BY STEPID)T JOIN cardapplication c ON t.cardno = c.cardnumber WHERE T.STEPID <= (SELECT STEPID FROM EODPROCESSFLOW WHERE PROCESSID = ?) AND T.STATUS = ? AND T.CARDNO NOT IN (SELECT CARDNO FROM EODERRORCARDS WHERE EODID =? AND STATUS = ?)";
+                backendJdbcTemplate.query(queryParametersList.getCardApplicationRejectLetter_getRejectApplictionIDsToGenerateLetters_Select1(),
                         (ResultSet rs) -> {
                             while (rs.next()) {
                                 cardNoList.add(rs.getString("APPLICATIONID"));
@@ -55,8 +55,8 @@ public class CardApplicationRejectLetterRepo implements CardApplicationRejectLet
                 );
 
             } else {
-                query = "SELECT CA.APPLICATIONID FROM CARDAPPLICATION CA WHERE CA.LETTERGENSTATUS <> ? AND CA.APPLICATIONID NOT IN (SELECT CARDNO FROM EODERRORCARDS WHERE EODID < ? AND STATUS = ?)";
-                backendJdbcTemplate.query(query,
+                //query = "SELECT CA.APPLICATIONID FROM CARDAPPLICATION CA WHERE CA.LETTERGENSTATUS <> ? AND CA.APPLICATIONID NOT IN (SELECT CARDNO FROM EODERRORCARDS WHERE EODID < ? AND STATUS = ?)";
+                backendJdbcTemplate.query(queryParametersList.getCardApplicationRejectLetter_getRejectApplictionIDsToGenerateLetters_Select2(),
                         (ResultSet rs) -> {
                             while (rs.next()) {
                                 cardNoList.add(rs.getString("APPLICATIONID"));
@@ -81,8 +81,8 @@ public class CardApplicationRejectLetterRepo implements CardApplicationRejectLet
         int count = 0;
         try {
 
-            String updatePay = "update cardapplication set lettergenstatus=? where cardnumber=?";//TODO NEED SOME MORE PARAMETERS.
-            count = backendJdbcTemplate.update(updatePay,
+            //String updatePay = "update cardapplication set lettergenstatus=? where cardnumber=?";//TODO NEED SOME MORE PARAMETERS.
+            count = backendJdbcTemplate.update(queryParametersList.getCardApplicationRejectLetter_updateLettergenStatus(),
                     yes,
                     cardNo.toString()
             );
@@ -98,8 +98,8 @@ public class CardApplicationRejectLetterRepo implements CardApplicationRejectLet
 
         StringBuffer cardNo = null;
         try {
-            String query = "SELECT ca.maincardno FROM card ca LEFT JOIN cardaccount acc ON ca.maincardno = acc.cardnumber INNER JOIN cardapplication cap ON ca.maincardno = cap.cardnumber WHERE cap.applicationid =?";
-            cardNo = backendJdbcTemplate.queryForObject(query,
+            //String query = "SELECT ca.maincardno FROM card ca LEFT JOIN cardaccount acc ON ca.maincardno = acc.cardnumber INNER JOIN cardapplication cap ON ca.maincardno = cap.cardnumber WHERE cap.applicationid =?";
+            cardNo = backendJdbcTemplate.queryForObject(queryParametersList.getCardApplicationRejectLetter_getCardNo(),
                     StringBuffer.class, applicationI
                     );
         }catch (Exception e){

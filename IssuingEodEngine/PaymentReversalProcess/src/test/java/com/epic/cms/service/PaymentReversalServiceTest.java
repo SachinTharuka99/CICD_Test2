@@ -13,6 +13,8 @@ import org.junit.jupiter.api.Test;
 import org.mockito.MockedStatic;
 import org.mockito.Mockito;
 
+import java.util.concurrent.atomic.AtomicInteger;
+
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyString;
@@ -24,6 +26,7 @@ class PaymentReversalServiceTest {
     private PaymentReversalService paymentReversalServiceUnderTest;
     private StatusVarList statusList;
     private CommonMethods commonMethods;
+    public AtomicInteger faileCardCount = new AtomicInteger(0);
 
     @BeforeEach
     void setUp() {
@@ -43,7 +46,7 @@ class PaymentReversalServiceTest {
         bean.setCardnumber(new StringBuffer("438043****8012"));
         bean.setTraceid("123456789");
         when(paymentReversalServiceUnderTest.paymentReversalRepo.updatePaymentsForCashReversals(any(StringBuffer.class), anyString())).thenReturn(1);
-        paymentReversalServiceUnderTest.setPaymentReversals(bean);
+        paymentReversalServiceUnderTest.setPaymentReversals(bean,faileCardCount);
         verify(paymentReversalServiceUnderTest.paymentReversalRepo,times(1)).updatePaymentsForCashReversals(
                 any(StringBuffer.class), anyString()
         );

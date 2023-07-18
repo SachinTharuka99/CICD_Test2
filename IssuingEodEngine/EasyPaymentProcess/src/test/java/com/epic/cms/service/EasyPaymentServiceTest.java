@@ -22,6 +22,7 @@ import java.util.Calendar;
 import java.util.Date;
 import java.util.GregorianCalendar;
 import java.util.List;
+import java.util.concurrent.atomic.AtomicInteger;
 
 import static org.mockito.ArgumentMatchers.anyInt;
 import static org.mockito.Mockito.*;
@@ -29,6 +30,7 @@ import static org.mockito.Mockito.*;
 class EasyPaymentServiceTest {
     private EasyPaymentService easyPaymentServiceUnderTest;
     private EasyPaymentService spyEasyPaymentServiceUnderTest;
+    public AtomicInteger faileCardCount = new AtomicInteger(0);
 
     @BeforeEach
     void setUp() {
@@ -218,7 +220,7 @@ class EasyPaymentServiceTest {
         }
 
         // Run the test
-        easyPaymentServiceUnderTest.startEasyPaymentProcess(easyPaymentBean, processBean);
+        easyPaymentServiceUnderTest.startEasyPaymentProcess(easyPaymentBean, processBean,faileCardCount);
 
         // Verify the results
         if(easyPaymentBean.getRunningStatus() != 1){

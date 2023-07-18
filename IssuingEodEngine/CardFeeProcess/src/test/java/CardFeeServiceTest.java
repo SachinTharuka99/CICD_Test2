@@ -11,6 +11,7 @@ import org.mockito.Mockito;
 
 import java.text.SimpleDateFormat;
 import java.util.Date;
+import java.util.concurrent.atomic.AtomicInteger;
 
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.*;
@@ -20,6 +21,7 @@ class CardFeeServiceTest {
     SimpleDateFormat sdf = new SimpleDateFormat("yyMMdd");
     private CardFeeService cardFeeServiceUnderTest;
     static MockedStatic<CommonMethods> common;
+    public AtomicInteger faileCardCount = new AtomicInteger(0);
 
     @BeforeAll
     public static void init() {
@@ -99,7 +101,7 @@ class CardFeeServiceTest {
 
 
         // Run the test
-        cardFeeServiceUnderTest.cardFeeCalculate(cardBean);
+        cardFeeServiceUnderTest.cardFeeCalculate(cardBean, faileCardCount);
 
         // Verify the results
         assertEquals(cardFeeBean, cardFeeServiceUnderTest.cardFeeDao.getCardFeeCountForCard(cardFeeBean.getCardNumber(), cardBean.getAccNumber(), cardBean.getFeeCode()));

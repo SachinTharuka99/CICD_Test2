@@ -12,7 +12,6 @@ import com.epic.cms.repository.CardRenewRepo;
 import com.epic.cms.util.CommonMethods;
 import com.epic.cms.util.Configurations;
 import com.epic.cms.util.LogManager;
-import lombok.extern.slf4j.Slf4j;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -28,6 +27,7 @@ import java.text.SimpleDateFormat;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.LinkedHashMap;
+import java.util.concurrent.atomic.AtomicInteger;
 
 
 @Service
@@ -46,7 +46,7 @@ public class CardRenewService {
 
     @Async("taskExecutor2")
     @Transactional(value = "transactionManager", propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
-    public void cardRenewProcess(CardRenewBean CRBean, int noOfNormalRenewals, int noOfEarlyRenewals, int NoOfFailCards) {
+    public void cardRenewProcess(CardRenewBean CRBean, int noOfNormalRenewals, int noOfEarlyRenewals, AtomicInteger faileCardCount) {
         if (!Configurations.isInterrupted) {
             if (!Configurations.isInterrupted) {
                 LinkedHashMap details = new LinkedHashMap();
@@ -119,13 +119,11 @@ public class CardRenewService {
                         cardRenewDao.updateCardRenewTable(CRBean.getCardNumber());
                         cardRenewDao.updateOnlineCardTable(CRBean.getCardNumber(), newExpireDate);
                     }
-                    Configurations.PROCESS_SUCCESS_COUNT++;
 
                 } catch (Exception ex) {
                     details.put("ReNew Status", "Fail");
                     logError.error("Renew Process Fails for Card " + CommonMethods.cardNumberMask(CRBean.getCardNumber()), ex);
-                    NoOfFailCards++;
-                    Configurations.PROCESS_FAILD_COUNT++;
+                    faileCardCount.addAndGet(1);
                 } finally {
                     logInfo.info(logManager.logDetails(details));
                 }

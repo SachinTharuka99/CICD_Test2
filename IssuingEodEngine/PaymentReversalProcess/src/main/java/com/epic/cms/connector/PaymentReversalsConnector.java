@@ -18,6 +18,7 @@ import org.springframework.scheduling.concurrent.ThreadPoolTaskExecutor;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
+import java.util.concurrent.atomic.AtomicInteger;
 
 @Service
 public class PaymentReversalsConnector extends ProcessBuilder {
@@ -42,7 +43,7 @@ public class PaymentReversalsConnector extends ProcessBuilder {
 
     private static final Logger logInfo = LoggerFactory.getLogger("logInfo");
     private static final Logger logError = LoggerFactory.getLogger("logError");
-
+    public AtomicInteger faileCardCount = new AtomicInteger(0);
     private List<PaymentBean> paymentReversals = null;
 
     @Override
@@ -64,9 +65,14 @@ public class PaymentReversalsConnector extends ProcessBuilder {
             Configurations.PROCESS_TOTAL_NOOF_TRABSACTIONS = paymentReversals.size();
 
             if (paymentReversals.size() != 0) {
-                for (PaymentBean bean : paymentReversals) {
-                    paymentReversalService.setPaymentReversals(bean);
-                }
+//                for (PaymentBean bean : paymentReversals) {
+//                    paymentReversalService.setPaymentReversals(bean);
+//                }
+
+                paymentReversals.forEach(bean -> {
+                    paymentReversalService.setPaymentReversals(bean,faileCardCount);
+
+                });
             }
             while (!(taskExecutor.getActiveCount() == 0)) {
                 Thread.sleep(1000);
@@ -97,7 +103,7 @@ public class PaymentReversalsConnector extends ProcessBuilder {
     public void addSummaries() {
         summery.put("Process Name ", "Payment Reversal");
         summery.put("No Of Payment Reversals awaiting ", Configurations.PROCESS_TOTAL_NOOF_TRABSACTIONS);
-        summery.put("No of Payments successfully reversed ", Configurations.PROCESS_SUCCESS_COUNT);
-        summery.put("No of Payments not reversed ", Configurations.PROCESS_FAILD_COUNT);
+        summery.put("No of Payments successfully reversed ", Configurations.PROCESS_TOTAL_NOOF_TRABSACTIONS - faileCardCount.get());
+        summery.put("No of Payments not reversed ", faileCardCount.get());
     }
 }

@@ -8,6 +8,7 @@ import com.epic.cms.util.LogManager;
 import com.epic.cms.util.StatusVarList;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import com.epic.cms.util.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.dao.EmptyResultDataAccessException;
@@ -35,14 +36,17 @@ public class KnockOffRepo implements KnockOffDao {
     @Qualifier("onlineJdbcTemplate")
     private JdbcTemplate onlineJdbcTemplate;
 
+    @Autowired
+    QueryParametersList queryParametersList;
+
     @Override
     public ArrayList<OtbBean> getInitKnockOffCustAcc() throws Exception {
         ArrayList<OtbBean> custAccList = new ArrayList<OtbBean>();
 
         try {
-            String query = "SELECT DISTINCT cac.customerid, cac.accountno FROM eomcardbalance emcb FULL OUTER JOIN eodcardbalance edcb ON edcb.cardnumber = emcb.cardnumber INNER JOIN eodpayment ep ON ep.cardnumber = emcb.cardnumber INNER JOIN eodpayment ep ON ep.cardnumber = emcb.cardnumber OR ep.cardnumber = edcb.cardnumber INNER JOIN card c ON c.cardnumber = emcb.cardnumber OR c.cardnumber = edcb.cardnumber INNER JOIN cardaccountcustomer cac ON cac.cardnumber = c.maincardno WHERE ( emcb.cumfinancialcharge > 0 OR emcb.cumcashadvance > 0 OR emcb.cumtransaction > 0 OR edcb.financialcharges > 0 OR edcb.cumcashadvances > 0 OR edcb.cumtransactions > 0 ) AND ep.forwardamount > 0 AND ep.status IN ( ?, ? ) AND cac.accountno NOT IN ( SELECT ec.accountno FROM eoderrorcards ec WHERE ec.status = ?)";
+           // String query = "SELECT DISTINCT cac.customerid, cac.accountno FROM eomcardbalance emcb FULL OUTER JOIN eodcardbalance edcb ON edcb.cardnumber = emcb.cardnumber INNER JOIN eodpayment ep ON ep.cardnumber = emcb.cardnumber INNER JOIN eodpayment ep ON ep.cardnumber = emcb.cardnumber OR ep.cardnumber = edcb.cardnumber INNER JOIN card c ON c.cardnumber = emcb.cardnumber OR c.cardnumber = edcb.cardnumber INNER JOIN cardaccountcustomer cac ON cac.cardnumber = c.maincardno WHERE ( emcb.cumfinancialcharge > 0 OR emcb.cumcashadvance > 0 OR emcb.cumtransaction > 0 OR edcb.financialcharges > 0 OR edcb.cumcashadvances > 0 OR edcb.cumtransactions > 0 ) AND ep.forwardamount > 0 AND ep.status IN ( ?, ? ) AND cac.accountno NOT IN ( SELECT ec.accountno FROM eoderrorcards ec WHERE ec.status = ?)";
 
-            custAccList = (ArrayList<OtbBean>) backendJdbcTemplate.query(query,
+            custAccList = (ArrayList<OtbBean>) backendJdbcTemplate.query(queryParametersList.getKnockOff_getInitKnockOffCustAcc(),
                     new RowMapperResultSetExtractor<>((result, rowNum) -> {
                         OtbBean bean = new OtbBean();
                         bean.setCustomerid(result.getString("CUSTOMERID"));
@@ -66,9 +70,9 @@ public class KnockOffRepo implements KnockOffDao {
 
         try {
 
-            String query = "SELECT DISTINCT cac.customerid, cac.accountno FROM eomcardbalance emcb FULL OUTER JOIN eodcardbalance edcb ON edcb.cardnumber = emcb.cardnumber INNER JOIN eodpayment ep ON ep.cardnumber = emcb.cardnumber OR ep.cardnumber = edcb.cardnumber INNER JOIN card  c ON c.cardnumber = emcb.cardnumber OR c.cardnumber = edcb.cardnumber INNER JOIN cardaccountcustomer cac ON cac.cardnumber = c.maincardno INNER JOIN eoderrorcards eec ON eec.accountno = cac.accountno WHERE ( emcb.cumfinancialcharge > 0 OR emcb.cumcashadvance > 0 OR emcb.cumtransaction > 0 OR edcb.financialcharges > 0 OR edcb.cumcashadvances > 0 OR edcb.cumtransactions > 0 ) AND ep.forwardamount > 0 AND ep.status IN ( ?, ? ) AND eec.eodid < ? AND eec.processstepid <= ? ";
+           // String query = "SELECT DISTINCT cac.customerid, cac.accountno FROM eomcardbalance emcb FULL OUTER JOIN eodcardbalance edcb ON edcb.cardnumber = emcb.cardnumber INNER JOIN eodpayment ep ON ep.cardnumber = emcb.cardnumber OR ep.cardnumber = edcb.cardnumber INNER JOIN card  c ON c.cardnumber = emcb.cardnumber OR c.cardnumber = edcb.cardnumber INNER JOIN cardaccountcustomer cac ON cac.cardnumber = c.maincardno INNER JOIN eoderrorcards eec ON eec.accountno = cac.accountno WHERE ( emcb.cumfinancialcharge > 0 OR emcb.cumcashadvance > 0 OR emcb.cumtransaction > 0 OR edcb.financialcharges > 0 OR edcb.cumcashadvances > 0 OR edcb.cumtransactions > 0 ) AND ep.forwardamount > 0 AND ep.status IN ( ?, ? ) AND eec.eodid < ? AND eec.processstepid <= ?";
 
-            custAccList = (ArrayList<OtbBean>) backendJdbcTemplate.query(query,
+            custAccList = (ArrayList<OtbBean>) backendJdbcTemplate.query(queryParametersList.getKnockOff_getErrorKnockOffCustAcc(),
                     new RowMapperResultSetExtractor<OtbBean>((result, rowNum) -> {
                         OtbBean bean = new OtbBean();
                         bean.setCustomerid(result.getString("CUSTOMERID"));
@@ -88,13 +92,13 @@ public class KnockOffRepo implements KnockOffDao {
     }
 
     @Override
-    public ArrayList<OtbBean> getKnockOffCardList(String customerid, String accountnumber) throws Exception {
+    public ArrayList<OtbBean> getKnockOffCardList(String customerid, String accountnumber)  {
         ArrayList<OtbBean> cardList = new ArrayList<OtbBean>();
 
         try {
-            String query = "SELECT DISTINCT ep.cardnumber cardnumber FROM eomcardbalance emcb FULL OUTER JOIN eodcardbalance edcb ON edcb.cardnumber = emcb.cardnumber INNER JOIN eodpayment ep ON ep.cardnumber = emcb.cardnumber OR ep.cardnumber = edcb.cardnumber INNER JOIN card c ON c.cardnumber = emcb.cardnumber OR c.cardnumber = edcb.cardnumber INNER JOIN cardaccountcustomer cac ON cac.cardnumber = c.maincardno WHERE ( emcb.cumfinancialcharge > 0 OR emcb.cumcashadvance > 0 OR emcb.cumtransaction > 0 OR edcb.financialcharges > 0 OR edcb.cumcashadvances > 0 OR edcb.cumtransactions > 0 ) AND ep.forwardamount > 0 AND ep.status IN ( ?, ? ) AND cac.customerid = ? AND cac.accountno = ? ";
+            //String query = "SELECT DISTINCT ep.cardnumber cardnumber FROM eomcardbalance emcb FULL OUTER JOIN eodcardbalance edcb ON edcb.cardnumber = emcb.cardnumber INNER JOIN eodpayment ep ON ep.cardnumber = emcb.cardnumber OR ep.cardnumber = edcb.cardnumber INNER JOIN card c ON c.cardnumber = emcb.cardnumber OR c.cardnumber = edcb.cardnumber INNER JOIN cardaccountcustomer cac ON cac.cardnumber = c.maincardno WHERE ( emcb.cumfinancialcharge > 0 OR emcb.cumcashadvance > 0 OR emcb.cumtransaction > 0 OR edcb.financialcharges > 0 OR edcb.cumcashadvances > 0 OR edcb.cumtransactions > 0 ) AND ep.forwardamount > 0 AND ep.status IN ( ?, ? ) AND cac.customerid = ? AND cac.accountno = ?";
 
-            cardList = (ArrayList<OtbBean>) backendJdbcTemplate.query(query,
+            cardList = (ArrayList<OtbBean>) backendJdbcTemplate.query(queryParametersList.getKnockOff_getKnockOffCardList(),
                     new RowMapperResultSetExtractor<OtbBean>((result, rowNum) -> {
                         OtbBean otbBean = new OtbBean();
                         otbBean.setCardnumber(new StringBuffer(result.getString("CARDNUMBER")));
@@ -113,13 +117,13 @@ public class KnockOffRepo implements KnockOffDao {
     }
 
     @Override
-    public OtbBean getMainCard(String accountnumber) throws Exception {
+    public OtbBean getMainCard(String accountnumber)  {
         OtbBean mainCardBean = null;
 
         try {
-            String query = "SELECT cardnumber FROM cardaccount WHERE accountno = ? ";
+            //String query = "SELECT cardnumber FROM cardaccount WHERE accountno = ?";
 
-            mainCardBean = backendJdbcTemplate.queryForObject(query, new RowMapper<>() {
+            mainCardBean = backendJdbcTemplate.queryForObject(queryParametersList.getKnockOff_getMainCard(), new RowMapper<>() {
                         @Override
                         public OtbBean mapRow(ResultSet result, int rowNum) throws SQLException {
                             OtbBean mainCardBean = new OtbBean();
@@ -140,9 +144,9 @@ public class KnockOffRepo implements KnockOffDao {
         ArrayList<OtbBean> paymentList = new ArrayList<OtbBean>();
 
         try {
-            String query = "SELECT id, forwardamount, isprimary FROM eodpayment WHERE forwardamount > 0 AND status IN ( ?, ? ) AND cardnumber = ? AND eodid = ? ORDER BY lastupdateddate";
+            //String query = "SELECT id, forwardamount, isprimary FROM eodpayment WHERE forwardamount > 0 AND status IN ( ?, ? ) AND cardnumber = ? AND eodid = ? ORDER BY lastupdateddate";
 
-            paymentList = (ArrayList<OtbBean>) backendJdbcTemplate.query(query,
+            paymentList = (ArrayList<OtbBean>) backendJdbcTemplate.query(queryParametersList.getKnockOff_getPaymentList(),
                     new RowMapperResultSetExtractor<OtbBean>((result, rowNum) -> {
                         OtbBean paymentBean = new OtbBean();
                         paymentBean.setId(result.getInt("ID"));
@@ -167,9 +171,9 @@ public class KnockOffRepo implements KnockOffDao {
         OtbBean eomBean = null;
 
         try {
-            String query = "SELECT CARDNUMBER, CUMFINANCIALCHARGE, CUMCASHADVANCE, CUMTRANSACTION FROM EOMCARDBALANCE WHERE (CUMFINANCIALCHARGE > 0 OR CUMCASHADVANCE > 0 OR CUMTRANSACTION > 0) AND CARDNUMBER = ?";
+            //String query = "SELECT CARDNUMBER, CUMFINANCIALCHARGE, CUMCASHADVANCE, CUMTRANSACTION FROM EOMCARDBALANCE WHERE (CUMFINANCIALCHARGE > 0 OR CUMCASHADVANCE > 0 OR CUMTRANSACTION > 0) AND CARDNUMBER = ?";
 
-            eomBean = backendJdbcTemplate.queryForObject(query, new RowMapper<>() {
+            eomBean = backendJdbcTemplate.queryForObject(queryParametersList.getKnockOff_getEomKnockOffAmount(), new RowMapper<>() {
                         @Override
                         public OtbBean mapRow(ResultSet result, int rowNum) throws SQLException {
                             OtbBean eomBean = new OtbBean();
@@ -196,9 +200,9 @@ public class KnockOffRepo implements KnockOffDao {
         OtbBean eodBean = null;
 
         try {
-            String query = "SELECT cardnumber, financialcharges, cumcashadvances, cumtransactions FROM eodcardbalance WHERE ( financialcharges > 0 OR cumcashadvances > 0 OR cumtransactions > 0 ) AND cardnumber = ? ";
+            //String query = "SELECT cardnumber, financialcharges, cumcashadvances, cumtransactions FROM eodcardbalance WHERE ( financialcharges > 0 OR cumcashadvances > 0 OR cumtransactions > 0 ) AND cardnumber = ?";
 
-            eodBean = backendJdbcTemplate.queryForObject(query, new RowMapper<>() {
+            eodBean = backendJdbcTemplate.queryForObject(queryParametersList.getKnockOff_getEodKnockOffAmount(), new RowMapper<>() {
                         @Override
                         public OtbBean mapRow(ResultSet result, int rowNum) throws SQLException {
                             OtbBean eodBean = new OtbBean();
@@ -225,9 +229,9 @@ public class KnockOffRepo implements KnockOffDao {
         int count = 0;
 
         try {
-            String query = "UPDATE EODPAYMENT SET MAINFINCHARGEKNOCKOFF = ?, MAINCASHADVANCEKNOCKOFF = ?, MAINTRANSACTIONKNOCKOFF = ?, SUPFINCHARGEKNOCKOFF = ?, SUPCASHADVANCEKNOCKOFF = ?, SUPTRANSACTIONKNOCKOFF = ?, FORWARDAMOUNT = ?, STATUS = ? WHERE ID = ?";
+           // String query = "UPDATE EODPAYMENT SET MAINFINCHARGEKNOCKOFF = ?, MAINCASHADVANCEKNOCKOFF = ?, MAINTRANSACTIONKNOCKOFF = ?, SUPFINCHARGEKNOCKOFF = ?, SUPCASHADVANCEKNOCKOFF = ?, SUPTRANSACTIONKNOCKOFF = ?, FORWARDAMOUNT = ?, STATUS = ? WHERE ID = ?";
 
-            count = backendJdbcTemplate.update(query,
+            count = backendJdbcTemplate.update(queryParametersList.getKnockOff_updateEodPayment(),
                     mainFinancialCharges,
                     mainCashAdvances,
                     mainTransactions,
@@ -250,9 +254,9 @@ public class KnockOffRepo implements KnockOffDao {
         int count = 0;
 
         try {
-            String query = "UPDATE card SET otbcredit = otbcredit - ?, otbcash = otbcash - ?, tempcashamount = tempcashamount + ?, lastupdateduser = ?, lastupdatedtime = sysdate WHERE cardnumber = ? ";
+            //String query = "UPDATE CARD SET OTBCREDIT = OTBCREDIT - ?, OTBCASH = OTBCASH - ?, TEMPCASHAMOUNT = TEMPCASHAMOUNT + ?, LASTUPDATEDUSER = ?, LASTUPDATEDTIME = SYSDATE WHERE CARDNUMBER = ?";
 
-            count = backendJdbcTemplate.update(query,
+            count = backendJdbcTemplate.update(queryParametersList.getKnockOff_updateCardOtb(),
                     cardBean.getOtbcredit(),
                     cardBean.getOtbcash(),
                     cardBean.getOtbcash(),
@@ -271,9 +275,9 @@ public class KnockOffRepo implements KnockOffDao {
         int count = 0;
 
         try {
-            String query = "UPDATE eodcardbalance SET eodclosingbal = eodclosingbal - ?, lastupdateduser = ?, lastupdatedtime = sysdate WHERE cardnumber = ? ";
+            //String query = "UPDATE eodcardbalance SET eodclosingbal = eodclosingbal - ?, lastupdateduser = ?, lastupdatedtime = sysdate WHERE cardnumber = ?";
 
-            count = backendJdbcTemplate.update(query,
+            count = backendJdbcTemplate.update(queryParametersList.getKnockOff_updateEodClosingBalance(),
                     closingBalance,
                     Configurations.EOD_USER,
                     cardNumber.toString()
@@ -290,9 +294,9 @@ public class KnockOffRepo implements KnockOffDao {
         int count = 0;
 
         try {
-            String query = "UPDATE eomcardbalance SET cumfinancialcharge = ?, cumcashadvance = ?, cumtransaction = ? WHERE cardnumber = ? ";
+            //String query = "UPDATE eomcardbalance SET cumfinancialcharge = ?, cumcashadvance = ?, cumtransaction = ? WHERE cardnumber = ?";
 
-            count = backendJdbcTemplate.update(query,
+            count = backendJdbcTemplate.update(queryParametersList.getKnockOff_updateEOMCARDBALANCE(),
                     cardBean.getFinacialcharges(),
                     cardBean.getCumcashadvance(),
                     cardBean.getCumtransactions(),
@@ -310,9 +314,9 @@ public class KnockOffRepo implements KnockOffDao {
         int count = 0;
 
         try {
-            String query = "UPDATE eodcardbalance SET financialcharges = ?, cumcashadvances = ?, cumtransactions = ?, payments = ? WHERE cardnumber = ? ";
+            //String query = "UPDATE eodcardbalance SET financialcharges = ?, cumcashadvances = ?, cumtransactions = ?, payments = ? WHERE cardnumber = ?";
 
-            count = backendJdbcTemplate.update(query,
+            count = backendJdbcTemplate.update(queryParametersList.getKnockOff_updateEODCARDBALANCE(),
                     cardBean.getFinacialcharges(),
                     cardBean.getCumcashadvance(),
                     cardBean.getCumtransactions(),
@@ -330,9 +334,9 @@ public class KnockOffRepo implements KnockOffDao {
         int count = 0;
 
         try {
-            String query = "UPDATE card SET otbcredit = otbcredit - ?, otbcash = otbcash - ?, tempcashamount = tempcashamount + ?, lastupdateduser = ?, lastupdatedtime = sysdate WHERE cardnumber = ? ";
+            //String query = "UPDATE card SET otbcredit = otbcredit - ?, otbcash = otbcash - ?, tempcashamount = tempcashamount + ?, lastupdateduser = ?, lastupdatedtime = sysdate WHERE cardnumber = ?";
 
-            count = backendJdbcTemplate.update(query,
+            count = backendJdbcTemplate.update(queryParametersList.getKnockOff_updateCardComp(),
                     cardBean.getOtbcredit(),
                     cardBean.getOtbcash(),
                     cardBean.getTmpcash(),
@@ -351,9 +355,9 @@ public class KnockOffRepo implements KnockOffDao {
         int count = 0;
 
         try {
-            String query = "UPDATE CARDACCOUNT SET OTBCREDIT = OTBCREDIT - ?,OTBCASH = OTBCASH - ?,LASTUPDATEDUSER = ?, LASTUPDATEDTIME = SYSDATE WHERE ACCOUNTNO=? ";
+            //String query = "UPDATE CARDACCOUNT SET OTBCREDIT = OTBCREDIT - ?,OTBCASH = OTBCASH - ?,LASTUPDATEDUSER = ?, LASTUPDATEDTIME = SYSDATE WHERE ACCOUNTNO=?";
 
-            count = backendJdbcTemplate.update(query,
+            count = backendJdbcTemplate.update(queryParametersList.getKnockOff_updateAccountOtb(),
                     otbBean.getOtbcredit(),
                     otbBean.getOtbcash(),
                     Configurations.EOD_USER,
@@ -371,9 +375,9 @@ public class KnockOffRepo implements KnockOffDao {
         int count = 0;
 
         try {
-            String query = "UPDATE CARDCUSTOMER SET OTBCREDIT= OTBCREDIT - ?,OTBCASH= OTBCASH - ?,LASTUPDATEDUSER=?,LASTUPDATEDTIME=SYSDATE WHERE CUSTOMERID=? ";
+            //String query = "UPDATE CARDCUSTOMER SET OTBCREDIT= OTBCREDIT - ?,OTBCASH= OTBCASH - ?,LASTUPDATEDUSER=?,LASTUPDATEDTIME=SYSDATE WHERE CUSTOMERID=?";
 
-            count = backendJdbcTemplate.update(query,
+            count = backendJdbcTemplate.update(queryParametersList.getKnockOff_updateCustomerOtb(),
                     bean.getOtbcredit(),
                     bean.getOtbcash(),
                     Configurations.EOD_USER,
@@ -391,9 +395,9 @@ public class KnockOffRepo implements KnockOffDao {
         int count = 0;
 
         try {
-            String query = "UPDATE ecms_online_card SET otbcredit = otbcredit - ?,otbcash = otbcash - ?,tempcashamount = tempcashamount + ?,lastupdateuser = ?,lastupdatetime = sysdate WHERE cardnumber = ?";
+            //String query = "UPDATE ecms_online_card SET otbcredit = otbcredit - ?,otbcash = otbcash - ?,tempcashamount = tempcashamount + ?,lastupdateuser = ?,lastupdatetime = sysdate WHERE cardnumber = ?";
 
-            count = onlineJdbcTemplate.update(query,
+            count = onlineJdbcTemplate.update(queryParametersList.getKnockOff_OnlineupdateCardOtb(),
                     supCardBean.getOtbcredit(),
                     supCardBean.getOtbcash(),
                     supCardBean.getTmpcash(),
@@ -404,7 +408,7 @@ public class KnockOffRepo implements KnockOffDao {
             if (Configurations.ONLINE_LOG_LEVEL == 1) {
                 //Only for troubleshoot
                 logInfo.info("================ updateCardCreditLimit ===================" + Configurations.EOD_ID);
-                logInfo.info(query);
+                logInfo.info(queryParametersList.getKnockOff_OnlineupdateCardOtb());
                 logInfo.info(Double.toString(supCardBean.getOtbcredit()));
                 logInfo.info(Double.toString(supCardBean.getOtbcash()));
                 logInfo.info(Double.toString(supCardBean.getTmpcredit()));
@@ -426,9 +430,9 @@ public class KnockOffRepo implements KnockOffDao {
         int count = 0;
 
         try {
-            String query = "UPDATE ECMS_ONLINE_ACCOUNT SET OTBCREDIT = OTBCREDIT - ?,OTBCASH = OTBCASH - ? WHERE ACCOUNTNUMBER=?  ";
+            //String query = "UPDATE ECMS_ONLINE_ACCOUNT SET OTBCREDIT = OTBCREDIT - ?,OTBCASH = OTBCASH - ? WHERE ACCOUNTNUMBER=?";
 
-            count = onlineJdbcTemplate.update(query,
+            count = onlineJdbcTemplate.update(queryParametersList.getKnockOff_OnlineupdateAccountOtb(),
                     custAccBean.getOtbcredit(),
                     custAccBean.getOtbcash(),
                     custAccBean.getAccountnumber()
@@ -437,7 +441,7 @@ public class KnockOffRepo implements KnockOffDao {
             if (Configurations.ONLINE_LOG_LEVEL == 1) {
                 //Only for troubleshoot
                 logInfo.info("================ updateCardCreditLimit ===================" + Configurations.EOD_ID);
-                logInfo.info(query);
+                logInfo.info(queryParametersList.getKnockOff_OnlineupdateAccountOtb());
                 logInfo.info(Double.toString(custAccBean.getOtbcredit()));
                 logInfo.info(Double.toString(custAccBean.getOtbcash()));
                 logInfo.info(custAccBean.getAccountnumber());
@@ -456,9 +460,9 @@ public class KnockOffRepo implements KnockOffDao {
         int count = 0;
 
         try {
-            String query = "UPDATE ECMS_ONLINE_CUSTOMER SET OTBCREDIT= OTBCREDIT - ?,OTBCASH= OTBCASH - ? WHERE CUSTOMERID = ?  ";
+            //String query = "UPDATE ECMS_ONLINE_CUSTOMER SET OTBCREDIT= OTBCREDIT - ?,OTBCASH= OTBCASH - ? WHERE CUSTOMERID = ?";
 
-            count = onlineJdbcTemplate.update(query,
+            count = onlineJdbcTemplate.update(queryParametersList.getKnockOff_OnlineupdateCustomerOtb(),
                     custAccBean.getOtbcredit(),
                     custAccBean.getOtbcash(),
                     custAccBean.getCustomerid()
@@ -467,7 +471,7 @@ public class KnockOffRepo implements KnockOffDao {
             if (Configurations.ONLINE_LOG_LEVEL == 1) {
                 //Only for troubleshoot
                 logInfo.info("================ updateCustomerOtb ===================" + Configurations.EOD_ID);
-                logInfo.info(query);
+                logInfo.info(queryParametersList.getKnockOff_OnlineupdateCustomerOtb());
                 logInfo.info(Double.toString(custAccBean.getOtbcredit()));
                 logInfo.info(Double.toString(custAccBean.getOtbcash()));
                 logInfo.info(custAccBean.getCustomerid());

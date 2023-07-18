@@ -21,12 +21,14 @@ import org.springframework.stereotype.Service;
 import java.util.ArrayList;
 import java.util.LinkedHashMap;
 import java.util.List;
+import java.util.concurrent.atomic.AtomicInteger;
 
 @Service
 public class LoanOnCardConnector extends ProcessBuilder {
 
     private static final Logger logInfo = LoggerFactory.getLogger("logInfo");
     private static final Logger logError = LoggerFactory.getLogger("logError");
+    public AtomicInteger faileCardCount = new AtomicInteger(0);
     @Autowired
     LogManager logManager;
     @Autowired
@@ -61,23 +63,28 @@ public class LoanOnCardConnector extends ProcessBuilder {
                  */
                 txnList = installmentPaymentRepo.getBTOrLOCDetails("LOANONCARDREQUEST", "LOANONCARDPLAN");
                 Configurations.PROCESS_TOTAL_NOOF_TRABSACTIONS += txnList.size();
-                for (InstallmentBean installmentBean : txnList) {
-                    loanOnCardService.startLOCProcess(installmentBean, processBean);
-                }
+//                for (InstallmentBean installmentBean : txnList) {
+//                    loanOnCardService.startLOCProcess(installmentBean, processBean);
+//                }
+
+                txnList.forEach(installmentBean -> {
+                    loanOnCardService.startLOCProcess(installmentBean, processBean, faileCardCount);
+                });
+
                 //wait till all the threads are completed
                 while (!(taskExecutor.getActiveCount() == 0)) {
                     Thread.sleep(1000);
                 }
 
-                Configurations.PROCESS_TOTAL_NOOF_TRABSACTIONS = Configurations.NO_OF_LOAN_ON_CARDS;
-                Configurations.PROCESS_SUCCESS_COUNT = (Configurations.NO_OF_LOAN_ON_CARDS - Configurations.FAILED_LOAN_ON_CARDS);
-                Configurations.PROCESS_FAILD_COUNT = Configurations.FAILED_LOAN_ON_CARDS;
+                  Configurations.PROCESS_TOTAL_NOOF_TRABSACTIONS = Configurations.NO_OF_LOAN_ON_CARDS;
+//                Configurations.PROCESS_SUCCESS_COUNT = (Configurations.NO_OF_LOAN_ON_CARDS - Configurations.FAILED_LOAN_ON_CARDS);
+//                Configurations.PROCESS_FAILD_COUNT = Configurations.FAILED_LOAN_ON_CARDS;
             }
         } catch (Exception e) {
             Configurations.IS_PROCESS_COMPLETELY_FAILED = true;
             logError.error("Loan On Card process failed", e);
         } finally {
-            logInfo.info(logManager.logSummery(summery));
+            //logInfo.info(logManager.logSummery(summery));
             /** PADSS Change -
              variables handling card data should be nullified by replacing the value of variable with zero and call NULL function */
             if (txnList != null && txnList.size() != 0) {
@@ -92,8 +99,8 @@ public class LoanOnCardConnector extends ProcessBuilder {
     @Override
     public void addSummaries() {
         summery.put("Started Date", Configurations.EOD_DATE.toString());
-        summery.put("No of Card effected", Integer.toString(Configurations.NO_OF_LOAN_ON_CARDS));
-        summery.put("No of Success Card ", Integer.toString(Configurations.NO_OF_LOAN_ON_CARDS - Configurations.FAILED_LOAN_ON_CARDS));
-        summery.put("No of fail Card ", Integer.toString(Configurations.FAILED_LOAN_ON_CARDS));
+        summery.put("No of Card effected", Configurations.PROCESS_TOTAL_NOOF_TRABSACTIONS);
+        summery.put("No of Success Card ", Configurations.PROCESS_TOTAL_NOOF_TRABSACTIONS - faileCardCount.get());
+        summery.put("No of fail Card ",faileCardCount.get());
     }
 }

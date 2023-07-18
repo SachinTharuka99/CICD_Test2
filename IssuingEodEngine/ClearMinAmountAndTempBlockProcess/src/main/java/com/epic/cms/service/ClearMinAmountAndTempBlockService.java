@@ -20,6 +20,7 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
+import java.util.concurrent.atomic.AtomicInteger;
 
 
 @Service
@@ -46,7 +47,7 @@ public class ClearMinAmountAndTempBlockService {
 
     @Async("taskExecutor2")
     @Transactional(value = "transactionManager", propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
-    public void processClearMinAmountAndTempBlock(LastStatementSummeryBean lastStatement) {
+    public void processClearMinAmountAndTempBlock(LastStatementSummeryBean lastStatement, AtomicInteger faileCardCount) {
         if (!Configurations.isInterrupted) {
             ArrayList<StringBuffer[]> allCardList = new ArrayList<>();
             LinkedHashMap details = new LinkedHashMap();
@@ -137,11 +138,11 @@ public class ClearMinAmountAndTempBlockService {
                         Statusts.SUMMARY_FOR_MINPAYMENT_RISK_REMOVED++;
                     }
                 }
-                Configurations.PROCESS_SUCCESS_COUNT++;
             } catch (Exception e) {
                 Configurations.errorCardList.add(new ErrorCardBean(Configurations.ERROR_EOD_ID, Configurations.EOD_DATE, new StringBuffer(lastStatement.getCardno()), e.getMessage(), Configurations.RUNNING_PROCESS_ID, Configurations.RUNNING_PROCESS_DESCRIPTION, 0, CardAccount.CARD));
                 logError.error("Failed Clear Min Amount And Temp Block Process " + CommonMethods.cardNumberMask(cardNo), e);
-                Configurations.PROCESS_FAILD_COUNT++;
+                faileCardCount.addAndGet(1);
+               // Configurations.PROCESS_FAILED_COUNT.set(Configurations.PROCESS_FAILED_COUNT.getAndIncrement());
             } finally {
                 if (details.size() > 0 ) {
                     logInfo.info(logManager.logDetails(details));

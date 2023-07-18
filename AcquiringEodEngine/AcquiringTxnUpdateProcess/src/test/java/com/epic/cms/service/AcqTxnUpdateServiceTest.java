@@ -108,7 +108,7 @@ class AcqTxnUpdateServiceTest {
                 eq("EOD_PENDING_STATUS"))).thenReturn(1);
         when(acqTxnUpdateServiceUnderTest.commonRepo.updateTransactionToEDON(anyString(),
                 any(StringBuffer.class))).thenReturn(1);
-        when(acqTxnUpdateServiceUnderTest.logManager.processDetailsStyles(
+        when(acqTxnUpdateServiceUnderTest.logManager.logDetails(
                 Map.ofEntries(Map.entry("value", "value")))).thenReturn("result");
 
         // Run the test

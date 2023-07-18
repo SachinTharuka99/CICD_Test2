@@ -13,7 +13,6 @@
         <module>EODEngineConsumer</module>
         <module>InitialProcess</module>
         <module>CardReplaceProcess</module>
-        <module>EodParameterResetProcess</module>
         <module>EodAtmCashAdvanceUpdateProcess</module>
         <module>PaymentReversalProcess</module>
         <module>EODPaymentUpdateProcess</module>

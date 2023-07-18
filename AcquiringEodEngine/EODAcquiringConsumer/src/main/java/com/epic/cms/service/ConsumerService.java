@@ -22,12 +22,6 @@ public class ConsumerService {
     AcquiringAdjustmentConnector acquiringAdjustmentConnector;
 
     @Autowired
-    MerchantPaymentFileConnector merchantPaymentFileConnector;
-
-    @Autowired
-    MerchantGLSummaryFileConnector merchantGLSummaryFileConnector;
-
-    @Autowired
     MerchantFeeConnector merchantFeeConnector;
 
     @Autowired
@@ -40,7 +34,19 @@ public class ConsumerService {
     MerchantCommissionCalculationConnector commissionCalculationConnector;
 
     @Autowired
+    EodParameterResetConnector eodParameterResetConnector;
+
+    @Autowired
+    MerchantCustomerStatementConnector merchantCustomerStatementConnector;
+
+    @Autowired
     OriginatorPushTxnUpdateConnector originatorPushTxnUpdateConnector;
+
+    @Autowired
+    RecipientPushTxnUpdateConnector recipientPushTxnUpdateController;
+
+    @Autowired
+    MerchantStatementConnector merchantStatementConnector;
 
     @KafkaListener(topics = "acqTxnUpdate", groupId = "group_acqTxnUpdate")
     public void acqTxnUpdateConsumer(String uniqueID) throws Exception {
@@ -64,22 +70,6 @@ public class ConsumerService {
         System.out.println("Start AcquiringAdjustment Process");
         acquiringAdjustmentConnector.startProcess(Configurations.PROCESS_ACQUIRING_ADJUSTMENT_PROCESS, uniqueID);
         System.out.println("Complete AcquiringAdjustment Process");
-    }
-
-    @KafkaListener(topics = "MerchantPaymentFile", groupId = "group_MerchantPaymentFile")
-    public void MerchantPaymentFileConsumer(String uniqueID) throws Exception {
-        Configurations.eodUniqueId = uniqueID;
-        System.out.println("Start MerchantPaymentFile Process");
-        merchantPaymentFileConnector.startProcess(Configurations.PROCESS_ID_MERCHANT_PAYMENT_FILE_CREATION, uniqueID);
-        System.out.println("Complete MerchantPaymentFile Process");
-    }
-
-    @KafkaListener(topics = "MerchantGLSummaryFile", groupId = "group_MerchantGLSummaryFile")
-    public void MerchantGLSummaryFileConsumer(String uniqueID) throws Exception {
-        Configurations.eodUniqueId = uniqueID;
-        System.out.println("Start MerchantGLSummaryFile Process");
-        merchantGLSummaryFileConnector.startProcess(Configurations.PROCESS_ID_MERCHANT_GL_FILE_CREATION, uniqueID);
-        System.out.println("Complete MerchantGLSummaryFile Process");
     }
 
     @KafkaListener(topics = "merchantFee", groupId = "group_merchantFee")
@@ -112,6 +102,21 @@ public class ConsumerService {
         System.out.println("Complete MerchantCommissionCalculation Process");
     }
 
+    @KafkaListener(topics = "eodParameterReset", groupId = "group_eodParameterReset")
+    public void eodParameterResetConsumer(String uniqueID) throws Exception {
+        Configurations.eodUniqueId = uniqueID;
+        System.out.println("Start EOD Parameter Reset Process");
+        eodParameterResetConnector.startProcess(Configurations.PROCESS_ID_EOD_PARAMETER_RESET, uniqueID);
+        System.out.println("Complete EOD Parameter Reset Process");
+    }
+
+    @KafkaListener(topics = "merchantCustomerStatement", groupId = "group_merchantCustomerStatement")
+    public void merchantCustomerStatement(String uniqueID) throws Exception {
+        System.out.println("Start Merchant Customer Statement Process");
+        merchantCustomerStatementConnector.startProcess(Configurations.PROCESS_ID_MERCHANT_CUSTOMER_STATEMENT, uniqueID);
+        System.out.println("Complete Merchant Customer Statement Process");
+    }
+
     @KafkaListener(topics = "originatorPushTxnUpdate", groupId = "group_originatorPushTxnUpdate")
     public void originatorPushTxnUpdateConsumer(String uniqueID) throws Exception {
         System.out.println("Start OriginatorPushTxnUpdate Process");
@@ -119,4 +124,17 @@ public class ConsumerService {
         System.out.println("Complete OriginatorPushTxnUpdate Process");
     }
 
+    @KafkaListener(topics = "recipientPushTransaction", groupId = "group_recipientPushTransaction")
+    public void recipientPushTransaction(String uniqueID) throws Exception {
+        System.out.println("Start recipientPushTransaction Process");
+        recipientPushTxnUpdateController.startProcess(Configurations.PROCESS_ID_RECIPIENT_PUSH_TXN_UPDATE, uniqueID);
+        System.out.println("Complete recipientPushTransaction Process");
+    }
+
+    @KafkaListener(topics = "merchantStatement", groupId = "group_merchantStatement")
+    public void merchantStatement(String uniqueID) throws Exception {
+        System.out.println("Start merchantStatement Process");
+        merchantStatementConnector.startProcess(Configurations.PROCESS_ID_MERCHANT_STATEMENT, uniqueID);
+        System.out.println("Complete merchantStatement Process");
+    }
 }

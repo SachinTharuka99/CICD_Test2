@@ -17,6 +17,7 @@ import org.mockito.Mockito;
 
 import java.text.SimpleDateFormat;
 import java.util.*;
+import java.util.concurrent.atomic.AtomicInteger;
 
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.*;
@@ -29,6 +30,7 @@ class LoanOnCardServiceTest {
     private LoanOnCardService loanOnCardServiceUnderTest;
     static MockedStatic<CommonMethods> common;
     static String EOD_ID = "22110400";
+    public AtomicInteger faileCardCount = new AtomicInteger(0);
 
     @BeforeAll
     public static void init() throws Exception {
@@ -217,7 +219,7 @@ class LoanOnCardServiceTest {
         when(loanOnCardServiceUnderTest.installmentPaymentRepo.updateFeeToEDONInTransactionTable(any(StringBuffer.class), anyString(), eq("TTC034"))).thenReturn(1);
 
         // Run the test
-        loanOnCardServiceUnderTest.startLOCProcess(installmentBean, processBean);
+        loanOnCardServiceUnderTest.startLOCProcess(installmentBean, processBean, faileCardCount);
 
         // Verify the results
         assertEquals(1, loanOnCardServiceUnderTest.installmentPaymentRepo.insertInToEODTransactionOnlyVisaFalse(installmentBean.getCardNumber(), installmentBean.getAccNo(), Double.parseDouble(installmentBean.getTxnAmount()), installmentBean.getCurruncyCode(), "TEST", "TEST",
@@ -296,7 +298,7 @@ class LoanOnCardServiceTest {
         when(loanOnCardServiceUnderTest.installmentPaymentRepo.updateEasyPaymentTable(any(InstallmentBean.class), eq("LOANONCARDREQUEST"))).thenReturn(1);
 
         // Run the test
-        loanOnCardServiceUnderTest.startLOCProcess(installmentBean, processBean);
+        loanOnCardServiceUnderTest.startLOCProcess(installmentBean, processBean,faileCardCount);
 
         // Verify the result
         if (feeApplyOnFirstMonth.equals("NO")) {

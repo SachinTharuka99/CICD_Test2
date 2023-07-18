@@ -16,6 +16,7 @@ import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.concurrent.atomic.AtomicInteger;
 
 
 @Service
@@ -23,6 +24,7 @@ public class CheckPaymentForMinimumAmountConnector extends ProcessBuilder {
 
     private static final Logger logInfo = LoggerFactory.getLogger("logInfo");
     private static final Logger logError = LoggerFactory.getLogger("logError");
+    public AtomicInteger faileCardCount = new AtomicInteger(0);
     @Autowired
     StatusVarList statusVarList;
     @Autowired
@@ -48,25 +50,27 @@ public class CheckPaymentForMinimumAmountConnector extends ProcessBuilder {
             Configurations.PROCESS_TOTAL_NOOF_TRABSACTIONS = cardList.size();
             summery.put("Checking cards for min payment", cardList.size() + "");
 
-            for (LastStatementSummeryBean lastStatement : cardList) {
-                checkPaymentForMinimumAmountService.CheckPaymentForMinimumAmount(lastStatement);
-            }
+//            for (LastStatementSummeryBean lastStatement : cardList) {
+//                checkPaymentForMinimumAmountService.CheckPaymentForMinimumAmount(lastStatement);
+//            }
+            cardList.forEach(lastStatement-> {
+                checkPaymentForMinimumAmountService.CheckPaymentForMinimumAmount(lastStatement,faileCardCount);
+            });
+
 
             //wait till all the threads are completed
             while (!(taskExecutor.getActiveCount() == 0)) {
                 Thread.sleep(1000);
             }
 
-            failedCount = Configurations.PROCESS_FAILD_COUNT;
             Configurations.PROCESS_TOTAL_NOOF_TRABSACTIONS = cardList.size();
-            Configurations.PROCESS_SUCCESS_COUNT = (cardList.size() - failedCount);
-            Configurations.PROCESS_FAILD_COUNT = failedCount;
+            Configurations.PROCESS_SUCCESS_COUNT = (Configurations.PROCESS_TOTAL_NOOF_TRABSACTIONS - faileCardCount.get());
 
         } catch (Exception e) {
             Configurations.IS_PROCESS_COMPLETELY_FAILED = true;
             logError.error("Check Payment For Minimum Amount process ended with", e);
         } finally {
-            logInfo.info(logManager.logSummery(summery));
+           // logInfo.info(logManager.logSummery(summery));
             try {
                 if (cardList != null && cardList.size() != 0) {
                     for (LastStatementSummeryBean lastStatementSummeryBean : cardList) {

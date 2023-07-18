@@ -25,6 +25,7 @@ import org.springframework.scheduling.concurrent.ThreadPoolTaskExecutor;
 import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
+import java.util.concurrent.atomic.AtomicInteger;
 
 
 @Service
@@ -32,6 +33,7 @@ public class EOMSupplementaryCardResetConnector extends ProcessBuilder {
 
     private static final Logger logInfo = LoggerFactory.getLogger("logInfo");
     private static final Logger logError = LoggerFactory.getLogger("logError");
+    public AtomicInteger faileCardCount = new AtomicInteger(0);
     @Autowired
     CommonRepo commonRepo;
     @Autowired
@@ -65,9 +67,14 @@ public class EOMSupplementaryCardResetConnector extends ProcessBuilder {
                 ArrayList accList = eomSupplementaryCardResetDao.getEligibleAccounts();
                 Configurations.PROCESS_TOTAL_NOOF_TRABSACTIONS = accList.size();
 
-                for (int i = 0; i < accList.size(); i++) {
-                    eomSupplementaryCardResetService.SupplementryResetThread(accList.get(i));
-                }
+//                for (int i = 0; i < accList.size(); i++) {
+//                    eomSupplementaryCardResetService.SupplementryResetThread(accList.get(i));
+//                }
+
+                accList.forEach(acc -> {
+                    eomSupplementaryCardResetService.SupplementryResetThread(acc,faileCardCount);
+                });
+
                 /**wait till all the threads are completed*/
                 while (!(taskExecutor.getActiveCount() == 0)) {
                     Thread.sleep(1000);
@@ -88,14 +95,14 @@ public class EOMSupplementaryCardResetConnector extends ProcessBuilder {
                 logError.error("Supplementary Reset Process", e2);
             }
         } finally {
-            logInfo.info(logManager.logSummery(summery));
+            //logInfo.info(logManager.logSummery(summery));
         }
     }
 
     @Override
     public void addSummaries() {
         summery.put("Number of accounts to supplementry card reset ", Configurations.PROCESS_TOTAL_NOOF_TRABSACTIONS);
-        summery.put("Number of success card reset ", Configurations.PROCESS_TOTAL_NOOF_TRABSACTIONS - Configurations.PROCESS_FAILD_COUNT);
-        summery.put("Number of failure supplementry card ", Configurations.PROCESS_FAILD_COUNT);
+        summery.put("Number of success card reset ", Configurations.PROCESS_TOTAL_NOOF_TRABSACTIONS - faileCardCount.get());
+        summery.put("Number of failure supplementry card ", faileCardCount.get());
     }
 }

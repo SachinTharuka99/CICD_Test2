@@ -28,11 +28,14 @@ import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
 import java.util.LinkedHashMap;
+import java.util.Optional;
+import java.util.concurrent.atomic.AtomicInteger;
 
 @Service
 public class RiskCalculationConnector extends ProcessBuilder {
     private static final Logger logInfo = LoggerFactory.getLogger("logInfo");
     private static final Logger logError = LoggerFactory.getLogger("logError");
+    public AtomicInteger faileCardCount = new AtomicInteger(0);
     @Autowired
     CommonRepo commonRepo;
     @Autowired
@@ -75,9 +78,14 @@ public class RiskCalculationConnector extends ProcessBuilder {
                 delinquentCardList = riskCalculationDao.getDelinquentAccounts();
                 Configurations.PROCESS_TOTAL_NOOF_TRABSACTIONS += delinquentCardList.size();
 
-                for (DelinquentAccountBean delinquentAccountBean : delinquentCardList) {
-                    riskCalculationService.riskCalculationProcess(delinquentAccountBean, configProcess, processBean);
-                }
+//                for (DelinquentAccountBean delinquentAccountBean : delinquentCardList) {
+//                    riskCalculationService.riskCalculationProcess(delinquentAccountBean, configProcess, processBean,faileCardCount);
+//                }
+
+                delinquentCardList.forEach(delinquentAccountBean -> {
+                    riskCalculationService.riskCalculationProcess(delinquentAccountBean, configProcess, processBean,faileCardCount);
+                });
+
                 //wait till all the threads are completed
                 while (!(taskExecutor.getActiveCount() == 0)) {
                     Thread.sleep(1000);
@@ -91,9 +99,15 @@ public class RiskCalculationConnector extends ProcessBuilder {
                 cardList = riskCalculationDao.getRiskCalculationCardList();
                 Configurations.PROCESS_TOTAL_NOOF_TRABSACTIONS += cardList.size();
                 if (cardList.size() > 0) {
-                    for (RiskCalculationBean riskCalculationBean : cardList) {
-                        riskCalculationService.freshCardToTable(riskCalculationBean, processBean);
-                    }
+//                    for (RiskCalculationBean riskCalculationBean : cardList) {
+//                        riskCalculationService.freshCardToTable(riskCalculationBean, processBean,faileCardCount);
+//                    }
+                    cardList.forEach(riskCalculationBean -> {
+                        riskCalculationService.freshCardToTable(riskCalculationBean, processBean,faileCardCount);
+                    });
+
+
+
                     //wait till all the threads are completed
                     while (!(taskExecutor.getActiveCount() == 0)) {
                         Thread.sleep(1000);
@@ -102,24 +116,24 @@ public class RiskCalculationConnector extends ProcessBuilder {
                     logInfo.info("No new cards for add to risk class");
                 }
 
-                Configurations.PROCESS_TOTAL_NOOF_TRABSACTIONS = (noOfExistingCards + noOfNewCards);
-                Configurations.PROCESS_SUCCESS_COUNT = (noOfExistingCards + noOfNewCards) - (failedExistingCards + failedNewCards);
-                Configurations.PROCESS_FAILD_COUNT = (failedExistingCards + failedNewCards);
+               // Configurations.PROCESS_TOTAL_NOOF_TRABSACTIONS = (noOfExistingCards + noOfNewCards);
+               // Configurations.PROCESS_SUCCESS_COUNT = (noOfExistingCards + noOfNewCards) - (failedExistingCards + failedNewCards);
+                // Configurations.PROCESS_FAILD_COUNT = (failedExistingCards + failedNewCards);
             }
 
         } catch (Exception e) {
             Configurations.IS_PROCESS_COMPLETELY_FAILED = true;
             logError.error("RISK_CALCULATION_PROCESS ended with", e);
         } finally {
-            logInfo.info(logManager.logSummery(summery));
+            //logInfo.info(logManager.logSummery(summery));
         }
     }
 
     @Override
     public void addSummaries() {
         summery.put("Started Date", Configurations.EOD_DATE.toString());
-        summery.put("No of Card effected", Integer.toString(Configurations.PROCESS_TOTAL_NOOF_TRABSACTIONS));
-        summery.put("No of Success Card ", Integer.toString(Configurations.PROCESS_SUCCESS_COUNT));
-        summery.put("No of fail Card ", Integer.toString(Configurations.PROCESS_FAILD_COUNT));
+        summery.put("No of Card effected", Configurations.PROCESS_TOTAL_NOOF_TRABSACTIONS);
+        summery.put("No of Success Card ", Configurations.PROCESS_TOTAL_NOOF_TRABSACTIONS - faileCardCount.get());
+        summery.put("No of fail Card ", faileCardCount.get());
     }
 }

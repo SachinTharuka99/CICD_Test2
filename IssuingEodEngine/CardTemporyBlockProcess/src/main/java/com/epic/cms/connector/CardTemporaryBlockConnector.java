@@ -19,6 +19,11 @@ import org.springframework.scheduling.concurrent.ThreadPoolTaskExecutor;
 import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
+import java.util.LinkedList;
+import java.util.Queue;
+import java.util.concurrent.ArrayBlockingQueue;
+import java.util.concurrent.BlockingQueue;
+import java.util.concurrent.atomic.AtomicInteger;
 
 
 @Service
@@ -41,8 +46,9 @@ public class CardTemporaryBlockConnector extends ProcessBuilder {
     LogManager logManager;
     ArrayList<BlockCardBean> cardList = null;
     ProcessBean processBean = new ProcessBean();
-    private int failedCount = 0;
-
+    int capacity = 200000;
+    BlockingQueue<Integer> failCount = new ArrayBlockingQueue<>(capacity);
+    BlockingQueue<Integer> successCount = new ArrayBlockingQueue<>(capacity);
     @Override
     public void concreteProcess() throws Exception {
         try {
@@ -53,26 +59,21 @@ public class CardTemporaryBlockConnector extends ProcessBuilder {
             if (processBean != null) {
                 Configurations.NO_OF_MONTHS_FOR_PERMENANT_BLOCK = cardTemporaryBlockRepo.getBlockTheshholdPeriod("TEMPORARYBLKTHRESHOLD");
                 cardList = cardTemporaryBlockRepo.getCardListFromMinPayment(Configurations.EOD_PENDING_STATUS, Configurations.NO_OF_MONTHS_FOR_TEMPORARY_BLOCK);
+                Configurations.PROCESS_TOTAL_NOOF_TRABSACTIONS = cardList.size();
 
                 if (cardList != null && cardList.size() > 0) {
-                    for (BlockCardBean blockCardBean : cardList) {
-                        cardTemporaryBlockService.processCardTemporaryBlock(blockCardBean, processBean);
-                    }
+                    cardList.forEach(blockCardBean -> {
+                        cardTemporaryBlockService.processCardTemporaryBlock(blockCardBean, processBean,successCount,failCount);
+                    });
                 }
                 while (!(taskExecutor.getActiveCount() == 0)) {
                     Thread.sleep(1000);
                 }
-
-                failedCount = Configurations.PROCESS_FAILD_COUNT;
-                Configurations.PROCESS_TOTAL_NOOF_TRABSACTIONS = cardList.size();
-                Configurations.PROCESS_SUCCESS_COUNT = (cardList.size() - failedCount);
-                Configurations.PROCESS_FAILD_COUNT = failedCount;
             }
         } catch (Exception ex) {
             Configurations.IS_PROCESS_COMPLETELY_FAILED = true;
             throw ex;
         } finally {
-            logInfo.info(logManager.logSummery(summery));
             try {
                 /** PADSS Change -
                  variables handling card data should be nullified by replacing the value of variable with zero and call NULL function */
@@ -89,11 +90,9 @@ public class CardTemporaryBlockConnector extends ProcessBuilder {
     }
 
     public void addSummaries() {
-
         summery.put("Started Date", Configurations.EOD_DATE.toString());
         summery.put("No of Card effected", Configurations.PROCESS_TOTAL_NOOF_TRABSACTIONS);
-        summery.put("No of Success Card", Configurations.PROCESS_SUCCESS_COUNT);
-        summery.put("No of fail Card", Configurations.PROCESS_FAILD_COUNT);
-
+        summery.put("No of Success Card", successCount.size());
+        summery.put("No of fail Card", failCount.size());
     }
 }

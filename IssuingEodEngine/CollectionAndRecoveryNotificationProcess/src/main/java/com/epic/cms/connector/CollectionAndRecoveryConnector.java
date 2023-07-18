@@ -19,6 +19,7 @@ import org.springframework.scheduling.concurrent.ThreadPoolTaskExecutor;
 import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
+import java.util.concurrent.atomic.AtomicInteger;
 
 
 @Service
@@ -26,6 +27,8 @@ public class CollectionAndRecoveryConnector extends ProcessBuilder {
 
     private static final Logger logInfo = LoggerFactory.getLogger("logInfo");
     private static final Logger logError = LoggerFactory.getLogger("logError");
+    public AtomicInteger faileCardCount = new AtomicInteger(0);
+
     @Autowired
     LogManager logManager;
     @Autowired
@@ -46,7 +49,7 @@ public class CollectionAndRecoveryConnector extends ProcessBuilder {
         int noOfCards = 0;
         int failedCards = 0;
         int noOfDays;
-        ProcessBean processBean = null;
+
         ArrayList<CollectionAndRecoveryBean> cardList = new ArrayList<CollectionAndRecoveryBean>();
 
         try {
@@ -67,9 +70,12 @@ public class CollectionAndRecoveryConnector extends ProcessBuilder {
 
                 if (cardList.size() > 0) {
                     logInfo.info("X_DATES_BEFORE_FIRST_DUE_DATE");
-                    for (CollectionAndRecoveryBean collectionAndRecoveryBean : cardList) {
-                        collectionAndRecoveryService.processX_DATES_BEFORE_FIRST_DUE_DATE(collectionAndRecoveryBean, processBean);
-                    }
+//                    for (CollectionAndRecoveryBean collectionAndRecoveryBean : cardList) {
+//                        collectionAndRecoveryService.processX_DATES_BEFORE_FIRST_DUE_DATE(collectionAndRecoveryBean, processBean);
+//                    }
+                    cardList.forEach(collectionAndRecoveryBean->{
+                     collectionAndRecoveryService.processX_DATES_BEFORE_FIRST_DUE_DATE(collectionAndRecoveryBean, processBean,faileCardCount);
+                    });
 
                     while (!(taskExecutor.getActiveCount() == 0)) {
                         Thread.sleep(1000);
@@ -83,9 +89,10 @@ public class CollectionAndRecoveryConnector extends ProcessBuilder {
                 Configurations.PROCESS_TOTAL_NOOF_TRABSACTIONS += cardList.size();
                 if (cardList.size() > 0) {
                     logInfo.info("X_DATES_AFTER_FIRST_DUE_DATE");
-                    for (CollectionAndRecoveryBean collectionAndRecoveryBean : cardList) {
-                        collectionAndRecoveryService.processX_DATES_AFTER_FIRST_DUE_DATE(collectionAndRecoveryBean, processBean);
-                    }
+//                    for (CollectionAndRecoveryBean collectionAndRecoveryBean : cardList) {
+//                        collectionAndRecoveryService.processX_DATES_AFTER_FIRST_DUE_DATE(collectionAndRecoveryBean, processBean);
+//                    }
+                    cardList.forEach(collectionAndRecoveryBean-> collectionAndRecoveryService.processX_DATES_AFTER_FIRST_DUE_DATE(collectionAndRecoveryBean, processBean,faileCardCount));
 
                     while (!(taskExecutor.getActiveCount() == 0)) {
                         Thread.sleep(1000);
@@ -100,9 +107,11 @@ public class CollectionAndRecoveryConnector extends ProcessBuilder {
                 Configurations.PROCESS_TOTAL_NOOF_TRABSACTIONS += cardList.size();
                 if (cardList.size() > 0) {
                     logInfo.info("ON_THE_2ND_STATEMENT_DATE");
-                    for (CollectionAndRecoveryBean collectionAndRecoveryBean : cardList) {
-                        collectionAndRecoveryService.processON_THE_2ND_STATEMENT_DATE(collectionAndRecoveryBean, processBean);
-                    }
+//                    for (CollectionAndRecoveryBean collectionAndRecoveryBean : cardList) {
+//                        collectionAndRecoveryService.processON_THE_2ND_STATEMENT_DATE(collectionAndRecoveryBean, processBean);
+//                    }
+
+                    cardList.forEach(collectionAndRecoveryBean-> collectionAndRecoveryService.processON_THE_2ND_STATEMENT_DATE(collectionAndRecoveryBean, processBean,faileCardCount));
 
                     while (!(taskExecutor.getActiveCount() == 0)) {
                         Thread.sleep(1000);
@@ -116,9 +125,11 @@ public class CollectionAndRecoveryConnector extends ProcessBuilder {
                 Configurations.PROCESS_TOTAL_NOOF_TRABSACTIONS += cardList.size();
                 if (cardList.size() > 0) {
                     logInfo.info("X_DATES_AFTER_SECOND_STATEMENT");
-                    for (CollectionAndRecoveryBean collectionAndRecoveryBean : cardList) {
-                        collectionAndRecoveryService.processX_DATES_AFTER_SECOND_STATEMENT(collectionAndRecoveryBean, processBean);
-                    }
+//                    for (CollectionAndRecoveryBean collectionAndRecoveryBean : cardList) {
+//                        collectionAndRecoveryService.processX_DATES_AFTER_SECOND_STATEMENT(collectionAndRecoveryBean, processBean);
+//                    }
+                    cardList.forEach(collectionAndRecoveryBean -> collectionAndRecoveryService.processX_DATES_AFTER_SECOND_STATEMENT(collectionAndRecoveryBean, processBean,faileCardCount));
+
 
                     while (!(taskExecutor.getActiveCount() == 0)) {
                         Thread.sleep(1000);
@@ -132,9 +143,11 @@ public class CollectionAndRecoveryConnector extends ProcessBuilder {
                 Configurations.PROCESS_TOTAL_NOOF_TRABSACTIONS += cardList.size();
                 if (cardList.size() > 0) {
                     logInfo.info("IMMEDIATELY_AFTER_THE_2ND_DUE_DATE");
-                    for (CollectionAndRecoveryBean collectionAndRecoveryBean : cardList) {
-                        collectionAndRecoveryService.processIMMEDIATELY_AFTER_THE_2ND_DUE_DATE(collectionAndRecoveryBean, processBean);
-                    }
+//                    for (CollectionAndRecoveryBean collectionAndRecoveryBean : cardList) {
+//                        collectionAndRecoveryService.processIMMEDIATELY_AFTER_THE_2ND_DUE_DATE(collectionAndRecoveryBean, processBean);
+//                    }
+                    cardList.forEach(collectionAndRecoveryBean-> collectionAndRecoveryService.processIMMEDIATELY_AFTER_THE_2ND_DUE_DATE(collectionAndRecoveryBean, processBean,faileCardCount));
+
 
                     while (!(taskExecutor.getActiveCount() == 0)) {
                         Thread.sleep(1000);
@@ -148,9 +161,11 @@ public class CollectionAndRecoveryConnector extends ProcessBuilder {
                 Configurations.PROCESS_TOTAL_NOOF_TRABSACTIONS += cardList.size();
                 if (cardList.size() > 0) {
                     logInfo.info("ON_THE_3RD_STATEMENT_DATE");
-                    for (CollectionAndRecoveryBean collectionAndRecoveryBean : cardList) {
-                        collectionAndRecoveryService.processON_THE_3RD_STATEMENT_DATE(collectionAndRecoveryBean, processBean);
-                    }
+//                    for (CollectionAndRecoveryBean collectionAndRecoveryBean : cardList) {
+//                        collectionAndRecoveryService.processON_THE_3RD_STATEMENT_DATE(collectionAndRecoveryBean, processBean);
+//                    }
+                    cardList.forEach(collectionAndRecoveryBean-> collectionAndRecoveryService.processON_THE_3RD_STATEMENT_DATE(collectionAndRecoveryBean, processBean,faileCardCount));
+
 
                     while (!(taskExecutor.getActiveCount() == 0)) {
                         Thread.sleep(1000);
@@ -164,9 +179,10 @@ public class CollectionAndRecoveryConnector extends ProcessBuilder {
                 Configurations.PROCESS_TOTAL_NOOF_TRABSACTIONS += cardList.size();
                 if (cardList.size() > 0) {
                     logInfo.info("IMMEDIATELY_AFTER_THE_3RD_DUE_DATE");
-                    for (CollectionAndRecoveryBean collectionAndRecoveryBean : cardList) {
-                        collectionAndRecoveryService.processIMMEDIATELY_AFTER_THE_3RD_DUE_DATE(collectionAndRecoveryBean, processBean);
-                    }
+//                    for (CollectionAndRecoveryBean collectionAndRecoveryBean : cardList) {
+//                        collectionAndRecoveryService.processIMMEDIATELY_AFTER_THE_3RD_DUE_DATE(collectionAndRecoveryBean, processBean);
+//                    }
+                    cardList.forEach(collectionAndRecoveryBean-> collectionAndRecoveryService.processIMMEDIATELY_AFTER_THE_3RD_DUE_DATE(collectionAndRecoveryBean, processBean,faileCardCount));
 
                     while (!(taskExecutor.getActiveCount() == 0)) {
                         Thread.sleep(1000);
@@ -180,9 +196,11 @@ public class CollectionAndRecoveryConnector extends ProcessBuilder {
                 Configurations.PROCESS_TOTAL_NOOF_TRABSACTIONS += cardList.size();
                 if (cardList.size() > 0) {
                     logInfo.info("ON_THE_4TH_STATEMENT_DATE");
-                    for (CollectionAndRecoveryBean collectionAndRecoveryBean : cardList) {
-                        collectionAndRecoveryService.processON_THE_4TH_STATEMENT_DATE(collectionAndRecoveryBean, processBean);
-                    }
+//                    for (CollectionAndRecoveryBean collectionAndRecoveryBean : cardList) {
+//                        collectionAndRecoveryService.processON_THE_4TH_STATEMENT_DATE(collectionAndRecoveryBean, processBean);
+//                    }
+                    cardList.forEach(collectionAndRecoveryBean-> collectionAndRecoveryService.processON_THE_4TH_STATEMENT_DATE(collectionAndRecoveryBean, processBean,faileCardCount));
+
 
                     while (!(taskExecutor.getActiveCount() == 0)) {
                         Thread.sleep(1000);
@@ -196,9 +214,11 @@ public class CollectionAndRecoveryConnector extends ProcessBuilder {
                 Configurations.PROCESS_TOTAL_NOOF_TRABSACTIONS += cardList.size();
                 if (cardList.size() > 0) {
                     logInfo.info("X_DAYS_AFTER_THE_4TH_STATEMENT_DATE");
-                    for (CollectionAndRecoveryBean collectionAndRecoveryBean : cardList) {
-                        collectionAndRecoveryService.processX_DAYS_AFTER_THE_4TH_STATEMENT_DATE(collectionAndRecoveryBean, processBean);
-                    }
+//                    for (CollectionAndRecoveryBean collectionAndRecoveryBean : cardList) {
+//                        collectionAndRecoveryService.processX_DAYS_AFTER_THE_4TH_STATEMENT_DATE(collectionAndRecoveryBean, processBean);
+//                    }
+                    cardList.forEach(collectionAndRecoveryBean -> collectionAndRecoveryService.processX_DAYS_AFTER_THE_4TH_STATEMENT_DATE(collectionAndRecoveryBean, processBean,faileCardCount));
+
 
                     while (!(taskExecutor.getActiveCount() == 0)) {
                         Thread.sleep(1000);
@@ -212,9 +232,10 @@ public class CollectionAndRecoveryConnector extends ProcessBuilder {
                 Configurations.PROCESS_TOTAL_NOOF_TRABSACTIONS += cardList.size();
                 if (cardList.size() > 0) {
                     logInfo.info("WITHIN_X_DAYS_OF_THE_CRIB_INFO_LETTER_REMINDER");
-                    for (CollectionAndRecoveryBean collectionAndRecoveryBean : cardList) {
-                        collectionAndRecoveryService.processWITHIN_X_DAYS_OF_THE_CRIB_INFO_LETTER_REMINDER(collectionAndRecoveryBean, processBean);
-                    }
+//                    for (CollectionAndRecoveryBean collectionAndRecoveryBean : cardList) {
+//                        collectionAndRecoveryService.processWITHIN_X_DAYS_OF_THE_CRIB_INFO_LETTER_REMINDER(collectionAndRecoveryBean, processBean);
+//                    }
+                    cardList.forEach(collectionAndRecoveryBean -> collectionAndRecoveryService.processWITHIN_X_DAYS_OF_THE_CRIB_INFO_LETTER_REMINDER(collectionAndRecoveryBean, processBean,faileCardCount));
 
                     while (!(taskExecutor.getActiveCount() == 0)) {
                         Thread.sleep(1000);
@@ -228,9 +249,10 @@ public class CollectionAndRecoveryConnector extends ProcessBuilder {
                 Configurations.PROCESS_TOTAL_NOOF_TRABSACTIONS += cardList.size();
                 if (cardList.size() > 0) {
                     logInfo.info("IMMEDIATELY_AFTER_THE_4TH_DUE_DATE");
-                    for (CollectionAndRecoveryBean collectionAndRecoveryBean : cardList) {
-                        collectionAndRecoveryService.processIMMEDIATELY_AFTER_THE_4TH_DUE_DATE(collectionAndRecoveryBean, processBean);
-                    }
+//                    for (CollectionAndRecoveryBean collectionAndRecoveryBean : cardList) {
+//                        collectionAndRecoveryService.processIMMEDIATELY_AFTER_THE_4TH_DUE_DATE(collectionAndRecoveryBean, processBean);
+//                    }
+                    cardList.forEach(collectionAndRecoveryBean-> collectionAndRecoveryService.processIMMEDIATELY_AFTER_THE_4TH_DUE_DATE(collectionAndRecoveryBean, processBean,faileCardCount));
 
                     while (!(taskExecutor.getActiveCount() == 0)) {
                         Thread.sleep(1000);
@@ -277,9 +299,14 @@ public class CollectionAndRecoveryConnector extends ProcessBuilder {
 
     @Override
     public void addSummaries() {
+//        summery.put("Started Date", Configurations.EOD_DATE.toString());
+//        summery.put("No of Card effected", Configurations.PROCESS_TOTAL_NOOF_TRABSACTIONS);
+//        summery.put("No of Success Card ", Configurations.PROCESS_SUCCESS_COUNT);
+//        summery.put("No of fail Card ", Configurations.PROCESS_FAILD_COUNT);
+
         summery.put("Started Date", Configurations.EOD_DATE.toString());
         summery.put("No of Card effected", Configurations.PROCESS_TOTAL_NOOF_TRABSACTIONS);
-        summery.put("No of Success Card ", Configurations.PROCESS_SUCCESS_COUNT);
-        summery.put("No of fail Card ", Configurations.PROCESS_FAILD_COUNT);
+        summery.put("No of Success Card ", Configurations.PROCESS_TOTAL_NOOF_TRABSACTIONS - faileCardCount.get());
+        summery.put("No of fail Card ",faileCardCount.get());
     }
 }

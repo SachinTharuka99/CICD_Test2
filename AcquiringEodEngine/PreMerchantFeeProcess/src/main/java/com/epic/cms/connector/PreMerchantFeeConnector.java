@@ -28,14 +28,11 @@ import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 
 @Service
 public class PreMerchantFeeConnector extends ProcessBuilder {
-
-    public List<ErrorMerchantBean> merchantErrorList;
-    public int configProcess = Configurations.PROCESS_PRE_MERCHANT_FEE_PROCESS;
-    public String processHeader = "PRE_MERCHANT_FEE_PROCESS";
 
     @Autowired
     LogManager logManager;
@@ -65,8 +62,6 @@ public class PreMerchantFeeConnector extends ProcessBuilder {
             processBean = commonRepo.getProcessDetails(Configurations.PROCESS_PRE_MERCHANT_FEE_PROCESS);
 
             if (processBean != null) {
-                System.out.println("---------------------->> Pre Merchant Fee Process ....");
-
 
                 Configurations.RUNNING_PROCESS_ID = Configurations.PROCESS_PRE_MERCHANT_FEE_PROCESS;
                 CommonMethods.eodDashboardProgressParametersReset();
@@ -74,15 +69,17 @@ public class PreMerchantFeeConnector extends ProcessBuilder {
                 HashMap<String, List<String>> feeCodeMap = preMerchantFeeDao.getFeeCodeListForFeeProfile();
 
                 ArrayList<MerchantBeanForFee> merchantListForFeeProcess = preMerchantFeeDao.getMerchantListForFeeProcess();
-                SimpleDateFormat dateformat = new SimpleDateFormat("yyyy-MM-dd");
+                //SimpleDateFormat dateformat = new SimpleDateFormat("yyyy-MM-dd");
 
                 for (MerchantBeanForFee merchantBean : merchantListForFeeProcess) {
+                    // Perform operations with each MerchantBeanForFee object
                     preMerchantFeeService.preMerchantFee(merchantBean, feeCodeMap);
-
-                    while (!(taskExecutor.getActiveCount() == 0)) {
-                        Thread.sleep(1000);
-                    }
                 }
+
+                while (!(taskExecutor.getActiveCount() == 0)) {
+                    Thread.sleep(1000);
+                }
+
                 //update all merchants next recurring fee dates if recurring fee dates<=eoddate
                 preMerchantFeeDao.updateAllMerchantRecurringDates();
 
@@ -99,7 +96,6 @@ public class PreMerchantFeeConnector extends ProcessBuilder {
             try {
                 System.out.println("---------------------->> Pre Merchant Fee process failed....");
                 summery.put("Pre Merchant Fee process failed", "");
-//                dbConCommitTrue.updateEodProcessSummery(Configurations.EOD_ID, Statusts.ERROR_STATUS, Configurations.PROCESS_PRE_MERCHANT_FEE_PROCESS,Configurations.PROCESS_SUCCESS_COUNT,Configurations.PROCESS_FAILD_COUNT,CommonMethods.eodDashboardProcessProgress(Configurations.PROCESS_SUCCESS_COUNT, Configurations.PROCESS_TOTAL_NOOF_TRABSACTIONS));
 
                 if (processBean.getCriticalStatus() == 1) {
                     Configurations.COMMIT_STATUS = false;
@@ -118,8 +114,10 @@ public class PreMerchantFeeConnector extends ProcessBuilder {
 
     @Override
     public void addSummaries() {
+        summery.put("Effected Fee Count", Configurations.PROCESS_TOTAL_NOOF_TRABSACTIONS);
+        summery.put("Success Fee Count", Configurations.PROCESS_SUCCESS_COUNT);
+        summery.put("Failed merchant count", Configurations.PROCESS_FAILD_COUNT);
         summery.put("Success merchant  fee count", success_merchant_recurring_fee_count);
         summery.put("Success terminal  fee count", success_terminal_recurring_count);
-        summery.put("Failed merchant count", fail_merchant_count);
     }
 }

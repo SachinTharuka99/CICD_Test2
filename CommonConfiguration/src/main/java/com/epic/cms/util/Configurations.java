@@ -142,13 +142,14 @@ public class Configurations {
 
 
     public static String SERVER_RUN_PLATFORM;
-    public static int PROCESS_ID_EOD_PARAMETER_RESET;
+    public static int PROCESS_ID_EOD_PARAMETER_RESET; //211
     public static boolean COMMIT_STATUS;
     public static boolean FLOW_STEP_COMPLETE_STATUS;
     public static boolean PROCESS_FLOW_STEP_COMPLETE_STATUS;
     public static boolean MAIN_EOD_STATUS;
     public static volatile int PROCESS_SUCCESS_COUNT = 0;
-    public static volatile int PROCESS_FAILD_COUNT = 0;
+    public static int PROCESS_FAILD_COUNT = 0;
+    public static AtomicInteger PROCESS_FAILED_COUNT = new AtomicInteger(0);
     public static String EOD_USER;
     public static int EOD_ID;
     public static int ERROR_EOD_ID;
@@ -574,7 +575,7 @@ public class Configurations {
     public static String VISA_ACQ_BIN;
 
     // outgoing statement file (UPI) generation
-    public static int PROCESS_ID_OUTGOING_CUP_FILE_GEN;
+    public static int PROCESS_ID_OUTGOING_CUP_FILE_GEN;     //222
 
     public static int PROCESS_ID_OUTGOING_IPM_FILE_GEN;
     public static long MASTER_OUT_SEQUENCE_NUMBER = 0;

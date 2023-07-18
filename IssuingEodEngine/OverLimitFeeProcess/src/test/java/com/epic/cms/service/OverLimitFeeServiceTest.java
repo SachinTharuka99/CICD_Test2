@@ -14,6 +14,7 @@ import org.mockito.Mockito;
 
 import java.sql.Timestamp;
 import java.time.LocalDateTime;
+import java.util.concurrent.atomic.AtomicInteger;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
@@ -23,6 +24,8 @@ import static org.mockito.Mockito.*;
 class OverLimitFeeServiceTest {
 
     private OverLimitFeeService overLimitFeeServiceUnderTest;
+
+    public AtomicInteger faileCardCount = new AtomicInteger(0);
 
     @BeforeEach
     void setUp() {
@@ -73,7 +76,7 @@ class OverLimitFeeServiceTest {
                 eq(0))).thenReturn(0);
 
         // Run the test
-        overLimitFeeServiceUnderTest.addOverLimitFee(accountNum, cardNumber, processBean, "processHeader");
+        overLimitFeeServiceUnderTest.addOverLimitFee(accountNum, cardNumber, processBean, "processHeader",faileCardCount);
 
         // Verify the results
         verify(overLimitFeeServiceUnderTest.commonRepo,times(1)).addCardFeeCount(cardNumber, Configurations.OVER_LIMIT_FEE,

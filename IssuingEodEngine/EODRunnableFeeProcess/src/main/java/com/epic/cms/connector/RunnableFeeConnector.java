@@ -19,6 +19,7 @@ import org.springframework.stereotype.Service;
 import java.util.ArrayList;
 import java.util.LinkedHashMap;
 import java.util.List;
+import java.util.concurrent.atomic.AtomicInteger;
 
 import static com.epic.cms.util.Configurations.FAILED_CARDS;
 
@@ -26,6 +27,7 @@ import static com.epic.cms.util.Configurations.FAILED_CARDS;
 public class RunnableFeeConnector extends ProcessBuilder {
     private static final Logger logInfo = LoggerFactory.getLogger("logInfo");
     private static final Logger logError = LoggerFactory.getLogger("logError");
+    public AtomicInteger faileCardCount = new AtomicInteger(0);
     @Autowired
     LogManager logManager;
     @Autowired
@@ -57,9 +59,13 @@ public class RunnableFeeConnector extends ProcessBuilder {
             cardList = runnableFeeDao.getAllActiveCards();
 
             summery.put("No of cards to check for EOD fee", cardList.size() + "");
-            for (CardBean cardBean : cardList) {
+//            for (CardBean cardBean : cardList) {
+//                runnableFeeService.addRunnableFees(cardBean);
+//            }
+
+            cardList.forEach(cardBean -> {
                 runnableFeeService.addRunnableFees(cardBean);
-            }
+            });
 
             //wait till all the threads are completed
             while (!(taskExecutor.getActiveCount() == 0)) {
@@ -69,12 +75,13 @@ public class RunnableFeeConnector extends ProcessBuilder {
             Configurations.PROCESS_TOTAL_NOOF_TRABSACTIONS = cardList.size();
             Configurations.PROCESS_SUCCESS_COUNT = ((Configurations.SUMMARY_FOR_FEE_ANNIVERSARY_PROCESSED + Configurations.SUMMARY_FOR_FEE_CASHADVANCES + Configurations.SUMMARY_FOR_FEE_LATEPAYMENTS) - (Configurations.FAILED_CARDS));
             Configurations.PROCESS_FAILD_COUNT = (Configurations.FAILED_CARDS);
+            //Configurations.PROCESS_FAILD_COUNT = faileCardCount.get();
 
         } catch (Exception ex) {
             Configurations.IS_PROCESS_COMPLETELY_FAILED = true;
             logError.error("Errors occurred while checking fee", ex);
         } finally {
-            logInfo.info(logManager.logSummery(summery));
+            //logInfo.info(logManager.logSummery(summery));
             /* PADSS Change -
                variables handling card data should be nullified
                by replacing the value of variable with zero and call NULL function */
@@ -93,6 +100,6 @@ public class RunnableFeeConnector extends ProcessBuilder {
         summery.put("Anniversary Date Fee processed", Configurations.SUMMARY_FOR_FEE_ANNIVERSARY_PROCESSED + "");
         summery.put("Cash Advance fee processed", Configurations.SUMMARY_FOR_FEE_CASHADVANCES + "");
         summery.put("Late Payment fee processed", Configurations.SUMMARY_FOR_FEE_LATEPAYMENTS + "");
-        summery.put("Failed No of cards", FAILED_CARDS + "");
+        summery.put("Failed No of cards", Configurations.FAILED_CARDS + "");
     }
 }

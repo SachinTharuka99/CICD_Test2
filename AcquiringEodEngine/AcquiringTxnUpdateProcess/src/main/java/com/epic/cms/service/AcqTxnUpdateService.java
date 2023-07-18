@@ -7,7 +7,7 @@ import com.epic.cms.model.bean.ProcessBean;
 import com.epic.cms.repository.AcqTxnUpdateRepo;
 import com.epic.cms.repository.CommonRepo;
 import com.epic.cms.util.*;
-import lombok.extern.slf4j.Slf4j;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -41,9 +41,8 @@ public class AcqTxnUpdateService {
     private static final Logger logError = LoggerFactory.getLogger("logError");
     @Autowired
     AcqTxnUpdateRepo acqTxnUpdateRepo;
-    HashMap<Integer, ArrayList<EodTransactionBean>> txnMap;
-    ArrayList<EodTransactionBean> onusTxnList;
-    ArrayList<EodTransactionBean> txnList;
+
+
     String forexPercentage = "0";
     String fuelSurchargeRate = "0";
     String backendTxnType;
@@ -56,7 +55,7 @@ public class AcqTxnUpdateService {
     public void processAcqTxnUpdate(Integer key, EodTransactionBean eodTransactionBean, HashMap<String, String> visaTxnFields, List<String> fuelMccList) throws Exception {
         if (!Configurations.isInterrupted) {
             LinkedHashMap details = new LinkedHashMap();
-            LinkedHashMap summery = new LinkedHashMap();
+//            LinkedHashMap summery = new LinkedHashMap();
             ProcessBean processBean = null;
             int issFailedTxn = 0;
             int acqFailedMerchants = 0;
@@ -188,15 +187,32 @@ public class AcqTxnUpdateService {
                             }
                         }
 
-
                     } catch (Exception e) {
 
-                        logInfo.info(logManager.logStartEnd(processHeader + " Completely  failed"));
+                        //logInfo.info(logManager.logStartEnd(processHeader + " Completely  failed"));
                         logError.error(processHeader + " failed for while data selection at the initial level", e);
                     }
-                    logInfo.info(logManager.logDetails(details));
+                    //logInfo.info(logManager.logDetails(details));
                     details.clear();
                 }
+                //***********************************************IMPORTANT ***********************************************
+                //Set card product for sync txn in eodmerchanttxn tabl
+
+                if (issFailedTxn > 0) {
+                    //CommonMethods.insertFailedEODCards(cardErrorList, conComitTrue, processHeader);
+//                    commonRepo.updateEodProcessSummery(Configurations.ERROR_EOD_ID, status.getERROR_STATUS(), Configurations.PROCESS_ID_ACQUIRING_TXN_UPDATE_PROCESS, Configurations.PROCESS_SUCCESS_COUNT, Configurations.PROCESS_FAILD_COUNT, CommonMethods.eodDashboardProcessProgress(Configurations.PROCESS_SUCCESS_COUNT, Configurations.PROCESS_TOTAL_NOOF_TRABSACTIONS));
+                    logInfo.info(logManager.logStartEnd(processHeader + "  completed with errors in card level"));
+                }
+                if (acqFailedMerchants > 0) {
+                    //CommonMethods.insertFailedEODMerchants(merchantErrorList, conComitTrue, processHeader);
+//                    commonRepo.updateEodProcessSummery(Configurations.ERROR_EOD_ID, status.getERROR_STATUS(), Configurations.PROCESS_ID_ACQUIRING_TXN_UPDATE_PROCESS, Configurations.PROCESS_SUCCESS_COUNT, Configurations.PROCESS_FAILD_COUNT, CommonMethods.eodDashboardProcessProgress(Configurations.PROCESS_SUCCESS_COUNT, Configurations.PROCESS_TOTAL_NOOF_TRABSACTIONS));
+                    logInfo.info(logManager.logStartEnd(processHeader + "  completed with errors in merchant level"));
+                }
+                if (issFailedTxn == 0 && acqFailedMerchants == 0) {
+//                    commonRepo.updateEodProcessSummery(Configurations.ERROR_EOD_ID, status.getSUCCES_STATUS(), Configurations.PROCESS_ID_ACQUIRING_TXN_UPDATE_PROCESS, Configurations.PROCESS_SUCCESS_COUNT, Configurations.PROCESS_FAILD_COUNT, CommonMethods.eodDashboardProcessProgress(Configurations.PROCESS_SUCCESS_COUNT, Configurations.PROCESS_TOTAL_NOOF_TRABSACTIONS));
+                    logInfo.info(logManager.logStartEnd(processHeader + "completed without errors"));
+                }
+
                 Configurations.totalTxnCount_AcqTxnUpdateProcess = totalTxnCount;
                 Configurations.failedTxnCount_AcqTxnUpdateProcess = issFailedTxn;
                 Configurations.acqFailedMerchantCount_AcqTxnUpdateProcess = acqFailedMerchants;

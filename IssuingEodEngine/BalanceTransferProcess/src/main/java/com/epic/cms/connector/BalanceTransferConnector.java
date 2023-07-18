@@ -28,6 +28,7 @@ import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.concurrent.atomic.AtomicInteger;
 
 
 @Service
@@ -53,7 +54,6 @@ public class BalanceTransferConnector extends ProcessBuilder {
     LogManager logManager;
 
     private static final Logger logInfo = LoggerFactory.getLogger("logInfo");
-    private static final Logger logError = LoggerFactory.getLogger("logError");
 
     @Override
     public void concreteProcess() throws Exception {
@@ -76,9 +76,10 @@ public class BalanceTransferConnector extends ProcessBuilder {
                  */
                 txnList = installmentPaymentRepo.getBTOrLOCDetails("BALANCETRASFERREQUEST", "BTPAYMENTPLAN");
                 Configurations.PROCESS_TOTAL_NOOF_TRABSACTIONS += txnList.size();
-                for (InstallmentBean installmentBean : txnList) {
+
+                txnList.forEach(installmentBean -> {
                     balanceTransferService.startBalanceTransferProcess(installmentBean, processBean);
-                }
+                });
                 //wait till all the threads are completed
                 while (!(taskExecutor.getActiveCount() == 0)) {
                     Thread.sleep(1000);

@@ -293,6 +293,8 @@ public class ConfigurationsRepo implements ConfigurationsDao {
             //File Code
             Configurations.FILE_CODE_ATM = configVarList.getFile_code_atm();
             Configurations.FAIL_STATUS = configVarList.getFail_status();
+            Configurations.FILE_CODE_MASTERCARD_T67 = configVarList.getFILE_CODE_MASTERCARD_T67();
+            Configurations.FILE_CODE_DCF = configVarList.getFILE_CODE_DCF();
 
             //Letter
             Configurations.CARD_CATEGORY_SUPPLEMENTORY = configVarList.getCard_category_supplementory();
@@ -545,12 +547,32 @@ public class ConfigurationsRepo implements ConfigurationsDao {
             //acquiring
             Configurations.PROCESS_ID_COMMISSION_CALCULATION = configVarList.getCommission_calculation_process();
             Configurations.PROCESS_ID_MERCHANT_STATEMENT = configVarList.getPROCESS_ID_MERCHANT_STATEMENT();
+            Configurations.PROCESS_ID_MERCHANT_PAYMENT_FILE_CREATION = configVarList.getPROCESS_ID_MERCHANT_PAYMENT_FILE_CREATION();
             Configurations.PROCESS_MERCHANT_STATEMENT_FILE_CREATION = configVarList.getPROCESS_MERCHANT_STATEMENT_FILE_CREATION();
             Configurations.PROCESS_MERCHANT_CUSTOMER_STATEMENT_FILE_CREATION = configVarList.getPROCESS_MERCHANT_CUSTOMER_STATEMENT_FILE_CREATION();
             Configurations.STATEMENT_BATCH_SIZE = configVarList.getSTATEMENT_BATCH_SIZE();
+            Configurations.PROCESS_ID_MERCHANT_GL_FILE_CREATION = configVarList.getProcess_merchant_gl_file_process();
+            Configurations.OUTPUT_FILE_PROD_CODE = configVarList.getOUTPUT_FILE_PROD_CODE();
+
+//            Configurations.MERCHANT_REPORT_LOCATION = configVarList.getMERCHANT_REPORT_LOCATION();
+//            Configurations.MERCHANT_CUSTOMER_REPORT_LOCATION = configVarList.getMERCHANT_CUSTOMER_REPORT_LOCATION();
+//            Configurations.MERCHANT_STATEMENT_SUMMARY_LOCATION = configVarList.getMERCHANT_STATEMENT_SUMMARY_LOCATION();
+            Configurations.MERCHANT_PAY_MODE_SLIPS = configVarList.getMERCHANT_PAY_MODE_SLIPS();
+            Configurations.MERCHANT_PAY_MODE_DIRECT = configVarList.getMERCHANT_PAY_MODE_DIRECT();
+            Configurations.MERCHANT_PAY_MODE_CHEQUE = configVarList.getMERCHANT_PAY_MODE_CHEQUE();
+            //Configurations.SUSPENCE_ACC_MERCHANT_PAY_MODE_SLIPS = configVarList.getSUSPENCE_ACC_MERCHANT_PAY_MODE_SLIPS();
 
             //Acquring
             Configurations.PROCESS_ID_ORIGINATOR_PUSH_TXN_UPDATE = configVarList.getProcess_id_originator_push_txn_update();
+
+            //RecipientPushTxnProcessID
+            Configurations.PROCESS_ID_RECIPIENT_PUSH_TXN_UPDATE = configVarList.getProcess_id_recipient_push_txn_update();
+            Configurations.PROCESS_ID_MERCHANT_GL_FILE_CREATION = configVarList.getProcess_merchant_gl_file_process();
+            Configurations.OUTPUT_FILE_PROD_CODE = configVarList.getOUTPUT_FILE_PROD_CODE();
+
+            //Acquring
+            Configurations.PROCESS_ID_ORIGINATOR_PUSH_TXN_UPDATE = configVarList.getProcess_id_originator_push_txn_update();
+            Configurations.PROCESSING_MODE = configVarList.getProcessing_mode();
 
         } catch (Exception e) {
             throw e;

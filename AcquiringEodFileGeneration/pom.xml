@@ -11,6 +11,12 @@
     <packaging>pom</packaging>
     <modules>
         <module>EODFileGenerationAcquiringConsumer</module>
+        <module>MerchantGLSummaryFileProcess</module>
+        <module>MerchantLocationStatementGenerationProcess</module>
+        <module>MerchantCustomerStatementGenerationProcess</module>
+        <module>OutgoingIPMFileGenProcess</module>
+        <module>MerchantPaymentFileProcess</module>
+        <module>OutgoingCUPFileGeneration</module>
     </modules>
     <artifactId>AcquiringEodFileGeneration</artifactId>
 

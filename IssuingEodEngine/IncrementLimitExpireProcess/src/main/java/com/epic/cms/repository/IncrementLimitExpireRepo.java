@@ -40,14 +40,9 @@ public class IncrementLimitExpireRepo implements IncrementLimitExpireDao {
         ArrayList<LimitIncrementBean> incrementBeansList = new ArrayList<>();
         SimpleDateFormat sdf = new SimpleDateFormat("dd-MMM-yy");
         try {
-            String sql = "SELECT T.CARDNO,T.AMOUNT,T.INCREMENTTYPE,T.INCORDEC,T.REQUESTID,C.CARDCATEGORYCODE,CAC.ACCOUNTNO,CAC.CUSTOMERID FROM"
-                    + " TEMPLIMITINCREMENT T,CARD C,CARDACCOUNTCUSTOMER CAC"
-                    + " WHERE T.STATUS = ?"
-                    + " AND T.CARDNO = C.CARDNUMBER"
-                    + " AND CAC.CARDNUMBER = T.CARDNO"
-                    + " AND TRUNC(T.ENDDATE) <= TO_DATE(?, 'DD-MM-YY') ";
+            //String sql = "SELECT T.CARDNO,T.AMOUNT,T.INCREMENTTYPE,T.INCORDEC,T.REQUESTID,C.CARDCATEGORYCODE,CAC.ACCOUNTNO,CAC.CUSTOMERID FROM TEMPLIMITINCREMENT T,CARD C,CARDACCOUNTCUSTOMER CAC WHERE T.STATUS = ? AND T.CARDNO = C.CARDNUMBER AND CAC.CARDNUMBER = T.CARDNO AND TRUNC(T.ENDDATE) <= TO_DATE(?, 'DD-MM-YY') ";
 
-            incrementBeansList = (ArrayList<LimitIncrementBean>) backendJdbcTemplate.query(sql,
+            incrementBeansList = (ArrayList<LimitIncrementBean>) backendJdbcTemplate.query(queryParametersList.getIncrementLimitExpire_getLimitExpiredCardList(),
                     new LimitIncrementRowMapper(),
                     statusList.getCREDIT_LIMIT_ENHANCEMENT_ACTIVE(),
                     sdf.format(Configurations.EOD_DATE));
@@ -66,11 +61,13 @@ public class IncrementLimitExpireRepo implements IncrementLimitExpireDao {
         try {
             //If credit increment expiry reduce OTBCREDIT,TEMPCREDITAMOUNT
             if (incrementBean.getIncordec().equals(Configurations.LIMIT_INCREMENT)) {
-                sql = "UPDATE CARD SET OTBCREDIT = (OTBCREDIT - ? ) , LASTUPDATEDUSER = ? , LASTUPDATEDTIME = SYSDATE WHERE CARDNUMBER = ?";
+                //sql = "UPDATE CARD SET OTBCREDIT = (OTBCREDIT - ? ) , LASTUPDATEDUSER = ? , LASTUPDATEDTIME = SYSDATE WHERE CARDNUMBER = ?";
+                sql = queryParametersList.getIncrementLimitExpire_expireCreditLimit_Appender1();
             }
             //If credit decrement expiry increase OTBCREDIT,TEMPCREDITAMOUNT
             if (incrementBean.getIncordec().equals(Configurations.LIMIT_DECREMENT)) {
-                sql = "UPDATE CARD SET OTBCREDIT = (OTBCREDIT + ? ) , LASTUPDATEDUSER = ? , LASTUPDATEDTIME = SYSDATE WHERE CARDNUMBER = ? ";
+                //sql = "UPDATE CARD SET OTBCREDIT = (OTBCREDIT + ? ) , LASTUPDATEDUSER = ? , LASTUPDATEDTIME = SYSDATE WHERE CARDNUMBER = ?";
+                sql = queryParametersList.getIncrementLimitExpire_expireCreditLimit_Appender2();
             }
 
             flag = backendJdbcTemplate.update(sql,
@@ -90,13 +87,15 @@ public class IncrementLimitExpireRepo implements IncrementLimitExpireDao {
         try {
             //If credit increment expiry reduce OTBCREDIT,TEMPCREDITAMOUNT
             if (incrementBean.getIncordec().equals(Configurations.LIMIT_INCREMENT)) {
-                query = "UPDATE CARDACCOUNT SET OTBCREDIT = (OTBCREDIT - ? ) , LASTUPDATEDUSER = ? ,LASTUPDATEDTIME = SYSDATE WHERE ACCOUNTNO = ?";
+                //query = "UPDATE CARDACCOUNT SET OTBCREDIT = (OTBCREDIT - ? ) , LASTUPDATEDUSER = ? ,LASTUPDATEDTIME = SYSDATE WHERE ACCOUNTNO = ?";
+                query = queryParametersList.getIncrementLimitExpire_limitExpireOnAccount_Appender1();
             }
             //If credit decrement expiry increase OTBCREDIT,TEMPCREDITAMOUNT
 
             //  System.out.println(query);
             if (incrementBean.getIncordec().equals(Configurations.LIMIT_DECREMENT)) {
-                query = "UPDATE CARDACCOUNT SET OTBCREDIT = (OTBCREDIT + ? ) , LASTUPDATEDUSER = ? ,LASTUPDATEDTIME = SYSDATE WHERE ACCOUNTNO = ?";
+                //query = "UPDATE CARDACCOUNT SET OTBCREDIT = (OTBCREDIT + ? ) , LASTUPDATEDUSER = ? ,LASTUPDATEDTIME = SYSDATE WHERE ACCOUNTNO = ?";
+                query = queryParametersList.getIncrementLimitExpire_limitExpireOnAccount_Appender2();
             }
 
             backendJdbcTemplate.update(query,
@@ -116,12 +115,14 @@ public class IncrementLimitExpireRepo implements IncrementLimitExpireDao {
         try {
             //If credit increment expiry reduce OTBCREDIT,TEMPCREDITAMOUNT
             if (limitIncrementBean.getIncordec().equals(Configurations.LIMIT_INCREMENT)) {
-                query = "UPDATE CARDCUSTOMER SET OTBCREDIT = (OTBCREDIT - ? ) , LASTUPDATEDUSER = ? ,LASTUPDATEDTIME = SYSDATE WHERE CUSTOMERID = ?";
+                //query = "UPDATE CARDCUSTOMER SET OTBCREDIT = (OTBCREDIT - ? ) , LASTUPDATEDUSER = ? ,LASTUPDATEDTIME = SYSDATE WHERE CUSTOMERID = ?";
+                query = queryParametersList.getIncrementLimitExpire_limitExpireOnCustomer_Appender1();
             }
             //If credit decrement expiry increase OTBCREDIT,TEMPCREDITAMOUNT
             //  System.out.println(query);
             if (limitIncrementBean.getIncordec().equals(Configurations.LIMIT_DECREMENT)) {
-                query = "UPDATE CARDCUSTOMER SET OTBCREDIT = (OTBCREDIT + ? ) , LASTUPDATEDUSER = ? ,LASTUPDATEDTIME = SYSDATE WHERE CUSTOMERID = ?";
+                //query = "UPDATE CARDCUSTOMER SET OTBCREDIT = (OTBCREDIT + ? ) , LASTUPDATEDUSER = ? ,LASTUPDATEDTIME = SYSDATE WHERE CUSTOMERID = ?";
+                query = queryParametersList.getIncrementLimitExpire_limitExpireOnCustomer_Appender2();
             }
 
             backendJdbcTemplate.update(query,
@@ -141,12 +142,14 @@ public class IncrementLimitExpireRepo implements IncrementLimitExpireDao {
         String query = null;
         try {
             if (incrementBean.getIncordec().equals(Configurations.LIMIT_INCREMENT)) {
-                query = "UPDATE CARD SET  OTBCASH =(OTBCASH - ? ) ,  LASTUPDATEDUSER = ? , LASTUPDATEDTIME =SYSDATE WHERE CARDNUMBER = ?";
+                //query = "UPDATE CARD SET  OTBCASH =(OTBCASH - ? ) ,  LASTUPDATEDUSER = ? , LASTUPDATEDTIME =SYSDATE WHERE CARDNUMBER = ?";
+                query = queryParametersList.getIncrementLimitExpire_expireCashLimit_Appender1();
             }
             //If cash decrement expiry increase OTBCREDIT,TEMPCREDITAMOUNT,OTBCASH,TEMPCASHAMOUNT
 
             if (incrementBean.getIncordec().equals(Configurations.LIMIT_DECREMENT)) {
-                query = "UPDATE CARD SET  OTBCASH =(OTBCASH + ? ) , LASTUPDATEDUSER =?,LASTUPDATEDTIME =SYSDATE WHERE CARDNUMBER = ?";
+                //query = "UPDATE CARD SET  OTBCASH =(OTBCASH + ? ) , LASTUPDATEDUSER =?,LASTUPDATEDTIME =SYSDATE WHERE CARDNUMBER = ?";
+                query =queryParametersList.getIncrementLimitExpire_expireCashLimit_Appender2();
             }
 
             flag = backendJdbcTemplate.update(query,
@@ -166,11 +169,13 @@ public class IncrementLimitExpireRepo implements IncrementLimitExpireDao {
         String query = null;
         try {
             if (limitIncrementBean.getIncordec().equals(Configurations.LIMIT_INCREMENT)) {
-                query = "UPDATE CARDACCOUNT SET OTBCASH =(OTBCASH - ? ) ,  LASTUPDATEDUSER = ? , LASTUPDATEDTIME =SYSDATE WHERE ACCOUNTNO = ?";
+                //query = "UPDATE CARDACCOUNT SET OTBCASH =(OTBCASH - ? ) ,  LASTUPDATEDUSER = ? , LASTUPDATEDTIME =SYSDATE WHERE ACCOUNTNO = ?";
+                query = queryParametersList.getIncrementLimitExpire_cashLimitExpireOnAccount_Appender1();
             }
             //If cash decrement expiry increase OTBCREDIT,TEMPCREDITAMOUNT,OTBCASH,TEMPCASHAMOUNT
             if (limitIncrementBean.getIncordec().equals(Configurations.LIMIT_DECREMENT)) {
-                query = "UPDATE CARDACCOUNT SET OTBCASH =(OTBCASH + ? ) , LASTUPDATEDUSER =?,LASTUPDATEDTIME =SYSDATE WHERE ACCOUNTNO = ?";
+                //query = "UPDATE CARDACCOUNT SET OTBCASH =(OTBCASH + ? ) , LASTUPDATEDUSER =?,LASTUPDATEDTIME =SYSDATE WHERE ACCOUNTNO = ?";
+                query = queryParametersList.getIncrementLimitExpire_cashLimitExpireOnAccount_Appender2();
             }
 
             backendJdbcTemplate.update(query,
@@ -190,11 +195,13 @@ public class IncrementLimitExpireRepo implements IncrementLimitExpireDao {
         try {
             //If cash increment expiry reduce OTBCREDIT,TEMPCREDITAMOUNT,OTBCASH,TEMPCASHAMOUNT
             if (limitIncrementBean.getIncordec().equals(Configurations.LIMIT_INCREMENT)) {
-                query = "UPDATE CARDCUSTOMER SET OTBCASH =(OTBCASH - ? ) ,  LASTUPDATEDUSER = ? , LASTUPDATEDTIME =SYSDATE WHERE CUSTOMERID = ?";
+                //query = "UPDATE CARDCUSTOMER SET OTBCASH =(OTBCASH - ? ) ,  LASTUPDATEDUSER = ? , LASTUPDATEDTIME =SYSDATE WHERE CUSTOMERID = ?";
+                query = queryParametersList.getIncrementLimitExpire_cashLimitExpireOnCustomer_Appender1();
             }
             //If cash decrement expiry increase OTBCREDIT,TEMPCREDITAMOUNT,OTBCASH,TEMPCASHAMOUNT
             if (limitIncrementBean.getIncordec().equals(Configurations.LIMIT_DECREMENT)) {
-                query = "UPDATE CARDCUSTOMER SET OTBCASH =(OTBCASH + ? ) , LASTUPDATEDUSER =?,LASTUPDATEDTIME =SYSDATE WHERE CUSTOMERID = ?";
+                //query = "UPDATE CARDCUSTOMER SET OTBCASH =(OTBCASH + ? ) , LASTUPDATEDUSER =?,LASTUPDATEDTIME =SYSDATE WHERE CUSTOMERID = ?";
+                query = queryParametersList.getIncrementLimitExpire_cashLimitExpireOnCustomer_Appender2();
             }
 
             backendJdbcTemplate.update(query,
@@ -217,6 +224,12 @@ public class IncrementLimitExpireRepo implements IncrementLimitExpireDao {
                 query = "UPDATE TEMPLIMITINCREMENT SET STATUS =?, EFFECTIVESTARTDATE= SYSDATE, LASTUPDATEDUSER= ?, " + " LASTUPDATEDTIME= SYSDATE,LASTEODUPDATEDDATE=? WHERE CARDNO = ? AND REQUESTID=? ";
             } else if (processId == Configurations.PROCESS_ID_INCREMENT_LIMIT_EXPIRE) {
                 query = "UPDATE TEMPLIMITINCREMENT SET STATUS =?, EFFECTIVEENDDATE= SYSDATE, LASTUPDATEDUSER= ?, " + " LASTUPDATEDTIME= SYSDATE,LASTEODUPDATEDDATE=? WHERE CARDNO = ? AND REQUESTID=? ";
+                //query = "UPDATE TEMPLIMITINCREMENT SET STATUS =?, EFFECTIVESTARTDATE= SYSDATE, LASTUPDATEDUSER= ?, LASTUPDATEDTIME= SYSDATE,LASTEODUPDATEDDATE=? WHERE CARDNO = ? AND REQUESTID=?";
+                query = queryParametersList.getIncrementLimitExpire_updateTempLimitIncrementTable_Appender1();
+            }
+            else if (processId == Configurations.PROCESS_ID_INCREMENT_LIMIT_EXPIRE) {
+                //query = "UPDATE TEMPLIMITINCREMENT SET STATUS =?, EFFECTIVEENDDATE= SYSDATE, LASTUPDATEDUSER= ?, LASTUPDATEDTIME= SYSDATE,LASTEODUPDATEDDATE=? WHERE CARDNO = ? AND REQUESTID=?";
+                query = queryParametersList.getIncrementLimitExpire_updateTempLimitIncrementTable_Appender2();
             }
             java.sql.Date eodDate = DateUtil.getSqldate(Configurations.EOD_DATE);
 
@@ -244,10 +257,12 @@ public class IncrementLimitExpireRepo implements IncrementLimitExpireDao {
         String query = null;
         try {
             if (incrementBean.getIncordec().equals(Configurations.LIMIT_INCREMENT)) {
-                query = "UPDATE ECMS_ONLINE_CARD SET OTBCREDIT = (OTBCREDIT - ? ) , LASTUPDATEUSER = ? , LASTUPDATETIME = SYSDATE  WHERE CARDNUMBER = ? ";
+                //query = "UPDATE ECMS_ONLINE_CARD SET OTBCREDIT = (OTBCREDIT - ? ), LASTUPDATEUSER = ?, LASTUPDATETIME = SYSDATE  WHERE CARDNUMBER = ?";
+                query = queryParametersList.getIncrementLimitExpire_expireOnlineCreditLimit_Appender1();
             }
             if (incrementBean.getIncordec().equals(Configurations.LIMIT_DECREMENT)) {
-                query = "UPDATE ECMS_ONLINE_CARD SET OTBCREDIT = (OTBCREDIT + ? ) ,LASTUPDATEUSER = ? , LASTUPDATETIME = SYSDATE  WHERE CARDNUMBER = ? ";
+                //query = "UPDATE ECMS_ONLINE_CARD SET OTBCREDIT = (OTBCREDIT + ? ) ,LASTUPDATEUSER = ?, LASTUPDATETIME = SYSDATE  WHERE CARDNUMBER = ?";
+                query = queryParametersList.getIncrementLimitExpire_expireOnlineCreditLimit_Appender2();
             }
 
             flag = onlineJdbcTemplate.update(query,
@@ -276,10 +291,12 @@ public class IncrementLimitExpireRepo implements IncrementLimitExpireDao {
         String query = null;
         try {
             if (incrementBean.getIncordec().equals(Configurations.LIMIT_INCREMENT)) {
-                query = "UPDATE ECMS_ONLINE_ACCOUNT SET OTBCREDIT = (OTBCREDIT - ? ) WHERE ACCOUNTNUMBER = ? ";
+                //query = "UPDATE ECMS_ONLINE_ACCOUNT SET OTBCREDIT = (OTBCREDIT - ? ) WHERE ACCOUNTNUMBER = ?";
+                query = queryParametersList.getIncrementLimitExpire_limitOnlineExpireOnAccount_Appender1();
             }
             if (incrementBean.getIncordec().equals(Configurations.LIMIT_DECREMENT)) {
-                query = "UPDATE ECMS_ONLINE_ACCOUNT SET OTBCREDIT = (OTBCREDIT + ? ) WHERE ACCOUNTNUMBER = ? ";
+                //query = "UPDATE ECMS_ONLINE_ACCOUNT SET OTBCREDIT = (OTBCREDIT + ? ) WHERE ACCOUNTNUMBER = ?";
+                query = queryParametersList.getIncrementLimitExpire_limitOnlineExpireOnAccount_Appender2();
             }
 
             onlineJdbcTemplate.update(query,
@@ -306,10 +323,12 @@ public class IncrementLimitExpireRepo implements IncrementLimitExpireDao {
         String query = null;
         try {
             if (limitIncrementBean.getIncordec().equals(Configurations.LIMIT_INCREMENT)) {
-                query = "UPDATE ECMS_ONLINE_CUSTOMER SET OTBCREDIT = (OTBCREDIT - ? ) WHERE CUSTOMERID = ? ";
+                //query = "UPDATE ECMS_ONLINE_CUSTOMER SET OTBCREDIT = (OTBCREDIT - ? ) WHERE CUSTOMERID = ?";
+                query = queryParametersList.getIncrementLimitExpire_limitOnlineExpireOnCustomer_Appender1();
             }
             if (limitIncrementBean.getIncordec().equals(Configurations.LIMIT_DECREMENT)) {
-                query = "UPDATE ECMS_ONLINE_CUSTOMER SET OTBCREDIT = (OTBCREDIT + ? ) WHERE CUSTOMERID = ? ";
+                //query = "UPDATE ECMS_ONLINE_CUSTOMER SET OTBCREDIT = (OTBCREDIT + ? ) WHERE CUSTOMERID = ?";
+                query = queryParametersList.getIncrementLimitExpire_limitOnlineExpireOnCustomer_Appender2();
             }
 
             onlineJdbcTemplate.update(query,
@@ -336,10 +355,12 @@ public class IncrementLimitExpireRepo implements IncrementLimitExpireDao {
         String query = null;
         try {
             if (incrementBean.getIncordec().equals(Configurations.LIMIT_INCREMENT)) {
-                query = "UPDATE ECMS_ONLINE_CARD SET OTBCASH =(OTBCASH - ? ) , LASTUPDATEUSER = ? , LASTUPDATETIME = SYSDATE  WHERE CARDNUMBER = ? ";
+                //query = "UPDATE ECMS_ONLINE_CARD SET OTBCASH =(OTBCASH - ? ) , LASTUPDATEUSER = ? , LASTUPDATETIME = SYSDATE  WHERE CARDNUMBER = ?";
+                query = queryParametersList.getIncrementLimitExpire_expireOnlineCashLimit_Appender1();
             }
             if (incrementBean.getIncordec().equals(Configurations.LIMIT_DECREMENT)) {
-                query = "UPDATE ECMS_ONLINE_CARD SET  OTBCASH =(OTBCASH + ? ) , LASTUPDATEUSER = ? , LASTUPDATETIME = SYSDATE WHERE CARDNUMBER = ? ";
+                //query = "UPDATE ECMS_ONLINE_CARD SET  OTBCASH =(OTBCASH + ? ) , LASTUPDATEUSER = ? , LASTUPDATETIME = SYSDATE WHERE CARDNUMBER = ?";
+                query = queryParametersList.getIncrementLimitExpire_expireOnlineCashLimit_Appender2();
             }
 
             flag = onlineJdbcTemplate.update(query,
@@ -367,11 +388,12 @@ public class IncrementLimitExpireRepo implements IncrementLimitExpireDao {
         String query = null;
         try {
             if (limitIncrementBean.getIncordec().equals(Configurations.LIMIT_INCREMENT)) {
-                query = "UPDATE ECMS_ONLINE_ACCOUNT SET  OTBCASH =(OTBCASH - ? ) WHERE ACCOUNTNUMBER = ? ";
+                //query = "UPDATE ECMS_ONLINE_ACCOUNT SET  OTBCASH =(OTBCASH - ? ) WHERE ACCOUNTNUMBER = ?";
+                query = queryParametersList.getIncrementLimitExpire_cashLimitOnlineExpireOnAccount_Appender1();
             }
             if (limitIncrementBean.getIncordec().equals(Configurations.LIMIT_DECREMENT)) {
-                query = "UPDATE ECMS_ONLINE_ACCOUNT SET  OTBCASH =(OTBCASH + ? ) WHERE ACCOUNTNUMBER = ? ";
-
+                //query = "UPDATE ECMS_ONLINE_ACCOUNT SET  OTBCASH =(OTBCASH + ? ) WHERE ACCOUNTNUMBER = ?";
+                query = queryParametersList.getIncrementLimitExpire_cashLimitOnlineExpireOnAccount_Appender2();
             }
 
             onlineJdbcTemplate.update(query,
@@ -397,10 +419,12 @@ public class IncrementLimitExpireRepo implements IncrementLimitExpireDao {
         String query = null;
         try {
             if (limitIncrementBean.getIncordec().equals(Configurations.LIMIT_INCREMENT)) {
-                query = "UPDATE ECMS_ONLINE_CUSTOMER SET  OTBCASH =(OTBCASH - ? ) WHERE CUSTOMERID = ? ";
+               // query = "UPDATE ECMS_ONLINE_CUSTOMER SET  OTBCASH =(OTBCASH - ? ) WHERE CUSTOMERID = ?";
+                query = queryParametersList.getIncrementLimitExpire_cashLimitOnlineExpireOnCustomer_Appender1();
             }
             if (limitIncrementBean.getIncordec().equals(Configurations.LIMIT_DECREMENT)) {
-                query = "UPDATE ECMS_ONLINE_CUSTOMER SET OTBCASH =(OTBCASH + ? ) WHERE CUSTOMERID = ? ";
+                //query = "UPDATE ECMS_ONLINE_CUSTOMER SET OTBCASH =(OTBCASH + ? ) WHERE CUSTOMERID = ?";
+                query = queryParametersList.getIncrementLimitExpire_cashLimitOnlineExpireOnCustomer_Appender2();
             }
 
             onlineJdbcTemplate.update(query,

@@ -26,12 +26,14 @@ import org.springframework.stereotype.Service;
 import java.util.ArrayList;
 import java.util.LinkedHashMap;
 import java.util.List;
+import java.util.concurrent.atomic.AtomicInteger;
 
 
 @Service
 public class FeePostConnector extends ProcessBuilder {
     private static final Logger logInfo = LoggerFactory.getLogger("logInfo");
     private static final Logger logError = LoggerFactory.getLogger("logError");
+    public AtomicInteger faileCardCount = new AtomicInteger(0);
     @Autowired
     LogManager logManager;
     @Autowired
@@ -65,9 +67,13 @@ public class FeePostConnector extends ProcessBuilder {
             if (custAccList != null && custAccList.size() > 0) {
                 System.out.println("Accounts eligible for fee posting process: " + custAccList.size());
                 summery.put("Accounts eligible for fee posting process: ", custAccList.size() + "");
-                for (OtbBean bean : custAccList) {
-                    feePostService.proceedFeePost(bean);
-                }
+//                for (OtbBean bean : custAccList) {
+//                    feePostService.proceedFeePost(bean);
+//                }
+                custAccList.forEach(bean -> {
+                    feePostService.proceedFeePost(bean,faileCardCount);
+                });
+
             } else {
                 summery.put("Accounts eligible for fee posting process ", 0 + "");
             }
@@ -92,7 +98,7 @@ public class FeePostConnector extends ProcessBuilder {
             logError.error("--Error occurred--", ex);
         } finally {
             logInfo.info(logManager.logDetails(details));
-            logInfo.info(logManager.logSummery(summery));
+            //logInfo.info(logManager.logSummery(summery));
              /* PADSS Change -
             variables handling card data should be nullified by replacing the value of variable with zero and call NULL function */
             for (OtbBean bean : custAccList) {
@@ -104,8 +110,8 @@ public class FeePostConnector extends ProcessBuilder {
 
     @Override
     public void addSummaries() {
-        summery.put("Number of accounts to fee post ", custAccList.size());
-        summery.put("Number of success fee post ", custAccList.size() - Configurations.PROCESS_FAILD_COUNT);
-        summery.put("Number of failure fee post ", Configurations.PROCESS_FAILD_COUNT);
+        summery.put("Number of accounts to fee post ", Configurations.PROCESS_TOTAL_NOOF_TRABSACTIONS);
+        summery.put("Number of success fee post ", Configurations.PROCESS_TOTAL_NOOF_TRABSACTIONS - faileCardCount.get());
+        summery.put("Number of failure fee post ", faileCardCount.get());
     }
 }

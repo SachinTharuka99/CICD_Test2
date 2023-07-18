@@ -114,38 +114,41 @@ public class CommonRepo implements CommonDao {
 
         try {
             txnList = (ArrayList<EodTransactionBean>) backendJdbcTemplate.query(queryParametersList.getAcqTxnUpdate_getAllSettledTxnFromTxn(),
-                    new RowMapperResultSetExtractor<>((result, rowNum) -> {
-                        int onOffStatus = result.getInt("ONOFFSTSTUS");
-                        EodTransactionBean eodTransactionBean = new EodTransactionBean();
-                        //Set values to eodTransactionBean
-                        eodTransactionBean.setAccountNo(this.getAccountNoOnCard(new StringBuffer(result.getString("CARDNO"))));
-                        eodTransactionBean.setAuthCode(result.getString("AUTHCODE"));
-                        eodTransactionBean.setBatchNo(result.getString("BATCHNO"));
-                        eodTransactionBean.setCardNo(new StringBuffer(result.getString("CARDNO")));
-                        eodTransactionBean.setCountryNumCode(result.getString("COUNTRYCODE"));
-                        eodTransactionBean.setCurrencyType(result.getString("TXNCURRENCY"));
-                        eodTransactionBean.setMid(result.getString("MID"));
-                        eodTransactionBean.setOnOffStatus(onOffStatus);
-                        eodTransactionBean.setPosEntryMode(result.getString("POSENTRYMODE"));
-                        eodTransactionBean.setRrn(result.getString("RRN"));
-                        eodTransactionBean.setSequenceNumber(result.getString("CB_SEQ_NO"));
-                        eodTransactionBean.setSettlementDate(result.getDate("SETTLEMENTDATE"));
-                        eodTransactionBean.setTid(result.getString("TID"));
-                        eodTransactionBean.setToAccNo(result.getString("TOACCOUNT"));
-                        eodTransactionBean.setTraceId(result.getString("TRACENO"));
-                        eodTransactionBean.setTxnAmount(result.getString("TRANSACTIONAMOUNT"));
-                        eodTransactionBean.setTxnDate(result.getDate("CREATETIME"));
-                        eodTransactionBean.setTxnDescription(result.getString("CAIC"));
-                        eodTransactionBean.setTxnId(result.getString("TXNID"));
-                        eodTransactionBean.setTxnType(result.getString("BACKENDTXNTYPE"));
-                        eodTransactionBean.setMcc(result.getString("MCC"));
-                        eodTransactionBean.setBillingAmount(result.getString("BILLINGAMOUNT"));
-                        eodTransactionBean.setRequestFrom(result.getString("REQUESTFROM"));
-                        eodTransactionBean.setSecondPartyPan(result.getString("SECOND_PARTY_PAN"));
-                        eodTransactionBean.setChannelType(result.getInt("CHANNELTYPE"));
-                        eodTransactionBean.setListenerType(result.getString("LISTENERTYPE"));
-                        return eodTransactionBean;
-                    }),
+                    new RowMapperResultSetExtractor<>((rs, rowNum) -> {
+                            int onOffStatus = rs.getInt("ONOFFSTSTUS");
+
+                            EodTransactionBean eodTransactionBean = new EodTransactionBean();
+
+                            //Set values to eodTransactionBean
+                            eodTransactionBean.setAccountNo(this.getAccountNoOnCard(new StringBuffer(rs.getString("CARDNO"))));
+                            eodTransactionBean.setAuthCode(rs.getString("AUTHCODE"));
+                            eodTransactionBean.setBatchNo(rs.getString("BATCHNO"));
+                            eodTransactionBean.setCardNo(new StringBuffer(rs.getString("CARDNO")));
+                            eodTransactionBean.setCountryNumCode(rs.getString("COUNTRYCODE"));
+                            eodTransactionBean.setCurrencyType(rs.getString("TXNCURRENCY"));
+                            eodTransactionBean.setMid(rs.getString("MID"));
+                            eodTransactionBean.setOnOffStatus(onOffStatus);
+                            eodTransactionBean.setPosEntryMode(rs.getString("POSENTRYMODE"));
+                            eodTransactionBean.setRrn(rs.getString("RRN"));
+                            eodTransactionBean.setSequenceNumber(rs.getString("CB_SEQ_NO"));
+                            eodTransactionBean.setSettlementDate(rs.getDate("SETTLEMENTDATE"));
+                            eodTransactionBean.setTid(rs.getString("TID"));
+                            eodTransactionBean.setToAccNo(rs.getString("TOACCOUNT"));
+                            eodTransactionBean.setTraceId(rs.getString("TRACENO"));
+                            eodTransactionBean.setTxnAmount(rs.getString("TRANSACTIONAMOUNT"));
+                            eodTransactionBean.setTxnDate(rs.getDate("CREATETIME"));
+                            eodTransactionBean.setTxnDescription(rs.getString("CAIC"));
+                            eodTransactionBean.setTxnId(rs.getString("TXNID"));
+                            eodTransactionBean.setTxnType(rs.getString("BACKENDTXNTYPE"));
+                            eodTransactionBean.setMcc(rs.getString("MCC"));
+                            eodTransactionBean.setBillingAmount(rs.getString("BILLINGAMOUNT"));
+                            eodTransactionBean.setRequestFrom(rs.getString("REQUESTFROM"));
+                            eodTransactionBean.setSecondPartyPan(rs.getString("SECOND_PARTY_PAN"));
+                            eodTransactionBean.setChannelType(rs.getInt("CHANNELTYPE"));
+                            eodTransactionBean.setListenerType(rs.getString("LISTENERTYPE"));
+                            return eodTransactionBean;
+                        }
+                    ),
                     Configurations.EOD_ACQUIRING_STATUS,
                     statusList.getRESPONSE_CODE_00(),
                     Configurations.EOD_PENDING_STATUS,
@@ -169,7 +172,7 @@ public class CommonRepo implements CommonDao {
             }
 
         } catch (Exception e) {
-            //logManager.logError(e,errorLoggerCOM);
+            throw e;
         }
         return txnMap;
     }
@@ -1192,7 +1195,6 @@ public class CommonRepo implements CommonDao {
             filePath = backendJdbcTemplate.queryForObject(query, String.class, fileCode);
 
         } catch (Exception e) {
-            //logManager.logError(e,errorLoggerCOM);
             throw e;
         }
         return filePath;

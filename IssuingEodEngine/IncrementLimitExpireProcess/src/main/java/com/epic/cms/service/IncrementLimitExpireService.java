@@ -15,6 +15,7 @@ import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.LinkedHashMap;
+import java.util.concurrent.atomic.AtomicInteger;
 
 @Service
 public class IncrementLimitExpireService {
@@ -30,7 +31,7 @@ public class IncrementLimitExpireService {
 
     @Async("taskExecutor2")
     @Transactional(value = "transactionManager", propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
-    public void processCreditLimitExpire(LimitIncrementBean limitIncrementBean, ProcessBean processBean, int configProcess, String processHeader) {
+    public void processCreditLimitExpire(LimitIncrementBean limitIncrementBean, ProcessBean processBean, int configProcess, String processHeader, AtomicInteger faileCardCount) {
         if (!Configurations.isInterrupted) {
             LinkedHashMap details = new LinkedHashMap();
             String maskedCardNumber = CommonMethods.cardNumberMask(limitIncrementBean.getCardNumber());
@@ -87,12 +88,13 @@ public class IncrementLimitExpireService {
                 count = incrementLimitExpireRepo.updateTempLimitIncrementTable(limitIncrementBean.getCardNumber(), status.getCREDIT_LIMIT_ENHANCEMENT_EXPIRED(), limitIncrementBean.getRequestid(), Configurations.PROCESS_ID_INCREMENT_LIMIT_EXPIRE);
 
                 details.put("Process Status", "Passed");
-                Configurations.PROCESS_SUCCESS_COUNT++;
+                //Configurations.PROCESS_SUCCESS_COUNT++;
             } catch (Exception e) {
                 details.put("Process Status", "Failed");
                 Configurations.errorCardList.add(new ErrorCardBean(Configurations.ERROR_EOD_ID, Configurations.EOD_DATE, new StringBuffer(limitIncrementBean.getCardNumber()), e.getMessage(), Configurations.RUNNING_PROCESS_ID, Configurations.RUNNING_PROCESS_DESCRIPTION, 0, CardAccount.CARD));
                 failedCards++;
-                Configurations.PROCESS_FAILD_COUNT++;
+                faileCardCount.addAndGet(1);
+                //Configurations.PROCESS_FAILD_COUNT++;
                 logError.error("Increment Limit Expire process failed for cardnumber " + CommonMethods.cardInfo(maskedCardNumber, processBean), e);
             }
             logInfo.info(logManager.logDetails(details));

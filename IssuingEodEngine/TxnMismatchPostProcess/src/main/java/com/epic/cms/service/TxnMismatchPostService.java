@@ -15,6 +15,7 @@ import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
 import java.util.LinkedHashMap;
+import java.util.concurrent.atomic.AtomicInteger;
 
 @Service
 public class TxnMismatchPostService {
@@ -29,7 +30,7 @@ public class TxnMismatchPostService {
     private static final Logger logError = LoggerFactory.getLogger("logError");
 
     @Async("taskExecutor2")
-    public void processTxnMismatch(ArrayList<OtbBean> txnList, OtbBean bean, int iterator) throws Exception {
+    public void processTxnMismatch(ArrayList<OtbBean> txnList, OtbBean bean, int iterator, AtomicInteger faileCardCount)  {
         if (!Configurations.isInterrupted) {
             LinkedHashMap details = new LinkedHashMap();
             int failedCount = 0;
@@ -89,12 +90,11 @@ public class TxnMismatchPostService {
                                 details.put("Transaction Mismatch Amount", card.getTxnAmount());
                             }
                         }
-                        Configurations.PROCESS_SUCCESS_COUNT++;
+                        //Configurations.PROCESS_SUCCESS_COUNT++;
                     } catch (Exception ex) {
                         Configurations.errorCardList.add(new ErrorCardBean(Configurations.ERROR_EOD_ID, Configurations.EOD_DATE, cardBean.getCardnumber(), ex.getMessage(), Configurations.RUNNING_PROCESS_ID, Configurations.RUNNING_PROCESS_DESCRIPTION, 0, CardAccount.CARD));
                         logError.error("Transaction mismatch post process failed for account " + bean.getAccountnumber(), ex);
-                        failedCount++;
-                        Configurations.PROCESS_FAILD_COUNT++;
+                        faileCardCount.addAndGet(1);
                     }
                 }
             } catch (Exception e) {

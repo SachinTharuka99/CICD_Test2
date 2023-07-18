@@ -19,12 +19,14 @@ import org.springframework.transaction.annotation.Transactional;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.LinkedHashMap;
+import java.util.concurrent.atomic.AtomicInteger;
 
 @Service
 public class EOMInterestService {
 
     private static final Logger logInfo = LoggerFactory.getLogger("logInfo");
     private static final Logger logError = LoggerFactory.getLogger("logError");
+
     @Autowired
     LogManager logManager;
     @Autowired
@@ -36,7 +38,7 @@ public class EOMInterestService {
 
     @Async("taskExecutor2")
     @Transactional(value = "transactionManager", propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
-    public void EOMInterestCalculation(ProcessBean processBean, EomCardBean eomCardBean) {
+    public void EOMInterestCalculation(ProcessBean processBean, EomCardBean eomCardBean, AtomicInteger faileCardCount) {
 
         if (!Configurations.isInterrupted) {
             int flag = 0;
@@ -87,12 +89,13 @@ public class EOMInterestService {
                         }
                     }
                     cardDetails.put("Process Status", "Passed");
-                    Configurations.PROCESS_SUCCESS_COUNT++;
+                    //Configurations.PROCESS_SUCCESS_COUNT++;
 
                 } catch (Exception e) {
                     eomInterestRepo.clearTempTxnDetails(eomCardBean.getAccNo());
                     cardDetails.put("Process Status", "Failed");
-                    Configurations.PROCESS_FAILD_COUNT++;
+                    faileCardCount.addAndGet(1);
+                    //Configurations.PROCESS_FAILD_COUNT++;
                     Configurations.errorCardList.add(new ErrorCardBean(Configurations.ERROR_EOD_ID, Configurations.EOD_DATE, new StringBuffer(eomCardBean.getAccNo()), e.getMessage(), Configurations.RUNNING_PROCESS_ID, Configurations.RUNNING_PROCESS_DESCRIPTION, 0, CardAccount.ACCOUNT));
                     logError.error("EOM interest calculation Process failed for account number " + CommonMethods.cardInfo(maskedCardNumber, processBean), e);
                 }

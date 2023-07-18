@@ -20,6 +20,7 @@ import org.springframework.stereotype.Service;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.concurrent.atomic.AtomicInteger;
 
 
 @Service
@@ -27,6 +28,7 @@ public class EOMInterestConnector extends ProcessBuilder {
 
     private static final Logger logInfo = LoggerFactory.getLogger("logInfo");
     private static final Logger logError = LoggerFactory.getLogger("logError");
+    public AtomicInteger faileCardCount = new AtomicInteger(0);
     @Autowired
     StatusVarList statusList;
     @Autowired
@@ -57,9 +59,13 @@ public class EOMInterestConnector extends ProcessBuilder {
             processBean = commonRepo.getProcessDetails(Configurations.PROCESS_ID_EOM_INTEREST_CALCULATION);
 
             noOfAccounts = accountList.size();
-            for (int i = 0; i < accountList.size(); i++) {
-                eomInterestService.EOMInterestCalculation(processBean, accountList.get(i));
-            }
+//            for (int i = 0; i < accountList.size(); i++) {
+//                eomInterestService.EOMInterestCalculation(processBean, accountList.get(i));
+//            }
+            accountList.forEach(account -> {
+                eomInterestService.EOMInterestCalculation(processBean, account,faileCardCount);
+            });
+
 
             while (!(taskExecutor.getActiveCount() == 0)) {
                 Thread.sleep(1000);
@@ -73,7 +79,7 @@ public class EOMInterestConnector extends ProcessBuilder {
             Configurations.IS_PROCESS_COMPLETELY_FAILED = true;
             logError.error("EOM Interest Calculation Process failed", e);
         } finally {
-            logInfo.info(logManager.logSummery(summery));
+            //logInfo.info(logManager.logSummery(summery));
         }
     }
 
@@ -82,7 +88,7 @@ public class EOMInterestConnector extends ProcessBuilder {
         summery.put("Process Name ", processBean.getProcessDes());
         summery.put("Started Date ", Configurations.EOD_DATE.toString());
         summery.put("No of Accounts effected ", Configurations.PROCESS_TOTAL_NOOF_TRABSACTIONS);
-        summery.put("No of Success Accounts ", Configurations.PROCESS_SUCCESS_COUNT);
-        summery.put("No of fail Accounts ", Configurations.PROCESS_FAILD_COUNT);
+        summery.put("No of Success Accounts ", Configurations.PROCESS_TOTAL_NOOF_TRABSACTIONS - faileCardCount.get());
+        summery.put("No of fail Accounts ", faileCardCount.get());
     }
 }

@@ -10,6 +10,8 @@ package com.epic.cms.repository;
 import com.epic.cms.dao.ExposureFileDao;
 import com.epic.cms.model.bean.ExposureFileBean;
 import com.epic.cms.util.Configurations;
+import com.epic.cms.util.QueryParametersList;
+import com.epic.cms.util.StatusVarList;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.core.RowMapperResultSetExtractor;
@@ -25,6 +27,9 @@ public class ExposureFileRepo implements ExposureFileDao {
     @Autowired
     private JdbcTemplate backendJdbcTemplate;
 
+    @Autowired
+    QueryParametersList queryParametersList;
+
     @Override
     public List<ExposureFileBean> getExposureFileDetails() throws Exception {
         List<ExposureFileBean> beanList = new ArrayList<>();
@@ -33,15 +38,15 @@ public class ExposureFileRepo implements ExposureFileDao {
         String currency = "";
         try {
             //get currency
-            String query = "SELECT CURRENCYALPHACODE FROM COMMONPARAMETER CP LEFT JOIN CURRENCY CUR ON CUR.CURRENCYNUMCODE=CP.BASECURRENCY ";
-            currency = backendJdbcTemplate.queryForObject(query, String.class);
+            //String query = "SELECT CURRENCYALPHACODE FROM COMMONPARAMETER CP LEFT JOIN CURRENCY CUR ON CUR.CURRENCYNUMCODE=CP.BASECURRENCY";
+            currency = backendJdbcTemplate.queryForObject(queryParametersList.getExposureFile_getExposureFileDetails_Select1(), String.class);
 
             //get other details and set to bean
-            query = "SELECT NVL(SUM(CACC.CREDITLIMIT-CACC.OTBCREDIT),0) AS OUTSTANDING,CAPP.CIF  AS CIF,CACC.CREDITLIMIT AS CREDITLIMIT,CACC.ACCOUNTNO AS ACC_NO, " + "(CASE CACC.STATUS WHEN 'ACT' THEN 'PL' ELSE 'NPL' END) AS ACC_STATUS,C.EXPIERYDATE as MATURITYDATE " + "FROM CARDACCOUNT CACC INNER JOIN CARDAPPLICATION CAPP  ON CACC.CARDNUMBER  =CAPP.CARDNUMBER " + "INNER JOIN CARD C ON CACC.CARDNUMBER=C.MAINCARDNO " + "WHERE CAPP.CIF  IS NOT NULL GROUP BY CACC.ACCOUNTNO,CAPP.CIF,CACC.STATUS,CACC.CREDITLIMIT,C.EXPIERYDATE ";
+            //query = "SELECT NVL(SUM(CACC.CREDITLIMIT-CACC.OTBCREDIT),0) AS OUTSTANDING,CAPP.CIF  AS CIF,CACC.CREDITLIMIT AS CREDITLIMIT,CACC.ACCOUNTNO AS ACC_NO, (CASE CACC.STATUS WHEN 'ACT' THEN 'PL' ELSE 'NPL' END) AS ACC_STATUS,C.EXPIERYDATE as MATURITYDATE FROM CARDACCOUNT CACC INNER JOIN CARDAPPLICATION CAPP  ON CACC.CARDNUMBER  =CAPP.CARDNUMBER INNER JOIN CARD C ON CACC.CARDNUMBER=C.MAINCARDNO WHERE CAPP.CIF  IS NOT NULL GROUP BY CACC.ACCOUNTNO,CAPP.CIF,CACC.STATUS,CACC.CREDITLIMIT,C.EXPIERYDATE";
 
             String finalCurrency = currency;
 
-            beanList = backendJdbcTemplate.query(query, new RowMapperResultSetExtractor<>((rs, rowNum) -> {
+            beanList = backendJdbcTemplate.query(queryParametersList.getExposureFile_getExposureFileDetails_Select2(), new RowMapperResultSetExtractor<>((rs, rowNum) -> {
                 ExposureFileBean bean = new ExposureFileBean();
                 bean.setProduct(rs.getString("CIF").concat("-").concat(Configurations.EXPOSURE_FILE_PRODUCT));
                 bean.setExternalRef(rs.getString("ACC_NO"));

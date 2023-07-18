@@ -34,9 +34,9 @@ public class LetterRepo implements LetterDao {
 
         try {
 
-            String query = "SELECT BODY FROM LETTERTEMPLATE WHERE TEMPLATECODE=? AND CARDPRODUCT=?";
+            //String query = "SELECT BODY FROM LETTERTEMPLATE WHERE TEMPLATECODE=? AND CARDPRODUCT=?";
 
-            backendJdbcTemplate.query(query,
+            backendJdbcTemplate.query(queryParametersList.getLetterProcess_getParametersInLetterTemplate(),
                     (ResultSet rs) -> {
                         while (rs.next()) {
                             String body = rs.getString("BODY");
@@ -120,13 +120,13 @@ public class LetterRepo implements LetterDao {
                 }
             }
 
-                String query = "SELECT * FROM LETTERFIELDDETAILS";
+                //String query = "SELECT * FROM LETTERFIELDDETAILS";
 
                 String finalTableName = tableName;
                 String finalFieldName = fieldName;
                 String finalIdentificationFeild = identificationFeild;
 
-                backendJdbcTemplate.query(query,
+                backendJdbcTemplate.query(queryParametersList.getLetterProcess_getLetterFieldDetails(),
                         (ResultSet result) -> {
                             String[] referenceTableDetails;
                             while (result.next()) {
@@ -302,9 +302,9 @@ public class LetterRepo implements LetterDao {
 
         try {
 
-            String query = "SELECT BODY FROM LETTERTEMPLATE WHERE TEMPLATECODE=? AND CARDPRODUCT=?";
+            //String query = "SELECT BODY FROM LETTERTEMPLATE WHERE TEMPLATECODE=? AND CARDPRODUCT=?";
 
-            body = backendJdbcTemplate.queryForObject(query,String.class, inputParam[0],inputParam[1]);
+            body = backendJdbcTemplate.queryForObject(queryParametersList.getLetterProcess_getTemplateBody(),String.class, inputParam[0],inputParam[1]);
 
             //body = backendJdbcTemplate.queryForObject(query,String.class,inputParam[0],inputParam[1]);
 
@@ -320,9 +320,9 @@ public class LetterRepo implements LetterDao {
         String cardCategory = null;
 
         try {
-            String query = "SELECT CARDCATEGORY FROM CARDAPPLICATION WHERE APPLICATIONID = ? ";
+            //String query = "SELECT CARDCATEGORY FROM CARDAPPLICATION WHERE APPLICATIONID = ?";
 
-            cardCategory = backendJdbcTemplate.queryForObject(query, String.class, applicationID);
+            cardCategory = backendJdbcTemplate.queryForObject(queryParametersList.getLetterProcess_getCardTypebyApplicationID(), String.class, applicationID);
 
         } catch (Exception e) {
             throw e;
@@ -337,9 +337,9 @@ public class LetterRepo implements LetterDao {
 
         try {
 
-            String query = "SELECT CARDCATEGORYCODE FROM CARD WHERE CARDNUMBER = ? ";
+            //String query = "SELECT CARDCATEGORYCODE FROM CARD WHERE CARDNUMBER = ?";
 
-            cardCategory = backendJdbcTemplate.queryForObject(query, String.class, cardNumber.toString());
+            cardCategory = backendJdbcTemplate.queryForObject(queryParametersList.getLetterProcess_getCardTypebyCardNumber(), String.class, cardNumber.toString());
 
         } catch (Exception e) {
             throw e;

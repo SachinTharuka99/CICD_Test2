@@ -4,10 +4,7 @@ import com.epic.cms.dao.EOMInterestDao;
 import com.epic.cms.model.bean.CardBillingInfoBean;
 import com.epic.cms.model.bean.EomCardBean;
 import com.epic.cms.model.rowmapper.GetEOMCardListRowMapper;
-import com.epic.cms.util.CommonMethods;
-import com.epic.cms.util.Configurations;
-import com.epic.cms.util.LogManager;
-import com.epic.cms.util.StatusVarList;
+import com.epic.cms.util.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Repository;
@@ -30,16 +27,26 @@ public class EOMInterestRepo implements EOMInterestDao {
     @Autowired
     JdbcTemplate backendJdbcTemplate;
 
+    @Autowired
+    LogManager logManager;
+
+    @Autowired
+    QueryParametersList queryParametersList;
+
     @Override
     public ArrayList<EomCardBean> getEomCardList(int day) throws Exception {
         ArrayList<EomCardBean> cardList = new ArrayList<EomCardBean>();
         SimpleDateFormat sdf = new SimpleDateFormat("dd-MMM-yy");
         try {
-            String sql = "SELECT CA.ACCOUNTNO, CA.CARDNUMBER, CA.STATUS, IP.INTERESTRATE, IP.INTERESTPERIODVALUE FROM CARDACCOUNT CA INNER JOIN INTERESTPROFILE IP ON CA.INTERESTPROFILECODE = IP.INTERESTPROFILECODE INNER JOIN CARD C ON CA.CARDNUMBER = C.CARDNUMBER WHERE to_number(CA.BILLINGDATE) <= ? AND (C.CARDSTATUS NOT  IN(?) OR (C.CARDSTATUS = ? AND C.CLOSEFLAG = ?)) AND CA.NEXTBILLINGDATE <= TO_DATE(?, 'DD-MM-YY')";
+            //String sql = "SELECT CA.ACCOUNTNO, CA.CARDNUMBER, CA.STATUS, IP.INTERESTRATE, IP.INTERESTPERIODVALUE FROM CARDACCOUNT CA INNER JOIN INTERESTPROFILE IP ON CA.INTERESTPROFILECODE = IP.INTERESTPROFILECODE INNER JOIN CARD C ON CA.CARDNUMBER = C.CARDNUMBER WHERE to_number(CA.BILLINGDATE) <= ? AND (C.CARDSTATUS NOT  IN(?) OR (C.CARDSTATUS = ? AND C.CLOSEFLAG = ?)) AND CA.NEXTBILLINGDATE <= TO_DATE(?, 'DD-MM-YY')";
+            String sql=queryParametersList.getEOMInterest_getEomCardList();
+
             if (Configurations.STARTING_EOD_STATUS.equals(statusList.getINITIAL_STATUS())) {
-                sql += " and CA.ACCOUNTNO not in (select ec.ACCOUNTNO from eoderrorcards ec where ec.status=?)";
+                //sql += " and CA.ACCOUNTNO not in (select ec.ACCOUNTNO from eoderrorcards ec where ec.status=?)";
+                sql += queryParametersList.getEOMInterest_getEomCardList_Appender1();
             } else if (Configurations.STARTING_EOD_STATUS.equals(statusList.getERROR_STATUS())) {
-                sql += " and CA.ACCOUNTNO in (select ec.ACCOUNTNO from eoderrorcards ec where ec.status=? and EODID < ? and PROCESSSTEPID <=?)";
+                //sql += " and CA.ACCOUNTNO in (select ec.ACCOUNTNO from eoderrorcards ec where ec.status=? and EODID < ? and PROCESSSTEPID <=?)";
+                sql += queryParametersList.getEOMInterest_getEomCardList_Appender2();
             }
             Object[] param = null;
             if (Configurations.STARTING_EOD_STATUS.equals(statusList.getINITIAL_STATUS())) {
@@ -76,8 +83,8 @@ public class EOMInterestRepo implements EOMInterestDao {
         boolean status = false;
         String cardStatus = null;
         try {
-            String sql = "select C.CARDSTATUS AS  CARDSTATUS from CARD C where C.CARDNUMBER=?";
-            cardStatus = backendJdbcTemplate.queryForObject(sql, String.class, cardNumber);
+            //String sql = "select C.CARDSTATUS AS  CARDSTATUS from CARD C where C.CARDNUMBER=?";
+            cardStatus = backendJdbcTemplate.queryForObject(queryParametersList.getEOMInterest_CheckForCardIncrementStatus(), String.class, cardNumber);
         } catch (Exception e) {
             throw e;
         }
@@ -89,8 +96,10 @@ public class EOMInterestRepo implements EOMInterestDao {
         int count = 0;
         String query = null;
         try {
-            query = "DELETE FROM EOMINTEREST WHERE CARDNO = ?";
+            //query = "DELETE FROM EOMINTEREST WHERE CARDNO = ?";
+            query=queryParametersList.getEOMInterest_clearEomInterest();
             count = backendJdbcTemplate.update(query, cardNo.toString());
+
         } catch (Exception e) {
             throw e;
         }
@@ -102,7 +111,8 @@ public class EOMInterestRepo implements EOMInterestDao {
         ArrayList<java.util.Date> lastBillingDates = new ArrayList<java.util.Date>();
         String sql = "";
         try {
-            sql = "select * from (select rownum rn,STATEMENTENDDATE from(select STATEMENTENDDATE from BILLINGSTATEMENT where ACCOUNTNO = ? order by STATEMENTENDDATE desc))" + " where rn between 0 and 2";
+            //sql = "select * from (select rownum rn,STATEMENTENDDATE from(select STATEMENTENDDATE from BILLINGSTATEMENT where ACCOUNTNO = ? order by STATEMENTENDDATE desc))\" + \" where rn between 0 and 2";
+            sql= queryParametersList.getEOMInterest_getLastTwoBillingDatesOnAccount();
             backendJdbcTemplate.query(sql, (ResultSet rs) -> {
                 while (rs.next()) {
                     lastBillingDates.add(rs.getDate("STATEMENTENDDATE"));
@@ -120,7 +130,8 @@ public class EOMInterestRepo implements EOMInterestDao {
         CardBillingInfoBean cardInfoBilling = new CardBillingInfoBean();
         String sql = null;
         try {
-            sql = "select * from (select rownum rn,STATEMENTSTARTDATE,THISBILLOPERNINGBALANCE,STARTEODID,ENDEODID,THISBILLCLOSINGBALANCE,STATEMENTENDDATE,MINPAYMENTDUE,DUEDATE from(select STATEMENTSTARTDATE,THISBILLOPERNINGBALANCE,STARTEODID,ENDEODID,THISBILLCLOSINGBALANCE,STATEMENTENDDATE,MINPAYMENTDUE,DUEDATE from BILLINGSTATEMENT where ACCOUNTNO = ? order by STATEMENTENDDATE desc)) where rn between 0 and 1";
+            //sql = "select * from (select rownum rn,STATEMENTSTARTDATE,THISBILLOPERNINGBALANCE,STARTEODID,ENDEODID,THISBILLCLOSINGBALANCE,STATEMENTENDDATE,MINPAYMENTDUE,DUEDATE from(select STATEMENTSTARTDATE,THISBILLOPERNINGBALANCE,STARTEODID,ENDEODID,THISBILLCLOSINGBALANCE,STATEMENTENDDATE,MINPAYMENTDUE,DUEDATE from BILLINGSTATEMENT where ACCOUNTNO = ? order by STATEMENTENDDATE desc)) where rn between 0 and 1";
+            sql = queryParametersList.getEOMInterest_getLastTwoBillingDatesOnAccount();
             cardInfoBilling = Objects.requireNonNull(backendJdbcTemplate.query(sql,
                     (ResultSet rs) -> {
                         CardBillingInfoBean temp = new CardBillingInfoBean();
@@ -156,21 +167,24 @@ public class EOMInterestRepo implements EOMInterestDao {
         ArrayList<Integer> dateGap = new ArrayList<Integer>();
         try {
             if (noOfStatement == 2) {/**This card can follow normal procedure*/
-                sql = "INSERT INTO TEMPTRANSACTIONDETAILS(ACCOUNTNO, EODID, TRANSACTIONID, AMOUNT, TXNTYPE, TXNCHECKDATE, CRDR) SELECT ACCOUNTNO, EODID, TRANSACTIONID, TRANSACTIONAMOUNT, TRANSACTIONTYPE, SETTLEMENTDATE, CRDR FROM EODTRANSACTION WHERE EODID > ? AND EODID < ? AND ACCOUNTNO = ? AND ADJUSTMENTSTATUS = 'NO' AND STATUS NOT IN (?) ORDER BY SETTLEMENTDATE";
+                //sql = "INSERT INTO TEMPTRANSACTIONDETAILS(ACCOUNTNO, EODID, TRANSACTIONID, AMOUNT, TXNTYPE, TXNCHECKDATE, CRDR) SELECT ACCOUNTNO, EODID, TRANSACTIONID, TRANSACTIONAMOUNT, TRANSACTIONTYPE, SETTLEMENTDATE, CRDR FROM EODTRANSACTION WHERE EODID > ? AND EODID < ? AND ACCOUNTNO = ? AND ADJUSTMENTSTATUS = 'NO' AND STATUS NOT IN (?) ORDER BY SETTLEMENTDATE";
+                sql = queryParametersList.getEOMInterest_getEOMInterest_Appender1();
                 backendJdbcTemplate.update(sql,
                         lastBillingDatesAndEodId.getStartEodId(),
                         lastBillingDatesAndEodId.getEndEodId(),
                         eomCardBean.getAccNo(),
                         statusList.getCHEQUE_RETURN_STATUS());
             } else if (noOfStatement == 1) {/**special procedure--->Select txn details*/
-                sql = "INSERT INTO TEMPTRANSACTIONDETAILS(ACCOUNTNO, EODID, TRANSACTIONID, AMOUNT, TXNTYPE, TXNCHECKDATE, CRDR) SELECT ACCOUNTNO, EODID, TRANSACTIONID, TRANSACTIONAMOUNT, TRANSACTIONTYPE, SETTLEMENTDATE, CRDR FROM EODTRANSACTION WHERE EODID < ? AND ACCOUNTNO = ? AND ADJUSTMENTSTATUS = 'NO' AND STATUS NOT IN (?) ORDER BY SETTLEMENTDATE";
+                //sql = "INSERT INTO TEMPTRANSACTIONDETAILS(ACCOUNTNO, EODID, TRANSACTIONID, AMOUNT, TXNTYPE, TXNCHECKDATE, CRDR) SELECT ACCOUNTNO, EODID, TRANSACTIONID, TRANSACTIONAMOUNT, TRANSACTIONTYPE, SETTLEMENTDATE, CRDR FROM EODTRANSACTION WHERE EODID < ? AND ACCOUNTNO = ? AND ADJUSTMENTSTATUS = 'NO' AND STATUS NOT IN (?) ORDER BY SETTLEMENTDATE";
+                sql= queryParametersList.getEOMInterest_getEOMInterest_Appender2();
                 backendJdbcTemplate.update(sql,
                         lastBillingDatesAndEodId.getEndEodId(),
                         eomCardBean.getAccNo(),
                         statusList.getCHEQUE_RETURN_STATUS());
             }
             if (noOfStatement == 2) {
-                sql = "INSERT INTO TEMPTRANSACTIONDETAILS(ACCOUNTNO, EODID, TRANSACTIONID, AMOUNT, TXNTYPE, TXNCHECKDATE, CRDR) SELECT ?, ?, ID, AMOUNT, TRANSACTIONTYPE, ADJUSTDATE, CRDR FROM ADJUSTMENT WHERE 1 = 1 AND ADJUSTDATE < TO_DATE(?, 'dd-MM-YY') AND ADJUSTDATE > TO_DATE(?, 'dd-MM-YY') AND STATUS IN (?,?) AND EODSTATUS = ? AND ADJUSTMENTTYPE NOT IN (?,?) AND uniqueid IN (SELECT CA.CARDNUMBER FROM CARDACCOUNTCUSTOMER CA, CARD CD WHERE CA.cardnumber = CD.CARDNUMBER AND CA.ACCOUNTNO = ?) ORDER BY ADJUSTDATE";
+                //sql = "INSERT INTO TEMPTRANSACTIONDETAILS(ACCOUNTNO, EODID, TRANSACTIONID, AMOUNT, TXNTYPE, TXNCHECKDATE, CRDR) SELECT ?, ?, ID, AMOUNT, TRANSACTIONTYPE, ADJUSTDATE, CRDR FROM ADJUSTMENT WHERE 1 = 1 AND ADJUSTDATE < TO_DATE(?, 'dd-MM-YY') AND ADJUSTDATE > TO_DATE(?, 'dd-MM-YY') AND STATUS IN (?,?) AND EODSTATUS = ? AND ADJUSTMENTTYPE NOT IN (?,?) AND uniqueid IN (SELECT CA.CARDNUMBER FROM CARDACCOUNTCUSTOMER CA, CARD CD WHERE CA.cardnumber = CD.CARDNUMBER AND CA.ACCOUNTNO = ?) ORDER BY ADJUSTDATE";
+                sql = queryParametersList.getEOMInterest_getEOMInterest_Appender3();
                 backendJdbcTemplate.update(sql,
                         eomCardBean.getAccNo(),
                         Configurations.EOD_ID,
@@ -183,7 +197,9 @@ public class EOMInterestRepo implements EOMInterestDao {
                         Integer.toString(Configurations.CASHBACK_ADJUSTMENT_TYPE),
                         eomCardBean.getAccNo());
             } else if (noOfStatement == 1) {
-                sql = "INSERT INTO TEMPTRANSACTIONDETAILS(ACCOUNTNO, EODID, TRANSACTIONID, AMOUNT, TXNTYPE, TXNCHECKDATE, CRDR) SELECT ?, ?, ID, AMOUNT, TRANSACTIONTYPE, ADJUSTDATE, CRDR FROM ADJUSTMENT WHERE 1 = 1 AND ADJUSTDATE < TO_DATE(?, 'dd-MM-YY') AND STATUS = ? AND EODSTATUS = ? AND ADJUSTMENTTYPE NOT IN (?,?) AND uniqueid IN (SELECT CA.CARDNUMBER FROM CARDACCOUNTCUSTOMER CA, CARD CD WHERE CA.cardnumber = CD.CARDNUMBER AND CA.ACCOUNTNO = ? ) ORDER BY ADJUSTDATE";
+                //sql = "INSERT INTO TEMPTRANSACTIONDETAILS(ACCOUNTNO, EODID, TRANSACTIONID, AMOUNT, TXNTYPE, TXNCHECKDATE, CRDR) SELECT ?, ?, ID, AMOUNT, TRANSACTIONTYPE, ADJUSTDATE, CRDR FROM ADJUSTMENT WHERE 1 = 1 AND ADJUSTDATE < TO_DATE(?, 'dd-MM-YY') AND STATUS = ? AND EODSTATUS = ? AND ADJUSTMENTTYPE NOT IN (?,?) AND uniqueid IN (SELECT CA.CARDNUMBER FROM CARDACCOUNTCUSTOMER CA, CARD CD WHERE CA.cardnumber = CD.CARDNUMBER AND CA.ACCOUNTNO = ? ) ORDER BY ADJUSTDATE";
+                sql= queryParametersList.getEOMInterest_getEOMInterest_Appender4();
+
                 backendJdbcTemplate.update(sql,
                         eomCardBean.getAccNo(),
                         Configurations.EOD_ID,
@@ -195,10 +211,12 @@ public class EOMInterestRepo implements EOMInterestDao {
                         eomCardBean.getAccNo());
             }
             if (noOfStatement == 2) {
-                sql = "INSERT INTO TEMPTRANSACTIONDETAILS(ACCOUNTNO, EODID, TRANSACTIONID, AMOUNT, TXNTYPE, TXNCHECKDATE, CRDR) SELECT ACCOUNTNO, ?, EODFEEID, FEEAMOUNT, FEETYPE, EFFECTDATE, CRDR FROM EODCARDFEE WHERE EFFECTDATE > TO_DATE(?, 'dd-MM-YY') AND EFFECTDATE < TO_DATE(?, 'dd-MM-YY') AND ACCOUNTNO = ? AND ADJUSTMENTSTATUS IN (?) ORDER BY EFFECTDATE";
+                //sql = "INSERT INTO TEMPTRANSACTIONDETAILS(ACCOUNTNO, EODID, TRANSACTIONID, AMOUNT, TXNTYPE, TXNCHECKDATE, CRDR) SELECT ACCOUNTNO, ?, EODFEEID, FEEAMOUNT, FEETYPE, EFFECTDATE, CRDR FROM EODCARDFEE WHERE EFFECTDATE > TO_DATE(?, 'dd-MM-YY') AND EFFECTDATE < TO_DATE(?, 'dd-MM-YY') AND ACCOUNTNO = ? AND ADJUSTMENTSTATUS IN (?) ORDER BY EFFECTDATE";
+                sql = queryParametersList.getEOMInterest_getEOMInterest_Appender5();
             }
             if (noOfStatement == 1) {
-                sql = "INSERT INTO TEMPTRANSACTIONDETAILS(ACCOUNTNO, EODID, TRANSACTIONID, AMOUNT, TXNTYPE, TXNCHECKDATE, CRDR) SELECT ACCOUNTNO, ?, EODFEEID, FEEAMOUNT, FEETYPE, EFFECTDATE, CRDR FROM EODCARDFEE WHERE EFFECTDATE > TO_DATE(?, 'dd-MM-YY') AND EFFECTDATE < TO_DATE(?, 'dd-MM-YY') AND ACCOUNTNO = ? AND ADJUSTMENTSTATUS IN (?) ORDER BY EFFECTDATE";
+                //sql = "INSERT INTO TEMPTRANSACTIONDETAILS(ACCOUNTNO, EODID, TRANSACTIONID, AMOUNT, TXNTYPE, TXNCHECKDATE, CRDR) SELECT ACCOUNTNO, ?, EODFEEID, FEEAMOUNT, FEETYPE, EFFECTDATE, CRDR FROM EODCARDFEE WHERE EFFECTDATE > TO_DATE(?, 'dd-MM-YY') AND EFFECTDATE < TO_DATE(?, 'dd-MM-YY') AND ACCOUNTNO = ? AND ADJUSTMENTSTATUS IN (?) ORDER BY EFFECTDATE";
+                sql = queryParametersList.getEOMInterest_getEOMInterest_Appender6();
             }
             backendJdbcTemplate.update(sql,
                     Configurations.EOD_ID,
@@ -209,8 +227,8 @@ public class EOMInterestRepo implements EOMInterestDao {
 
             count = insertIntoTempTxnDetails(eomCardBean.getAccNo(), lastBillingDatesAndEodId.getEndEodId(), "200", lastBillingDatesAndEodId.getThisBillingClosingBalance(), "Statement_CB", "DR", lastBillingDatesAndEodId.getStatementEndDate());
 
-            sql = "INSERT INTO TEMPTRANSACTIONDETAILS(ACCOUNTNO, EODID, TRANSACTIONID, AMOUNT, TXNTYPE, TXNCHECKDATE, CRDR) SELECT ACCOUNTNO, EODID, TRANSACTIONID, TRANSACTIONAMOUNT, TRANSACTIONTYPE, SETTLEMENTDATE, CRDR FROM EODTRANSACTION WHERE EODID > ? AND EODID <= ? AND ACCOUNTNO = ? AND ADJUSTMENTSTATUS = 'NO' AND TRANSACTIONTYPE IN (?,?,?,?) AND STATUS NOT IN (?) ORDER BY SETTLEMENTDATE";
-
+            //sql = "INSERT INTO TEMPTRANSACTIONDETAILS(ACCOUNTNO, EODID, TRANSACTIONID, AMOUNT, TXNTYPE, TXNCHECKDATE, CRDR) SELECT ACCOUNTNO, EODID, TRANSACTIONID, TRANSACTIONAMOUNT, TRANSACTIONTYPE, SETTLEMENTDATE, CRDR FROM EODTRANSACTION WHERE EODID > ? AND EODID <= ? AND ACCOUNTNO = ? AND ADJUSTMENTSTATUS = 'NO' AND TRANSACTIONTYPE IN (?,?,?,?) AND STATUS NOT IN (?) ORDER BY SETTLEMENTDATE";
+            sql = queryParametersList.getEOMInterest_getEOMInterest_Appender7();
             backendJdbcTemplate.update(sql,
                     lastBillingDatesAndEodId.getEndEodId(),
                     Configurations.EOD_ID,
@@ -220,8 +238,8 @@ public class EOMInterestRepo implements EOMInterestDao {
                     Configurations.TXN_TYPE_REFUND,
                     Configurations.TXN_TYPE_MVISA_REFUND,
                     statusList.getCHEQUE_RETURN_STATUS());
-            sql = "INSERT INTO TEMPTRANSACTIONDETAILS(ACCOUNTNO, EODID, TRANSACTIONID, AMOUNT, TXNTYPE, TXNCHECKDATE, CRDR) SELECT ?, ?, ID, AMOUNT, TRANSACTIONTYPE, ADJUSTDATE, CRDR FROM ADJUSTMENT WHERE ADJUSTDATE <= TO_DATE(?, 'dd-MM-YY') AND ADJUSTDATE > TO_DATE(?, 'dd-MM-YY') AND CRDR IN(?) AND STATUS = ? AND EODSTATUS = ? AND ADJUSTMENTTYPE NOT IN (?,?) AND uniqueid IN (SELECT CA.CARDNUMBER FROM CARDACCOUNTCUSTOMER CA, CARD CD WHERE CA.cardnumber = CD.CARDNUMBER AND CA.ACCOUNTNO = ?) ORDER BY ADJUSTDATE";
-
+            //sql = "INSERT INTO TEMPTRANSACTIONDETAILS(ACCOUNTNO, EODID, TRANSACTIONID, AMOUNT, TXNTYPE, TXNCHECKDATE, CRDR) SELECT ?, ?, ID, AMOUNT, TRANSACTIONTYPE, ADJUSTDATE, CRDR FROM ADJUSTMENT WHERE ADJUSTDATE <= TO_DATE(?, 'dd-MM-YY') AND ADJUSTDATE > TO_DATE(?, 'dd-MM-YY') AND CRDR IN(?) AND STATUS = ? AND EODSTATUS = ? AND ADJUSTMENTTYPE NOT IN (?,?) AND uniqueid IN (SELECT CA.CARDNUMBER FROM CARDACCOUNTCUSTOMER CA, CARD CD WHERE CA.cardnumber = CD.CARDNUMBER AND CA.ACCOUNTNO = ?) ORDER BY ADJUSTDATE";
+            sql= queryParametersList.getEOMInterest_getEOMInterest_Appender8();
             backendJdbcTemplate.update(sql,
                     eomCardBean.getAccNo(),
                     Configurations.EOD_ID,
@@ -236,7 +254,8 @@ public class EOMInterestRepo implements EOMInterestDao {
 
             count = this.insertIntoTempTxnDetails(eomCardBean.getAccNo(), Configurations.EOD_ID, "-1", 0.0, "Day End", "DR", Configurations.EOD_DATE);
 
-            sql = "SELECT ACCOUNTNO, AMOUNT, CRDR, CREATEDTIME, EODID, LASTUPDATEDTIME, LASTUPDATEDUSER, TRANSACTIONID, TXNCHECKDATE, TXNTYPE FROM TEMPTRANSACTIONDETAILS WHERE ACCOUNTNO = ? ORDER BY TXNCHECKDATE ASC";
+            //sql = "SELECT ACCOUNTNO, AMOUNT, CRDR, CREATEDTIME, EODID, LASTUPDATEDTIME, LASTUPDATEDUSER, TRANSACTIONID, TXNCHECKDATE, TXNTYPE FROM TEMPTRANSACTIONDETAILS WHERE ACCOUNTNO = ? ORDER BY TXNCHECKDATE ASC";
+            sql = queryParametersList.getEOMInterest_getEOMInterest_Select1();
             backendJdbcTemplate.query(sql, (ResultSet rs) -> {
                 while (rs.next()) {
                     int key = 0;
@@ -266,7 +285,8 @@ public class EOMInterestRepo implements EOMInterestDao {
             }
             lhMap.clear();
 
-            sql = "SELECT TO_DATE(TXNCHECKDATE,'dd-MM-YY') AS TXNCHECKDATE from TEMPTRANSACTIONDETAILS WHERE ACCOUNTNO = ? ORDER BY TXNCHECKDATE ASC";
+            //sql = "SELECT TO_DATE(TXNCHECKDATE,'dd-MM-YY') AS TXNCHECKDATE from TEMPTRANSACTIONDETAILS WHERE ACCOUNTNO = ? ORDER BY TXNCHECKDATE ASC";
+            sql = queryParametersList.getEOMInterest_getEOMInterest_Select2();
             backendJdbcTemplate.query(sql, (ResultSet rs) -> {
                 while (rs.next()) {
                     dateList.add(rs.getDate("TXNCHECKDATE"));
@@ -280,7 +300,8 @@ public class EOMInterestRepo implements EOMInterestDao {
 
             dateGap.add(0);
 
-            sql = "SELECT AMOUNT,TXNTYPE,CRDR FROM TEMPTRANSACTIONDETAILS WHERE ACCOUNTNO = ? ORDER BY TXNCHECKDATE ASC";
+            //sql = "SELECT AMOUNT,TXNTYPE,CRDR FROM TEMPTRANSACTIONDETAILS WHERE ACCOUNTNO = ? ORDER BY TXNCHECKDATE ASC";
+            sql = queryParametersList.getEOMInterest_getEOMInterest_Select3();
             backendJdbcTemplate.query(sql, (ResultSet rs) -> {
                 while (rs.next()) {
                     double amount;
@@ -441,7 +462,8 @@ public class EOMInterestRepo implements EOMInterestDao {
                 }
             }, eomCardBean.getAccNo());
 
-            sql = "SELECT AMOUNT FROM TEMPTRANSACTIONDETAILS WHERE TXNCHECKDATE>TO_DATE(?, 'DD-MM-YY') AND TXNCHECKDATE<=TO_DATE(?, 'DD-MM-YY') AND ACCOUNTNO = ? AND CRDR = ?";
+            //sql = "SELECT AMOUNT FROM TEMPTRANSACTIONDETAILS WHERE TXNCHECKDATE>TO_DATE(?, 'DD-MM-YY') AND TXNCHECKDATE<=TO_DATE(?, 'DD-MM-YY') AND ACCOUNTNO = ? AND CRDR = ?";
+            sql = queryParametersList.getEOMInterest_getEOMInterest_Select4();
             backendJdbcTemplate.query(sql, (ResultSet rs) -> {
                 while (rs.next()) {
                     BigDecimal totalPaymentBeforeDueDate = new BigDecimal("0.0");
@@ -490,7 +512,8 @@ public class EOMInterestRepo implements EOMInterestDao {
         int count = 0;
         String query = null;
         try {
-            query = "DELETE FROM TEMPTRANSACTIONDETAILS WHERE ACCOUNTNO = ?";
+            //query = "DELETE FROM TEMPTRANSACTIONDETAILS WHERE ACCOUNTNO = ?";
+            query = queryParametersList.getEOMInterest_getEOMInterest_Delete();
             count = backendJdbcTemplate.update(query,
                     accNo
                     );
@@ -505,7 +528,8 @@ public class EOMInterestRepo implements EOMInterestDao {
         String sql = null;
         SimpleDateFormat sdf = new SimpleDateFormat("dd-MMM-yy");
         try {
-            sql = "insert into TEMPTRANSACTIONDETAILS (ACCOUNTNO, EODID,TRANSACTIONID,AMOUNT,TXNTYPE,TXNCHECKDATE,CRDR) values(?,?,?,?,?,TO_DATE(?, 'DD-MM-YY'),?)";
+            //sql = "insert into TEMPTRANSACTIONDETAILS (ACCOUNTNO, EODID,TRANSACTIONID,AMOUNT,TXNTYPE,TXNCHECKDATE,CRDR) values(?,?,?,?,?,TO_DATE(?, 'DD-MM-YY'),?)";
+            sql= queryParametersList.getEOMInterest_insertIntoTempTxnDetails();
             count = backendJdbcTemplate.update(sql,
                     accNo,
                     eodId,
@@ -526,8 +550,8 @@ public class EOMInterestRepo implements EOMInterestDao {
         double totalFees = 0;
         try {
             totalFees = otherFees + accruedLatePayFees + accruedOverLimitFees;
-            String query = "UPDATE DELINQUENTACCOUNT SET NPACCRUEDINTEREST = NPACCRUEDINTEREST + ?, NPACCRUEDOVERLIMITFEES = NPACCRUEDOVERLIMITFEES + ?, NPACCRUEDLATEPAYFEES = NPACCRUEDLATEPAYFEES + ?, NPACCRUEDFEES = NPACCRUEDFEES + ? WHERE ACCOUNTNO = ? ";
-            count = backendJdbcTemplate.update(query,
+            //String query = "UPDATE DELINQUENTACCOUNT SET NPACCRUEDINTEREST = NPACCRUEDINTEREST + ?, NPACCRUEDOVERLIMITFEES = NPACCRUEDOVERLIMITFEES + ?, NPACCRUEDLATEPAYFEES = NPACCRUEDLATEPAYFEES + ?, NPACCRUEDFEES = NPACCRUEDFEES + ? WHERE ACCOUNTNO = ?";
+            count = backendJdbcTemplate.update(queryParametersList.getEOMInterest_updateDELINQUENTACCOUNTnpdetails(),
                     accruedInterest,
                     accruedOverLimitFees,
                     accruedLatePayFees,
@@ -544,8 +568,8 @@ public class EOMInterestRepo implements EOMInterestDao {
     public int insertIntoEomInterest(StringBuffer cardNo, String accNO, double FORWARDINTEREST, double INTERESTAMOUNT, int eodId, String status) throws Exception {
         int count = 0;
         try {
-            String sql = "insert into EOMINTEREST (CARDNO,FORWARDINTEREST,INTERESTAMOUNT,EODID,ACCOUNTNO,STATUS) values (?,?,?,?,?,?)";
-            count = backendJdbcTemplate.update(sql, cardNo, FORWARDINTEREST, INTERESTAMOUNT, eodId, accNO, status);
+            //String sql = "insert into EOMINTEREST (CARDNO,FORWARDINTEREST,INTERESTAMOUNT,EODID,ACCOUNTNO,STATUS) values (?,?,?,?,?,?)";
+            count = backendJdbcTemplate.update(queryParametersList.getEOMInterest_insertIntoEomInterest(), cardNo, FORWARDINTEREST, INTERESTAMOUNT, eodId, accNO, status);
         } catch (Exception e) {
             throw e;
         }
@@ -557,8 +581,9 @@ public class EOMInterestRepo implements EOMInterestDao {
         int count = 0;
         SimpleDateFormat sdf = new SimpleDateFormat("dd-MMM-yy");
         try {
-            String sql = "INSERT INTO EODGLACCOUNT (EODID,GLDATE,CARDNO,GLTYPE,AMOUNT,CRDR,PAYMENTTYPE) VALUES (?,TO_DATE(?, 'DD-MM-YY'),?,?,to_char(?,'9999999999.99'),?,?)";
-            count = backendJdbcTemplate.update(sql,
+            //String sql = "INSERT INTO EODGLACCOUNT (EODID,GLDATE,CARDNO,GLTYPE,AMOUNT,CRDR,PAYMENTTYPE) VALUES (?,TO_DATE(?, 'DD-MM-YY'),?,?,to_char(?,'9999999999.99'),?,?)";
+
+            count = backendJdbcTemplate.update(queryParametersList.getEOMInterest_insertIntoEodGLAccount(),
                     eodID,
                     sdf.format(glDate),
                     cardNo,

@@ -4,7 +4,6 @@ import com.epic.cms.dao.CommonDao;
 import com.epic.cms.dao.RunnableFeeDao;
 import com.epic.cms.model.bean.*;
 import com.epic.cms.util.*;
-import lombok.extern.slf4j.Slf4j;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -114,6 +113,8 @@ public class RunnableFeeService {
             logError.error("exception in anniversary date for card: " + CommonMethods.cardNumberMask(cardBean.getCardnumber()), ex);
             details.put("exception in anniversary date for card:", CommonMethods.cardNumberMask(cardBean.getCardnumber()));
             Configurations.errorCardList.add(new ErrorCardBean(Configurations.ERROR_EOD_ID, Configurations.EOD_DATE, cardBean.getCardnumber(), ex.getMessage(), Configurations.RUNNING_PROCESS_ID, Configurations.RUNNING_PROCESS_DESCRIPTION, 0, CardAccount.CARD));
+
+            //faileCardCount.addAndGet(1);
             Configurations.FAILED_CARDS++;
             throw ex;
         }
@@ -150,6 +151,7 @@ public class RunnableFeeService {
                     } catch (Exception e) {
                         logError.error("--error--" + e);
                         Configurations.errorCardList.add(new ErrorCardBean(Configurations.ERROR_EOD_ID, Configurations.EOD_DATE, cardBean.getCardnumber(), e.getMessage(), Configurations.RUNNING_PROCESS_ID, Configurations.RUNNING_PROCESS_DESCRIPTION, 0, CardAccount.CARD));
+                        //faileCardCount.addAndGet(1);
                         Configurations.FAILED_CARDS++;
                     }
                 }
@@ -298,6 +300,8 @@ public class RunnableFeeService {
         } catch (Exception ex) {
             logError.error("Exception in getting due date: ", ex);
             Configurations.errorCardList.add(new ErrorCardBean(Configurations.ERROR_EOD_ID, Configurations.EOD_DATE, cardNo, ex.getMessage(), Configurations.RUNNING_PROCESS_ID, Configurations.RUNNING_PROCESS_DESCRIPTION, 0, CardAccount.CARD));
+
+            //faileCardCount.addAndGet(1);
             Configurations.FAILED_CARDS++;
         }
     }
