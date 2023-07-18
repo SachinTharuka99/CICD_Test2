@@ -234,7 +234,7 @@ public class LogManager {
         //String curDate = new SimpleDateFormat("dd-MMM-yy HH:mm:ss").format(Configurations.EOD_DATE);
 
         //String formattedMsg = "[" + curDate + "]" + "  " + msg + System.lineSeparator();
-        String formattedMsg =  msg + System.lineSeparator();
+        String formattedMsg = msg + System.lineSeparator();
 
         try {
             kafkaTemplate.send(topic, formattedMsg);
@@ -342,11 +342,12 @@ public class LogManager {
         }
         return description;
     }
-//    public void kafkaDashboardLogUpdator(String description){
-//        try {
-//            kafkaTemplate.send(topic, description);
-//        } catch (Exception e) {
-//            System.out.println("Kafka log_topic error");
-//        }
-//    }
+
+    public void logDashboardInfo(String msg) {
+        try {
+            kafkaTemplate.send(topic, msg);
+        } catch (Exception e) {
+            System.out.println("Kafka log_topic error");
+        }
+    }
 }

@@ -50,10 +50,10 @@ public abstract class FileGenProcessBuilder extends ProcessBuilder {
             boolean isErrorProcess = processBuilderRepo.isErrorProcess(processId);
             this.processHeader = processBean.getProcessDes();
             setupProcessDescriptions();
-            StartEodStatus = Configurations.STARTING_EOD_STATUS;
+            startEodStatus = Configurations.STARTING_EOD_STATUS;
 
             if (eodEngineStatus.equals("COMP")) {
-                if (StartEodStatus.equals("EROR")) { //starteodstatus - File Generation Eod status
+                if (startEodStatus.equals("EROR")) { //starteodstatus - File Generation Eod status
                     if (isErrorProcess) {
                         //Current process threw errors at previous EOD
                         hasErrorEODandProcess = 1;
@@ -69,7 +69,7 @@ public abstract class FileGenProcessBuilder extends ProcessBuilder {
                 if (hasErrorEODandProcess == 1 && processBean != null || hasErrorEODandProcess == 0 && processBean != null) {
                     logInfo.info(logManager.logHeader(processHeader));
                     logInfo.info(logManager.logStartEnd(startHeader));
-                    commonRepo.insertToEodProcessSumery(processId);
+                    commonRepo.insertToEodProcessSummery(processId);
                     /**
                      * Abstract method call.
                      */

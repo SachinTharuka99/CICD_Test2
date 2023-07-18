@@ -54,7 +54,7 @@ public abstract class FileProcessingProcessBuilder {
             logInfo.info(logManager.logStartEnd(startHeader));
 
             //3 - insert to process summery table
-            commonRepo.insertToEodProcessSumery(processId);
+            commonRepo.insertToEodProcessSummery(processId);
             //4 - Abstract method call
             concreteProcess(fileId);
             //5 - Update process summery table

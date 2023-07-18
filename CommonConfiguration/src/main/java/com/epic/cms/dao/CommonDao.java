@@ -10,7 +10,7 @@ import java.util.HashMap;
 public interface CommonDao {
     ProcessBean getProcessDetails(int processId) throws Exception;
 
-    void insertToEodProcessSumery(int processId) throws Exception;
+    void insertToEodProcessSummery(int processId) throws Exception;
 
     void updateEodProcessSummery(int eodId, String status, int processId, int successCount, int failedCount, String progress) throws Exception;
 

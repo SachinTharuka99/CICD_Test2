@@ -72,6 +72,7 @@ public class OnlineToBackendTxnRepo implements OnlineToBackendTxnDao {
                     throw new SQLException();
             }
         }catch (Exception e){
+            e.printStackTrace();
             throw e;
         }
     }

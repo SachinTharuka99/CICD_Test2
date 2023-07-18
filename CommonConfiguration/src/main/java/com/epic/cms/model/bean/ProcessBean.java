@@ -1,5 +1,6 @@
 package com.epic.cms.model.bean;
 
+import lombok.Data;
 import lombok.Getter;
 import lombok.Setter;
 

@@ -2,24 +2,19 @@ package com.epic.cms.common;
 
 import com.epic.cms.Exception.FailedCardException;
 import com.epic.cms.dao.ProcessBuilderDao;
-import com.epic.cms.model.bean.ErrorCardBean;
-import com.epic.cms.model.bean.ErrorMerchantBean;
 import com.epic.cms.model.bean.ProcessBean;
 import com.epic.cms.repository.CommonRepo;
 import com.epic.cms.service.KafkaMessageUpdator;
 import com.epic.cms.util.Configurations;
 import com.epic.cms.util.LogManager;
 import com.epic.cms.util.StatusVarList;
-import lombok.extern.slf4j.Slf4j;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Component;
 
 import java.text.SimpleDateFormat;
-import java.util.*;
-import java.util.concurrent.ArrayBlockingQueue;
-import java.util.concurrent.BlockingQueue;
+import java.util.Date;
+import java.util.LinkedHashMap;
 
 
 public abstract class ProcessBuilder {
@@ -27,20 +22,13 @@ public abstract class ProcessBuilder {
     public LinkedHashMap details = new LinkedHashMap();
     public LinkedHashMap summery = new LinkedHashMap();
     public ProcessBean processBean = null;
-
-    int capacity = 200000;
-    BlockingQueue<Integer> failCount = new ArrayBlockingQueue<>(capacity);
-    BlockingQueue<Integer> successCount = new ArrayBlockingQueue<>(capacity);
-
-    //public List<ErrorCardBean> cardErrorList = Collections.synchronizedList(new ArrayList<ErrorCardBean>());
-    //public List<ErrorMerchantBean> merchantErrorList = Collections.synchronizedList(new ArrayList<ErrorMerchantBean>());
-
+    public String processHeader = "Define Process";
     public String startHeader = null;
     public String endHeader = null;
     public String failedHeader = null;
     public String completedHeader = null;
-    public String processHeader = "Define Process";
-    public String StartEodStatus = null;
+    
+    public String startEodStatus = null;
     public int hasErrorEODandProcess = 0;
 
     private static final Logger logInfo = LoggerFactory.getLogger("logInfo");
@@ -68,17 +56,16 @@ public abstract class ProcessBuilder {
         SimpleDateFormat sdf = new SimpleDateFormat("dd-MM-yyyy");
         try {
             ProcessBean processBean = processBuilderRepo.getProcessDetails(processId);
-            //Configurations.EOD_ID = processBuilderRepo.getRuninngEODId(statusVarList.getINPROGRESS_STATUS(), statusVarList.getERROR_INPR_STATUS());
+            Configurations.EOD_ID = processBuilderRepo.getRunningEODId(statusVarList.getINPROGRESS_STATUS(), statusVarList.getERROR_INPR_STATUS());
             Configurations.ERROR_EOD_ID = Configurations.EOD_ID;
-            System.out.println("EOD ID :" + Configurations.ERROR_EOD_ID);
             Configurations.EOD_DATE = getDateFromEODID(Configurations.EOD_ID);
             Configurations.EOD_DATE_String = sdf.format(Configurations.EOD_DATE);
-            StartEodStatus = Configurations.STARTING_EOD_STATUS;
+            startEodStatus = Configurations.STARTING_EOD_STATUS;
             boolean isErrorProcess = processBuilderRepo.isErrorProcess(processId);
             this.processHeader = processBean.getProcessDes();
             setupProcessDescriptions();
 
-            if (StartEodStatus.equals("EROR")) {
+            if (startEodStatus.equals("EROR")) {
                 //This is running on a failed EOD process
                 if (processId != Configurations.PROCESS_ID_SNAPSHOT) {
                     if (isErrorProcess) {
@@ -99,7 +86,7 @@ public abstract class ProcessBuilder {
             if (hasErrorEODandProcess == 1 && processBean != null || hasErrorEODandProcess == 0 && processBean != null) {
                 logInfo.info(logManager.logHeader(processHeader));
                 logInfo.info(logManager.logStartEnd(startHeader));
-                commonRepo.insertToEodProcessSumery(processId);
+                commonRepo.insertToEodProcessSummery(processId);//insert a record to process summery
                 /**
                  * Abstract method call.
                  */
@@ -111,9 +98,8 @@ public abstract class ProcessBuilder {
                 /**
                  * Add any failed cards at EOD
                  */
-                commonRepo.updateEODProcessCount(uniqueId);
+                commonRepo.updateEODProcessCount(uniqueId);//increase completed process count by 1
                 insertFailedEODCards(processId);
-                //commonRepo.updateEodProcessSummery(Configurations.ERROR_EOD_ID, statusVarList.getSUCCES_STATUS(), processId, Configurations.PROCESS_SUCCESS_COUNT, Configurations.PROCESS_FAILD_COUNT, eodDashboardProcessProgress(Configurations.PROCESS_SUCCESS_COUNT, Configurations.PROCESS_TOTAL_NOOF_TRABSACTIONS));
 
             } else if (hasErrorEODandProcess == 2 && processBean != null) {
                 System.out.println("Skipping this process since Process not under error: " + processBean.getProcessDes());
@@ -138,38 +124,20 @@ public abstract class ProcessBuilder {
             logInfo.info(logManager.logSummery(summery));
             kafkaMessageUpdator.producerWithNoReturn("true", "processStatus");
             kafkaMessageUpdator.producerWithNoReturn(!Configurations.IS_PROCESS_COMPLETELY_FAILED, "eodEngineConsumerStatus");
-            System.out.println("Send the process success status");
             logInfo.info(logManager.logStartEnd(completedHeader));
-            failCount.clear();
-            successCount.clear();
         }
     }
 
     void insertFailedEODCards(int processId) throws Exception {
         int failedCardListSize = Configurations.errorCardList.size();
-        int merchantErrorList = Configurations.merchantErrorList.size();
-        if (failedCardListSize == 0) {
+        if (failedCardListSize == 0) {//process success
             commonRepo.updateEodProcessSummery(Configurations.ERROR_EOD_ID, statusVarList.getSUCCES_STATUS(), processId, Configurations.PROCESS_SUCCESS_COUNT, Configurations.PROCESS_FAILD_COUNT, eodDashboardProcessProgress(Configurations.PROCESS_SUCCESS_COUNT, Configurations.PROCESS_TOTAL_NOOF_TRABSACTIONS));
-        } else {
+        } else {//process goes to error
             for (int i = 0; i < failedCardListSize; i++) {
                 commonRepo.insertErrorEODCard(Configurations.errorCardList.get(i));
             }
-            if (failedCardListSize > 0) {
-                Configurations.errorCardList.clear();
-                throw new FailedCardException(processHeader);
-            }
-        }
-
-        if (merchantErrorList == 0) {
-            commonRepo.updateEodProcessSummery(Configurations.ERROR_EOD_ID, statusVarList.getSUCCES_STATUS(), processId, Configurations.PROCESS_SUCCESS_COUNT, Configurations.PROCESS_FAILD_COUNT, eodDashboardProcessProgress(Configurations.PROCESS_SUCCESS_COUNT, Configurations.PROCESS_TOTAL_NOOF_TRABSACTIONS));
-        } else {
-            for (int i = 0; i < merchantErrorList; i++) {
-                commonRepo.insertErrorEODCard(Configurations.errorCardList.get(i));
-            }
-            if (merchantErrorList > 0) {
-                Configurations.errorCardList.clear();
-                throw new FailedCardException(processHeader);
-            }
+            Configurations.errorCardList.clear();//clear error card list
+            throw new FailedCardException(processHeader);
         }
     }
 

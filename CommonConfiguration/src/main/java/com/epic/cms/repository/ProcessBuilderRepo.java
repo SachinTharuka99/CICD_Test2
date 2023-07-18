@@ -65,7 +65,7 @@ public class ProcessBuilderRepo implements ProcessBuilderDao {
     }
 
     @Override
-    public int getRuninngEODId(String inprogress_status, String error_inpr_status) {
+    public int getRunningEODId(String inprogress_status, String error_inpr_status) {
         int eodId = 0;
         String query ="select max(eodid) from eod where status in (?, ?) order by eodid desc";
         try {

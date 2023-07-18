@@ -11,6 +11,7 @@ import com.epic.cms.model.bean.ProcessBean;
 import org.springframework.stereotype.Repository;
 
 import java.util.List;
+import java.util.Map;
 
 @Repository
 public interface EODEngineProducerDao {
@@ -44,5 +45,11 @@ public interface EODEngineProducerDao {
 
     void updateEodEndStatus(int errorEodId, String status) throws Exception;
 
+    void updateEodStatus(int eodId,String status,int stepId);
+
     int getNextRunningEodId();
+
+    Map<String, String> getNextRunningEodInfo() throws Exception;
+
+    List<ProcessBean> getProcessListByModule(String module) throws Exception;
 }

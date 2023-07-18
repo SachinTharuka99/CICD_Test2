@@ -7,5 +7,5 @@ public interface ProcessBuilderDao {
 
     boolean isErrorProcess(int processId);
 
-    int getRuninngEODId(String inprogress_status, String error_inpr_status);
+    int getRunningEODId(String inprogress_status, String error_inpr_status);
 }
