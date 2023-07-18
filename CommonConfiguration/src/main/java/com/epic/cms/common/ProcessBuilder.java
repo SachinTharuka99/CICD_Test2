@@ -18,6 +18,8 @@ import org.springframework.stereotype.Component;
 
 import java.text.SimpleDateFormat;
 import java.util.*;
+import java.util.concurrent.ArrayBlockingQueue;
+import java.util.concurrent.BlockingQueue;
 
 
 public abstract class ProcessBuilder {
@@ -25,6 +27,10 @@ public abstract class ProcessBuilder {
     public LinkedHashMap details = new LinkedHashMap();
     public LinkedHashMap summery = new LinkedHashMap();
     public ProcessBean processBean = null;
+
+    int capacity = 200000;
+    BlockingQueue<Integer> failCount = new ArrayBlockingQueue<>(capacity);
+    BlockingQueue<Integer> successCount = new ArrayBlockingQueue<>(capacity);
 
     //public List<ErrorCardBean> cardErrorList = Collections.synchronizedList(new ArrayList<ErrorCardBean>());
     //public List<ErrorMerchantBean> merchantErrorList = Collections.synchronizedList(new ArrayList<ErrorMerchantBean>());
@@ -134,6 +140,8 @@ public abstract class ProcessBuilder {
             kafkaMessageUpdator.producerWithNoReturn(!Configurations.IS_PROCESS_COMPLETELY_FAILED, "eodEngineConsumerStatus");
             System.out.println("Send the process success status");
             logInfo.info(logManager.logStartEnd(completedHeader));
+            failCount.clear();
+            successCount.clear();
         }
     }
 

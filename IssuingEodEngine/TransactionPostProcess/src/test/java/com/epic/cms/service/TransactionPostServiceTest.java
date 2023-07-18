@@ -59,7 +59,6 @@ class TransactionPostServiceTest {
         bean.setMoneysendreversal(0.0);
         bean.setAft(20.0);
 
-        final AtomicInteger faileCardCount = new AtomicInteger(0);
         final ArrayList<OtbBean> txnList = new ArrayList<OtbBean>();
         txnList.add(bean);
 
@@ -83,7 +82,7 @@ class TransactionPostServiceTest {
         when(transactionPostServiceUnderTest.transactionPostDao.updateEODTRANSACTION(any(String.class))).thenReturn(1);
 
         // Run the test
-        transactionPostServiceUnderTest.transactionList(bean, successCount, failCount);
+        transactionPostServiceUnderTest.transactionList(bean, Configurations.successCount, Configurations.failCount);
 
         // Verify the results
         verify(transactionPostServiceUnderTest.transactionPostDao,times(1)).getTxnAmount(any());

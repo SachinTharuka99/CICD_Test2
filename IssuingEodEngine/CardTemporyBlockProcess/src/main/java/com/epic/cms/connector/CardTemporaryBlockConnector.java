@@ -46,9 +46,6 @@ public class CardTemporaryBlockConnector extends ProcessBuilder {
     LogManager logManager;
     ArrayList<BlockCardBean> cardList = null;
     ProcessBean processBean = new ProcessBean();
-    int capacity = 200000;
-    BlockingQueue<Integer> failCount = new ArrayBlockingQueue<>(capacity);
-    BlockingQueue<Integer> successCount = new ArrayBlockingQueue<>(capacity);
     @Override
     public void concreteProcess() throws Exception {
         try {
@@ -63,7 +60,7 @@ public class CardTemporaryBlockConnector extends ProcessBuilder {
 
                 if (cardList != null && cardList.size() > 0) {
                     cardList.forEach(blockCardBean -> {
-                        cardTemporaryBlockService.processCardTemporaryBlock(blockCardBean, processBean,successCount,failCount);
+                        cardTemporaryBlockService.processCardTemporaryBlock(blockCardBean, processBean,Configurations.successCount,Configurations.failCount);
                     });
                 }
                 while (!(taskExecutor.getActiveCount() == 0)) {
@@ -92,7 +89,7 @@ public class CardTemporaryBlockConnector extends ProcessBuilder {
     public void addSummaries() {
         summery.put("Started Date", Configurations.EOD_DATE.toString());
         summery.put("No of Card effected", Configurations.PROCESS_TOTAL_NOOF_TRABSACTIONS);
-        summery.put("No of Success Card", successCount.size());
-        summery.put("No of fail Card", failCount.size());
+        summery.put("No of Success Card", Configurations.successCount.size());
+        summery.put("No of fail Card", Configurations.failCount.size());
     }
 }

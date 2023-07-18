@@ -59,6 +59,8 @@ public class EODEngineDashboardService {
     @Autowired
     FileProcessingSummeryListRepo processingSummeryListRepo;
     @Autowired
+    ProcessFailSuccessCountRepo processFailSuccessCountRepo;
+    @Autowired
     CommonRepo commonRepo;
     @Autowired
     private KafkaTemplate<String, String> kafkaTemplate;
@@ -74,21 +76,46 @@ public class EODEngineDashboardService {
             Optional<EOD> eodInfo = eodIdInfoRepo.findById(eodId);
 
             //int count1 = eodProcessFlowRepo.countByPROCESSCATEGORYIDNotIn(Collections.singletonList(90));
-            int count1 = eodProcessFlowRepo.countByPROCESSCATEGORYIDNotIn(List.of(90));
+            int engineCount = eodProcessFlowRepo.countBySTATUSIn(List.of("ACT"));
+            SimpleDateFormat outputFormatter = new SimpleDateFormat("dd-MMM-yy hh.mm a");
+
+            List<FileGenFailSuccessCountBean> fileGenSummary = processFailSuccessCountRepo.findFileGenSummary(eodId, Configurations.EOD_FILE_GENERATION);
+            List<FileProcessFailSuccessCountBean> fileProcessSummary = processFailSuccessCountRepo.findFileProcessSummary(eodId, Configurations.EOD_FILE_PROCESSING);
 
             eodInfo.ifPresentOrElse(eod -> {
                 eodBean.setEodId(eod.getEODID());
-                eodBean.setStartTime(eod.getSTARTTIME());
-                eodBean.setEndTime(eod.getENDTIME());
+
+                // Format startTime
+                Date startTime = eod.getSTARTTIME();
+                String formattedStartTime = outputFormatter.format(startTime);
+                eodBean.setStartTime(formattedStartTime);
+
+                // Format endTime
+                Date endTime = eod.getENDTIME();
+                String formattedEndTime = outputFormatter.format(endTime);
+                eodBean.setEndTime(formattedEndTime);
+
                 eodBean.setStatus(eod.getSTATUS());
                 eodBean.setFileGenStatus(eod.getFILEGENERATIONSTATUS());
                 eodBean.setSubEodStatus(eod.getSUBEODSTATUS());
-                eodBean.setNoOfSuccessProcess(eod.getNOOFSUCCESSPROCESS());
-                eodBean.setNoOfErrorProcess(eod.getNOOFERRORPAROCESS());
-                eodBean.setTotalProcessCount(count1);
-            }, () -> {
+                eodBean.setEngineNoOfSuccessProcess(eod.getNOOFSUCCESSPROCESS());
+                eodBean.setEngineNoOfErrorProcess(eod.getNOOFERRORPAROCESS());
+                eodBean.setEnginTotalProcessCount(engineCount);
+            }
+            , () -> {
                 logError.error("EOD not found for ID: " + eodBean.getEodId());
             });
+
+            fileGenSummary.forEach(eod -> {
+               eodBean.setFileProcessNoOfSuccessProcess(eod.getFileGenNoOfSuccessProcess());
+                eodBean.setFileProcessNoOfErrorProcess(eod.getFileGenNoOfErrorProcess());
+            });
+
+            fileProcessSummary.forEach(eod -> {
+                eodBean.setFileProcessNoOfSuccessProcess(eod.getFileProcessNoOfSuccessProcess());
+                eodBean.setFileProcessNoOfErrorProcess(eod.getFileProcessNoOfErrorProcess());
+            });
+
         } catch (Exception e) {
             throw e;
         }
@@ -143,8 +170,8 @@ public class EODEngineDashboardService {
                 eodId = dashboardCurrentEodId;
             }
 
-            int fixSize = requestBean.getSize() / 2;
-            Pageable paging = PageRequest.of(requestBean.getPage(), fixSize, Sort.by("FILEID").ascending());
+            //int fixSize = requestBean.getSize() / 2;
+            Pageable paging = PageRequest.of(requestBean.getPage(), requestBean.getSize(), Sort.by("FILEID").ascending());
             //Pageable paging = PageRequest.of(requestBean.getPage(), requestBean.getSize(), Sort.by("FILEID").ascending());
 
             Page<RECATMFILEINVALID> recAtmFileInvalidList = atmFileInvalidRepo.findRECATMFILEINVALIDByEODID(eodId, paging);

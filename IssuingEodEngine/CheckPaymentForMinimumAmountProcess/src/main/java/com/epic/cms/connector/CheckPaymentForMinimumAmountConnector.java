@@ -23,9 +23,6 @@ import java.util.concurrent.atomic.AtomicInteger;
 
 @Service
 public class CheckPaymentForMinimumAmountConnector extends ProcessBuilder {
-    int capacity = 200000;
-    BlockingQueue<Integer> successCount = new ArrayBlockingQueue<Integer>(capacity);
-    BlockingQueue<Integer> failCount = new ArrayBlockingQueue<Integer>(capacity);
     private static final Logger logInfo = LoggerFactory.getLogger("logInfo");
     private static final Logger logError = LoggerFactory.getLogger("logError");
     @Autowired
@@ -57,7 +54,7 @@ public class CheckPaymentForMinimumAmountConnector extends ProcessBuilder {
 //                checkPaymentForMinimumAmountService.CheckPaymentForMinimumAmount(lastStatement);
 //            }
             cardList.forEach(lastStatement-> {
-                checkPaymentForMinimumAmountService.CheckPaymentForMinimumAmount(lastStatement,successCount, failCount);
+                checkPaymentForMinimumAmountService.CheckPaymentForMinimumAmount(lastStatement,Configurations.successCount, Configurations.failCount);
             });
 
 
@@ -65,10 +62,6 @@ public class CheckPaymentForMinimumAmountConnector extends ProcessBuilder {
             while (!(taskExecutor.getActiveCount() == 0)) {
                 Thread.sleep(1000);
             }
-
-            Configurations.PROCESS_TOTAL_NOOF_TRABSACTIONS = cardList.size();
-            Configurations.PROCESS_SUCCESS_COUNT = successCount.size();
-
         } catch (Exception e) {
             Configurations.IS_PROCESS_COMPLETELY_FAILED = true;
             logError.error("Check Payment For Minimum Amount process ended with", e);

@@ -33,9 +33,6 @@ import java.util.concurrent.atomic.AtomicInteger;
 
 @Service
 public class KnockOffConnector extends ProcessBuilder {
-    int capacity = 200000;
-    BlockingQueue<Integer> successCount = new ArrayBlockingQueue<Integer>(capacity);
-    BlockingQueue<Integer> failCount = new ArrayBlockingQueue<Integer>(capacity);
     private static final Logger logInfo = LoggerFactory.getLogger("logInfo");
     private static final Logger logError = LoggerFactory.getLogger("logError");
     @Autowired
@@ -75,7 +72,7 @@ public class KnockOffConnector extends ProcessBuilder {
 //                }
 
                 custAccList.forEach(custAccBean -> {
-                    knockOffService.knockOff(custAccBean, cardList, paymentList,successCount,failCount);
+                    knockOffService.knockOff(custAccBean, cardList, paymentList,Configurations.successCount,Configurations.failCount);
                 });
                 //wait till all the threads are completed
                 while (!(taskExecutor.getActiveCount() == 0)) {
@@ -126,7 +123,7 @@ public class KnockOffConnector extends ProcessBuilder {
     @Override
     public void addSummaries() {
         summery.put("Number of transaction to sync", Configurations.PROCESS_TOTAL_NOOF_TRABSACTIONS);
-        summery.put("Number of success transaction", successCount.size());
-        summery.put("Number of failure transaction",failCount.size());
+        summery.put("Number of success transaction", Configurations.successCount.size());
+        summery.put("Number of failure transaction",Configurations.failCount.size());
     }
 }

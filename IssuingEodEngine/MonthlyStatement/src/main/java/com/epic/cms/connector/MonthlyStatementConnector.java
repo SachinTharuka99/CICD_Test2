@@ -63,9 +63,6 @@ import java.util.concurrent.atomic.AtomicReference;
 
 @Service
 public class MonthlyStatementConnector extends ProcessBuilder {
-    int capacity = 200000;
-    BlockingQueue<Integer> successCount = new ArrayBlockingQueue<Integer>(capacity);
-    BlockingQueue<Integer> failCount = new ArrayBlockingQueue <Integer>(capacity);
     private static final Logger logInfo = LoggerFactory.getLogger("logInfo");
     private static final Logger logError = LoggerFactory.getLogger("logError");
     @Autowired
@@ -101,7 +98,7 @@ public class MonthlyStatementConnector extends ProcessBuilder {
                 for (Map.Entry<String, ArrayList<CardBean>> entry : cardAccountMap.entrySet()) {
                     accNo = entry.getKey();
                     ArrayList<CardBean> CardBeanList = entry.getValue();
-                    monthlyStatementService.monthlyStatement(accNo, CardBeanList,successCount,failCount);
+                    monthlyStatementService.monthlyStatement(accNo, CardBeanList,Configurations.successCount,Configurations.failCount);
                 }
 
 //                cardAccountMap.forEach((entryKey, entryValue) -> {
@@ -129,7 +126,7 @@ public class MonthlyStatementConnector extends ProcessBuilder {
     @Override
     public void addSummaries() {
         summery.put("Total No of Effected Cards ", Configurations.PROCESS_TOTAL_NOOF_TRABSACTIONS);
-        summery.put("Total Success Cards ", successCount.size());
-        summery.put("Total Fail Cards ", failCount.size());
+        summery.put("Total Success Cards ", Configurations.successCount.size());
+        summery.put("Total Fail Cards ", Configurations.failCount.size());
     }
 }

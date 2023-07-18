@@ -21,9 +21,7 @@ public class OnlineToBackendTxnConnector extends ProcessBuilder {
     @Autowired
     LogManager logManager;
 
-    private static final Logger logInfo = LoggerFactory.getLogger("logInfo");
     private static final Logger logError = LoggerFactory.getLogger("logError");
-    public AtomicInteger faileCardCount = new AtomicInteger(0);
 
     @Override
     public void concreteProcess() throws Exception {

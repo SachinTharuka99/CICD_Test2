@@ -16,12 +16,16 @@ import java.util.Date;
 @Setter
 public class EodBean {
     private Long eodId;
-    private Date startTime;
-    private Date endTime;
+    private String startTime;
+    private String endTime;
     private String status;
     private String subEodStatus;
-    private Integer noOfSuccessProcess;
-    private Integer noOfErrorProcess;
-    private Integer totalProcessCount;
+    private Integer engineNoOfSuccessProcess;
+    private Integer engineNoOfErrorProcess;
+    private Integer enginTotalProcessCount;
+    private Integer fileGenNoOfSuccessProcess;
+    private Integer fileGenNoOfErrorProcess;
+    private Integer fileProcessNoOfSuccessProcess;
+    private Integer fileProcessNoOfErrorProcess;
     private String fileGenStatus;
 }

@@ -43,9 +43,6 @@ public class PaymentReversalsConnector extends ProcessBuilder {
 
     @Autowired
     PaymentReversalRepo paymentReversalRepo;
-    int capacity = 200000;
-    BlockingQueue<Integer> successCount = new ArrayBlockingQueue<Integer>(capacity);
-    BlockingQueue<Integer> failCount = new ArrayBlockingQueue <Integer>(capacity);
     private static final Logger logInfo = LoggerFactory.getLogger("logInfo");
     private static final Logger logError = LoggerFactory.getLogger("logError");
     private List<PaymentBean> paymentReversals = null;
@@ -74,7 +71,7 @@ public class PaymentReversalsConnector extends ProcessBuilder {
 //                }
 
                 paymentReversals.forEach(bean -> {
-                    paymentReversalService.setPaymentReversals(bean,successCount,failCount);
+                    paymentReversalService.setPaymentReversals(bean,Configurations.successCount,Configurations.failCount);
 
                 });
             }
@@ -107,7 +104,7 @@ public class PaymentReversalsConnector extends ProcessBuilder {
     public void addSummaries() {
         summery.put("Process Name ", "Payment Reversal");
         summery.put("No Of Payment Reversals awaiting ", Configurations.PROCESS_TOTAL_NOOF_TRABSACTIONS);
-        summery.put("No of Payments successfully reversed ", failCount.size());
-        summery.put("No of Payments not reversed ", failCount.size());
+        summery.put("No of Payments successfully reversed ", Configurations.failCount.size());
+        summery.put("No of Payments not reversed ", Configurations.failCount.size());
     }
 }

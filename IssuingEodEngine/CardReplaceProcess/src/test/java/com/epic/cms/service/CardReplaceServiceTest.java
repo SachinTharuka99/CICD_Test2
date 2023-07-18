@@ -22,7 +22,7 @@ import static org.mockito.Mockito.*;
 class CardReplaceServiceTest {
 
     private CardReplaceService cardReplaceServiceUnderTest;
-    public AtomicInteger faileCardCount = new AtomicInteger(0);
+
 
 
     static MockedStatic<LogManager> common;
@@ -64,7 +64,7 @@ class CardReplaceServiceTest {
             assertThat(maskCardNo).isEqualTo(CommonMethods.cardNumberMask(cardReplaceBean.getOldCardNo()));
         }
         // Run the test
-        cardReplaceServiceUnderTest.cardReplace(cardReplaceBean, faileCardCount);
+        cardReplaceServiceUnderTest.cardReplace(cardReplaceBean, Configurations.successCount,Configurations.failCount);
 
         // Verify the results
         verify(cardReplaceServiceUnderTest.cardReplaceRepo).updateBackendOldCardFromNewCard(any(CardReplaceBean.class));

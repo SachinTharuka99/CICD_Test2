@@ -43,9 +43,6 @@ public class TransactionPostConnector extends ProcessBuilder {
 
     @Autowired
     LogManager logManager;
-    int capacity = 200000;
-    BlockingQueue<Integer> successCount = new ArrayBlockingQueue<Integer>(capacity);
-    BlockingQueue<Integer> failCount = new ArrayBlockingQueue <Integer>(capacity);
     private static final Logger logInfo = LoggerFactory.getLogger("logInfo");
     private static final Logger logError = LoggerFactory.getLogger("logError");
     @Autowired
@@ -74,7 +71,7 @@ public class TransactionPostConnector extends ProcessBuilder {
 //            }
 
             custAccList.forEach(bean -> {
-                transactionPostService.transactionList(bean, successCount,failCount);
+                transactionPostService.transactionList(bean, Configurations.successCount,Configurations.failCount);
             });
 
 
@@ -115,7 +112,7 @@ public class TransactionPostConnector extends ProcessBuilder {
     @Override
     public void addSummaries() {
         summery.put("Number of accounts to fee post ", Configurations.PROCESS_TOTAL_NOOF_TRABSACTIONS);
-        summery.put("Number of success fee post ", successCount.size());
-        summery.put("Number of failure fee post ", failCount.size());
+        summery.put("Number of success fee post ", Configurations.successCount.size());
+        summery.put("Number of failure fee post ", Configurations.failCount.size());
     }
 }

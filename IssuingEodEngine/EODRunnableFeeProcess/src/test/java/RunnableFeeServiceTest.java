@@ -25,7 +25,7 @@ import static org.mockito.ArgumentMatchers.*;
 import static org.mockito.Mockito.*;
 
 class RunnableFeeServiceTest {
-    public AtomicInteger faileCardCount = new AtomicInteger(0);
+
     final static SimpleDateFormat sdf = new SimpleDateFormat("yyMMdd");
     private RunnableFeeService runnableFeeServiceUnderTest;
     static MockedStatic<CommonMethods> common;

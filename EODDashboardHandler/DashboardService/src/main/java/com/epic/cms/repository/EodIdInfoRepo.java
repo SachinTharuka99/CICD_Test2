@@ -7,6 +7,7 @@
 
 package com.epic.cms.repository;
 
+import com.epic.cms.model.bean.StatementGenSummeryBean;
 import com.epic.cms.model.entity.EOD;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.JpaSpecificationExecutor;

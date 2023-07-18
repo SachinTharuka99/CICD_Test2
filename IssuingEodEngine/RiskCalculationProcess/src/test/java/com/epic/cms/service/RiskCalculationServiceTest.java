@@ -70,7 +70,7 @@ class RiskCalculationServiceTest {
         processBean.setCriticalStatus(0);
         processBean.setSheduleTime("sheduleTime");
 
-        final AtomicInteger faileCardCount = new AtomicInteger(0);
+
 
         Configurations.EOD_DATE = new Date();
         Configurations.TXN_TYPE_REFUND = "123456";
@@ -141,7 +141,7 @@ class RiskCalculationServiceTest {
 
 
         // Run the test
-        riskCalculationServiceUnderTest.riskCalculationProcess(delinquentAccountBean, 0, processBean, successCount,failCount);
+        riskCalculationServiceUnderTest.riskCalculationProcess(delinquentAccountBean, 0, processBean, Configurations.successCount,Configurations.failCount);
 
         // Verify the results
         verify(riskCalculationServiceUnderTest.riskCalculationDao,times(1)).isManualNp(any());

@@ -25,9 +25,6 @@ import java.util.concurrent.atomic.AtomicInteger;
 
 @Service
 public class CashBackConnector extends ProcessBuilder {
-    int capacity = 200000;
-    BlockingQueue<Integer> successCount = new ArrayBlockingQueue<Integer>(capacity);
-    BlockingQueue<Integer> failCount = new ArrayBlockingQueue<Integer>(capacity);
     private static final Logger logInfo = LoggerFactory.getLogger("logInfo");
     private static final Logger logError = LoggerFactory.getLogger("logError");
     @Autowired
@@ -69,7 +66,7 @@ public class CashBackConnector extends ProcessBuilder {
 //                        cashBackService.cashBack(bean);
 //                    }
                     beanList.forEach(bean-> {
-                        cashBackService.cashBack(bean,successCount,failCount);
+                        cashBackService.cashBack(bean,Configurations.successCount,Configurations.failCount);
                     });
                     while (!(taskExecutor.getActiveCount() == 0)) {
                         Thread.sleep(1000);
@@ -107,7 +104,7 @@ public class CashBackConnector extends ProcessBuilder {
     public void addSummaries() {
         summery.put("Started Date", Configurations.EOD_DATE.toString());
         summery.put("Number of total Cards Count", Configurations.PROCESS_TOTAL_NOOF_TRABSACTIONS);
-        summery.put("Number of success Cards Count",successCount.size());
-        summery.put("Number of failure Cards Count", failCount.size());
+        summery.put("Number of success Cards Count",Configurations.successCount.size());
+        summery.put("Number of failure Cards Count", Configurations.failCount.size());
     }
 }

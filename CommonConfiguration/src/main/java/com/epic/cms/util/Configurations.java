@@ -12,6 +12,22 @@ import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.atomic.AtomicInteger;
 
 public class Configurations {
+    //Kafka Log Topic Config
+    public static final String LOG_TOPIC = "logTopic";
+    //log file prefix
+    public static final String LOG_TYPE_INFO = "INFO";
+    public static final String LOG_TYPE_ERROR = "ERROR";
+    public static final String LOG_FILE_PREFIX_COMMON = "common";
+    public static final String LOG_FILE_PREFIX_EOD_ENGINE = "eod_engine";
+    public static final String LOG_FILE_PREFIX_EOD_FILE_PROCESSING_ENGINE = "file_pro_engine";
+    public static final String LOG_FILE_PREFIX_EOD_FILE_GENERATION_ENGINE = "file_gen_engine";
+    public static final String INFO_LOG_PATTERN = "%d{yyyy-MM-dd HH:mm:ss} [%thread] %-5level %logger{36} - %msg%n";
+    public static final String ERROR_LOG_PATTERN = "%d [%thread] %-5level %-5logger{40} - %msg%n";
+    public static final String EOD_ENGINE = "EENG";
+    public static final String EOD_FILE_GENERATION = "EFGE";
+    public static final String EOD_FILE_PROCESSING = "EFPE";
+    //Statement Gen Base Url
+    public static final String EOD_STATEMENT_GEN_BASE_URL = "http://192.168.1.122:5000/eod-engine";
     /*
      * Transaction types
      *
@@ -66,7 +82,6 @@ public class Configurations {
     public static String TXN_TYPE_MONEY_SEND_ADVICE;
     public static String TXN_TYPE_CUP_QR_PAYMENT;
     public static String TXN_TYPE_CUP_QR_REFUND;
-
     //Online Transaction Type here
     public static String TXN_TYPE_ONLINE_SIGN_ON;
     public static String TXN_TYPE_ONLINE_KEY_EXCHANGE;
@@ -117,7 +132,6 @@ public class Configurations {
     public static String TXN_TYPE_ONLINE_CUP_QR_PAYMENT;
     public static String TXN_TYPE_ONLINE_CUP_QR_REFUND;
     public static String TXN_TYPE_AFT;
-
     //files
     public static String STATEMENT_FILE_PATH;
     public static String AUTO_SETTLEMENT_FILE_PATH;
@@ -139,8 +153,6 @@ public class Configurations {
     public static String MASTERCARD_ABU_FILE_PATH;
     public static String EOD_DASHBOARD_CONSOLELOG_FILE_PATH;
     public static String OUTGOING_CUP_FILE_PATH;
-
-
     public static String SERVER_RUN_PLATFORM;
     public static int PROCESS_ID_EOD_PARAMETER_RESET; //211
     public static boolean COMMIT_STATUS;
@@ -160,7 +172,6 @@ public class Configurations {
     public static int PROCESS_ID_LOAN_ON_CARD;
     public static int PROCESS_CHEQUERETURN;
     public static int PROCESS_EOD_RUNNABLE_FEE;
-
     public static String PROCESS_PROGRESS = "N/A";
     public static volatile int PROCESS_TOTAL_NOOF_TRABSACTIONS = 0;
     public static volatile boolean IS_PROCESS_ERROR = false;
@@ -185,7 +196,6 @@ public class Configurations {
     public static int INSTALLMENT_ADJUSTMENT_TYPE;
     public static int GOVERNMENT_STAMP_DUTY_ADJUSTMENT_TYPE;
     public static int CASHBACK_ADJUSTMENT_TYPE;
-
     /**
      * fee codes
      */
@@ -281,27 +291,21 @@ public class Configurations {
     public static int failedTxnCount_AcqTxnUpdateProcess = 0;
     public static int acqFailedMerchantCount_AcqTxnUpdateProcess = 0;
     public static int onusTxnCount_AcqTxnUpdateProcess = 0;
-
     public static String COMPLETE_STATUS;
     public static String INITIAL_STATUS;
     public static int PROCESS_PAYMENT_FILE_VALIDATE;
-
     @SuppressWarnings("unchecked")
     public static Hashtable PAYMENT_VALIDATION_HASH_TABLE;
     public static Hashtable<String, String[]> ATM_VALIDATION_HASH_TABLE;
-
-
     public static String PAYMENT_FILE_CHEQUE_INITIATE_TXN_TYPES;
     public static String PAYMENT_FILE_CHEQUE_RETURN_TXN_TYPES;
     public static String USER;
-
     public static int PROCESS_ID_CARDAPPLICATION_LETTER_REJECT;
     public static String APPLICATION_REJECTION_LETTER_CODE;
     public static int PROCESS_ATM_FILE_VALIDATE;
     public static int PROCESS_ATM_FILE_READ = 167;
     public static int PROCESS_PAYMENT_FILE_READ;
     public static String FAIL_STATUS;
-
     //File code
     public static String FILE_CODE_PAYMENT = "PAYMENT";
     public static String FILE_CODE_ATM;
@@ -317,19 +321,13 @@ public class Configurations {
     public static String CARD_CATEGORY_CO_BRANDED_SUPPLEMENTORY;
     public static String CARD_CATEGORY_FD_SUPPLEMENTORY;
     public static String CARD_CATEGORY_CORPORATE;
-
     public static int PROCESS_STAMP_DUTY_FEE;
-
     //Country Code
     public static String COUNTRY_CODE_SRILANKA;
-
     //cashback
     public static int CBREDEEMDAYCOUNT;
     public static int PROCESS_CASHBACK;
-
-
     public static int PROCESS_CARD_EXPIRE;
-
     public static int failedCount_CardExpireProcess = 0;
     public static int PROCESS_CRIB_FILE;
     public static int PROCESS_ID_OVER_LIMIT_FEE;
@@ -371,7 +369,6 @@ public class Configurations {
     public static String IMMEDIATE_AFTER_3_DUE_DATE_SMS_CODE;
     public static String EMAIL = "E-MAIL";
     public static String SMS = "SMS";
-
     public static String LETTER = "LETTER";
     public static String EMAIL_TEMPLATE;
     public static String SMS_TEMPLATE;
@@ -386,14 +383,11 @@ public class Configurations {
     public static String AUTO_SETTLEMENT_GENERATE_DATE = "Auto Settlment File Generate";
     public static String CRIB_FILE_GENERATE_DATE = "CRIB File Generate";
     public static String CASHBACK_REDEEM = "Cash Back Redeem";
-
     //gl accounts
     public static String TXN_TYPE_UNEARNED_INCOME;
     public static String TXN_TYPE_UNEARNED_INCOME_UPFRONT_FALSE;
     public static String TXN_TYPE_FEE_INSTALLMENT_UPFRONT_FALSE;
-
     public static int ANNUAL_FEE_FOR_NP_ACCOUNTS;
-
     //Summary of Card processing
     public static int SUMMARY_FOR_FEE_UPDATE = 0;
     public static int SUMMARY_FOR_FEE_ANNIVERSARY = 0;
@@ -401,12 +395,9 @@ public class Configurations {
     public static int SUMMARY_FOR_FEE_CASHADVANCES = 0;
     public static int SUMMARY_FOR_FEE_LATEPAYMENTS = 0;
     public static int FAILED_CARDS = 0;
-
     public static int PROCESS_ID_KNOCK_OFF;
-
     public static int PROCESS_ID_BALANCE_TRANSFER;
     public static int PROCESS_ID_EASY_PAYMENT;
-
     //Manual Np Process
     public static int PROCESS_ID_MANUAL_NP_PROCESS;
     public static String INTEREST_ON_THE_NP_GL;
@@ -417,14 +408,12 @@ public class Configurations {
     public static String KNOCKOFF_ACCRUED_INTEREST_DECLASSIFIED_GL;
     public static String KNOCKOFF_ACCRUED_OVERLIMIT_FEE_DECLASSIFIED_GL;
     public static String KNOCKOFF_ACCRUED_OTHER_FEES_DECLASSIFIED_GL;
-
     //Online to Backend Txn Syn
     public static String ONLINE_LISTNER_TYPE_ATM;
     public static String ONLINE_LISTNER_TYPE_NAC;
     public static int EOD_NOT_CONSIDER_STATUS;
     public static int ADJUSTMENT_PROCESS;
     public static int PROCESS_ID_FEE_POST;
-
     public static int VISA_TXN_UPDATE_COUNT = 0;
     public static int MASTER_TXN_UPDATE_COUNT = 0;
     public static int FAILED_VISA_TXN_COUNT = 0;
@@ -433,12 +422,9 @@ public class Configurations {
     public static String TXN_TYPE_INTEREST_INCOME;
     public static String NP_ACCRUED_INTEREST_GL;
     public static int PROCESS_ID_EOM_INTEREST_CALCULATION;
-
     public static int ADJUSTMENT_SEQUENCE_NO;
-
     //--------------
     public static int PROCESS_INTEREST_CALCULATION;
-
     ///////////////////
     public static boolean IS_PROCESS_COMPLETELY_FAILED = false;
     public static boolean EOD_SHEDULER;
@@ -461,16 +447,13 @@ public class Configurations {
     public static int CORE_POOL_SIZE;
     public static int MAX_POOL_SIZE;
     public static int KEEP_ALIVE_TIME;
-
     /*card domain*/
     public static String CARD_DOMAIN_CREDIT;
     public static String CARD_DOMAIN_DEDIT;
-
     public static String DEACTIVE_STATUS;
     public static String CARD_INITIAL_STATUS;
     public static String CREDIT_STATUS;
     public static int ONLINE_DEACTIVE_STATUS;
-
     public static int ONLINE_OFUS_BIN;
     /**
      * public static String CARD_TYPE_VISA;
@@ -495,14 +478,12 @@ public class Configurations {
     public static int STEP_CATEGORY_COUNT;
     public static int STEP_PROCESS_COUNT;
     public static String EOD_VERSION;
-
     public static boolean PROCESS_SETTLEMENT_FILE;
     public static String MERCHANT_PAYMENT_FILE_PATH_SLIPS;
     public static String MERCHANT_PAYMENT_FILE_PATH_CHEQUE;
     public static String MERCHANT_PAYMENT_FILE_PATH_DIRECT;
     public static String MERCHANT_STAT_AUTOMATE_FILE_PATH;
     public static String MERCHANT_STAT_AUTOMATE_FILE_NAME;
-
     //Set EOD user in here MAnulaly
     public static String SERVER_IP;
     public static int SERVER_PORT;
@@ -532,10 +513,8 @@ public class Configurations {
     //internal_keys
     public static int INTERNAL_KEY_CHEQUE;
     public static int INTERNAL_KEY_CASH;
-
     // accOTBs
     public static HashMap<String, Double> AccOpeningOTBs;
-
     //EOD Process IDs
     public static int MAIN_EOD_PROCESS;
     public static int PROCESS_ID_PINGENERATION;
@@ -567,29 +546,24 @@ public class Configurations {
     public static int PROCESS_WALLET_SETTLEMENT_FILE_READ;
     public static int PROCESS_WALLET_SETTLEMENT_FILE_UPDATE;
     public static int PROCESS_MASTER_CARD_T67_FILE_READ;
-
     //outgoing ctf file generation
     public static int MAXIMUM_TCRS_IN_CTF_BATCH;
     public static int PROCESS_ID_OUTGOING_CTF_FILE_GEN;
     public static String MANUAL_CASH_MCC;
     public static String VISA_ACQ_BIN;
-
     // outgoing statement file (UPI) generation
     public static int PROCESS_ID_OUTGOING_CUP_FILE_GEN;     //222
-
     public static int PROCESS_ID_OUTGOING_IPM_FILE_GEN;
     public static long MASTER_OUT_SEQUENCE_NUMBER = 0;
     public static String GENERATED_IPM_FILE_ID;
     public static long GENERATED_IPM_AMOUNT_CHECKSUM;
     public static int GENERATED_IPM_TRANSACTION_COUNT;
-
     public static int PROCESS_DCF_FILE_READ;
     public static int PROCESS_DCF_FILE_VALIDATE;
     public static int PROCESS_PAYMENT_KNOCK_OFF;
     public static int PROCESS_DAILY_INTEREST_CALCULATION;
     public static int PROCESS_DAILY_STATEMENT_INTEREST_CALCULATION;
     public static int PROCESS_TRANSACTION_MISMATCH_UPDATE;
-
     public static int PROCESS_CHECK_PAYMENTS_FOR_MIN_AMOUNT;
     public static int PROCESS_ID_RISK_CALCULATION_PROCESS;
     public static int PROCESS_ID_MASTER_CLEARING;
@@ -599,12 +573,9 @@ public class Configurations {
     public static String STATEMENT_NOTIFY_MSG;
     public static int PROCESS_ID_GL_FILE_CREATION;
     public static int PROCESS_RB36_FILE_CREATION;
-
     public static int PROCESS_ID_COLLECTION_AND_RECOVERY_LETTER_PROCESS;
-
     public static int PROCESS_ID_BULK_APPLICATION_READ_PROCESS;
     public static int PROCESS_ID_BULK_APPLICATION_VALIDATE_PROCESS;
-
     public static String GL_SUMMARY_FILE_PREFIX;
     public static String MERCHANT_GL_SUMMARY_FILE_PREFIX;
     public static String OUTPUTFILE_FIELD_DELIMETER;
@@ -615,10 +586,8 @@ public class Configurations {
     public static String AUTOSETTLEMENT_FILE_PREFIX;
     public static String CASHBACK_FILE_PREFIX_F2;
     public static String MERCHANT_PAYMENT_FILE_DIRECT_PREFIX_F2;
-
     //Card temorary block process
     public static int PROCESS_ID_TXN_POST;
-
     /*crib request parameters*/
     public static String REPORT_ID;
     public static String SUBJECT_TYPE;
@@ -626,29 +595,24 @@ public class Configurations {
     public static String INQUIRY_REOSON_CODE;
     public static String BULK_STATUS;
     public static String STATUS;
-
     //EOD File Processing
     public static volatile int PROCESS_ATM_FILE_CLEARING_SUCCESS_COUNT = 0;
     public static volatile int PROCESS_ATM_FILE_CLEARING_FAILD_COUNT = 0;
     public static volatile int PROCESS_ATM_FILE_CLEARING_TOTAL_NOOF_TRABSACTIONS = 0;
     public static volatile int PROCESS_ATM_FILE_CLEARING_INVALID_COUNT = 0;
-
     public static volatile int PROCESS_PAYMENT_FILE_CLEARING_SUCCESS_COUNT = 0;
     public static volatile int PROCESS_PAYMENT_FILE_CLEARING_FAILD_COUNT = 0;
     public static volatile int PROCESS_PAYMENT_FILE_CLEARING_TOTAL_NOOF_TRABSACTIONS = 0;
     public static volatile int PROCESS_PAYMENT_FILE_CLEARING_INVALID_COUNT = 0;
-
     public static volatile int PROCESS_VISA_FILE_CLEARING_SUCCESS_COUNT = 0;
     public static volatile int PROCESS_VISA_FILE_CLEARING_FAILD_COUNT = 0;
+    /*BASE II Clearing*/
     public static volatile int PROCESS_VISA_FILE_CLEARING_TOTAL_NOOF_TRABSACTIONS = 0;
     public static volatile int PROCESS_VISA_FILE_CLEARING_INVALID_COUNT = 0;
-
     public static volatile int PROCESS_MASTER_FILE_CLEARING_SUCCESS_COUNT = 0;
     public static volatile int PROCESS_MASTER_FILE_CLEARING_FAILD_COUNT = 0;
     public static volatile int PROCESS_MASTER_FILE_CLEARING_TOTAL_NOOF_TRABSACTIONS = 0;
     public static volatile int PROCESS_MASTER_FILE_CLEARING_INVALID_COUNT = 0;
-
-
     /*BASE II Clearing*/
     public static int VISA_THREAD_POOL_MAX_SIZE;
     public static int VISA_THREAD_POOL_MIN_SIZE;
@@ -657,8 +621,6 @@ public class Configurations {
     public static int VISA_CURRENTLY_AVAILABLE_THREADS;
     public static int VISA_CURRENTLY_BUSY_THREADS;
     public static int VISA_QUEUE_MAX_SIZE;
-    /*BASE II Clearing*/
-
     //EOD Log Path
     public static String PATH_LOG_WINDOWS;
     public static String PATH_LOG_LINUX;
@@ -666,7 +628,6 @@ public class Configurations {
     public static String SUB_EOD_LOG_FOLDER;
     public static String EOD_CONFIG_DATA_FOLDER;
     public static String EOD_MONITOR_LOG_FOLDER;
-
     //letter type
     public static String CARD_REPLACEMENT_LETTER_CODE;
     public static String SECOND_REMINDER_LETTER_CODE;
@@ -674,14 +635,12 @@ public class Configurations {
     public static String APPLICATION_CONFIRMATION_LETTER_CODE;
     public static String FIRST_REMINDER_LETTER_CODE;
     public static String PRODUCT_CHANGE_LETTER_CODE;
-
     //autosettlement collection account
     public static String COLLECTION_ACCOUNT;
     //EOD Statistics File
     public static String PATH_EOD_STATISTICS_WINDOWS;
     public static String PATH_EOD_STATISTICS_LINUX;
     public static String EOD_STATISTICS_FILE;
-
     //exposure file
     public static String EXPOSURE_FILE_BRANCH;
     public static String EXPOSURE_FILE_PRODUCT;
@@ -732,13 +691,11 @@ public class Configurations {
     public static ArrayList<String> COUNTRY_CODES_VISA_LIST;
     public static ArrayList<String> CATEGORY_CODES_VISA_LIST;
     public static ArrayList<String> VISA_FINANCIAL_TXN_LIST;
-
     public static String EOD_TXN_AUTH_ONLY_STATUS;
     public static String EOD_TXN_AUTH_ONLY_INIT;
     public static String EOD_TXN_AUTH_ONLY_POSTED;
     public static int ONLINE_TXN_EOD_COPIED_STS;
     public static int ONLINE_TXN_EOD_NOT_COPIED_STS;
-
     //acquiring fee codes
     public static String MERCHANT_ANNUAL_FEE;
     public static String MERCHANT_BI_MONTHLY_FEE;
@@ -750,11 +707,9 @@ public class Configurations {
     public static String TERMINAL_WEEKLY_RENTAL_FEE;
     public static String TERMINAL_QUARTERLY_RENTAL_FEE;
     public static String TERMINAL_MAINTAINACE_FEE;
-
     public static String PATH_MASTER_FILE;
     public static String PATH_MASTER_FILE_WINDOWS;
     public static String PATH_MASTER_FILE_LINUX;
-
     public static String FIRST_PRESENTMENT_MTI = "1240";
     public static int INCOMMING_IPM_FILE_ENCODING_FORMAT;
     public static int DCF_ICA_FOR_AIIC;
@@ -762,13 +717,9 @@ public class Configurations {
     public static int OUTGOING_IPM_FILE_ENCODING_FORMAT;
     public static int OUTGOING_IPM_FILE_LAYOUT;
     public static String MASTER_ACQ_BIN;
-
     public static boolean PROCESS_MASTER_FILE;
-
     public static int READ_T67_IP0040T1_TABLE;
     public static int READ_T67_IP0075T1_TABLE;
-
-
     @SuppressWarnings("unchecked")
     public static Hashtable VISA_VALIDATION_HASH_TABLE;
     @SuppressWarnings("unchecked")
@@ -780,7 +731,6 @@ public class Configurations {
     public static Hashtable VISA_BIN_FIELDS_HASH_TABLE;
     @SuppressWarnings("unchecked")
     public static Hashtable VISA_BIN_VALIDATION_HASH_TABLE;
-
     public static HashMap<String, String> VISA_TXN_FIELD_TABLE;
     public static HashMap<String, String> OUTGOING_VISA_REJECT_REASON_TABLE;
     public static HashMap<String, String> OUTGOING_MASTER_REJECT_REASON_TABLE;
@@ -792,12 +742,9 @@ public class Configurations {
     public static String INSTITUTION_IDENTIFICATION_NUMBER;
     public static String CUP_FILE_HEADER_TXN_CODE;
     public static String CUP_FILE_TAILER_TXN_CODE;
-
-
     public static String OUTGOING_CUP_FILE_HEADER_VERSION_TAG;
     public static String OUTGOING_CUP_FILE_HEADER_VERSION_NUMBER;
     public static int PROCESS_CUP_BIN_FILE_READ;
-
     //GlTxn types
     public static String PERPORMING_LOAN_GL;
     public static String UNEARNED_INCOME_UPFRON_FALSE_POSITION;
@@ -840,11 +787,9 @@ public class Configurations {
     public static String KNOCKOFF_ACCRUED_OTHER_FEES_GL;
     public static String PROVISION_GL;
     public static String PROVISION_KNOCK_OFF_GL;
-
     public static int PROVISION_PERCENTAGE_NDIA_120_179;
     public static int PROVISION_PERCENTAGE_NDIA_180_239;
     public static int PROVISION_PERCENTAGE_NDIA_OVER_239;
-
     //CASH BACK Txn Types
     public static String TXN_TYPE_CASH_BACK;
     public static String TXN_TYPE_CASHBACK_REDEEMED;
@@ -852,13 +797,10 @@ public class Configurations {
     public static String TXN_TYPE_CASHBACK_NP;
     public static String CASH_BACK_FILE_CRDR;
     public static String CASHBACK_TXN_TYPE;
-
     //payment_types
     public static int STANDING_INSTRUCTION;
     public static int OVER_THE_COUNTER;
-
     public static int THIRD_PARTY;
-
     //Collection And Recovery
     public static int X_DATES_BEFORE_FIRST_DUE_DATE;
     public static int X_DATES_AFTER_FIRST_DUE_DATE;
@@ -869,26 +811,22 @@ public class Configurations {
     public static int X_DATES_AFTER_FOURTH_STATEMENT;
     public static int WITHIN_X_DAYS_OF_THE_CRIB_INFO_LETTER_REMINDER;
     public static int X_DATES_AFTER_FOURTH_DUE_DATE;
-
     public static String PATH_CUP_BIN_FILE;
     public static String PATH_CUP_BIN_FILE_WINDOWS;
     public static String PATH_CUP_BIN_FILE_LINUX;
     public static int MAX_THREAD_SIZE_CUP_BIN;
     public static String FILE_CODE_CUP_BIN_FILE;
     public static boolean PROCESS_CUP_BIN_FILE;
-
     //letterTemplateCodes
     public static String RENEWAL_LETTER_TEMPLATE_CODE;
     public static String APPLICATION_REJECT_TEMPLATE_CODE;
     public static String COLLECTION_AND_RECOVERY_FIRST_LETTER;
     public static String COLLECTION_AND_RECOVERY_SECOND_LETTER;
-
     public static String GL_BRANCH_CODE;
     public static boolean IS_WRITE_CSV;
     public static String PRINTED_CSV_FILE_CREATED_LOCATION;
     public static String EOD_DATE_FORMAT;
     public static String PRINTED_STATEMENT_RELATIVE_PATH;
-
     //    RB36
     public static String CASH_ACCOUNT_RB36;
     public static String CHEQUE_ACCOUNT_RB36;
@@ -899,7 +837,6 @@ public class Configurations {
     public static String PERFORM_LOAN_RB36;
     public static String NON_PERFORM_LOAN_RB36;
     public static String PROFIT_CENTER_RB36;
-
     public static String CHANNEL_ID_CASHBACK;
     public static String CHANNEL_ID_AUTOSETTLEMENT;
     public static String CHANNEL_ID_PAYOUT_DIRECT;
@@ -911,10 +848,8 @@ public class Configurations {
     public static String BULK_TYPE_SINGLE;
     public static String TRAN_TYPE_CREDIT;
     public static String UPLOADED_METHOD_SINGLE;
-
     //exposure file
     public static String EXPOSURE_FILE_PREFIX;
-
     //Acquiring
     public static String MERCHANT_FILE_NAME_PREFIX;
     public static String MERCHANT_FILE_NAME_SLIPS_PREFIX;
@@ -924,25 +859,19 @@ public class Configurations {
     public static int PROCESS_MERCHANT_STATEMENT_FILE_CREATION;//203
     public static int PROCESS_ID_MERCHANT_CUSTOMER_STATEMENT;//204
     public static int PROCESS_MERCHANT_CUSTOMER_STATEMENT_FILE_CREATION;//205
-
     public static int PROCESS_ID_MERCHANT_PAYMENT_PROCESS;//209
     public static int PROCESS_ID_MERCHANT_PAYMENT_FILE_CREATION;//210
-
     public static int PROCESS_ID_EOD_MERCHANT_EASY_PAYMENT_REQUEST;//215
     public static int PROCESS_ID_ORIGINATOR_PUSH_TXN_UPDATE;//216
     public static int PROCESS_ID_RECIPIENT_PUSH_TXN_UPDATE;//217
-
     //Acq Jasper Templates
     public static String MERCHANT_REPORT_LOCATION;
     public static String MERCHANT_CUSTOMER_REPORT_LOCATION;
     public static String MERCHANT_STATEMENT_SUMMARY_LOCATION;
-
     public static String MERCHANT_PAY_MODE_SLIPS;
     public static String MERCHANT_PAY_MODE_DIRECT;
     public static String MERCHANT_PAY_MODE_CHEQUE;
-
     public static String SUSPENCE_ACC_MERCHANT_PAY_MODE_SLIPS;
-
     //Merchant RB36
     public static String MERCHANT_PAYABLE_GL;
     //    public static String MERCHANT_SUSPENSE_ACCOUNT_RB36_SLIPS;
@@ -957,7 +886,6 @@ public class Configurations {
     public static String MERCHANT_NON_PERFORM_LOAN_RB36;
     public static String MERCHANT_PROFIT_CENTER_RB36;
     public static String MERCHANT_NARRATIVE_RB36;
-
     public static int PROCESS_ID_MERCHANT_GL_FILE_CREATION;//213
     public static int PROCESS_ID_ORIGINATOR_PUSH_TXN;
     public static int PROCESS_ID_ADMIN_ALERT_PROCESS;
@@ -966,8 +894,6 @@ public class Configurations {
     public static String ADMIN_AUTO_SETTLEMENT_ALERT_EMAIL_CODE;
     public static String ADMIN_CRIB_FILE_ALERT_EMAIL_CODE;
     public static String ADMIN_CASHBACK_REDEEM_ALERT_EMAIL_CODE;
-
-
     //Commission Calculation
     public static String COMMISSION_TRANSACTION_TABLE = "COMMISSIONTRANSACTION";
     public static String COMMISSION_SEGMENT_TRANSACTION = "TRANSACTIONCODE";
@@ -989,31 +915,24 @@ public class Configurations {
     public static String ACQ_ADJUSTMENT_TYPE_COMMISSION = "2";
     public static String ACQ_ADJUSTMENT_TYPE_REFUND = "4";
     public static String ACQ_ADJUSTMENT_TYPE_FEE = "5";
-
     public static String TOPAN_FILE_CSV_PREFIX;
     public static int STATEMENT_BATCH_SIZE;
     public static int MAX_THREAD_SIZE;
     public static int MAX_THREAD_SIZE_STATEMENT;
     public static int MAX_THREAD_SIZE_T67;
-
     public static String MVISA_RECIPIENT_BIN;
     public static int EOD_ACQISS_BOTH_STATUS;
-
     public static String TXN_TYPE_MVISA_RECI_LK_QR_ON_US;
     public static String TXN_TYPE_MVISA_RECI_LK_QR_OFF_US;
-
     public static String PAYMENT_FILE_CASH_PAYMENT_TXN_TYPES;
     public static String PAYMENT_FILE_CASH_REVERSAL_TXN_TYPES;
-
     public static String PAYMENT_FILE_FUND_TRANSFER_TXN_TYPES;
     public static String PAYMENT_FILE_OB_BILLS_TXN_TYPES;
     public static String PAYMENT_FILE_STD_ORDER_TXN_TYPES;
-
     public static String MASTERCARD_ABU_FILE_PREFIX;
     public static String MASTERCARD_ABU_FILE_POSTFIX;
     public static String MASTERCARD_ABU_FILE_EXTENSION;
     public static String MASTERCARD_ABU_ISSUER_ICA_NUMBER;
-
     //EOD Dashboard
     public static String LAST_INPUT_SIGNAL = "";
     public static String LAST_INPUT_SIGNAL_MESSAGE = "";
@@ -1037,6 +956,7 @@ public class Configurations {
     public static boolean DO_YOU_WANT_RUN_NEWEOD = false;
     public static String EOD_IN_INITIAL_STATE = "0";
     public static String EOD_IN_STARTING_STATE = "1";
+    //public static EodRunningParameterBean eodRunningPrameterBean;
     public static String EOD_IN_WAITING_TO_RUN = "2";
     public static String EOD_STOP = "1";
     public static String EOD_IN_END_STATE = "3";
@@ -1050,9 +970,6 @@ public class Configurations {
     public static String MAIN_EOD_RUNNING = "1";
     public static String SUB_EOD_INITIAL = "0";
     public static String MAIN_EOD_INITIAL = "0";
-    //public static EodRunningParameterBean eodRunningPrameterBean;
-
-
     public static int DASHBOARD_EOD_ID;
     public static String DASHBOARD_EOD_START_TIME;
     public static String DASHBOARD_EOD_END_TIME;
@@ -1060,11 +977,9 @@ public class Configurations {
     public static String DASHBOARD_SUB_EOD_STATUS;
     public static int DASHBOARD_EOD_INPUT_FILES_COUNT = 0;
     public static BlockingQueue<String> consoleMessageQueue = new ArrayBlockingQueue<String>(100000);
-
     public static String DASHBOARD_NEXT_MAIN_EOD_ID;
     public static String DASHBOARD_NEXT_MAIN_EOD_START_TIME;
     public static String DASHBOARD_NEXT_SUB_EOD_START_TIME;
-
     public static String DASHBOARD_EOD_PROCESS_SUMMERY;
     public static String DASHBOARD_EOD_INPUT_FILES = "";
     public static String DASHBOARD_EOD_OUTPUT_FILES;
@@ -1075,7 +990,6 @@ public class Configurations {
     public static boolean IS_DASHBOARD_CONNECTED = false;
     public static volatile int DASHBORD_EOD_THREAD_HANDLER_COUNT = 0;
     public static boolean IS_SHOW_INDETAILS_ON_EODDASHBOARD;
-
     public static String TXN_TYPE_ACQ_ON_US_MASTER;
     public static String TXN_TYPE_ACQ_OFF_US_MASTER;
     public static String TXN_TYPE_ACQ_ON_US_EASYPAY_MASTER;
@@ -1083,11 +997,9 @@ public class Configurations {
     public static String TXN_TYPE_CASH_ADVANCE_ACQ_OFF_US_MASTER;
     public static String TXN_TYPE_FUEL_SURCHARGE_ON_US_MASTER;
     public static String TXN_TYPE_FUEL_SURCHARGE_OFF_US_MASTER;
-
     public static String MASTERCARD_FORWARDING_INSTITUTION_ID_CODE;
     public static String TRANSACTION_ORIGINATOR_INSTITUTION_ID_CODE;
     public static String PROCESSING_MODE;
-
     public static String TXN_TYPE_ACQ_ON_US_CUP;
     public static String TXN_TYPE_ACQ_OFF_US_CUP;
     public static String TXN_TYPE_ACQ_ON_US_EASYPAY_CUP;
@@ -1095,25 +1007,115 @@ public class Configurations {
     public static String TXN_TYPE_CASH_ADVANCE_ACQ_OFF_US_CUP;
     public static String TXN_TYPE_FUEL_SURCHARGE_ON_US_CUP;
     public static String TXN_TYPE_FUEL_SURCHARGE_OFF_US_CUP;
-
     public static int NO_OF_EASY_PAYMENTS = 0;
     public static int NO_OF_BALANCE_TRANSFERS = 0;
     public static int NO_OF_LOAN_ON_CARDS = 0;
-
     public static int FAILED_EASY_PAYMENTS = 0;
     public static int FAILED_BALANCE_TRANSFERS = 0;
     public static int FAILED_LOAN_ON_CARDS = 0;
-
     public static boolean PROCESS_COMPLETE_STATUS = false;
     public static boolean EOD_ENGINE_SOFT_STOP = false;
     public static String STATUS_FILE_COMP = "FCOMP";
     public static String STATUS_FILE_REJECT = "FREJT";
-
     public static String eodUniqueId;
-
-    //Kafka Log Topic Config
-    public static final String LOG_TOPIC = "logTopic";
     public static LocalDate initDate = LocalDate.parse("2023-04-10");
+    public static volatile List<ErrorCardBean> errorCardList = new ArrayList<>();
+    public static volatile List<ErrorMerchantBean> merchantErrorList = new ArrayList<>();
+    public static volatile boolean isInterrupted = false;
+    public static String RUNNING_PROCESS_DESCRIPTION;
+    public static int IssuingOrAcquiring; //1 -ISSUING, 0 - ACQUIRING, 2- Both
+    public static HashMap<Integer, Object> processConnectorList = new HashMap<>();
+    //dcf file read
+    public static int RECORD_COUNT = 0;
+    public static int BATCH_NUMBER = 0;
+    public static int FAILED_FILE_NAME_COUNT = 0;
+    public static volatile int PROCESS_ATM_VALIDATE_INVALID_COUNT = 0;
+    //public static volatile int PROCESS_ATM_VALIDATE_SUCCESS_COUNT = 0;
+    public static volatile int PROCESS_ATM_VALIDATE_FAIL_COUNT = 0;
+    public static AtomicInteger PROCESS_ATM_VALIDATE_SUCCESS_COUNT = new AtomicInteger(0);
+    public static String WALLET_SCHEMA_NAME = "DFCCBACKENDMVISAORTEST2";
+    public static String ONLINE_DB_VIEW_NAME = "ABC_DB";
+    public static volatile int AUTO_SETTLEMENT_PROCESS_TOTAL_NO_OF_TRANSACTIONS = 0;
+    public static volatile int AUTO_SETTLEMENT_PROCESS_SUCCESS_COUNT = 0;
+    public static volatile int AUTO_SETTLEMENT_PROCESS_FAILED_COUNT = 0;
+    public static String AUTO_SETTLEMENT_PROCESS_PROGRESS = "N/A";
+    public static volatile int CARD_APP_CONFIRM_LETTER_PROCESS_TOTAL_NO_OF_TRANSACTIONS = 0;
+    public static volatile int CARD_APP_CONFIRM_LETTER_PROCESS_SUCCESS_COUNT = 0;
+    public static volatile int CARD_APP_CONFIRM_LETTER_PROCESS_FAILED_COUNT = 0;
+    public static String CARD_APP_CONFIRM_LETTER_PROCESS_PROGRESS = "N/A";
+    public static volatile int CARD_APP_REJECT_LETTER_PROCESS_TOTAL_NO_OF_TRANSACTIONS = 0;
+    public static volatile int CARD_APP_REJECT_LETTER_PROCESS_SUCCESS_COUNT = 0;
+    public static volatile int CARD_APP_REJECT_LETTER_PROCESS_FAILED_COUNT = 0;
+    public static String CARD_APP_REJECT_LETTER_PROCESS_PROGRESS = "N/A";
+    public static volatile int CARD_RENEW_LETTER_PROCESS_TOTAL_NO_OF_TRANSACTIONS = 0;
+    public static volatile int CARD_RENEW_LETTER_PROCESS_SUCCESS_COUNT = 0;
+    public static volatile int CARD_RENEW_LETTER_PROCESS_FAILED_COUNT = 0;
+    public static String CARD_RENEW_LETTER_PROCESS_PROGRESS = "N/A";
+    public static volatile int CARDREPLACE_LETTER_PROCESS_TOTAL_NO_OF_TRANSACTIONS = 0;
+    public static volatile int CARDREPLACE_LETTER_PROCESS_SUCCESS_COUNT = 0;
+    public static volatile int CARDREPLACE_LETTER_PROCESS_FAILED_COUNT = 0;
+    public static String CARDREPLACE_LETTER_PROCESS_PROGRESS = "N/A";
+    public static volatile int CASH_BACK_FILE_PROCESS_TOTAL_NO_OF_TRANSACTIONS = 0;
+    public static volatile int CASH_BACK_FILE_PROCESS_SUCCESS_COUNT = 0;
+    public static volatile int CASH_BACK_FILE_PROCESS_FAILED_COUNT = 0;
+    public static String CASH_BACK_FILE_PROCESS_PROGRESS = "N/A";
+    public static volatile int COLLECTION_AND_RECOVERY_PROCESS_TOTAL_NO_OF_TRANSACTIONS = 0;
+    public static volatile int COLLECTION_AND_RECOVERY_PROCESS_SUCCESS_COUNT = 0;
+    public static volatile int COLLECTION_AND_RECOVERY_PROCESS_FAILED_COUNT = 0;
+    public static String COLLECTION_AND_RECOVERY_PROCESS_PROGRESS = "N/A";
+    public static volatile int EXPOSURE_FILE_PROCESS_TOTAL_NO_OF_TRANSACTIONS = 0;
+    public static volatile int EXPOSURE_FILE_PROCESS_SUCCESS_COUNT = 0;
+    public static volatile int EXPOSURE_FILE_PROCESS_FAILED_COUNT = 0;
+    public static String EXPOSURE_FILE_PROCESS_PROGRESS = "N/A";
+    public static volatile int GL_SUMMARY_FILE_PROCESS_TOTAL_NO_OF_TRANSACTIONS = 0;
+    public static volatile int GL_SUMMARY_FILE_PROCESS_SUCCESS_COUNT = 0;
+    public static volatile int GL_SUMMARY_FILE_PROCESS_FAILED_COUNT = 0;
+    public static String GL_SUMMARY_FILE_PROCESS_PROGRESS = "N/A";
+    public static volatile int OUTGOING_IPM_FILE_PROCESS_TOTAL_NO_OF_TRANSACTIONS = 0;
+    public static volatile int OUTGOING_IPM_FILE_PROCESS_SUCCESS_COUNT = 0;
+    public static volatile int OUTGOING_IPM_FILE_PROCESS_FAILED_COUNT = 0;
+    public static String OUTGOING_IPM_FILE_PROCESS_PROGRESS = "N/A";
+    public static volatile int RB36_FILE_PROCESS_TOTAL_NO_OF_TRANSACTIONS = 0;
+    public static volatile int RB36_FILE_PROCESS_SUCCESS_COUNT = 0;
+    public static volatile int RB36_FILE_PROCESS_FAILED_COUNT = 0;
+    public static String RB36_FILE_PROCESS_PROGRESS = "N/A";
+    //
+//    public static volatile int VISA_BASEII_CLEARING_PROCESS_SUCCESS_COUNT = 0;
+//    public static volatile int VISA_BASEII_CLEARING_PROCESS_FAILED_COUNT = 0;
+//
+//    public static volatile int VISA_BASEII_CLEARING_PROCESS_TOTAL_NO_OF_TRANSACTIONS = 0;
+//    public static String VISA_BASEII_CLEARING_PROCESS_PROGRESS = "N/A";
+//
+//    public static volatile int MASTER_CLEARING_PROCESS_SUCCESS_COUNT = 0;
+//    public static volatile int MASTER_CLEARING_PROCESS_FAILED_COUNT = 0;
+//    public static volatile int MASTER_CLEARING_PROCESS_TOTAL_NO_OF_TRANSACTIONS = 0;
+//    public static String MASTER_CLEARING_PROCESS_PROGRESS = "N/A";
+//
+//    public static volatile int ATM_FILE_VALIDATE_PROCESS_SUCCESS_COUNT = 0;
+//    public static volatile int ATM_FILE_VALIDATE_PROCESS_FAILED_COUNT = 0;
+//    public static volatile int ATM_FILE_VALIDATE_PROCESS_TOTAL_NO_OF_TRANSACTIONS = 0;
+//    public static String ATM_FILE_VALIDATE_PROCESS_PROGRESS = "N/A";
+//
+//    public static volatile int PAYMENT_FILE_VALIDATE_PROCESS_SUCCESS_COUNT = 0;
+//    public static volatile int PAYMENT_FILE_VALIDATE_PROCESS_FAILED_COUNT = 0;
+//    public static volatile int PAYMENT_FILE_VALIDATE_PROCESS_TOTAL_NO_OF_TRANSACTIONS = 0;
+//    public static String PAYMENT_FILE_VALIDATE_PROCESS_PROGRESS = "N/A";
+//
+//    public static HashMap<Integer, Object> fileProcessingConnectorList = new HashMap<>();
+    public static volatile String Str_EOD_ID;
+    //Acquiring
+    public static volatile int totalTxnCount = 0;
+    public static volatile int issFailedTxn = 0;
+    public static volatile int acqFailedMerchants = 0;
+    public static volatile int onusTxnCount = 0;
+
+    //Process Summeries
+    public static int capacity = 200000;
+    public static BlockingQueue<Integer> failCount = new ArrayBlockingQueue<>(capacity);
+    public static BlockingQueue<Integer> successCount = new ArrayBlockingQueue<>(capacity);
+
+    public static BlockingQueue<Integer> successCountDe = new ArrayBlockingQueue<Integer>(capacity);
+    public static BlockingQueue<Integer> failCountDe = new ArrayBlockingQueue<Integer>(capacity);
 
     public static synchronized void countFinishedCategories() {
         STEP_CATEGORY_COUNT = STEP_CATEGORY_COUNT + 1;
@@ -1170,128 +1172,5 @@ public class Configurations {
     public static String getEndLine() {
         return "\r\n===========================================================================\r\n";
     }
-
-    public static volatile List<ErrorCardBean> errorCardList = new ArrayList<>();
-    public static volatile List<ErrorMerchantBean> merchantErrorList = new ArrayList<>();
-    public static volatile boolean isInterrupted = false;
-
-    public static String RUNNING_PROCESS_DESCRIPTION;
-    public static int IssuingOrAcquiring; //1 -ISSUING, 0 - ACQUIRING, 2- Both
-    public static HashMap<Integer, Object> processConnectorList = new HashMap<>();
-
-    //dcf file read
-    public static int RECORD_COUNT = 0;
-    public static int BATCH_NUMBER = 0;
-    public static int FAILED_FILE_NAME_COUNT = 0;
-
-    public static volatile int PROCESS_ATM_VALIDATE_INVALID_COUNT = 0;
-    //public static volatile int PROCESS_ATM_VALIDATE_SUCCESS_COUNT = 0;
-    public static volatile int PROCESS_ATM_VALIDATE_FAIL_COUNT = 0;
-    public static AtomicInteger PROCESS_ATM_VALIDATE_SUCCESS_COUNT = new AtomicInteger(0);
-
-    public static String WALLET_SCHEMA_NAME = "DFCCBACKENDMVISAORTEST2";
-    public static String ONLINE_DB_VIEW_NAME = "ABC_DB";
-
-    //log file prefix
-    public static final String LOG_TYPE_INFO = "INFO";
-    public static final String LOG_TYPE_ERROR = "ERROR";
-    public static final String LOG_FILE_PREFIX_COMMON = "common";
-    public static final String LOG_FILE_PREFIX_EOD_ENGINE = "eod_engine";
-    public static final String LOG_FILE_PREFIX_EOD_FILE_PROCESSING_ENGINE = "file_pro_engine";
-    public static final String LOG_FILE_PREFIX_EOD_FILE_GENERATION_ENGINE = "file_gen_engine";
-    public static final String INFO_LOG_PATTERN = "%d{yyyy-MM-dd HH:mm:ss} [%thread] %-5level %logger{36} - %msg%n";
-    public static final String ERROR_LOG_PATTERN = "%d [%thread] %-5level %-5logger{40} - %msg%n";
-
-    public static final String EOD_ENGINE = "EENG";
-    public static final String EOD_FILE_GENERATION = "EFGE";
-    public static final String EOD_FILE_PROCESSING = "EFPE";
-
-    public static volatile int AUTO_SETTLEMENT_PROCESS_TOTAL_NO_OF_TRANSACTIONS = 0;
-    public static volatile int AUTO_SETTLEMENT_PROCESS_SUCCESS_COUNT = 0;
-    public static volatile int AUTO_SETTLEMENT_PROCESS_FAILED_COUNT = 0;
-    public static String AUTO_SETTLEMENT_PROCESS_PROGRESS = "N/A";
-
-    public static volatile int CARD_APP_CONFIRM_LETTER_PROCESS_TOTAL_NO_OF_TRANSACTIONS = 0;
-    public static volatile int CARD_APP_CONFIRM_LETTER_PROCESS_SUCCESS_COUNT = 0;
-    public static volatile int CARD_APP_CONFIRM_LETTER_PROCESS_FAILED_COUNT = 0;
-    public static String CARD_APP_CONFIRM_LETTER_PROCESS_PROGRESS = "N/A";
-
-    public static volatile int CARD_APP_REJECT_LETTER_PROCESS_TOTAL_NO_OF_TRANSACTIONS = 0;
-    public static volatile int CARD_APP_REJECT_LETTER_PROCESS_SUCCESS_COUNT = 0;
-    public static volatile int CARD_APP_REJECT_LETTER_PROCESS_FAILED_COUNT = 0;
-    public static String CARD_APP_REJECT_LETTER_PROCESS_PROGRESS = "N/A";
-
-    public static volatile int CARD_RENEW_LETTER_PROCESS_TOTAL_NO_OF_TRANSACTIONS = 0;
-    public static volatile int CARD_RENEW_LETTER_PROCESS_SUCCESS_COUNT = 0;
-    public static volatile int CARD_RENEW_LETTER_PROCESS_FAILED_COUNT = 0;
-    public static String CARD_RENEW_LETTER_PROCESS_PROGRESS = "N/A";
-
-    public static volatile int CARDREPLACE_LETTER_PROCESS_TOTAL_NO_OF_TRANSACTIONS = 0;
-    public static volatile int CARDREPLACE_LETTER_PROCESS_SUCCESS_COUNT = 0;
-    public static volatile int CARDREPLACE_LETTER_PROCESS_FAILED_COUNT = 0;
-    public static String CARDREPLACE_LETTER_PROCESS_PROGRESS = "N/A";
-
-    public static volatile int CASH_BACK_FILE_PROCESS_TOTAL_NO_OF_TRANSACTIONS = 0;
-    public static volatile int CASH_BACK_FILE_PROCESS_SUCCESS_COUNT = 0;
-    public static volatile int CASH_BACK_FILE_PROCESS_FAILED_COUNT = 0;
-    public static String CASH_BACK_FILE_PROCESS_PROGRESS = "N/A";
-
-    public static volatile int COLLECTION_AND_RECOVERY_PROCESS_TOTAL_NO_OF_TRANSACTIONS = 0;
-    public static volatile int COLLECTION_AND_RECOVERY_PROCESS_SUCCESS_COUNT = 0;
-    public static volatile int COLLECTION_AND_RECOVERY_PROCESS_FAILED_COUNT = 0;
-    public static String COLLECTION_AND_RECOVERY_PROCESS_PROGRESS = "N/A";
-
-    public static volatile int EXPOSURE_FILE_PROCESS_TOTAL_NO_OF_TRANSACTIONS = 0;
-    public static volatile int EXPOSURE_FILE_PROCESS_SUCCESS_COUNT = 0;
-    public static volatile int EXPOSURE_FILE_PROCESS_FAILED_COUNT = 0;
-    public static String EXPOSURE_FILE_PROCESS_PROGRESS = "N/A";
-
-    public static volatile int GL_SUMMARY_FILE_PROCESS_TOTAL_NO_OF_TRANSACTIONS = 0;
-    public static volatile int GL_SUMMARY_FILE_PROCESS_SUCCESS_COUNT = 0;
-    public static volatile int GL_SUMMARY_FILE_PROCESS_FAILED_COUNT = 0;
-    public static String GL_SUMMARY_FILE_PROCESS_PROGRESS = "N/A";
-
-    public static volatile int OUTGOING_IPM_FILE_PROCESS_TOTAL_NO_OF_TRANSACTIONS = 0;
-    public static volatile int OUTGOING_IPM_FILE_PROCESS_SUCCESS_COUNT = 0;
-    public static volatile int OUTGOING_IPM_FILE_PROCESS_FAILED_COUNT = 0;
-    public static String OUTGOING_IPM_FILE_PROCESS_PROGRESS = "N/A";
-
-    public static volatile int RB36_FILE_PROCESS_TOTAL_NO_OF_TRANSACTIONS = 0;
-    public static volatile int RB36_FILE_PROCESS_SUCCESS_COUNT = 0;
-    public static volatile int RB36_FILE_PROCESS_FAILED_COUNT = 0;
-    public static String RB36_FILE_PROCESS_PROGRESS = "N/A";
-
-    //Statement Gen Base Url
-    public static final String EOD_STATEMENT_GEN_BASE_URL = "http://192.168.1.122:5000/eod-engine";
-//
-//    public static volatile int VISA_BASEII_CLEARING_PROCESS_SUCCESS_COUNT = 0;
-//    public static volatile int VISA_BASEII_CLEARING_PROCESS_FAILED_COUNT = 0;
-//
-//    public static volatile int VISA_BASEII_CLEARING_PROCESS_TOTAL_NO_OF_TRANSACTIONS = 0;
-//    public static String VISA_BASEII_CLEARING_PROCESS_PROGRESS = "N/A";
-//
-//    public static volatile int MASTER_CLEARING_PROCESS_SUCCESS_COUNT = 0;
-//    public static volatile int MASTER_CLEARING_PROCESS_FAILED_COUNT = 0;
-//    public static volatile int MASTER_CLEARING_PROCESS_TOTAL_NO_OF_TRANSACTIONS = 0;
-//    public static String MASTER_CLEARING_PROCESS_PROGRESS = "N/A";
-//
-//    public static volatile int ATM_FILE_VALIDATE_PROCESS_SUCCESS_COUNT = 0;
-//    public static volatile int ATM_FILE_VALIDATE_PROCESS_FAILED_COUNT = 0;
-//    public static volatile int ATM_FILE_VALIDATE_PROCESS_TOTAL_NO_OF_TRANSACTIONS = 0;
-//    public static String ATM_FILE_VALIDATE_PROCESS_PROGRESS = "N/A";
-//
-//    public static volatile int PAYMENT_FILE_VALIDATE_PROCESS_SUCCESS_COUNT = 0;
-//    public static volatile int PAYMENT_FILE_VALIDATE_PROCESS_FAILED_COUNT = 0;
-//    public static volatile int PAYMENT_FILE_VALIDATE_PROCESS_TOTAL_NO_OF_TRANSACTIONS = 0;
-//    public static String PAYMENT_FILE_VALIDATE_PROCESS_PROGRESS = "N/A";
-//
-//    public static HashMap<Integer, Object> fileProcessingConnectorList = new HashMap<>();
-      public static volatile String Str_EOD_ID;
-
-      //Acquiring
-        public static volatile int totalTxnCount = 0;
-        public static volatile int issFailedTxn = 0;
-        public static volatile int acqFailedMerchants = 0;
-        public static volatile int onusTxnCount = 0;
 
 }

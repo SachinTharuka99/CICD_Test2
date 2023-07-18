@@ -25,7 +25,7 @@ class CashBackServiceTest {
     BlockingQueue<Integer> successCount = new ArrayBlockingQueue<Integer>(capacity);
     BlockingQueue<Integer> failCount = new ArrayBlockingQueue<Integer>(capacity);
     private CashBackService cashBackServiceUnderTest;
-    public AtomicInteger faileCardCount = new AtomicInteger(0);
+
 
     @BeforeEach
     void setUp() {
@@ -77,7 +77,7 @@ class CashBackServiceTest {
         when(cashBackServiceUnderTest.cashBackRepo.updateTotalCBAmount("accountNumber")).thenReturn(0);
 
         // Run the test
-        cashBackServiceUnderTest.cashBack(cashbackBean,successCount,failCount);
+        cashBackServiceUnderTest.cashBack(cashbackBean,Configurations.successCount,Configurations.failCount);
 
         // Verify the results
 

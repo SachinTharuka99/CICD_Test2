@@ -32,11 +32,6 @@ public class ManualNpConnector extends ProcessBuilder {
     private static final Logger logInfo = LoggerFactory.getLogger("logInfo");
     private static final Logger logError = LoggerFactory.getLogger("logError");
     public List<ErrorCardBean> cardErrorList = new ArrayList<ErrorCardBean>();
-    int capacity = 200000;
-    BlockingQueue<Integer> successCount = new ArrayBlockingQueue<Integer>(capacity);
-    BlockingQueue<Integer> failCount = new ArrayBlockingQueue<Integer>(capacity);
-    BlockingQueue<Integer> successCountDe = new ArrayBlockingQueue<Integer>(capacity);
-    BlockingQueue<Integer> failCountDe = new ArrayBlockingQueue<Integer>(capacity);
 
     int manualNpTotalCount = 0;
     int manualNpSuccesssCount = 0;
@@ -80,7 +75,7 @@ public class ManualNpConnector extends ProcessBuilder {
                     arrList.add(new StringBuffer(temp[0]));
                     arrList.add(new StringBuffer(temp[1]));
                     arrList.add(new StringBuffer(temp[2]));
-                    manualNpService.manualNpClassification(arrList,successCount,failCount);
+                    manualNpService.manualNpClassification(arrList,Configurations.successCount,Configurations.failCount);
 
                 }
 
@@ -122,7 +117,7 @@ public class ManualNpConnector extends ProcessBuilder {
                     arrList.add(new StringBuffer(value[0]));
                     arrList.add(new StringBuffer(value[1]));
                     arrList.add(new StringBuffer(value[2]));
-                    manualNpService.manualNpDeClassification(arrList, successCountDe,failCountDe);
+                    manualNpService.manualNpDeClassification(arrList, Configurations.successCountDe,Configurations.failCountDe);
                 });
 
                 while (!(taskExecutor.getActiveCount() == 0)) {
@@ -157,13 +152,13 @@ public class ManualNpConnector extends ProcessBuilder {
     @Override
     public void addSummaries() {
         summery.put("Selected Account for manual NP", selectedaccounts);
-        summery.put("No of Success Accounts", successCount.size());
-        summery.put("No of Failed Accounts", failCount.size());
+        summery.put("No of Success Accounts", Configurations.successCount.size());
+        summery.put("No of Failed Accounts", Configurations.failCount.size());
         summery.put("Process Status for Manual NP", "Passed");
 
         summery.put("Selected Acc for manual NP De-classified ", Configurations.PROCESS_TOTAL_NOOF_TRABSACTIONS);
-        summery.put("No of Success Accounts ", successCountDe.size());
-        summery.put("No of Failed Accounts ", failCountDe.size());
+        summery.put("No of Success Accounts ",Configurations.successCountDe.size());
+        summery.put("No of Failed Accounts ", Configurations.failCountDe.size());
         summery.put("Process Status for Manual NP De-classified", "Passed");
     }
 }

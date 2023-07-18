@@ -35,9 +35,6 @@ import java.util.concurrent.atomic.AtomicInteger;
 
 @Service
 public class EasyPaymentConnector extends ProcessBuilder {
-    int capacity = 200000;
-    BlockingQueue<Integer> successCount = new ArrayBlockingQueue<Integer>(capacity);
-    BlockingQueue<Integer> failCount = new ArrayBlockingQueue<Integer>(capacity);
     private static final Logger logInfo = LoggerFactory.getLogger("logInfo");
     private static final Logger logError = LoggerFactory.getLogger("logError");
     @Autowired
@@ -77,7 +74,7 @@ public class EasyPaymentConnector extends ProcessBuilder {
 //                    easyPaymentService.startEasyPaymentProcess(installmentBean, processBean);
 //                }
                 txnList.forEach(installmentBean -> {
-                    easyPaymentService.startEasyPaymentProcess(installmentBean, processBean,successCount,failCount);
+                    easyPaymentService.startEasyPaymentProcess(installmentBean, processBean,Configurations.successCount,Configurations.failCount);
                 });
 
                 //wait till all the threads are completed
@@ -109,7 +106,7 @@ public class EasyPaymentConnector extends ProcessBuilder {
     public void addSummaries() {
         summery.put("Started Date", Configurations.EOD_DATE.toString());
         summery.put("No of Card effected", Configurations.PROCESS_TOTAL_NOOF_TRABSACTIONS);
-        summery.put("No of Success Card ",successCount.size());
-        summery.put("No of fail Card ",failCount.size());
+        summery.put("No of Success Card ",Configurations.successCount.size());
+        summery.put("No of fail Card ",Configurations.failCount.size());
     }
 }

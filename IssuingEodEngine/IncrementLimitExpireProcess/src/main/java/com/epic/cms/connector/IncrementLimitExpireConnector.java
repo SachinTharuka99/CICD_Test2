@@ -26,9 +26,6 @@ import java.util.concurrent.atomic.AtomicInteger;
 
 @Service
 public class IncrementLimitExpireConnector extends ProcessBuilder {
-    int capacity = 200000;
-    BlockingQueue<Integer> successCount = new ArrayBlockingQueue<Integer>(capacity);
-    BlockingQueue<Integer> failCount = new ArrayBlockingQueue<Integer>(capacity);
     private static final Logger logInfo = LoggerFactory.getLogger("logInfo");
     private static final Logger logError = LoggerFactory.getLogger("logError");
     public int configProcess = Configurations.PROCESS_ID_INCREMENT_LIMIT_EXPIRE;
@@ -50,8 +47,6 @@ public class IncrementLimitExpireConnector extends ProcessBuilder {
     @Override
     public void concreteProcess() throws Exception {
         ArrayList<LimitIncrementBean> cardList = new ArrayList<LimitIncrementBean>();
-        int noOfCards = 0;
-        int failedCards = 0;
         try {
             Configurations.RUNNING_PROCESS_ID = Configurations.PROCESS_ID_INCREMENT_LIMIT_EXPIRE;
             CommonMethods.eodDashboardProgressParametersReset();
@@ -62,7 +57,6 @@ public class IncrementLimitExpireConnector extends ProcessBuilder {
                 /** Expire the Increment*/
                 cardList = incrementLimitExpireRepo.getLimitExpiredCardList();
                 Configurations.PROCESS_TOTAL_NOOF_TRABSACTIONS = cardList.size();
-                noOfCards = Configurations.PROCESS_TOTAL_NOOF_TRABSACTIONS;
 
                 /** Limit Expiring card one by one*/
 //                for (LimitIncrementBean limitIncrementBean : cardList) {
@@ -70,7 +64,7 @@ public class IncrementLimitExpireConnector extends ProcessBuilder {
 //                }
 
                 cardList.forEach(limitIncrementBean -> {
-                    incrementLimitExpireService.processCreditLimitExpire(limitIncrementBean, processBean, configProcess, processHeader, successCount, failCount);
+                    incrementLimitExpireService.processCreditLimitExpire(limitIncrementBean, processBean, configProcess, processHeader, Configurations.successCount, Configurations.failCount);
                 });
 
 
@@ -78,12 +72,6 @@ public class IncrementLimitExpireConnector extends ProcessBuilder {
                 while (!(taskExecutor.getActiveCount() == 0)) {
                     Thread.sleep(1000);
                 }
-
-                failedCards = Configurations.Failed_Count_IncrementLimit;
-
-                Configurations.PROCESS_TOTAL_NOOF_TRABSACTIONS = noOfCards;
-                Configurations.PROCESS_SUCCESS_COUNT = (noOfCards - failedCards);
-                Configurations.PROCESS_FAILD_COUNT = failedCards;
             }
 
         } catch (Exception e) {
@@ -121,7 +109,7 @@ public class IncrementLimitExpireConnector extends ProcessBuilder {
     public void addSummaries() {
         summery.put("Started Date", Configurations.EOD_DATE.toString());
         summery.put("No of Card effected", Configurations.PROCESS_TOTAL_NOOF_TRABSACTIONS);
-        summery.put("No of Success Card ", successCount.size());
-        summery.put("No of fail Card ",failCount.size());
+        summery.put("No of Success Card ", Configurations.successCount.size());
+        summery.put("No of fail Card ",Configurations.failCount.size());
     }
 }

@@ -13,7 +13,7 @@ import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.LinkedHashMap;
-import java.util.concurrent.atomic.AtomicInteger;
+import java.util.concurrent.BlockingQueue;
 
 
 @Service
@@ -30,7 +30,7 @@ public class CardReplaceService {
 
     @Async("taskExecutor2")
     @Transactional(value = "transactionManager", propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
-    public void cardReplace(CardReplaceBean cardReplaceBean, AtomicInteger faileCardCount) {
+    public void cardReplace(CardReplaceBean cardReplaceBean, BlockingQueue<Integer> successCount, BlockingQueue<Integer> failCount) {
         if (!Configurations.isInterrupted) {
             LinkedHashMap details = new LinkedHashMap();
             try {
@@ -47,11 +47,13 @@ public class CardReplaceService {
                 cardReplaceRepo.updateOnlineOldCardFromNewCard(cardReplaceBean);
 
                 Statusts.SUMMARY_FOR_CARDREPLACE_PROCESSED++;
+                successCount.add(1);
+
 
             } catch (Exception e) {
                 logError.error("Card Replace Process Error for Card - " + CommonMethods.cardNumberMask(cardReplaceBean.getOldCardNo()), e);
                 Configurations.errorCardList.add(new ErrorCardBean(Configurations.ERROR_EOD_ID, Configurations.EOD_DATE, new StringBuffer(cardReplaceBean.getOldCardNo()), e.getMessage(), Configurations.PROCESS_ID_CARD_REPLACE, "Card Replace", 0, CardAccount.CARD));
-                faileCardCount.addAndGet(1);
+                failCount.add(1);
             } finally {
                 logInfo.info(logManager.logDetails(details));
             }

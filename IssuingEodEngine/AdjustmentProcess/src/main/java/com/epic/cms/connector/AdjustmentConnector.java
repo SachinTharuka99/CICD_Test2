@@ -49,10 +49,6 @@ public class AdjustmentConnector extends ProcessBuilder {
     LogManager logManager;
 
     public AtomicInteger ADJUSTMENT_SEQUENCE_NO = new AtomicInteger(0);
-    public AtomicInteger faileCardCount = new AtomicInteger(0);
-    int capacity = 200000;
-    BlockingQueue<Integer> failCount = new ArrayBlockingQueue<>(capacity);
-    BlockingQueue<Integer> successCount = new ArrayBlockingQueue<>(capacity);
 
     @Override
     public void concreteProcess() throws Exception {
@@ -68,7 +64,7 @@ public class AdjustmentConnector extends ProcessBuilder {
             Configurations.PROCESS_TOTAL_NOOF_TRABSACTIONS = adjustmentList.size();
 
             adjustmentList.forEach(adjustmentBean -> {
-                adjustmentService.proceedAdjustment(adjustmentBean, ADJUSTMENT_SEQUENCE_NO,successCount,failCount);
+                adjustmentService.proceedAdjustment(adjustmentBean, ADJUSTMENT_SEQUENCE_NO,Configurations.successCount,Configurations.failCount);
             });
 
             //wait till all the threads are completed
@@ -94,7 +90,7 @@ public class AdjustmentConnector extends ProcessBuilder {
     public void addSummaries() {
         summery.put("Started Date", Configurations.EOD_DATE.toString());
         summery.put("No of Card effected", Integer.toString(Configurations.PROCESS_TOTAL_NOOF_TRABSACTIONS));
-        summery.put("No of Success Card ", Integer.toString(successCount.size()));
-        summery.put("No of fail Card ", Integer.toString(failCount.size()));
+        summery.put("No of Success Card ", Integer.toString(Configurations.successCount.size()));
+        summery.put("No of fail Card ", Integer.toString(Configurations.failCount.size()));
     }
 }

@@ -36,9 +36,6 @@ import java.util.concurrent.atomic.AtomicInteger;
 
 @Service
 public class RiskCalculationConnector extends ProcessBuilder {
-    int capacity = 200000;
-    BlockingQueue<Integer> successCount = new ArrayBlockingQueue<Integer>(capacity);
-    BlockingQueue<Integer> failCount = new ArrayBlockingQueue <Integer>(capacity);
     private static final Logger logInfo = LoggerFactory.getLogger("logInfo");
     private static final Logger logError = LoggerFactory.getLogger("logError");
     @Autowired
@@ -88,7 +85,7 @@ public class RiskCalculationConnector extends ProcessBuilder {
 //                }
 
                 delinquentCardList.forEach(delinquentAccountBean -> {
-                    riskCalculationService.riskCalculationProcess(delinquentAccountBean, configProcess, processBean,successCount,failCount);
+                    riskCalculationService.riskCalculationProcess(delinquentAccountBean, configProcess, processBean,Configurations.successCount,Configurations.failCount);
                 });
 
                 //wait till all the threads are completed
@@ -108,7 +105,7 @@ public class RiskCalculationConnector extends ProcessBuilder {
 //                        riskCalculationService.freshCardToTable(riskCalculationBean, processBean,faileCardCount);
 //                    }
                     cardList.forEach(riskCalculationBean -> {
-                        riskCalculationService.freshCardToTable(riskCalculationBean, processBean,successCount,failCount);
+                        riskCalculationService.freshCardToTable(riskCalculationBean, processBean,Configurations.successCount,Configurations.failCount);
                     });
 
 
@@ -121,9 +118,6 @@ public class RiskCalculationConnector extends ProcessBuilder {
                     logInfo.info("No new cards for add to risk class");
                 }
 
-               // Configurations.PROCESS_TOTAL_NOOF_TRABSACTIONS = (noOfExistingCards + noOfNewCards);
-               // Configurations.PROCESS_SUCCESS_COUNT = (noOfExistingCards + noOfNewCards) - (failedExistingCards + failedNewCards);
-                // Configurations.PROCESS_FAILD_COUNT = (failedExistingCards + failedNewCards);
             }
 
         } catch (Exception e) {
@@ -138,7 +132,7 @@ public class RiskCalculationConnector extends ProcessBuilder {
     public void addSummaries() {
         summery.put("Started Date", Configurations.EOD_DATE.toString());
         summery.put("No of Card effected", Configurations.PROCESS_TOTAL_NOOF_TRABSACTIONS);
-        summery.put("No of Success Card ", successCount.size());
-        summery.put("No of fail Card ", failCount.size());
+        summery.put("No of Success Card ", Configurations.successCount.size());
+        summery.put("No of fail Card ", Configurations.failCount.size());
     }
 }

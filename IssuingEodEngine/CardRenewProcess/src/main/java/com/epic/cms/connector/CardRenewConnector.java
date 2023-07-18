@@ -56,9 +56,6 @@ public class CardRenewConnector extends ProcessBuilder {
     @Autowired
     @Qualifier("ThreadPool_100")
     ThreadPoolTaskExecutor taskExecutor;
-    int capacity = 200000;
-    BlockingQueue<Integer> successCount = new ArrayBlockingQueue<Integer>(capacity);
-    BlockingQueue<Integer> failCount = new ArrayBlockingQueue<Integer>(capacity);
     ArrayList<CardRenewBean> approvedCardBeanList = new ArrayList<CardRenewBean>();
     int noOfEarlyRenewals = 0;
     int noOfNormalRenewals = 0;
@@ -147,7 +144,7 @@ public class CardRenewConnector extends ProcessBuilder {
 //                    }
 
                     approvedCardBeanList.forEach(CRBean -> {
-                        cardRenewService.cardRenewProcess(CRBean, noOfEarlyRenewals, noOfNormalRenewals,successCount,failCount);
+                        cardRenewService.cardRenewProcess(CRBean, noOfEarlyRenewals, noOfNormalRenewals,Configurations.successCount,Configurations.failCount);
                     });
                 }
             }
@@ -193,7 +190,7 @@ public class CardRenewConnector extends ProcessBuilder {
         summery.put("Renewal Process Started with", Configurations.PROCESS_TOTAL_NOOF_TRABSACTIONS + " Cards");
         summery.put("No of Early Renwals", Integer.toString(noOfEarlyRenewals));
         summery.put("No of Normal Renwals", Integer.toString(noOfNormalRenewals));
-        summery.put("No of Success Card", successCount.size());
-        summery.put("Total Fails", failCount.size());
+        summery.put("No of Success Card", Configurations.successCount.size());
+        summery.put("Total Fails", Configurations.failCount.size());
     }
 }

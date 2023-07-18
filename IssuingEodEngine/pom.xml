@@ -55,7 +55,6 @@
         <module>RiskCalculationProcess</module>
         <module>CardRenewProcess</module>
         <module>EOMSupplementaryCardResetProcess</module>
-        <module>EOMSupplementaryCardResetProcess</module>
     </modules>
     <artifactId>IssuingEodEngine</artifactId>
 

@@ -44,10 +44,6 @@ public class LoyaltyPointsCalculationConnector extends ProcessBuilder {
 
     @Autowired
     LoyaltyPointsCalculationService loyaltyPointsCalculationService;
-
-    int capacity = 200000;
-    BlockingQueue<Integer> successCount = new ArrayBlockingQueue<Integer>(capacity);
-    BlockingQueue<Integer> failCount = new ArrayBlockingQueue<Integer>(capacity);
     private static final Logger logInfo = LoggerFactory.getLogger("logInfo");
     private static final Logger logError = LoggerFactory.getLogger("logError");
 
@@ -76,7 +72,7 @@ public class LoyaltyPointsCalculationConnector extends ProcessBuilder {
 //                }
 
                 cardList.forEach(loyaltyBean -> {
-                    loyaltyPointsCalculationService.calculateLoyaltyPoints(loyaltyBean,successCount,failCount);
+                    loyaltyPointsCalculationService.calculateLoyaltyPoints(loyaltyBean,Configurations.successCount,Configurations.failCount);
                 });
 
                 //wait till all the threads are completed

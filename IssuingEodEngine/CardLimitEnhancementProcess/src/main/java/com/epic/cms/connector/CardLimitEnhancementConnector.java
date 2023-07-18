@@ -44,11 +44,6 @@ public class CardLimitEnhancementConnector extends ProcessBuilder {
     LogManager logManager;
     ArrayList<BalanceComponentBean> enhancementList;
     private ArrayList<OtbBean> custAccList = new ArrayList<OtbBean>();
-    private int failedCount = 0;
-    int capacity = 200000;
-    BlockingQueue<Integer> successCount = new ArrayBlockingQueue<Integer>(capacity);
-    BlockingQueue<Integer> failCount = new ArrayBlockingQueue<Integer>(capacity);
-
 
     @Override
     public void concreteProcess() throws Exception {
@@ -70,7 +65,7 @@ public class CardLimitEnhancementConnector extends ProcessBuilder {
 
                 custAccList.forEach(bean -> {
                     enhancementList = cardLimitEnhancementRepo.getLimitEnhanceReqConCardList(bean.getCustomerid(), bean.getAccountnumber());
-                    cardLimitEnhancementService.processCardLimitEnhancement(enhancementList, bean,successCount,failCount);
+                    cardLimitEnhancementService.processCardLimitEnhancement(enhancementList, bean,Configurations.successCount,Configurations.failCount);
                 });
 
                 //wait till all the threads are completed
@@ -111,8 +106,8 @@ public class CardLimitEnhancementConnector extends ProcessBuilder {
     public void addSummaries() {
 
         summery.put("Number of transaction to sync", Configurations.PROCESS_TOTAL_NOOF_TRABSACTIONS);
-        summery.put("Number of success transaction", successCount.size());
-        summery.put("Number of failure transaction", failCount.size());
+        summery.put("Number of success transaction", Configurations.successCount.size());
+        summery.put("Number of failure transaction", Configurations.failCount.size());
 
     }
 }

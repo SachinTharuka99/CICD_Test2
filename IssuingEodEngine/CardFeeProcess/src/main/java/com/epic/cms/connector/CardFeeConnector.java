@@ -39,9 +39,6 @@ public class CardFeeConnector extends ProcessBuilder {
     LogManager logManager;
 
     private static final Logger logInfo = LoggerFactory.getLogger("logInfo");
-    int capacity = 200000;
-    BlockingQueue<Integer> successCount = new ArrayBlockingQueue<Integer>(capacity);
-    BlockingQueue<Integer> failCount = new ArrayBlockingQueue<Integer>(capacity);
 
     @Override
     public void concreteProcess() throws Exception {
@@ -61,7 +58,7 @@ public class CardFeeConnector extends ProcessBuilder {
             if (cardRecordList != null && cardRecordList.size() > 0) {
 
                 cardRecordList.forEach(cardBean -> {
-                    cardFeeService.cardFeeCalculate(cardBean,successCount,failCount);
+                    cardFeeService.cardFeeCalculate(cardBean,Configurations.successCount,Configurations.failCount);
                 });
             } else {
                 summery.put("Fee not found", 0 + "");
@@ -89,7 +86,7 @@ public class CardFeeConnector extends ProcessBuilder {
     @Override
     public void addSummaries() {
         summery.put("Number of accounts to fee post ", Configurations.PROCESS_TOTAL_NOOF_TRABSACTIONS);
-        summery.put("Number of success fee post ", successCount.size());
-        summery.put("Number of failure fee post ", failCount.size());
+        summery.put("Number of success fee post ", Configurations.successCount.size());
+        summery.put("Number of failure fee post ", Configurations.failCount.size());
     }
 }

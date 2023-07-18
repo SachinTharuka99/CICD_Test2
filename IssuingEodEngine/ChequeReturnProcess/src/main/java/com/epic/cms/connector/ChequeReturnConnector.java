@@ -28,7 +28,6 @@ public class ChequeReturnConnector extends ProcessBuilder {
 
     private static final Logger logInfo = LoggerFactory.getLogger("logInfo");
     private static final Logger logError = LoggerFactory.getLogger("logError");
-
     @Autowired
     LogManager logManager;
     @Autowired

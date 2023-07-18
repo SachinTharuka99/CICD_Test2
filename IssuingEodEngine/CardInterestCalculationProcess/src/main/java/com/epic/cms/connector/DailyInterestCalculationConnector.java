@@ -33,9 +33,6 @@ import java.util.concurrent.atomic.AtomicInteger;
 
 @Service
 public class DailyInterestCalculationConnector extends ProcessBuilder {
-    int capacity = 200000;
-    BlockingQueue<Integer> successCount = new ArrayBlockingQueue<Integer>(capacity);
-    BlockingQueue<Integer> failCount = new ArrayBlockingQueue<Integer>(capacity);
     private static final Logger logError = LoggerFactory.getLogger("logError");
     @Autowired
     CommonRepo commonRepo;
@@ -69,7 +66,7 @@ public class DailyInterestCalculationConnector extends ProcessBuilder {
 
                 if (accountList.size() > 0) {
                     accountList.forEach(statementBean -> {
-                        interestCalculationService.startDailyInterestCalculation(statementBean, successCount,failCount);
+                        interestCalculationService.startDailyInterestCalculation(statementBean, Configurations.successCount,Configurations.failCount);
                     });
                 }
 
@@ -96,8 +93,8 @@ public class DailyInterestCalculationConnector extends ProcessBuilder {
     public void addSummaries() {
         summery.put("Started Date ", Configurations.EOD_DATE.toString());
         summery.put("No of Card effected ", Configurations.PROCESS_TOTAL_NOOF_TRABSACTIONS);
-        summery.put("No of Success Card ", successCount.size());
-        summery.put("No of fail Card ", failCount.size());
+        summery.put("No of Success Card ", Configurations.successCount.size());
+        summery.put("No of fail Card ", Configurations.failCount.size());
 
     }
 }

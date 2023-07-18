@@ -44,9 +44,6 @@ public class CollectionAndRecoveryAlertConnector extends ProcessBuilder {
 
     @Autowired
     CollectionAndRecoveryAlertService collectionAndRecoveryAlertService;
-    int capacity = 200000;
-    BlockingQueue<Integer> successCount = new ArrayBlockingQueue<Integer>(capacity);
-    BlockingQueue<Integer> failCount = new ArrayBlockingQueue<Integer>(capacity);
     private static final Logger logInfo = LoggerFactory.getLogger("logInfo");
     private static final Logger logError = LoggerFactory.getLogger("logError");
     HashMap<StringBuffer, String> confirmCardList = new HashMap<>();
@@ -64,7 +61,7 @@ public class CollectionAndRecoveryAlertConnector extends ProcessBuilder {
             Configurations.PROCESS_TOTAL_NOOF_TRABSACTIONS = confirmCardList.size();
 
             for (Map.Entry<StringBuffer, String> entry : confirmCardList.entrySet()) {
-                collectionAndRecoveryAlertService.processCollectionAndRecoveryAlertService(entry.getKey(), entry.getValue(), processBean,successCount,failCount);
+                collectionAndRecoveryAlertService.processCollectionAndRecoveryAlertService(entry.getKey(), entry.getValue(), processBean,Configurations.successCount,Configurations.failCount);
             }
 
             while (!(taskExecutor.getActiveCount() == 0)) {
@@ -88,8 +85,8 @@ public class CollectionAndRecoveryAlertConnector extends ProcessBuilder {
     public void addSummaries() {
 
         summery.put("Number of transaction to sync ", Configurations.PROCESS_TOTAL_NOOF_TRABSACTIONS);
-        summery.put("Number of success transaction", successCount.size());
-        summery.put("Number of failure transaction", failCount.size());
+        summery.put("Number of success transaction", Configurations.successCount.size());
+        summery.put("Number of failure transaction", Configurations.failCount.size());
 
     }
 }

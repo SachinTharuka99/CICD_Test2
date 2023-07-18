@@ -27,10 +27,6 @@ import java.util.concurrent.atomic.AtomicInteger;
 
 @Service
 public class EOMInterestConnector extends ProcessBuilder {
-    int capacity = 200000;
-    BlockingQueue<Integer> successCount = new ArrayBlockingQueue<Integer>(capacity);
-    BlockingQueue<Integer> failCount = new ArrayBlockingQueue<Integer>(capacity);
-    private static final Logger logInfo = LoggerFactory.getLogger("logInfo");
     private static final Logger logError = LoggerFactory.getLogger("logError");
     @Autowired
     StatusVarList statusList;
@@ -49,8 +45,6 @@ public class EOMInterestConnector extends ProcessBuilder {
     @Override
     public void concreteProcess() throws Exception {
 
-        int noOfAccounts = 0;
-        int failedAccounts = 0;
         try {
             Configurations.RUNNING_PROCESS_ID = Configurations.PROCESS_ID_EOM_INTEREST_CALCULATION;
             ArrayList<EomCardBean> accountList;
@@ -58,31 +52,24 @@ public class EOMInterestConnector extends ProcessBuilder {
             String curDateforRenew = dateFormatforRenew.format(Configurations.EOD_DATE);
             int day = Integer.parseInt(curDateforRenew);
             accountList = eomInterestRepo.getEomCardList(day);
+            Configurations.PROCESS_TOTAL_NOOF_TRABSACTIONS = accountList.size();
             processBean = new ProcessBean();
             processBean = commonRepo.getProcessDetails(Configurations.PROCESS_ID_EOM_INTEREST_CALCULATION);
 
-            noOfAccounts = accountList.size();
 //            for (int i = 0; i < accountList.size(); i++) {
 //                eomInterestService.EOMInterestCalculation(processBean, accountList.get(i));
 //            }
             accountList.forEach(account -> {
-                eomInterestService.EOMInterestCalculation(processBean, account,successCount,failCount);
+                eomInterestService.EOMInterestCalculation(processBean, account,Configurations.successCount,Configurations.failCount);
             });
 
 
             while (!(taskExecutor.getActiveCount() == 0)) {
                 Thread.sleep(1000);
             }
-
-            Configurations.PROCESS_TOTAL_NOOF_TRABSACTIONS = noOfAccounts;
-            Configurations.PROCESS_SUCCESS_COUNT = (noOfAccounts - failedAccounts);
-            Configurations.PROCESS_FAILD_COUNT = failedAccounts;
-
         } catch (Exception e) {
             Configurations.IS_PROCESS_COMPLETELY_FAILED = true;
             logError.error("EOM Interest Calculation Process failed", e);
-        } finally {
-            //logInfo.info(logManager.logSummery(summery));
         }
     }
 
@@ -91,7 +78,7 @@ public class EOMInterestConnector extends ProcessBuilder {
         summery.put("Process Name ", processBean.getProcessDes());
         summery.put("Started Date ", Configurations.EOD_DATE.toString());
         summery.put("No of Accounts effected ", Configurations.PROCESS_TOTAL_NOOF_TRABSACTIONS);
-        summery.put("No of Success Accounts ",successCount.size());
-        summery.put("No of fail Accounts ", failCount.size());
+        summery.put("No of Success Accounts ",Configurations.successCount.size());
+        summery.put("No of fail Accounts ", Configurations.failCount.size());
     }
 }
