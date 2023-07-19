@@ -232,6 +232,7 @@ public class EODEngineProducerRepo implements EODEngineProducerDao {
             //String query = "UPDATE EOD SET STATUS = ?,STEPID=0,STARTTIME = SYSDATE,LASTUPDATEDTIME = SYSDATE,LASTUPDATEDUSER = ? WHERE EODID = ?";
             backendJdbcTemplate.update(queryParametersList.getEODEngineProducer_updateEodStatus(), status, Configurations.EOD_USER, errorEodId);
         } catch (Exception e) {
+            e.printStackTrace();
             throw e;
         }
     }
@@ -301,7 +302,7 @@ public class EODEngineProducerRepo implements EODEngineProducerDao {
     public Map<String, String> getNextRunningEodInfo() throws Exception {
         Map<String, String> nextRunningEodInfo = new HashMap<>();
         try {
-            String query = "SELECT EODID,STATUS FROM EOD ORDER BY EODID DESC LIMIT 1";
+            String query = "SELECT * FROM (SELECT EODID,STATUS FROM EOD ORDER BY EODID DESC) WHERE ROWNUM =1";
             nextRunningEodInfo = backendJdbcTemplate.query(query,
                     (ResultSet rs) -> {
                         Map<String, String> nextRunningEodInfoTemp = new HashMap<>();
@@ -327,8 +328,36 @@ public class EODEngineProducerRepo implements EODEngineProducerDao {
                     "FROM EODPROCESSFLOW EF " +
                     "LEFT JOIN EODPROCESS EP " +
                     "ON EF.PROCESSID=EP.PROCESSID WHERE " +
-                    "EP.EODMODULE = ? ORDER BY EF.STEPID ASC";
-            processList = backendJdbcTemplate.query(query, new ProcessBeanRowMapper(), module);
+                    "EP.EODMODULE = ? AND EF.STATUS = 'ACT' ORDER BY EF.STEPID ASC";
+            processList = backendJdbcTemplate.query(query, (ResultSet result) ->{
+                List<ProcessBean> tempProcessList = new ArrayList<>();
+                while(result.next()){
+                    ProcessBean processDetails = new ProcessBean();
+                    processDetails.setProcessId(result.getInt("PROCESSID"));
+                    processDetails.setProcessDes(result.getString("DESCRIPTION"));
+                    processDetails.setCriticalStatus(result.getInt("CRITICALSTATUS"));
+                    processDetails.setRollBackStatus(result.getInt("ROLLBACKSTATUS"));
+                    processDetails.setSheduleDate(result.getTimestamp("SHEDULEDATETIME"));
+                    processDetails.setSheduleTime(result.getString("SHEDULETIME"));
+                    processDetails.setFrequencyType(result.getInt("FREQUENCYTYPE"));
+                    processDetails.setContinuousFrequencyType(result.getInt("CONTINUESFREQUENCYTYPE"));
+                    processDetails.setContinuousFrequency(result.getInt("CONTINUESFREQUENCY"));
+                    processDetails.setMultiCycleStatus(result.getInt("MULTIPLECYCLESTATUS"));
+                    processDetails.setProcessCategoryId(result.getInt("PROCESSCATEGORYID"));
+                    processDetails.setDependancyStatus(result.getInt("DEPENDANCYSTATUS"));
+                    processDetails.setRunningOnMain(result.getInt("RUNNINGONMAIN"));
+                    processDetails.setRunningOnSub(result.getInt("RUNNINGONSUB"));
+                    processDetails.setProcessType(result.getInt("PROCESSTYPE"));
+                    processDetails.setStatus(result.getString("STATUS"));
+                    processDetails.setHolidayAction(result.getInt("HOLIDAYACTION"));
+                    processDetails.setKafkaTopic(result.getString("KAFKATOPICNAME"));
+                    processDetails.setKafkaGroupId(result.getString("KAFKAGROUPID"));
+                    processDetails.setEodmodule(result.getString("EODMODULE"));
+                    processDetails.setStepId(result.getInt("STEPID"));
+                    tempProcessList.add(processDetails);
+                }
+               return tempProcessList;
+            }, module);
 
             if (List.of("HOLD", "FAIL").contains(Configurations.STARTING_EOD_STATUS)) {
                 try {

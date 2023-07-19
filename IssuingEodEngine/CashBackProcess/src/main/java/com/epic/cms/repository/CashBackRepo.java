@@ -116,20 +116,20 @@ public class CashBackRepo implements CashBackDao {
     public List<CashBackBean> getEligibleAccountsForCashback() throws Exception {
         List<CashBackBean> accountList = new ArrayList<>();
 
-        //String query = "SELECT CA.ACCOUNTNO,CA.STATUS AS ACCOUNTSTATUS,TRUNC(CA.NEXTBILLINGDATE) AS NEXTBILLINGDATE,CBP.CREDITOPTION, CBP.MINACCUMULATEDTOCLAIM,CA.CASHBACKPROFILECODE,CA.CASHBACKSTARTDATE,ADD_MONTHS(CA.CASHBACKSTARTDATE,12) AS NEXTCASHBACKSTARTDATE, CA.AVLCASHBACKAMOUNT,NVL(CBP.CASHBACKRATE,0) AS CASHBACKRATE,CBP.MAXCASHBACKPERYEAR,CBP.MINSPENDPERMONTH,CBP.EXPIRYPERIOD AS EXPIRYPERIOD, TRUNC(CA.LASTCASHBACKDATE) AS LASTCASHBACKDATE,CA.CARDNUMBER AS MAINCARDNUMBER,C.CARDSTATUS,CA.NEXTCBREDEEMDATE,CBP.REDEEMRATIO FROM CARDACCOUNT CA LEFT JOIN CASHBACKPROFILE CBP ON CA.CASHBACKPROFILECODE=CBP.PROFILECODE LEFT JOIN CARD C ON CA.CARDNUMBER=C.CARDNUMBER WHERE CASHBACKPROFILECODE IS NOT NULL AND CA.CASHBACKSTARTDATE IS NOT NULL";
-        String query = queryParametersList.getCashBack_getEligibleAccountsForCashback();
+        String query = "SELECT CA.ACCOUNTNO,CA.STATUS AS ACCOUNTSTATUS,TRUNC(CA.NEXTBILLINGDATE) AS NEXTBILLINGDATE,CBP.CREDITOPTION, CBP.MINACCUMULATEDTOCLAIM,CA.CASHBACKPROFILECODE,CA.CASHBACKSTARTDATE,ADD_MONTHS(CA.CASHBACKSTARTDATE,12) AS NEXTCASHBACKSTARTDATE, CA.AVLCASHBACKAMOUNT,NVL(CBP.CASHBACKRATE,0) AS CASHBACKRATE,CBP.MAXCASHBACKPERYEAR,CBP.MINSPENDPERMONTH,CBP.EXPIRYPERIOD AS EXPIRYPERIOD, TRUNC(CA.LASTCASHBACKDATE) AS LASTCASHBACKDATE,CA.CARDNUMBER AS MAINCARDNUMBER,C.CARDSTATUS,CA.NEXTCBREDEEMDATE,CBP.REDEEMRATIO FROM CARDACCOUNT CA LEFT JOIN CASHBACKPROFILE CBP ON CA.CASHBACKPROFILECODE=CBP.PROFILECODE LEFT JOIN CARD C ON CA.CARDNUMBER=C.CARDNUMBER WHERE CASHBACKPROFILECODE IS NOT NULL AND CA.CASHBACKSTARTDATE IS NOT NULL";
+        //String query = queryParametersList.getCashBack_getEligibleAccountsForCashback();
 
 
         // INIT == INIT
         if (Configurations.STARTING_EOD_STATUS.equals(statusList.getINITIAL_STATUS())) {
-            //query += " and CA.ACCOUNTNO not in (select ec.ACCOUNTNO from eoderrorcards ec where ec.status= ? )";
-            query+= queryParametersList.getCashBack_getEligibleAccountsForCashback_appender1();
+            query += " and CA.ACCOUNTNO not in (select ec.ACCOUNTNO from eoderrorcards ec where ec.status= ? )";
+            //query+= queryParametersList.getCashBack_getEligibleAccountsForCashback_appender1();
 
 
             // INIT == EROR
         } else if (Configurations.STARTING_EOD_STATUS.equals(statusList.getERROR_STATUS())) {
-            //query += " and CA.ACCOUNTNO in (select ec.ACCOUNTNO from eoderrorcards ec where ec.status= ? and EODID < ? and PROCESSSTEPID <= ? )";
-            query+= queryParametersList.getCashBack_getEligibleAccountsForCashback_appender2();
+            query += " and CA.ACCOUNTNO in (select ec.ACCOUNTNO from eoderrorcards ec where ec.status= ? and EODID < ? and PROCESSSTEPID <= ? )";
+            //query+= queryParametersList.getCashBack_getEligibleAccountsForCashback_appender2();
 
         }
 
@@ -200,9 +200,9 @@ public class CashBackRepo implements CashBackDao {
 
         try {
             //get statement dates for given date range(from lastcashbackdate to SYSDATE)
-            //String query = "SELECT TRUNC(STATEMENTENDDATE) AS STATEMENTENDDATE FROM BILLINGSTATEMENT BS WHERE BS.MAINCARDNO=? AND TRUNC(STATEMENTENDDATE)>=TRUNC(?) ORDER BY STATEMENTENDDATE";
+            String query = "SELECT TRUNC(STATEMENTENDDATE) AS STATEMENTENDDATE FROM BILLINGSTATEMENT BS WHERE BS.MAINCARDNO=? AND TRUNC(STATEMENTENDDATE)>=TRUNC(?) ORDER BY STATEMENTENDDATE";
 
-            backendJdbcTemplate.query(queryParametersList.getCashBack_getCashbackAmount(),
+            backendJdbcTemplate.query(query,
                     (ResultSet rs) -> {
                         while (rs.next()) {
                             statementDateList.add(rs.getDate("STATEMENTENDDATE"));
@@ -218,9 +218,9 @@ public class CashBackRepo implements CashBackDao {
 
             if (listSize == 1) { //no previous statement dates for given last cashback date
 
-                //query = "SELECT (CASE WHEN SUM(ET.TRANSACTIONAMOUNT)> ? THEN SUM(ET.TRANSACTIONAMOUNT * ? / 100) ELSE 0 END) AS CASHBACKAMOUNT FROM EODTRANSACTION ET WHERE ET.STATUS=? AND TRUNC(TO_DATE(SETTLEMENTDATE,'DD-MM-YY')) > TRUNC(?) AND TRUNC(TO_DATE(SETTLEMENTDATE,'DD-MM-YY')) <= TO_DATE(?,'DD-MM-YY') AND ET.ORIGINALTRANSACTIONTYPE NOT IN(SELECT CBPT.TXNTYPECODE FROM CASHBACKPROFILETXNTYPE CBPT WHERE CBPT.PROFILECODE=?) AND ET.MCC NOT IN(SELECT CBPM.MCCCODE FROM CASHBACKPROFILEMCC CBPM WHERE CBPM.PROFILECODE=?) AND ET.ACCOUNTNO=? AND ET.TRANSACTIONID NOT IN(SELECT TXNID FROM EASYPAYMENTREQUEST WHERE STATUS IN(?,?)) AND ET.ADJUSTMENTSTATUS='NO'";
+                query = "SELECT (CASE WHEN SUM(ET.TRANSACTIONAMOUNT)> ? THEN SUM(ET.TRANSACTIONAMOUNT * ? / 100) ELSE 0 END) AS CASHBACKAMOUNT FROM EODTRANSACTION ET WHERE ET.STATUS=? AND TRUNC(TO_DATE(SETTLEMENTDATE,'DD-MM-YY')) > TRUNC(?) AND TRUNC(TO_DATE(SETTLEMENTDATE,'DD-MM-YY')) <= TO_DATE(?,'DD-MM-YY') AND ET.ORIGINALTRANSACTIONTYPE NOT IN(SELECT CBPT.TXNTYPECODE FROM CASHBACKPROFILETXNTYPE CBPT WHERE CBPT.PROFILECODE=?) AND ET.MCC NOT IN(SELECT CBPM.MCCCODE FROM CASHBACKPROFILEMCC CBPM WHERE CBPM.PROFILECODE=?) AND ET.ACCOUNTNO=? AND ET.TRANSACTIONID NOT IN(SELECT TXNID FROM EASYPAYMENTREQUEST WHERE STATUS IN(?,?)) AND ET.ADJUSTMENTSTATUS='NO'";
 
-                calculatedCashBackAmt = Objects.requireNonNull(backendJdbcTemplate.query(queryParametersList.getCashBack_getCashbackAmount_appender1(),
+                calculatedCashBackAmt = Objects.requireNonNull(backendJdbcTemplate.query(query,
                         (ResultSet rs) -> {
                             BigDecimal temp = null;
                             while (rs.next()) {
@@ -237,9 +237,9 @@ public class CashBackRepo implements CashBackDao {
             } else { // many statement dates need to consider for given last cashback date. cash back will calculate statement months separately and then accumilate
 
                 //for first range (from lastcashbackdate to first statement date)
-                //query = "SELECT (CASE WHEN SUM(ET.TRANSACTIONAMOUNT)> ? THEN SUM(ET.TRANSACTIONAMOUNT * ? / 100) ELSE 0 END) AS CASHBACKAMOUNT FROM EODTRANSACTION ET WHERE ET.STATUS=? AND TRUNC(TO_DATE(SETTLEMENTDATE,'DD-MM-YY')) > TRUNC(?) AND  TRUNC(TO_DATE(SETTLEMENTDATE,'DD-MM-YY')) <= TRUNC(?) AND ET.ORIGINALTRANSACTIONTYPE NOT IN(SELECT CBPT.TXNTYPECODE FROM CASHBACKPROFILETXNTYPE CBPT WHERE CBPT.PROFILECODE=?) AND ET.MCC NOT IN(SELECT CBPM.MCCCODE FROM CASHBACKPROFILEMCC CBPM WHERE CBPM.PROFILECODE=?) AND ET.ACCOUNTNO=? AND ET.TRANSACTIONID NOT IN(SELECT TXNID FROM EASYPAYMENTREQUEST WHERE STATUS IN(?,?)) AND ET.ADJUSTMENTSTATUS='NO'";
+                query = "SELECT (CASE WHEN SUM(ET.TRANSACTIONAMOUNT)> ? THEN SUM(ET.TRANSACTIONAMOUNT * ? / 100) ELSE 0 END) AS CASHBACKAMOUNT FROM EODTRANSACTION ET WHERE ET.STATUS=? AND TRUNC(TO_DATE(SETTLEMENTDATE,'DD-MM-YY')) > TRUNC(?) AND  TRUNC(TO_DATE(SETTLEMENTDATE,'DD-MM-YY')) <= TRUNC(?) AND ET.ORIGINALTRANSACTIONTYPE NOT IN(SELECT CBPT.TXNTYPECODE FROM CASHBACKPROFILETXNTYPE CBPT WHERE CBPT.PROFILECODE=?) AND ET.MCC NOT IN(SELECT CBPM.MCCCODE FROM CASHBACKPROFILEMCC CBPM WHERE CBPM.PROFILECODE=?) AND ET.ACCOUNTNO=? AND ET.TRANSACTIONID NOT IN(SELECT TXNID FROM EASYPAYMENTREQUEST WHERE STATUS IN(?,?)) AND ET.ADJUSTMENTSTATUS='NO'";
 
-                calculatedCashBackAmt = Objects.requireNonNull(backendJdbcTemplate.query(queryParametersList.getCashBack_getCashbackAmount_appender2(),
+                calculatedCashBackAmt = Objects.requireNonNull(backendJdbcTemplate.query(query,
                         (ResultSet rs) -> {
                             BigDecimal temp = null;
                             while (rs.next()) {
@@ -259,11 +259,11 @@ public class CashBackRepo implements CashBackDao {
                 //from other statement months
                 for (int i = 1; i < listSize - 1; i++) {
 
-                   // query = "SELECT (CASE WHEN SUM(ET.TRANSACTIONAMOUNT)> ? THEN SUM(ET.TRANSACTIONAMOUNT * ? / 100) ELSE 0 END) AS CASHBACKAMOUNT FROM EODTRANSACTION ET WHERE ET.STATUS=? AND TRUNC(TO_DATE(SETTLEMENTDATE,'DD-MM-YY')) > TRUNC(?) AND  TRUNC(TO_DATE(SETTLEMENTDATE,'DD-MM-YY')) <= TRUNC(?) AND ET.ORIGINALTRANSACTIONTYPE NOT IN(SELECT CBPT.TXNTYPECODE FROM CASHBACKPROFILETXNTYPE CBPT WHERE CBPT.PROFILECODE=?) AND ET.MCC NOT IN(SELECT CBPM.MCCCODE FROM CASHBACKPROFILEMCC CBPM WHERE CBPM.PROFILECODE=?) AND ET.ACCOUNTNO=? AND ET.TRANSACTIONID NOT IN(SELECT TXNID FROM EASYPAYMENTREQUEST WHERE STATUS IN(?,?)) AND ET.ADJUSTMENTSTATUS='NO'";
+                    query = "SELECT (CASE WHEN SUM(ET.TRANSACTIONAMOUNT)> ? THEN SUM(ET.TRANSACTIONAMOUNT * ? / 100) ELSE 0 END) AS CASHBACKAMOUNT FROM EODTRANSACTION ET WHERE ET.STATUS=? AND TRUNC(TO_DATE(SETTLEMENTDATE,'DD-MM-YY')) > TRUNC(?) AND  TRUNC(TO_DATE(SETTLEMENTDATE,'DD-MM-YY')) <= TRUNC(?) AND ET.ORIGINALTRANSACTIONTYPE NOT IN(SELECT CBPT.TXNTYPECODE FROM CASHBACKPROFILETXNTYPE CBPT WHERE CBPT.PROFILECODE=?) AND ET.MCC NOT IN(SELECT CBPM.MCCCODE FROM CASHBACKPROFILEMCC CBPM WHERE CBPM.PROFILECODE=?) AND ET.ACCOUNTNO=? AND ET.TRANSACTIONID NOT IN(SELECT TXNID FROM EASYPAYMENTREQUEST WHERE STATUS IN(?,?)) AND ET.ADJUSTMENTSTATUS='NO'";
 
-                    calculatedCashBackAmt = Objects.requireNonNull(backendJdbcTemplate.query(queryParametersList.getCashBack_getCashbackAmount_appender3(),
+                    calculatedCashBackAmt = Objects.requireNonNull(backendJdbcTemplate.query(query,
                             (ResultSet rs) -> {
-                                BigDecimal temp = null;
+                                BigDecimal temp = new BigDecimal(0.00);
                                 while (rs.next()) {
                                     temp = temp.add(BigDecimal.valueOf(rs.getDouble("CASHBACKAMOUNT"))); //calculated total cashback amount for this statement cycle
                                 }

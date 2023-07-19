@@ -34,15 +34,16 @@ public class StampDutyFeeRepo implements StampDutyFeeDao {
         ArrayList<StampDutyBean> statementCardList = new ArrayList<StampDutyBean>();
 
         try {
-            String query = "SELECT CA.ACCOUNTNO FROM CARDACCOUNT CA  WHERE CA.NEXTBILLINGDATE = '06-JAN-23' AND  CA.ACCOUNTNO not in  (select ec.ACCOUNTNO from eoderrorcards ec where ec.status='" + statusVarList.getEOD_PENDING_STATUS() + "')";
+            String query = "SELECT CA.ACCOUNTNO FROM CARDACCOUNT CA  WHERE CA.NEXTBILLINGDATE = ? AND  CA.ACCOUNTNO not in  (select ec.ACCOUNTNO from eoderrorcards ec where ec.status= ?)";
 
             statementCardList = (ArrayList<StampDutyBean>) backendJdbcTemplate.query(query,
                     new RowMapperResultSetExtractor<>((result, rowNum) -> {
                         StampDutyBean bean = new StampDutyBean();
                         bean.setAccountNumber(result.getString("ACCOUNTNO"));
                         return bean;
-                    })
-                    //DateUtil.getSqldate(Configurations.EOD_DATE)
+                    }),
+                    DateUtil.getSqldate(Configurations.EOD_DATE),
+                    statusVarList.getEOD_PENDING_STATUS()
             );
 
         } catch (Exception e) {

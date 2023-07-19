@@ -52,20 +52,21 @@ public class RiskCalculationRepo implements RiskCalculationDao {
     public ArrayList<DelinquentAccountBean> getDelinquentAccounts() throws Exception {
         ArrayList<DelinquentAccountBean> delinquentCardList = new ArrayList<DelinquentAccountBean>();
         try {
-            //String query = "SELECT DL.* FROM DELINQUENTACCOUNT DL,CARD C WHERE C.CARDNUMBER=DL.CARDNUMBER AND DL.DELINQSTATUS NOT IN (?,?) AND C.CARDSTATUS <>? AND LASTUPDATEDEODID <> ?";
-            String query = queryParametersList.getRiskCalculation_getDelinquentAccounts();
+            String query = "SELECT DL.* FROM DELINQUENTACCOUNT DL,CARD C WHERE C.CARDNUMBER=DL.CARDNUMBER AND DL.DELINQSTATUS NOT IN (?,?) AND C.CARDSTATUS <>? AND LASTUPDATEDEODID <> ?";
+            //String query = queryParametersList.getRiskCalculation_getDelinquentAccounts();
             if (Configurations.STARTING_EOD_STATUS.equals(statusVarList.getINITIAL_STATUS())) {
                 query += " AND DL.ACCOUNTNO NOT IN (SELECT EC.ACCOUNTNO FROM EODERRORCARDS EC WHERE EC.STATUS= ? )";
+
+                delinquentCardList = (ArrayList<DelinquentAccountBean>) backendJdbcTemplate.query(query, new DelinquentAccountRowMapper(),
+                        statusVarList.getTO_RESOLVE_STATUS(), statusVarList.getONLY_MANUAL_NP_STATUS(), statusVarList.getCARD_CLOSED_STATUS(), Configurations.EOD_ID, statusVarList.getEOD_PENDING_STATUS());
+
             } else if (Configurations.STARTING_EOD_STATUS.equals(statusVarList.getERROR_STATUS())) {
                 query += " AND DL.ACCOUNTNO IN (SELECT EC.ACCOUNTNO FROM EODERRORCARDS EC WHERE EC.STATUS= ? AND EODID < ? AND PROCESSSTEPID <= ? )";
+
+                delinquentCardList = (ArrayList<DelinquentAccountBean>) backendJdbcTemplate.query(query, new DelinquentAccountRowMapper(),
+                        statusVarList.getTO_RESOLVE_STATUS(), statusVarList.getONLY_MANUAL_NP_STATUS(), statusVarList.getCARD_CLOSED_STATUS(),
+                        Configurations.EOD_ID, statusVarList.getEOD_PENDING_STATUS(), Configurations.ERROR_EOD_ID, Configurations.PROCESS_STEP_ID);
             }
-            Object[] param = null;
-            if (Configurations.STARTING_EOD_STATUS.equals(statusVarList.getINITIAL_STATUS())) {
-                param = new Object[]{statusVarList.getTO_RESOLVE_STATUS(), statusVarList.getONLY_MANUAL_NP_STATUS(), statusVarList.getCARD_CLOSED_STATUS(), Configurations.EOD_ID, statusVarList.getEOD_PENDING_STATUS()};
-            } else if (Configurations.STARTING_EOD_STATUS.equals(statusVarList.getERROR_STATUS())) {
-                param = new Object[]{statusVarList.getTO_RESOLVE_STATUS(), statusVarList.getONLY_MANUAL_NP_STATUS(), statusVarList.getCARD_CLOSED_STATUS(), Configurations.EOD_ID, statusVarList.getEOD_PENDING_STATUS(), Configurations.ERROR_EOD_ID, Configurations.PROCESS_STEP_ID};
-            }
-            delinquentCardList = (ArrayList<DelinquentAccountBean>) backendJdbcTemplate.query(query, new DelinquentAccountRowMapper(), param);
         } catch (Exception e) {
             throw e;
         }

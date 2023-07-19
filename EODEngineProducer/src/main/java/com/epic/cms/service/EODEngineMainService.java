@@ -15,6 +15,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.context.annotation.ComponentScan;
+import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 
 import java.text.SimpleDateFormat;
@@ -42,7 +43,7 @@ public class EODEngineMainService {
     @Autowired
     CreateEodId createEodId;
 
-    //    @Async
+    @Async
     public void startEodEngine(String eodID) throws Exception {
         List<ProcessBean> processList = new ArrayList<>();
         try {
@@ -53,6 +54,8 @@ public class EODEngineMainService {
             String uniqueId = generateUniqueId();//generate an unique id
             Configurations.PROCESS_FLOW_STEP_COMPLETE_STATUS = true;
             Configurations.PROCESS_COMPLETE_STATUS = true;
+            Configurations.EOD_ENGINE_SOFT_STOP =false;
+            Configurations.PROCESS_STEP_ID =0;
 
             processList = producerRepo.getProcessListByModule(Configurations.EOD_ENGINE);//load eod engine process list
 
@@ -170,7 +173,7 @@ public class EODEngineMainService {
                     Configurations.IS_PROCESS_COMPLETELY_FAILED = false;
                     Configurations.PROCESS_STEP_ID = process.getStepId();
 
-//                    System.out.println("------------->>>>>>>>>> EODScheduler inside for loop Thread ID: " + Thread.currentThread().getId());
+                    System.out.println("------------->>>>>>>>>> EODScheduler Process Topic -"+process.getKafkaTopic());
                     boolean future = kafkaMessageUpdator.producerWithReturn(uniqueId,
                             process.getKafkaTopic());
 

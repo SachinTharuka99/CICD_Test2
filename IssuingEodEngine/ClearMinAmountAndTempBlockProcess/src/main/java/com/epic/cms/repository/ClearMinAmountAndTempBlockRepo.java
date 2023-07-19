@@ -81,8 +81,8 @@ public class ClearMinAmountAndTempBlockRepo implements ClearMinAmountAndTempBloc
                             month--;
                         }
 
-                        //String updateQuery = "UPDATE MINIMUMPAYMENT SET \" + monthCount + \" STATUS=? ,COUNT =?, LASTUPDATEDTIME=sysdate WHERE CARDNO=?";
-                        updated = backendJdbcTemplate.update(queryParametersList.getClearMinAmountAndTempBlock_removeFromMinPayTable_Update(),
+                        String updateQuery = "UPDATE MINIMUMPAYMENT SET " + monthCount + " STATUS=? ,COUNT =?, LASTUPDATEDTIME=sysdate WHERE CARDNO=?";
+                        updated = backendJdbcTemplate.update(updateQuery,
                                 Configurations.EOD_PENDING_STATUS,
                                 0,
                                 cardNo.toString());
@@ -130,9 +130,9 @@ public class ClearMinAmountAndTempBlockRepo implements ClearMinAmountAndTempBloc
     public ArrayList<Object> getMinimumPaymentExistStatementDate(StringBuffer cardNo, int monthNo) throws Exception {
         ArrayList<Object> lastStmtDetails = new ArrayList<>();
 
-        //String sql = "SELECT BS.STATEMENTENDDATE, BS.TOTALMINPAYMENT, BS.DUEDATE FROM MINIMUMPAYMENT MP INNER JOIN BILLINGSTATEMENT BS ON MP.CARDNO = BS.MAINCARDNO WHERE BS.MAINCARDNO = ? AND TRUNC(MP.M\" + monthNo + \"DATE) = TRUNC(BS.DUEDATE)";
+        String sql = "SELECT BS.STATEMENTENDDATE, BS.TOTALMINPAYMENT, BS.DUEDATE FROM MINIMUMPAYMENT MP INNER JOIN BILLINGSTATEMENT BS ON MP.CARDNO = BS.MAINCARDNO WHERE BS.MAINCARDNO = ? AND TRUNC(MP.M" + monthNo + "DATE) = TRUNC(BS.DUEDATE)";
         try {
-            backendJdbcTemplate.query(queryParametersList.getClearMinAmountAndTempBlock_getMinimumPaymentExistStatementDate(),
+            backendJdbcTemplate.query(sql,
                     (ResultSet rs) -> {
                         while (rs.next()) {
                             lastStmtDetails.add(rs.getDate("STATEMENTENDDATE"));

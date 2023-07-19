@@ -50,12 +50,12 @@ public class CheckPaymentForMinimumAmountConnector extends ProcessBuilder {
             Configurations.PROCESS_TOTAL_NOOF_TRABSACTIONS = cardList.size();
             summery.put("Checking cards for min payment", cardList.size() + "");
 
-//            for (LastStatementSummeryBean lastStatement : cardList) {
-//                checkPaymentForMinimumAmountService.CheckPaymentForMinimumAmount(lastStatement);
-//            }
-            cardList.forEach(lastStatement-> {
+            for (LastStatementSummeryBean lastStatement : cardList) {
                 checkPaymentForMinimumAmountService.CheckPaymentForMinimumAmount(lastStatement,Configurations.successCount, Configurations.failCount);
-            });
+            }
+//            cardList.forEach(lastStatement-> {
+//                checkPaymentForMinimumAmountService.CheckPaymentForMinimumAmount(lastStatement,Configurations.successCount, Configurations.failCount);
+//            });
 
 
             //wait till all the threads are completed

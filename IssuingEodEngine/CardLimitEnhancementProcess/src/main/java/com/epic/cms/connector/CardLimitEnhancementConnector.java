@@ -54,7 +54,7 @@ public class CardLimitEnhancementConnector extends ProcessBuilder {
             } else if (Configurations.STARTING_EOD_STATUS.equals(statusList.getERROR_STATUS())) {
                 custAccList = cardLimitEnhancementRepo.getErrorLimitEnhanceCustAcc();
             }
-            Configurations.PROCESS_TOTAL_NOOF_TRABSACTIONS = enhancementList.size();
+            Configurations.PROCESS_TOTAL_NOOF_TRABSACTIONS = custAccList.size();
 
             if (custAccList != null && custAccList.size() > 0) {
                 Configurations.RUNNING_PROCESS_ID = Configurations.PROCESS_LIMIT_ENHANCEMENT;
@@ -80,7 +80,6 @@ public class CardLimitEnhancementConnector extends ProcessBuilder {
             Configurations.IS_PROCESS_COMPLETELY_FAILED = true;
             throw ex;
         } finally {
-            logInfo.info(logManager.logSummery(summery));
             try {
                 if (custAccList != null && custAccList.size() != 0) {
                     for (OtbBean bean : custAccList) {
