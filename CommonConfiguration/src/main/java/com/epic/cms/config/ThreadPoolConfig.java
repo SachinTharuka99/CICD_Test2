@@ -50,9 +50,9 @@ public class ThreadPoolConfig {
     @Bean(name = "ThreadPool_100")
     public ThreadPoolTaskExecutor taskExecutor3() {
         ThreadPoolTaskExecutor executor = new ThreadPoolTaskExecutor();
-        executor.setCorePoolSize(100);
-        executor.setMaxPoolSize(100);
-        executor.setQueueCapacity(1000);
+        executor.setCorePoolSize(10);
+        executor.setMaxPoolSize(10);
+        executor.setQueueCapacity(10000);
         executor.setWaitForTasksToCompleteOnShutdown(true);
         executor.setThreadNamePrefix("ThreadPool_100");
         executor.initialize();

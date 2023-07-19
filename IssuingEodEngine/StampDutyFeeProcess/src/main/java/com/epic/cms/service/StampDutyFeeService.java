@@ -42,10 +42,6 @@ public class StampDutyFeeService {
             ArrayList<StringBuffer> oldcardnumbers = new ArrayList<>();
 
             try {
-                if (stampDutyAccountBean.getCardNumber().substring(0, 6).equals("489011")) {
-                    throw new Exception();
-                }
-
                 // creating back end DB Connection
                 int startEodID = stampDutyFeeRepo.getStartEodId(stampDutyAccountBean.getAccountNumber());
 

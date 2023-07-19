@@ -82,18 +82,18 @@ public class CheckPaymentForMinimumAmountRepo implements CheckPaymentForMinimumA
         Boolean flag = false;
         int month = 0;
 
-        //String allPayments = "select * from minimumpayment where cardno=?";// and lasteodid=?";
-        //String allPamentsSameDay = "select * from minimumpayment where cardno=? and lasteodid=?";
-        //String insertQuery = "INSERT INTO MINIMUMPAYMENT (CARDNO,M1,M1DATE,STATUS,COUNT,LASTEODID) values (?,?,?,?,1,?)";
+        String allPayments = "select * from minimumpayment where cardno=?";// and lasteodid=?";
+        String allPamentsSameDay = "select * from minimumpayment where cardno=? and lasteodid=?";
+        String insertQuery = "INSERT INTO MINIMUMPAYMENT (CARDNO,M1,M1DATE,STATUS,COUNT,LASTEODID) values (?,?,?,?,1,?)";
 
         try {
-            minimumPaymentBean = backendJdbcTemplate.queryForObject(queryParametersList.getCheckPaymentForMinimumAmount_insertToMinPayTable_Select_allPayments(), new MinimumPaymentRowMapper(), cardNo);
+            minimumPaymentBean = backendJdbcTemplate.queryForObject(allPayments, new MinimumPaymentRowMapper(), cardNo);
 
             int count = 0;
             boolean sameDay = false;
 
             RowCountCallbackHandler countCallback = new RowCountCallbackHandler();
-            backendJdbcTemplate.query(queryParametersList.getCheckPaymentForMinimumAmount_insertToMinPayTable_Select_allPaymentsallPamentsSameDay(), countCallback, cardNo, statementDayEODID);
+            backendJdbcTemplate.query(allPamentsSameDay, countCallback, cardNo, statementDayEODID);
             int recordCount = countCallback.getRowCount();
 
             if (recordCount > 0) {
@@ -166,7 +166,7 @@ public class CheckPaymentForMinimumAmountRepo implements CheckPaymentForMinimumA
                 }
             }
 
-            //String updateQuery = "UPDATE MINIMUMPAYMENT SET M" + month + "=?,M" + month + "DATE=?, STATUS=?, COUNT =?, LASTEODID=?,LASTUPDATEDTIME=sysdate WHERE CARDNO=?";
+            String updateQuery = "UPDATE MINIMUMPAYMENT SET M" + month + "=?,M" + month + "DATE=?, STATUS=?, COUNT =?, LASTEODID=?,LASTUPDATEDTIME=sysdate WHERE CARDNO=?";
             String status = statusList.getEOD_PENDING_STATUS();
 
             if (month >= Configurations.NO_OF_MONTHS_FOR_PERMENANT_BLOCK) {//TODO 3 should be a variable.
@@ -177,13 +177,13 @@ public class CheckPaymentForMinimumAmountRepo implements CheckPaymentForMinimumA
                 status = statusList.getCARD_TEMPORARY_BLOCK_Status();
             }
 
-            backendJdbcTemplate.update(queryParametersList.getCheckPaymentForMinimumAmount_insertToMinPayTable_Update(), fee - totalPayment, dueDate, status, count, Configurations.EOD_ID, cardNo.toString());
+            backendJdbcTemplate.update(updateQuery, fee - totalPayment, dueDate, status, count, Configurations.EOD_ID, cardNo.toString());
             flag = true;
 
         } catch (EmptyResultDataAccessException ex) {
             //backendJdbcTemplate.update(queryParametersList.getCheckPaymentForMinimumAmount_insertToMinPayTable_Insert(), cardNo.toString(), fee - totalPayment, dueDate, statusList.getEOD_PENDING_STATUS(), Configurations.EOD_ID);
             //logManager.logError("--no result found--",errorLogger);
-            backendJdbcTemplate.update(queryParametersList.getCheckPaymentForMinimumAmount_insertToMinPayTable_Insert(), cardNo.toString(), fee - totalPayment, dueDate, statusList.getEOD_PENDING_STATUS(), Configurations.EOD_ID);
+            backendJdbcTemplate.update(insertQuery, cardNo.toString(), fee - totalPayment, dueDate, statusList.getEOD_PENDING_STATUS(), Configurations.EOD_ID);
             flag = true;
         } catch (Exception ex) {
             throw ex;

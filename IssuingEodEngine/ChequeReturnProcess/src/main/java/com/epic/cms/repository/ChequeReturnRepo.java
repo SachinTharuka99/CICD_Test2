@@ -823,7 +823,7 @@ public class ChequeReturnRepo implements ChequeReturnDao {
 
                 }
             }
-            //String updateQuery = "UPDATE MINIMUMPAYMENT SET M" + month + "=?,M" + month + "DATE=?, STATUS=?, COUNT =?, LASTEODID=?,LASTUPDATEDTIME=sysdate WHERE CARDNO=?";
+            String updateQuery = "UPDATE MINIMUMPAYMENT SET M" + month + "=?,M" + month + "DATE=?, STATUS=?, COUNT =?, LASTEODID=?,LASTUPDATEDTIME=sysdate WHERE CARDNO=?";
             String status1 = status.getEOD_PENDING_STATUS();
             if (month >= Configurations.NO_OF_MONTHS_FOR_PERMENANT_BLOCK) {//TODO 3 should be a variable.
                 /**
@@ -834,7 +834,7 @@ public class ChequeReturnRepo implements ChequeReturnDao {
                 //Changed by the NP
                 //fee = totalTransactions;
             }
-            backendJdbcTemplate.update(queryParametersList.getChequeReturn_insertToMinPayTableOld_Update(), fee - paymentAmount, dueDate, status1, count, Configurations.EOD_ID, cardNo.toString());
+            backendJdbcTemplate.update(updateQuery, fee - paymentAmount, dueDate, status1, count, Configurations.EOD_ID, cardNo.toString());
             flag = true;
 
         } catch (EmptyResultDataAccessException ex) {

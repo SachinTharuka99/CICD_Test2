@@ -46,9 +46,9 @@ public class DailyInterestCalculationRepo implements DailyInterestCalculationDao
     public ArrayList<StatementBean> getLatestStatementAccountList() throws Exception {
         ArrayList<StatementBean> accountList = new ArrayList<>();
         try {
-            //String query = "SELECT BS.ACCOUNTNO, BS.MAINCARDNO, BS.CARDNO, BS.STATEMENTSTARTDATE, " + " BS.STATEMENTENDDATE, BS.THISBILLOPERNINGBALANCE, BS.THISBILLCLOSINGBALANCE, BS.DUEDATE, BS.STARTEODID, BS.ENDEODID " + " FROM BILLINGLASTSTATEMENTSUMMARY BLS INNER JOIN " + " BILLINGSTATEMENT BS ON BLS.STATEMENTID=BS.STATEMENTID " + " INNER JOIN CARD C ON BS.CARDNO=C.CARDNUMBER WHERE C.CARDSTATUS NOT IN(?)";
+            String query = "SELECT BS.ACCOUNTNO, BS.MAINCARDNO, BS.CARDNO, BS.STATEMENTSTARTDATE, " + " BS.STATEMENTENDDATE, BS.THISBILLOPERNINGBALANCE, BS.THISBILLCLOSINGBALANCE, BS.DUEDATE, BS.STARTEODID, BS.ENDEODID " + " FROM BILLINGLASTSTATEMENTSUMMARY BLS INNER JOIN " + " BILLINGSTATEMENT BS ON BLS.STATEMENTID=BS.STATEMENTID " + " INNER JOIN CARD C ON BS.CARDNO=C.CARDNUMBER WHERE C.CARDSTATUS NOT IN(?)";
 
-            accountList = (ArrayList<StatementBean>) backendJdbcTemplate.query(queryParametersList.getCardInterestCalculation_getLatestStatementAccountList(), new RowMapperResultSetExtractor<>((result, rowNum) -> {
+            accountList = (ArrayList<StatementBean>) backendJdbcTemplate.query(query, new RowMapperResultSetExtractor<>((result, rowNum) -> {
                         StatementBean bean = new StatementBean();
                         bean.setAccountNo(result.getString("ACCOUNTNO"));
                         bean.setMainCardNo(new StringBuffer(result.getString("MAINCARDNO")));
@@ -165,9 +165,8 @@ public class DailyInterestCalculationRepo implements DailyInterestCalculationDao
 
             if (count > 0) {
                 //query = "UPDATE EODINTEREST SET FORWARDAMOUNT = ?, CURRENTINTEREST = ?, ACTUALINTEREST = ?, INTERESTRATE = ?, LASTUPDATEDTIME=SYSDATE, LASTUPDATEDUSER=?, DUEDATE =? WHERE ACCOUNTNO = ? ";
-                queryParametersList.getCardInterestCalculation_updateEodInterest_Update();
 
-                count = backendJdbcTemplate.update(queryParametersList.getCardInterestCalculation_updateEodInterest_Select(),
+                count = backendJdbcTemplate.update(queryParametersList.getCardInterestCalculation_updateEodInterest_Update(),
                         bean.getClosingBalance(),
                         txnInterest,
                         txnInterest,

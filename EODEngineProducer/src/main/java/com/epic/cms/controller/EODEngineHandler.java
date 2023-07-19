@@ -67,7 +67,7 @@ public class EODEngineHandler {
                 if (!eodStatus.equals(status.getINPROGRESS_STATUS())) {//INPR
                     if (eodStatus.equals(status.getINITIAL_STATUS())) {//INIT
                         //check file processing status
-                        fileProcessingStatus = producerRepo.checkUploadedFileStatus();
+                        //fileProcessingStatus = producerRepo.checkUploadedFileStatus();
                     }
                     if (fileProcessingStatus) {//check file processing status
                         kafkaMessageUpdator.producerWithNoReturn(Configurations.STARTING_EOD_STATUS, "eodStartStatus");//set starting EOD status on consumer side

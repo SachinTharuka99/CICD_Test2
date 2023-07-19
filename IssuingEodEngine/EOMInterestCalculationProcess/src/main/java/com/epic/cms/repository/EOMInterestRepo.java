@@ -111,8 +111,8 @@ public class EOMInterestRepo implements EOMInterestDao {
         ArrayList<java.util.Date> lastBillingDates = new ArrayList<java.util.Date>();
         String sql = "";
         try {
-            //sql = "select * from (select rownum rn,STATEMENTENDDATE from(select STATEMENTENDDATE from BILLINGSTATEMENT where ACCOUNTNO = ? order by STATEMENTENDDATE desc))\" + \" where rn between 0 and 2";
-            sql= queryParametersList.getEOMInterest_getLastTwoBillingDatesOnAccount();
+            sql = "select * from (select rownum rn,STATEMENTENDDATE from(select STATEMENTENDDATE from BILLINGSTATEMENT where ACCOUNTNO = ? order by STATEMENTENDDATE desc))" + " where rn between 0 and 2";
+            //sql= queryParametersList.getEOMInterest_getLastTwoBillingDatesOnAccount();
             backendJdbcTemplate.query(sql, (ResultSet rs) -> {
                 while (rs.next()) {
                     lastBillingDates.add(rs.getDate("STATEMENTENDDATE"));

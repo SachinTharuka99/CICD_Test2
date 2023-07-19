@@ -32,6 +32,8 @@ public class CommonMethods {
         Configurations.PROCESS_PROGRESS = "N/A";
         Configurations.PROCESS_TOTAL_NOOF_TRABSACTIONS = 0;
         Configurations.IS_PROCESS_ERROR = false;
+        Configurations.successCount.clear();
+        Configurations.failCount.clear();
     }
 
     public static String cardNumberMask(StringBuffer cardNo) {

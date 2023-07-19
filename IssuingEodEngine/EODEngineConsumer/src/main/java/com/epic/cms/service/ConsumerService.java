@@ -426,7 +426,7 @@ public class ConsumerService {
     public void DailyInterestCalculation(String uniqueID) throws Exception {
         Configurations.eodUniqueId = uniqueID;
         System.out.println("Start Daily Interest Calculation Process");
-        dailyInterestCalculationConnector.startProcess(Configurations.PROCESS_DAILY_INTEREST_CALCULATION, uniqueID);
+        dailyInterestCalculationConnector.startProcess(Configurations.PROCESS_INTEREST_CALCULATION, uniqueID);
         System.out.println("Complete Daily Interest Calculation Process");
     }
 

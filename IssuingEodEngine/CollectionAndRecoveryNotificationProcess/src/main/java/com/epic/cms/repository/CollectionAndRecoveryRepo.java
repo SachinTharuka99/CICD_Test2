@@ -27,9 +27,9 @@ public class CollectionAndRecoveryRepo implements CollectionAndRecoveryDao {
     public int getNoOfDaysOnTriggerPoint(String triggerPoint) throws Exception {
         int count = 0;
         try {
-            //String sql = "SELECT NOOFDAYS FROM ALLOCATIONRULE  WHERE TRIGGERPOINT = ? ";
+            String sql = "SELECT NOOFDAYS FROM ALLOCATIONRULE  WHERE TRIGGERPOINT = ? ";
 
-           Integer triggerCount = backendJdbcTemplate.queryForObject(queryParametersList.getCollectionAndRecovery_getNoOfDaysOnTriggerPoint(), Integer.class, triggerPoint);
+           Integer triggerCount = backendJdbcTemplate.queryForObject(sql, Integer.class, triggerPoint);
 
             count = (triggerCount != null) ? Integer.parseInt(triggerCount.toString()) : 0;
 
