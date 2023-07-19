@@ -340,6 +340,13 @@ public class LogManager {
                 description = "--No Summery Data To View--" + System.lineSeparator();
             }
         }
+
+        try {
+            kafkaTemplate.send(topic, description);
+        } catch (Exception e) {
+            System.out.println("Kafka log_topic error");
+        }
+
         return description;
     }
 
