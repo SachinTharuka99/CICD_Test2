@@ -1,11 +1,14 @@
 package com.epic.cms.service;
 
 import com.epic.cms.connector.*;
+import com.epic.cms.util.CommonMethods;
 import com.epic.cms.util.Configurations;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.ComponentScan;
 import org.springframework.kafka.annotation.KafkaListener;
 import org.springframework.stereotype.Service;
+
+import java.text.SimpleDateFormat;
 
 
 @Service
@@ -498,5 +501,13 @@ public class ConsumerService {
     public void eodStartStatus(String status) throws Exception {
         Configurations.STARTING_EOD_STATUS = status;
         //Configurations.IS_PROCESS_COMPLETELY_FAILED = false;
+    }
+    @KafkaListener(topics = "runningEODID", groupId = "group_runningEODID")
+    public void setRunningEODId(String eodID) throws Exception {
+        SimpleDateFormat sdf = new SimpleDateFormat("dd-MM-yyyy");
+        Configurations.EOD_ID = Integer.parseInt(eodID);
+        Configurations.ERROR_EOD_ID = Configurations.EOD_ID;
+        Configurations.EOD_DATE = CommonMethods.getDateFromEODID(Configurations.EOD_ID);
+        Configurations.EOD_DATE_String = sdf.format(Configurations.EOD_DATE);
     }
 }

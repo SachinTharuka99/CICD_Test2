@@ -8,6 +8,7 @@ import com.epic.cms.util.Configurations;
 import com.epic.cms.util.QueryParametersList;
 import com.epic.cms.util.StatusVarList;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Repository;
 import org.springframework.transaction.annotation.Isolation;
@@ -50,6 +51,8 @@ public class CardFeeRepo implements CardFeeDao {
         CardFeeBean cardFeeBean = null;
         try {
             cardFeeBean = backendJdbcTemplate.queryForObject(queryParametersList.getCardFee_getCardFeeCountForCard(), new CardFeeRowMapper(), cardNo.toString(), accountNo, feeCode, status.getCARD_CLOSED_STATUS());
+        }catch (EmptyResultDataAccessException ex){
+            return null;
         } catch (Exception e) {
             throw e;
         }

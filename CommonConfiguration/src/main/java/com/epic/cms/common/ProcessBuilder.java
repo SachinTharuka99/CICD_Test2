@@ -56,10 +56,10 @@ public abstract class ProcessBuilder {
         SimpleDateFormat sdf = new SimpleDateFormat("dd-MM-yyyy");
         try {
             ProcessBean processBean = processBuilderRepo.getProcessDetails(processId);
-            Configurations.EOD_ID = processBuilderRepo.getRunningEODId(statusVarList.getINPROGRESS_STATUS(), statusVarList.getERROR_INPR_STATUS());
-            Configurations.ERROR_EOD_ID = Configurations.EOD_ID;
-            Configurations.EOD_DATE = getDateFromEODID(Configurations.EOD_ID);
-            Configurations.EOD_DATE_String = sdf.format(Configurations.EOD_DATE);
+            //Configurations.EOD_ID = processBuilderRepo.getRunningEODId(statusVarList.getINPROGRESS_STATUS(), statusVarList.getERROR_INPR_STATUS());
+            //Configurations.ERROR_EOD_ID = Configurations.EOD_ID;
+            //Configurations.EOD_DATE = getDateFromEODID(Configurations.EOD_ID);
+            //Configurations.EOD_DATE_String = sdf.format(Configurations.EOD_DATE);
             startEodStatus = Configurations.STARTING_EOD_STATUS;
             boolean isErrorProcess = processBuilderRepo.isErrorProcess(processId);
             this.processHeader = processBean.getProcessDes();

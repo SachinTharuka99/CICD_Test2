@@ -66,13 +66,13 @@ public class TransactionPostConnector extends ProcessBuilder {
             }
             Configurations.PROCESS_TOTAL_NOOF_TRABSACTIONS = custAccList.size();
 
-//            for (OtbBean bean : custAccList) {
-//                transactionPostService.transactionList(bean);
-//            }
-
-            custAccList.forEach(bean -> {
+            for (OtbBean bean : custAccList) {
                 transactionPostService.transactionList(bean, Configurations.successCount,Configurations.failCount);
-            });
+            }
+
+           /* custAccList.forEach(bean -> {
+                transactionPostService.transactionList(bean, Configurations.successCount,Configurations.failCount);
+            });*/
 
 
             //wait till all the threads are completed
