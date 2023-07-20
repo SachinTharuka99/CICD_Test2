@@ -43,13 +43,13 @@ public class EODEngineMainService {
     @Autowired
     CreateEodId createEodId;
 
-    @Async
+    //@Async
     public void startEodEngine(String eodID) throws Exception {
         List<ProcessBean> processList = new ArrayList<>();
         try {
             Configurations.EOD_ID = Integer.parseInt(eodID);
             Configurations.ERROR_EOD_ID = Configurations.EOD_ID;
-            //Configurations.Str_EOD_ID = eodID;
+            kafkaMessageUpdator.producerWithNoReturn(eodID, "runningEODID");
 
             String uniqueId = generateUniqueId();//generate an unique id
             Configurations.PROCESS_FLOW_STEP_COMPLETE_STATUS = true;

@@ -172,7 +172,8 @@ public class StampDutyFeeRepo implements StampDutyFeeDao {
             //String query = "SELECT BS.ENDEODID FROM BILLINGSTATEMENT BS INNER JOIN BILLINGLASTSTATEMENTSUMMARY BSS ON BSS.STATEMENTID = BS.STATEMENTID WHERE BS.ACCOUNTNO =?";
 
             startEodId = backendJdbcTemplate.queryForObject(queryParametersList.getRiskCalculation_getStartEodId(), Integer.class, accountNo);
-
+        }catch (EmptyResultDataAccessException ex){
+            return startEodId;
         } catch (Exception e) {
             throw e;
         }
