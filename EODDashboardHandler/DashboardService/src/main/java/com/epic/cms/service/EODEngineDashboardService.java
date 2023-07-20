@@ -90,19 +90,66 @@ public class EODEngineDashboardService {
             eodInfo.ifPresentOrElse(eod -> {
                         eodBean.setEodId(eod.getEODID());
 
+//                        if (eod.getEODID() == 0L) {
+//                            eodBean.setEodId(Long.valueOf(0));
+//                        } else {
+//                            eodBean.setEodId(eod.getEODID());
+//                        }
+
                         // Format startTime
                         Date startTime = eod.getSTARTTIME();
                         String formattedStartTime = outputFormatter.format(startTime);
-                        eodBean.setStartTime(formattedStartTime);
+                        //eodBean.setStartTime(formattedStartTime);
+
+                        if (startTime == null) {
+                            eodBean.setStartTime("N/A");
+                        } else {
+                            eodBean.setStartTime(formattedStartTime);
+                        }
+
 
                         // Format endTime
                         Date endTime = eod.getENDTIME();
                         String formattedEndTime = outputFormatter.format(endTime);
-                        eodBean.setEndTime(formattedEndTime);
-                        eodBean.setStatus(eod.getSTATUS());
-                        eodBean.setEngineNoOfSuccessProcess(eod.getNOOFSUCCESSPROCESS());
-                        eodBean.setEngineNoOfErrorProcess(eod.getNOOFERRORPAROCESS());
-                        eodBean.setEnginTotalProcessCount(engineCount);
+                        //eodBean.setEndTime(formattedEndTime);
+
+                        if (endTime == null) {
+                            eodBean.setEndTime("N/A");
+                        } else {
+                            eodBean.setEndTime(formattedEndTime);
+                        }
+
+                        //eodBean.setStatus(eod.getSTATUS());
+
+                        if (eod.getSTATUS() == null) {
+                            eodBean.setStatus("N/A");
+                        } else {
+                            eodBean.setStatus(eod.getSTATUS());
+                        }
+
+                        //eodBean.setEngineNoOfSuccessProcess(eod.getNOOFSUCCESSPROCESS());
+
+                        if (eod.getNOOFSUCCESSPROCESS() == 0) {
+                            eodBean.setEngineNoOfSuccessProcess(0);
+                        } else {
+                            eodBean.setEngineNoOfSuccessProcess(eod.getNOOFSUCCESSPROCESS());
+                        }
+
+                        //eodBean.setEngineNoOfErrorProcess(eod.getNOOFERRORPAROCESS());
+
+                        if (eod.getNOOFSUCCESSPROCESS() == 0) {
+                            eodBean.setEngineNoOfErrorProcess(0);
+                        } else {
+                            eodBean.setEngineNoOfErrorProcess(eod.getNOOFERRORPAROCESS());
+                        }
+
+                        //eodBean.setEnginTotalProcessCount(engineCount);
+
+                        if (fileProSuccessCount == 0) {
+                            eodBean.setEnginTotalProcessCount(0);
+                        } else {
+                            eodBean.setEnginTotalProcessCount(engineCount);
+                        }
 
                         if (fileProSuccessCount == 0) {
                             eodBean.setFileProcessNoOfSuccessProcess(0);

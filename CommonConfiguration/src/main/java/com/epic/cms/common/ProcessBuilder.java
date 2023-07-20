@@ -110,7 +110,7 @@ public abstract class ProcessBuilder {
             System.out.println(" --------------------- Failed card exception 1------------------");
             logInfo.info(logManager.logStartEnd(failedHeader));
             logInfo.error(failedHeader);
-            commonRepo.updateEodProcessSummery(Configurations.ERROR_EOD_ID, "EROR", processId, Configurations.PROCESS_SUCCESS_COUNT, Configurations.PROCESS_FAILD_COUNT, eodDashboardProcessProgress(Configurations.PROCESS_SUCCESS_COUNT, Configurations.PROCESS_TOTAL_NOOF_TRABSACTIONS));
+            commonRepo.updateEodProcessSummery(Configurations.ERROR_EOD_ID, "EROR", processId, Configurations.successCount.size(), Configurations.failCount.size(), eodDashboardProcessProgress(Configurations.PROCESS_SUCCESS_COUNT, Configurations.PROCESS_TOTAL_NOOF_TRABSACTIONS));
         } catch (Exception ex) {
             System.out.println(" --------------------- Failed card exception 2------------------");
             logInfo.info(logManager.logStartEnd(failedHeader));
@@ -131,7 +131,7 @@ public abstract class ProcessBuilder {
     void insertFailedEODCards(int processId) throws Exception {
         int failedCardListSize = Configurations.errorCardList.size();
         if (failedCardListSize == 0) {//process success
-            commonRepo.updateEodProcessSummery(Configurations.ERROR_EOD_ID, statusVarList.getSUCCES_STATUS(), processId, Configurations.PROCESS_SUCCESS_COUNT, Configurations.PROCESS_FAILD_COUNT, eodDashboardProcessProgress(Configurations.PROCESS_SUCCESS_COUNT, Configurations.PROCESS_TOTAL_NOOF_TRABSACTIONS));
+            commonRepo.updateEodProcessSummery(Configurations.ERROR_EOD_ID, statusVarList.getSUCCES_STATUS(), processId, Configurations.successCount.size(), Configurations.failCount.size(), eodDashboardProcessProgress(Configurations.PROCESS_SUCCESS_COUNT, Configurations.PROCESS_TOTAL_NOOF_TRABSACTIONS));
         } else {//process goes to error
             for (int i = 0; i < failedCardListSize; i++) {
                 commonRepo.insertErrorEODCard(Configurations.errorCardList.get(i));
