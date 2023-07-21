@@ -48,7 +48,7 @@ public class CommonRepo implements CommonDao {
         ProcessBean processDetails = new ProcessBean();
         try {
             processDetails = backendJdbcTemplate.queryForObject(queryParametersList.getCommonSelectGetProcessDetails(), new ProcessBeanRowMapper(), processId);
-        } catch (Exception e) {
+        } catch (EmptyResultDataAccessException e) {
             throw e;
         }
         return processDetails;
@@ -100,7 +100,7 @@ public class CommonRepo implements CommonDao {
         StringBuffer mainCardNo = null;
         try {
             mainCardNo = backendJdbcTemplate.queryForObject(queryParametersList.getCommon_getMainCardNumber(), StringBuffer.class, new Object[]{cardNo});
-        } catch (Exception e) {
+        } catch (EmptyResultDataAccessException e) {
             //logManager.logError(e,errorLoggerCOM);
         }
         return mainCardNo;
@@ -182,7 +182,7 @@ public class CommonRepo implements CommonDao {
         String query = "SELECT ACCOUNTNO FROM CARDACCOUNTCUSTOMER WHERE CARDNUMBER=?";
         try {
             accNo = backendJdbcTemplate.queryForObject(query, String.class, cardNo.toString());
-        } catch (Exception e) {
+        } catch (EmptyResultDataAccessException e) {
             throw e;
         }
         return accNo;
@@ -517,7 +517,7 @@ public class CommonRepo implements CommonDao {
                         }, delinquentAccountBean.getCif());
             }
 
-        } catch (Exception e) {
+        } catch (EmptyResultDataAccessException e) {
             throw e;
         }
         return delinquentAccountBean;
@@ -662,7 +662,7 @@ public class CommonRepo implements CommonDao {
                 isErrorProcess = true;
             }
 
-        } catch (Exception e) {
+        } catch (EmptyResultDataAccessException e) {
             throw e;
         }
 
@@ -713,7 +713,7 @@ public class CommonRepo implements CommonDao {
                             return bean;
                         }
                     },  cardNo.toString());
-        } catch (Exception e) {
+        } catch (EmptyResultDataAccessException e) {
             throw e;
         }
         return cardBean;
@@ -1178,7 +1178,7 @@ public class CommonRepo implements CommonDao {
             if (recordCount > 0) {
                 status = true;
             }
-        } catch (Exception e) {
+        } catch (EmptyResultDataAccessException e) {
             throw e;
         }
         return status;
@@ -1194,7 +1194,7 @@ public class CommonRepo implements CommonDao {
 
             filePath = backendJdbcTemplate.queryForObject(query, String.class, fileCode);
 
-        } catch (Exception e) {
+        } catch (EmptyResultDataAccessException e) {
             throw e;
         }
         return filePath;
@@ -1210,7 +1210,7 @@ public class CommonRepo implements CommonDao {
 
             filePath = backendJdbcTemplate.queryForObject(query, String.class, fileCode);
 
-        } catch (Exception e) {
+        } catch (EmptyResultDataAccessException e) {
             //logManager.logError(e,errorLoggerCOM);
             throw e;
         }

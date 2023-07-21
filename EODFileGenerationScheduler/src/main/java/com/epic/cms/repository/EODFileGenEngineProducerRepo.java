@@ -76,7 +76,7 @@ public class EODFileGenEngineProducerRepo implements EODFileGenEngineProducerDao
 
             EodStatus = backendJdbcTemplate.queryForObject(query, String.class,eodId);
 
-        }catch (Exception e){
+        }catch (EmptyResultDataAccessException e){
             throw e;
         }
         return EodStatus;
@@ -88,7 +88,7 @@ public class EODFileGenEngineProducerRepo implements EODFileGenEngineProducerDao
         String sql = "SELECT INCLUDED_PROCESS FROM EODPROCESSCOUNT WHERE THREADID = ?";
         try {
             processList = backendJdbcTemplate.queryForObject(sql, String.class, uniqueId);
-        }catch (Exception e){
+        }catch (EmptyResultDataAccessException e){
             throw e;
         }
         return processList;

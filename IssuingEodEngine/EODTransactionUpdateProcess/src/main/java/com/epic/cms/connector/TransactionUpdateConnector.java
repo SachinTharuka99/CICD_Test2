@@ -2,6 +2,7 @@ package com.epic.cms.connector;
 
 import com.epic.cms.common.ProcessBuilder;
 import com.epic.cms.service.TransactionUpdateService;
+import com.epic.cms.util.CommonMethods;
 import com.epic.cms.util.Configurations;
 import com.epic.cms.util.LogManager;
 import lombok.extern.slf4j.Slf4j;
@@ -38,6 +39,7 @@ public class TransactionUpdateConnector extends ProcessBuilder {
         LinkedHashMap summery = new LinkedHashMap();
         Configurations.RUNNING_PROCESS_ID = Configurations.PROCESS_EODTRANSACTIONUPDATE;
         try {
+            CommonMethods.eodDashboardProgressParametersReset();
             //update visa transactions...
             transactionUpdateService.transactionUpdate(cardAssociationVisa);
             //update Master transactions...

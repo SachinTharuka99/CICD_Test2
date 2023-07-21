@@ -68,7 +68,6 @@ public class RiskCalculationConnector extends ProcessBuilder {
         ArrayList<RiskCalculationBean> cardList = new ArrayList<RiskCalculationBean>();
 
         Configurations.RUNNING_PROCESS_ID = Configurations.PROCESS_ID_RISK_CALCULATION_PROCESS;
-        CommonMethods.eodDashboardProgressParametersReset();
         processBean = new ProcessBean();
         processBean = commonRepo.getProcessDetails(Configurations.PROCESS_ID_RISK_CALCULATION_PROCESS);
 

@@ -7,6 +7,7 @@ import com.epic.cms.model.bean.ProcessBean;
 import com.epic.cms.repository.CommonRepo;
 import com.epic.cms.repository.ManualNpRepo;
 import com.epic.cms.service.ManualNpService;
+import com.epic.cms.util.CommonMethods;
 import com.epic.cms.util.Configurations;
 import com.epic.cms.util.LogManager;
 import com.epic.cms.util.StatusVarList;
@@ -58,6 +59,7 @@ public class ManualNpConnector extends ProcessBuilder {
 
         ProcessBean processBean = new ProcessBean();
         try {
+            CommonMethods.eodDashboardProgressParametersReset();
 
             processBean = commonRepo.getProcessDetails(Configurations.PROCESS_ID_MANUAL_NP_PROCESS);
             if (processBean != null) {

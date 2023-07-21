@@ -133,7 +133,7 @@ public class KnockOffRepo implements KnockOffDao {
                     },
                     accountnumber
             );
-        } catch (Exception e) {
+        } catch (EmptyResultDataAccessException e) {
             throw e;
         }
         return mainCardBean;

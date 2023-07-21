@@ -82,7 +82,7 @@ public class RiskCalculationRepo implements RiskCalculationDao {
 
             npStatus = backendJdbcTemplate.queryForObject(queryParametersList.getRiskCalculation_isManualNp(), Integer.class, accNo);
             isManualNp = npStatus == 2;
-        } catch (Exception e) {
+        } catch (EmptyResultDataAccessException e) {
             throw e;
         }
         return isManualNp;
@@ -154,7 +154,7 @@ public class RiskCalculationRepo implements RiskCalculationDao {
 
         try {
             npRiskClass = backendJdbcTemplate.queryForObject(queryParametersList.getRiskCalculation_getNPRiskClass(), String.class);
-        } catch (Exception e) {
+        } catch (EmptyResultDataAccessException e) {
             throw e;
         }
         return npRiskClass;
@@ -351,7 +351,7 @@ public class RiskCalculationRepo implements RiskCalculationDao {
                         , Configurations.EOD_ID
                 );
             }
-        } catch (Exception e) {
+        } catch (EmptyResultDataAccessException e) {
             throw e;
         }
         return count;
@@ -586,7 +586,7 @@ public class RiskCalculationRepo implements RiskCalculationDao {
 
         try {
             dueDate = backendJdbcTemplate.queryForObject(sql, java.sql.Date.class, cardNo.toString());
-        } catch (Exception e) {
+        } catch (EmptyResultDataAccessException e) {
             throw e;
         }
         return dueDate;
@@ -678,7 +678,7 @@ public class RiskCalculationRepo implements RiskCalculationDao {
 
             minPayment = backendJdbcTemplate.queryForObject(queryParametersList.getRiskCalculation_getMinPaymentFromBilling(), Double.class, accNumber);
 
-        } catch (Exception e) {
+        } catch (EmptyResultDataAccessException e) {
             throw e;
         }
         return minPayment;

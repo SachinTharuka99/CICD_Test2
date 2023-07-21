@@ -6,6 +6,7 @@ import com.epic.cms.model.bean.ProcessBean;
 import com.epic.cms.repository.CommonRepo;
 import com.epic.cms.repository.EOMInterestRepo;
 import com.epic.cms.service.EOMInterestService;
+import com.epic.cms.util.CommonMethods;
 import com.epic.cms.util.Configurations;
 import com.epic.cms.util.LogManager;
 import com.epic.cms.util.StatusVarList;
@@ -47,6 +48,7 @@ public class EOMInterestConnector extends ProcessBuilder {
 
         try {
             Configurations.RUNNING_PROCESS_ID = Configurations.PROCESS_ID_EOM_INTEREST_CALCULATION;
+            CommonMethods.eodDashboardProgressParametersReset();
             ArrayList<EomCardBean> accountList;
             DateFormat dateFormatforRenew = new SimpleDateFormat("dd");
             String curDateforRenew = dateFormatforRenew.format(Configurations.EOD_DATE);

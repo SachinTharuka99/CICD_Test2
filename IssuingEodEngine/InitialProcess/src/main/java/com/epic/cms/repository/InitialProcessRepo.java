@@ -8,6 +8,7 @@ import com.epic.cms.util.QueryParametersList;
 import com.epic.cms.util.StatusVarList;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Repository;
 
@@ -104,7 +105,7 @@ public class InitialProcessRepo implements InitialProcessDao {
         ProcessBean processDetails = new ProcessBean();
         try {
             processDetails = backendJdbcTemplate.queryForObject(queryParametersList.getCommonSelectGetProcessDetails(), new ProcessBeanRowMapper(),processId);
-        }catch (Exception e){
+        }catch (EmptyResultDataAccessException e){
             throw e;
         }
         return processDetails;

@@ -64,7 +64,7 @@ public class CardFeeRepo implements CardFeeDao {
         Date nextBillingDate = null;
         try {
             nextBillingDate = backendJdbcTemplate.queryForObject(queryParametersList.getCardFee_getNextBillingDateForCard(), Date.class, new Object[]{cardNo});
-        } catch (Exception e) {
+        } catch (EmptyResultDataAccessException e) {
             throw e;
         }
         return nextBillingDate;
