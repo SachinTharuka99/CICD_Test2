@@ -190,7 +190,7 @@ public class EODEngineMainService {
                         }
                         Thread.sleep(1000);
                     }
-                    updateEodEngineDashboardProcessProgress();//update process progress
+                    //updateEodEngineDashboardProcessProgress();//update process progress
                 } else {
                     logInfo.info("EOD-Engine hold. Process Name: " + process.getProcessDes());
                     //update EOD status to HOLD & next step ID
