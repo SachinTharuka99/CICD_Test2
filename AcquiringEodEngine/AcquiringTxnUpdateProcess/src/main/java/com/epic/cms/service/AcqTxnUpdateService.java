@@ -50,7 +50,7 @@ public class AcqTxnUpdateService {
     BigDecimal destinationAmountWithFuelSurCharge = new BigDecimal(BigInteger.ZERO);
     String maskedCardNumber;
 
-    @Async("taskExecutor2")
+    @Async("ThreadPool_100")
     @Transactional(value = "transactionManager", propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
     public void processAcqTxnUpdate(Integer key, EodTransactionBean eodTransactionBean, HashMap<String, String> visaTxnFields, List<String> fuelMccList) throws Exception {
         if (!Configurations.isInterrupted) {

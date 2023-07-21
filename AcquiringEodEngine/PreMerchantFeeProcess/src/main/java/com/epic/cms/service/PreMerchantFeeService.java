@@ -44,7 +44,7 @@ public class PreMerchantFeeService {
     @Autowired
     PreMerchantFeeDao preMerchantFeeDao;
 
-    @Async("taskExecutor2")
+    @Async("ThreadPool_100")
     @Transactional(value = "transactionManager", propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
     public void preMerchantFee(MerchantBeanForFee merchantBean, HashMap<String, List<String>> feeCodeMap) {
         try {

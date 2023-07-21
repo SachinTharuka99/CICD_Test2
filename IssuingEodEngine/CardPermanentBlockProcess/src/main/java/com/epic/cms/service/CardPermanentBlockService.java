@@ -36,7 +36,7 @@ public class CardPermanentBlockService {
     private static final Logger logInfo = LoggerFactory.getLogger("logInfo");
     private static final Logger logError = LoggerFactory.getLogger("logError");
 
-    @Async("taskExecutor2")
+    @Async("ThreadPool_100")
     @Transactional(value = "transactionManager", propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
     public void processCardPermanentBlock(BlockCardBean blockCardBean, ProcessBean processBean, BlockingQueue<Integer> successCount, BlockingQueue<Integer> failCount){
         if (!Configurations.isInterrupted) {

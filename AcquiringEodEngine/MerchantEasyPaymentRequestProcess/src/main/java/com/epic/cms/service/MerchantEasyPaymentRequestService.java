@@ -43,7 +43,7 @@ public class MerchantEasyPaymentRequestService {
     private static final Logger logError = LoggerFactory.getLogger("logError");
 
 
-    @Async("taskExecutor2")
+    @Async("ThreadPool_100")
     @Transactional(value = "transactionManager", propagation = Propagation.REQUIRED,rollbackFor = Exception.class)
     public void merchantEasyPayment(MerchantEasyPaymentRequestBean tranBean) {
         if (!Configurations.isInterrupted) {

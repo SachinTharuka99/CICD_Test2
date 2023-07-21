@@ -30,7 +30,7 @@ public class CardPermanentBlockConnector extends ProcessBuilder {
     @Autowired
     LogManager logManager;
     @Autowired
-    @Qualifier("taskExecutor2")
+    @Qualifier("ThreadPool_100")
     ThreadPoolTaskExecutor taskExecutor;
     @Autowired
     CommonRepo commonRepo;
@@ -71,7 +71,7 @@ public class CardPermanentBlockConnector extends ProcessBuilder {
             Configurations.IS_PROCESS_COMPLETELY_FAILED = true;
             logError.error("Card Permanent Block process Error", e);
         } finally {
-            logInfo.info(logManager.logSummery(summery));
+            //logInfo.info(logManager.logSummery(summery));
             try {
                 /* PADSS Change -
                 variables handling card data should be nullified by replacing the value of variable with zero and call NULL function */

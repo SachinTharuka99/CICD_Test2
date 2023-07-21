@@ -16,6 +16,7 @@ import org.springframework.transaction.annotation.Transactional;
 import java.util.ArrayList;
 import java.util.LinkedHashMap;
 import java.util.concurrent.BlockingQueue;
+import java.util.concurrent.CompletableFuture;
 
 @Service
 public class KnockOffService {
@@ -40,6 +41,7 @@ public class KnockOffService {
             int cardIteration = 1;
 
             cardList = knockOffRepo.getKnockOffCardList(custAccBean.getCustomerid(), custAccBean.getAccountnumber());
+            System.out.println(" KnockOff Process Service: Card List Count -"+cardList.size());
             Configurations.PROCESS_TOTAL_NOOF_TRABSACTIONS += cardList.size();
             OtbBean mainCardBean = knockOffRepo.getMainCard(custAccBean.getAccountnumber());
 
@@ -55,6 +57,7 @@ public class KnockOffService {
                     double supeodclosingbalance = 0.00;
 
                     paymentList = knockOffRepo.getPaymentList(supCardBean.getCardnumber());
+                    System.out.println(" KnockOff Process Service: paymentList Count -"+paymentList.size());
 
                     OtbBean eomBean = knockOffRepo.getEomKnockOffAmount(supCardBean.getCardnumber());
 
@@ -282,15 +285,16 @@ public class KnockOffService {
                     cardIteration++;
                     //Configurations.PROCESS_SUCCESS_COUNT++;
                     successCount.add(1);
-
+                    logInfo.info(logManager.logDetails(details));
+                    //Thread.sleep(1000);
+                }catch (InterruptedException e) {
+                    e.printStackTrace();
                 } catch (Exception e) {
                     Configurations.errorCardList.add(new ErrorCardBean(Configurations.ERROR_EOD_ID, Configurations.EOD_DATE, new StringBuffer(custAccBean.getCardnumber()), e.getMessage(), Configurations.RUNNING_PROCESS_ID, Configurations.RUNNING_PROCESS_DESCRIPTION, 0, CardAccount.ACCOUNT));
                     logError.error("Knock off process failed for account " + custAccBean.getAccountnumber(), e);
                     //Configurations.PROCESS_FAILD_COUNT++;
                     failCount.add(1);
                     break;
-                } finally {
-                    logInfo.info(logManager.logDetails(details));
                 }
             }
         }

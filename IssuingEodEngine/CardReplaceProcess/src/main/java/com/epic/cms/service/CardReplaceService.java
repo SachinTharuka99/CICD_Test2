@@ -28,7 +28,7 @@ public class CardReplaceService {
     @Autowired
     StatusVarList status;
 
-    @Async("taskExecutor2")
+    @Async("ThreadPool_100")
     @Transactional(value = "transactionManager", propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
     public void cardReplace(CardReplaceBean cardReplaceBean, BlockingQueue<Integer> successCount, BlockingQueue<Integer> failCount) {
         if (!Configurations.isInterrupted) {

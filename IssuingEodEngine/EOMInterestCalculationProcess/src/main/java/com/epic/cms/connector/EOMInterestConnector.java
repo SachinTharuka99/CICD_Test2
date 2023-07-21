@@ -40,7 +40,7 @@ public class EOMInterestConnector extends ProcessBuilder {
     @Autowired
     EOMInterestService eomInterestService;
     @Autowired
-    @Qualifier("taskExecutor2")
+    @Qualifier("ThreadPool_100")
     ThreadPoolTaskExecutor taskExecutor;
 
     @Override
@@ -58,12 +58,12 @@ public class EOMInterestConnector extends ProcessBuilder {
             processBean = new ProcessBean();
             processBean = commonRepo.getProcessDetails(Configurations.PROCESS_ID_EOM_INTEREST_CALCULATION);
 
-//            for (int i = 0; i < accountList.size(); i++) {
-//                eomInterestService.EOMInterestCalculation(processBean, accountList.get(i));
-//            }
-            accountList.forEach(account -> {
+            for (int i = 0; i < accountList.size(); i++) {
+                eomInterestService.EOMInterestCalculation(processBean, accountList.get(i),Configurations.successCount,Configurations.failCount);
+            }
+            /*accountList.forEach(account -> {
                 eomInterestService.EOMInterestCalculation(processBean, account,Configurations.successCount,Configurations.failCount);
-            });
+            });*/
 
 
             while (!(taskExecutor.getActiveCount() == 0)) {

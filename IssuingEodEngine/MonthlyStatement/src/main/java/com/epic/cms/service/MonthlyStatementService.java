@@ -39,7 +39,7 @@ public class MonthlyStatementService {
     @Autowired
     MonthlyStatementRepo monthlyStatementRepo;
 
-    @Async("taskExecutor2")
+    @Async("ThreadPool_100")
     @Transactional(value = "transactionManager", propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
     public void monthlyStatement(String accNo, ArrayList<CardBean> accDetails, BlockingQueue<Integer> successCount, BlockingQueue<Integer> failCount) {
         if (!Configurations.isInterrupted) {

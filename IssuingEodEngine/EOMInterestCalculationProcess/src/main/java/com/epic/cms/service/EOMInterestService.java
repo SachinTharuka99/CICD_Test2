@@ -35,7 +35,7 @@ public class EOMInterestService {
     @Autowired
     EOMInterestRepo eomInterestRepo;
 
-    @Async("taskExecutor2")
+    @Async("ThreadPool_100")
     @Transactional(value = "transactionManager", propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
     public void EOMInterestCalculation(ProcessBean processBean, EomCardBean eomCardBean, BlockingQueue<Integer> successCount, BlockingQueue<Integer> failCount) {
 

@@ -28,6 +28,7 @@ import org.springframework.stereotype.Service;
 import java.util.ArrayList;
 import java.util.concurrent.ArrayBlockingQueue;
 import java.util.concurrent.BlockingQueue;
+import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.atomic.AtomicInteger;
 
 
@@ -62,18 +63,20 @@ public class KnockOffConnector extends ProcessBuilder {
                 custAccList = knockOffRepo.getErrorKnockOffCustAcc();
             }
 
+            System.out.println(" Customer Account List - "+custAccList.size());
             if (custAccList != null && custAccList.size() > 0) {
                 Configurations.RUNNING_PROCESS_ID = Configurations.PROCESS_ID_KNOCK_OFF;
                 CommonMethods.eodDashboardProgressParametersReset();
                 summery.put("Accounts eligible for knock off process: ", custAccList.size());
 
-//                for (OtbBean custAccBean : custAccList) {
-//                    knockOffService.knockOff(custAccBean, cardList, paymentList);
-//                }
-
-                custAccList.forEach(custAccBean -> {
+                for (OtbBean custAccBean : custAccList) {
                     knockOffService.knockOff(custAccBean, cardList, paymentList,Configurations.successCount,Configurations.failCount);
-                });
+
+                }
+
+               /* custAccList.forEach(custAccBean -> {
+                    knockOffService.knockOff(custAccBean, cardList, paymentList,Configurations.successCount,Configurations.failCount);
+                });*/
                 //wait till all the threads are completed
                 while (!(taskExecutor.getActiveCount() == 0)) {
                     Thread.sleep(1000);

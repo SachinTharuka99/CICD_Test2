@@ -28,7 +28,7 @@ public class IncrementLimitExpireService {
     @Autowired
     LogManager logManager;
 
-    @Async("taskExecutor2")
+    @Async("ThreadPool_100")
     @Transactional(value = "transactionManager", propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
     public void processCreditLimitExpire(LimitIncrementBean limitIncrementBean, ProcessBean processBean, int configProcess, String processHeader, BlockingQueue<Integer> successCount, BlockingQueue<Integer> failCount) {
         if (!Configurations.isInterrupted) {

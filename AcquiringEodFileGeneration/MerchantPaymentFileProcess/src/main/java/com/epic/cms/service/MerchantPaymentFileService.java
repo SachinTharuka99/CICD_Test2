@@ -60,7 +60,7 @@ public class MerchantPaymentFileService {
     private HashMap<Integer, HashMap<String, ArrayList<MerchantPaymentCycleBean>>> totalMerchantListOnPaystatus;
     private HashMap<String, ArrayList<MerchantPaymentCycleBean>> merchantList;
 
-    @Async("taskExecutor2")
+    @Async("ThreadPool_100")
     @Transactional(value = "transactionManager", propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
     public ArrayList<String> paymentFile(Map.Entry<String, HashMap<Integer, HashMap<String, ArrayList<MerchantPaymentCycleBean>>>> entrySet, String fileNameF1, String fileNameF2) {
         try {

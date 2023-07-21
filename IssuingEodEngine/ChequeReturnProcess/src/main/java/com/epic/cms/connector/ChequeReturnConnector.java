@@ -33,7 +33,7 @@ public class ChequeReturnConnector extends ProcessBuilder {
     @Autowired
     CommonRepo commonRepo;
     @Autowired
-    @Qualifier("taskExecutor2")
+    @Qualifier("ThreadPool_100")
     ThreadPoolTaskExecutor taskExecutor;
     @Autowired
     ChequeReturnService chequeReturnService;

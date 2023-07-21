@@ -36,7 +36,7 @@ public class EOMSupplementaryCardResetService {
     @Autowired
     EOMSupplementaryCardResetDao eomSupplementaryCardResetDao;
 
-    @Async("taskExecutor2")
+    @Async("ThreadPool_100")
     @Transactional(value = "transactionManager", propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
     public void SupplementryResetThread(Object acclist, BlockingQueue<Integer> successCount, BlockingQueue<Integer> failCount) {
         if (!Configurations.isInterrupted) {

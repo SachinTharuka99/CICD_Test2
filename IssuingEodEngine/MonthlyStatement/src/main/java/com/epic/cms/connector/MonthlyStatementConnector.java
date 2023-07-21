@@ -76,7 +76,7 @@ public class MonthlyStatementConnector extends ProcessBuilder {
     @Autowired
     MonthlyStatementService monthlyStatementService;
     @Autowired
-    @Qualifier("taskExecutor2")
+    @Qualifier("ThreadPool_100")
     ThreadPoolTaskExecutor taskExecutor;
 
     @Override
