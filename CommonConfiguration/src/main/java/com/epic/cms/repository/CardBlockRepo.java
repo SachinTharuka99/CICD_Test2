@@ -243,15 +243,16 @@ public class CardBlockRepo implements CardBlockDao {
 
     @Override
     public BlockCardBean getCardBlockOldCardStatus(StringBuffer cardNO) throws Exception {
-        BlockCardBean blockBean = null;
+        BlockCardBean blockBean;
 
         try {
             String sql = "SELECT OLDSTATUS,NEWSTATUS,BLOCKREASON FROM CARDBLOCK WHERE CARDNUMBER = ? AND STATUS IN(?)";
 
             blockBean = backendJdbcTemplate.query(sql,
                     (ResultSet rs) -> {
-                        BlockCardBean blockCardBean = new BlockCardBean();
+                        BlockCardBean blockCardBean = null;
                         while (rs.next()) {
+                            blockCardBean = new BlockCardBean();
                             String oldStatus = rs.getString("OLDSTATUS");
                             blockCardBean.setOldStatus(oldStatus);
                             blockCardBean.setNewStatus(rs.getString("NEWSTATUS"));

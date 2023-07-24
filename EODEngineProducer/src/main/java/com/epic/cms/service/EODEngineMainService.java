@@ -191,6 +191,8 @@ public class EODEngineMainService {
                         Thread.sleep(1000);
                     }
                     //updateEodEngineDashboardProcessProgress();//update process progress
+                    // update success process count | error process count in eod table
+                    producerRepo.updateEodProcessStateCount();
                 } else {
                     logInfo.info("EOD-Engine hold. Process Name: " + process.getProcessDes());
                     //update EOD status to HOLD & next step ID

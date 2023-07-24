@@ -40,7 +40,7 @@ public class CardReplaceConnector extends ProcessBuilder {
         List<CardReplaceBean> cardListToReplace = new ArrayList<>();
         try {
             cardListToReplace = cardReplaceRepo.getCardListToReplace();
-
+            Statusts.SUMMARY_FOR_CARDREPLACE =0;
             Statusts.SUMMARY_FOR_CARDREPLACE = cardListToReplace.size();
             summery.put("No of cards to be replaced", cardListToReplace.size() + "");
 
@@ -87,7 +87,7 @@ public class CardReplaceConnector extends ProcessBuilder {
     @Override
     public void addSummaries() {
         summery.put("Total no of cards to be replaced", Statusts.SUMMARY_FOR_CARDREPLACE);
-        summery.put("Cards replaced", Statusts.SUMMARY_FOR_CARDREPLACE_PROCESSED);
+        summery.put("Cards replaced", Configurations.successCount.size());
         summery.put("No of Success Card",Configurations.successCount.size());
         summery.put("Total Fails", Configurations.failCount.size());
     }

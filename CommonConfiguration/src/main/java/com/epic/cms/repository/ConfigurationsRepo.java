@@ -93,7 +93,7 @@ public class ConfigurationsRepo implements ConfigurationsDao {
             Configurations.TXN_TYPE_PRE_COMPLETION = txnTypesMap.get(Configurations.TXN_TYPE_ONLINE_PRE_COMPLETION);
             Configurations.TXN_TYPE_CUP_QR_PAYMENT = txnTypesMap.get(Configurations.TXN_TYPE_ONLINE_CUP_QR_PAYMENT);
             Configurations.TXN_TYPE_CUP_QR_REFUND = txnTypesMap.get(Configurations.TXN_TYPE_ONLINE_CUP_QR_REFUND);
-            Configurations.TXN_TYPE_AFT = txnTypesMap.get(Configurations.TXN_TYPE_AFT);
+            Configurations.TXN_TYPE_AFT = txnTypesMap.get(Configurations.TXN_TYPE_ONLINE_AFT);
 
         } catch (Exception e) {
             throw e;
@@ -190,7 +190,7 @@ public class ConfigurationsRepo implements ConfigurationsDao {
             Configurations.TXN_TYPE_ONLINE_MONEY_SEND_ADVICE = configVarList.getTXN_TYPE_ONLINE_MONEY_SEND_ADVICE();
             Configurations.TXN_TYPE_ONLINE_CUP_QR_PAYMENT = configVarList.getTXN_TYPE_ONLINE_CUP_QR_PAYMENT();
             Configurations.TXN_TYPE_ONLINE_CUP_QR_REFUND = configVarList.getTXN_TYPE_ONLINE_CUP_QR_REFUND();
-
+            Configurations.TXN_TYPE_ONLINE_AFT =configVarList.getTXN_TYPE_ONLINE_AFT();
             Configurations.PROCESS_ID_INITIAL_PROCESS = configVarList.getInitialProcess();
             Configurations.PROCESS_ID_EOD_PARAMETER_RESET = configVarList.getEodParameterResetProcess();
             Configurations.EOD_USER = configVarList.getEodUser();

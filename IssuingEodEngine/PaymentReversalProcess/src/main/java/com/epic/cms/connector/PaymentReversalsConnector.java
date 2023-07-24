@@ -104,7 +104,7 @@ public class PaymentReversalsConnector extends ProcessBuilder {
     public void addSummaries() {
         summery.put("Process Name ", "Payment Reversal");
         summery.put("No Of Payment Reversals awaiting ", Configurations.PROCESS_TOTAL_NOOF_TRABSACTIONS);
-        summery.put("No of Payments successfully reversed ", Configurations.failCount.size());
+        summery.put("No of Payments successfully reversed ", Configurations.successCount.size());
         summery.put("No of Payments not reversed ", Configurations.failCount.size());
     }
 }

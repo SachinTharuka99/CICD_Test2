@@ -55,6 +55,8 @@ public class ClearMinAmountAndTempBlockService {
             String activeStatus = null;
             int activeOnlineStatus = 0;
             StringBuffer cardNo = null;
+            Statusts.SUMMARY_FOR_MINPAYMENT_RISK_REMOVED =0;
+            Statusts.SUMMARY_FOR_CARDS_MINAMOUNT_PAID =0;
 
 
             try {

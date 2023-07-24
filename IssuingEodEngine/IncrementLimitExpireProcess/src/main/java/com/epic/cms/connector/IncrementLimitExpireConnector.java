@@ -79,13 +79,6 @@ public class IncrementLimitExpireConnector extends ProcessBuilder {
             try {
                 Configurations.IS_PROCESS_COMPLETELY_FAILED = true;
                 logError.error("Increment Limit Expire Process Completely failed", e);
-
-                if (processBean.getCriticalStatus() == 1) {
-                    Configurations.COMMIT_STATUS = false;
-                    Configurations.FLOW_STEP_COMPLETE_STATUS = false;
-                    Configurations.PROCESS_FLOW_STEP_COMPLETE_STATUS = false;
-                    Configurations.MAIN_EOD_STATUS = false;
-                }
             } catch (Exception e2) {
                 logError.error("Increment Limit Expire process ended with", e2);
             }

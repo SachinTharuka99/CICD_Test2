@@ -132,6 +132,7 @@ public class Configurations {
     public static String TXN_TYPE_ONLINE_CUP_QR_PAYMENT;
     public static String TXN_TYPE_ONLINE_CUP_QR_REFUND;
     public static String TXN_TYPE_AFT;
+    public static String TXN_TYPE_ONLINE_AFT;
     //files
     public static String STATEMENT_FILE_PATH;
     public static String AUTO_SETTLEMENT_FILE_PATH;

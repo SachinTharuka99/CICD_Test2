@@ -1106,4 +1106,7 @@ public class ConfigVarList {
     @Value("${process_id_merchant_payment_file_creation}")
     public int PROCESS_ID_MERCHANT_PAYMENT_FILE_CREATION;
 
+    @Value("${TXN_TYPE_ONLINE_AFT}")
+    public String TXN_TYPE_ONLINE_AFT;
+
 }

@@ -54,9 +54,6 @@ public class StampDutyFeeConnector extends ProcessBuilder {
             } else if (Configurations.STARTING_EOD_STATUS.equals(statusVarList.getERROR_STATUS())) {
                 statementAccountList = stampDutyFeeRepo.getErrorStatementAccountList();
             }
-            Configurations.PROCESS_TOTAL_NOOF_TRABSACTIONS = statementAccountList.size();
-            noOfCards = statementAccountList.size();
-
 //            for (StampDutyBean stampDutyAcoountBean : statementAccountList) {
 //                stampDutyFeeService.StampDutyFee(stampDutyAcoountBean,faileCardCount);
 //            }
