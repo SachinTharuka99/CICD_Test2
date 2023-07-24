@@ -90,6 +90,7 @@ public class RiskCalculationConnector extends ProcessBuilder {
 
                 //wait till all the threads are completed
                 while (!(taskExecutor.getActiveCount() == 0)) {
+                    updateEodEngineDashboardProcessProgress();
                     Thread.sleep(1000);
                 }
 
@@ -112,7 +113,7 @@ public class RiskCalculationConnector extends ProcessBuilder {
 
                     //wait till all the threads are completed
                     while (!(taskExecutor.getActiveCount() == 0)) {
-                        updateEodEngineDashboardProcessProgress();
+//                        updateEodEngineDashboardProcessProgress();
                         Thread.sleep(1000);
                     }
                 } else {
