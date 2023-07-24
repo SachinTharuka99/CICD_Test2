@@ -137,37 +137,4 @@ public class RiskCalculationConnector extends ProcessBuilder {
         summery.put("No of Success Card ", Configurations.successCount.size());
         summery.put("No of fail Card ", Configurations.failCount.size());
     }
-
-    public void updateEodEngineDashboardProcessProgress() throws Exception {
-        int progress = 0;
-        List<String> errorProcessList;
-
-        try {
-            if (Configurations.successCount.size() != 0 && Configurations.PROCESS_TOTAL_NOOF_TRABSACTIONS != 0) {
-                progress = ((Configurations.successCount.size() * 100 / Configurations.PROCESS_TOTAL_NOOF_TRABSACTIONS));
-
-                Configurations.PROCESS_PROGRESS = progress + "%";
-
-            } else if (Configurations.successCount.size() == 0 && Configurations.PROCESS_TOTAL_NOOF_TRABSACTIONS != 0) {
-                Configurations.PROCESS_PROGRESS = "0%";
-            } else {
-                Configurations.PROCESS_PROGRESS = "100%";
-            }
-
-            commonRepo.updateEodProcessProgress();
-            errorProcessList = commonRepo.getErrorProcessIdList();
-            if (errorProcessList != null) {
-                for (String processId : errorProcessList) {
-                    commonRepo.updateProcessProgressForErrorProcess(processId);
-                }
-            }
-            // update success process count | error process count in eod table
-            commonRepo.updateEodProcessStateCount();
-
-            //Thread.sleep(5000); // After every 5 seconds update particular process pogress.
-
-        } catch (Exception e) {
-            logError.error("Update Eod Engine Dashboard Process Progress Error", e);
-        }
-    }
 }
