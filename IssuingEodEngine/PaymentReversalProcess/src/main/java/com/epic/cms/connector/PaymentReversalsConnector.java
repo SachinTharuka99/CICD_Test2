@@ -76,13 +76,13 @@ public class PaymentReversalsConnector extends ProcessBuilder {
                 });
             }
             while (!(taskExecutor.getActiveCount() == 0)) {
+                updateEodEngineDashboardProcessProgress();
                 Thread.sleep(1000);
             }
         }catch (Exception e){
             Configurations.IS_PROCESS_COMPLETELY_FAILED = true;
             logError.error("--Error occurred--", e);
         }finally {
-            logInfo.info(logManager.logSummery(summery));
             /** PADSS Change -
              variables handling card data should be nullified
              by replacing the value of variable with zero and call NULL function */

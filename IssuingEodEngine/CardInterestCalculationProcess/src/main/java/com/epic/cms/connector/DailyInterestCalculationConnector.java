@@ -71,6 +71,7 @@ public class DailyInterestCalculationConnector extends ProcessBuilder {
                 }
 
                 while (!(taskExecutor.getActiveCount() == 0)) {
+                    updateEodEngineDashboardProcessProgress();
                     Thread.sleep(1000);
                 }
             }

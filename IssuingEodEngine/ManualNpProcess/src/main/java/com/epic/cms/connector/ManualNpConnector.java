@@ -82,6 +82,7 @@ public class ManualNpConnector extends ProcessBuilder {
                 }
 
                 while (!(taskExecutor.getActiveCount() == 0)) {
+                    updateEodEngineDashboardProcessProgress();
                     Thread.sleep(1000);
                 }
 
@@ -123,6 +124,7 @@ public class ManualNpConnector extends ProcessBuilder {
                 });
 
                 while (!(taskExecutor.getActiveCount() == 0)) {
+                    updateEodEngineDashboardProcessProgress();
                     Thread.sleep(1000);
                 }
 
@@ -146,8 +148,6 @@ public class ManualNpConnector extends ProcessBuilder {
             } catch (Exception e2) {
                 logError.error("Exception", e2);
             }
-        } finally {
-            //logInfo.info(logManager.logSummery(summery));
         }
     }
 

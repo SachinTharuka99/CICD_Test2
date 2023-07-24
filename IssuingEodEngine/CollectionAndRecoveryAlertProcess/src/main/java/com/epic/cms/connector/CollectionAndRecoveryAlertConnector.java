@@ -65,6 +65,7 @@ public class CollectionAndRecoveryAlertConnector extends ProcessBuilder {
             }
 
             while (!(taskExecutor.getActiveCount() == 0)) {
+                updateEodEngineDashboardProcessProgress();
                 Thread.sleep(1000);
             }
             Configurations.PROCESS_TOTAL_NOOF_TRABSACTIONS = (Configurations.successCardNoCount_CollectionAndRecoveryAlert + Configurations.failedCardNoCount_CollectionAndRecoveryAlert);
@@ -76,7 +77,6 @@ public class CollectionAndRecoveryAlertConnector extends ProcessBuilder {
             logError.error("Collection and Recovery Alert process failed", e);
             throw e;
         } finally {
-            //logInfo.info(logManager.logSummery(summery));
             confirmCardList.clear();
         }
     }

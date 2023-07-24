@@ -82,6 +82,7 @@ public class TxnDropRequestConnector extends ProcessBuilder {
                 }
 
                 while (!(taskExecutor.getActiveCount() == 0)) {
+                    updateEodEngineDashboardProcessProgress();
                     Thread.sleep(1000);
                 }
 
@@ -107,7 +108,6 @@ public class TxnDropRequestConnector extends ProcessBuilder {
                 logError.error("Exception in Transaction Drop Request", e2);
             }
         } finally {
-            //logInfo.info(logManager.logSummery(summery));
             try {
                 /** PADSS Change -
                  variables handling card data should be nullified by replacing the value of variable with zero and call NULL function */

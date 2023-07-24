@@ -77,6 +77,7 @@ public class CollectionAndRecoveryConnector extends ProcessBuilder {
                     });
 
                     while (!(taskExecutor.getActiveCount() == 0)) {
+                        updateEodEngineDashboardProcessProgress();
                         Thread.sleep(1000);
                     }
                     cardList.clear();
@@ -94,6 +95,7 @@ public class CollectionAndRecoveryConnector extends ProcessBuilder {
                     cardList.forEach(collectionAndRecoveryBean-> collectionAndRecoveryService.processX_DATES_AFTER_FIRST_DUE_DATE(collectionAndRecoveryBean, processBean,Configurations.successCount,Configurations.failCount));
 
                     while (!(taskExecutor.getActiveCount() == 0)) {
+                        updateEodEngineDashboardProcessProgress();
                         Thread.sleep(1000);
                     }
 
@@ -113,6 +115,7 @@ public class CollectionAndRecoveryConnector extends ProcessBuilder {
                     cardList.forEach(collectionAndRecoveryBean-> collectionAndRecoveryService.processON_THE_2ND_STATEMENT_DATE(collectionAndRecoveryBean, processBean,Configurations.successCount,Configurations.failCount));
 
                     while (!(taskExecutor.getActiveCount() == 0)) {
+                        updateEodEngineDashboardProcessProgress();
                         Thread.sleep(1000);
                     }
                     cardList.clear();
@@ -131,6 +134,7 @@ public class CollectionAndRecoveryConnector extends ProcessBuilder {
 
 
                     while (!(taskExecutor.getActiveCount() == 0)) {
+                        updateEodEngineDashboardProcessProgress();
                         Thread.sleep(1000);
                     }
                     cardList.clear();
@@ -149,6 +153,7 @@ public class CollectionAndRecoveryConnector extends ProcessBuilder {
 
 
                     while (!(taskExecutor.getActiveCount() == 0)) {
+                        updateEodEngineDashboardProcessProgress();
                         Thread.sleep(1000);
                     }
                     cardList.clear();
@@ -167,6 +172,7 @@ public class CollectionAndRecoveryConnector extends ProcessBuilder {
 
 
                     while (!(taskExecutor.getActiveCount() == 0)) {
+                        updateEodEngineDashboardProcessProgress();
                         Thread.sleep(1000);
                     }
                     cardList.clear();
@@ -184,6 +190,7 @@ public class CollectionAndRecoveryConnector extends ProcessBuilder {
                     cardList.forEach(collectionAndRecoveryBean-> collectionAndRecoveryService.processIMMEDIATELY_AFTER_THE_3RD_DUE_DATE(collectionAndRecoveryBean, processBean,Configurations.successCount,Configurations.failCount));
 
                     while (!(taskExecutor.getActiveCount() == 0)) {
+                        updateEodEngineDashboardProcessProgress();
                         Thread.sleep(1000);
                     }
                     cardList.clear();
@@ -202,6 +209,7 @@ public class CollectionAndRecoveryConnector extends ProcessBuilder {
 
 
                     while (!(taskExecutor.getActiveCount() == 0)) {
+                        updateEodEngineDashboardProcessProgress();
                         Thread.sleep(1000);
                     }
                     cardList.clear();
@@ -220,6 +228,7 @@ public class CollectionAndRecoveryConnector extends ProcessBuilder {
 
 
                     while (!(taskExecutor.getActiveCount() == 0)) {
+                        updateEodEngineDashboardProcessProgress();
                         Thread.sleep(1000);
                     }
                     cardList.clear();
@@ -237,6 +246,7 @@ public class CollectionAndRecoveryConnector extends ProcessBuilder {
                     cardList.forEach(collectionAndRecoveryBean -> collectionAndRecoveryService.processWITHIN_X_DAYS_OF_THE_CRIB_INFO_LETTER_REMINDER(collectionAndRecoveryBean, processBean,Configurations.successCount,Configurations.failCount));
 
                     while (!(taskExecutor.getActiveCount() == 0)) {
+                        updateEodEngineDashboardProcessProgress();
                         Thread.sleep(1000);
                     }
                     cardList.clear();
@@ -254,6 +264,7 @@ public class CollectionAndRecoveryConnector extends ProcessBuilder {
                     cardList.forEach(collectionAndRecoveryBean-> collectionAndRecoveryService.processIMMEDIATELY_AFTER_THE_4TH_DUE_DATE(collectionAndRecoveryBean, processBean,Configurations.successCount,Configurations.failCount));
 
                     while (!(taskExecutor.getActiveCount() == 0)) {
+                        updateEodEngineDashboardProcessProgress();
                         Thread.sleep(1000);
                     }
                     cardList.clear();

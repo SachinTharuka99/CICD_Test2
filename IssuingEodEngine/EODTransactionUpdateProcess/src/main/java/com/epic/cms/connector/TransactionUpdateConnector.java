@@ -47,6 +47,7 @@ public class TransactionUpdateConnector extends ProcessBuilder {
 
             //wait till all the threads are completed
             while (!(taskExecutor.getActiveCount() == 0)) {
+                updateEodEngineDashboardProcessProgress();
                 Thread.sleep(1000);
             }
 
@@ -57,8 +58,6 @@ public class TransactionUpdateConnector extends ProcessBuilder {
 
         } catch (Exception ex) {
             logError.error("Transaction Update Process Error", ex);
-        } finally {
-            logInfo.info(logManager.logSummery(summery));
         }
     }
 

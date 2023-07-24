@@ -62,6 +62,7 @@ public class CashBackAlertConnector extends ProcessBuilder {
                 }
 
                 while (!(taskExecutor.getActiveCount() == 0)) {
+                    updateEodEngineDashboardProcessProgress();
                     Thread.sleep(1000);
                 }
 
@@ -73,8 +74,6 @@ public class CashBackAlertConnector extends ProcessBuilder {
         } catch (Exception ex) {
             Configurations.IS_PROCESS_COMPLETELY_FAILED = true;
             throw ex;
-        } finally {
-            logInfo.info(logManager.logSummery(summery));
         }
     }
 

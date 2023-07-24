@@ -147,6 +147,10 @@ public class CardRenewConnector extends ProcessBuilder {
                         cardRenewService.cardRenewProcess(CRBean, noOfEarlyRenewals, noOfNormalRenewals,Configurations.successCount,Configurations.failCount);
                     });
                 }
+                while (!(taskExecutor.getActiveCount() == 0)) {
+                    updateEodEngineDashboardProcessProgress();
+                    Thread.sleep(1000);
+                }
             }
         } catch (Exception e) {
             Configurations.IS_PROCESS_COMPLETELY_FAILED = true;

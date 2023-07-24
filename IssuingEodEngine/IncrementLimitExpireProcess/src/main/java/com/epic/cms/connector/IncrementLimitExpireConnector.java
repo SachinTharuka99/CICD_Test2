@@ -70,6 +70,7 @@ public class IncrementLimitExpireConnector extends ProcessBuilder {
 
                 /**wait till all the threads are completed*/
                 while (!(taskExecutor.getActiveCount() == 0)) {
+                    updateEodEngineDashboardProcessProgress();
                     Thread.sleep(1000);
                 }
             }
@@ -89,7 +90,6 @@ public class IncrementLimitExpireConnector extends ProcessBuilder {
                 logError.error("Increment Limit Expire process ended with", e2);
             }
         } finally {
-            logInfo.info(logManager.logSummery(summery));
             try {
                 if (cardList != null && cardList.size() != 0) {
                     /* PADSS Change -

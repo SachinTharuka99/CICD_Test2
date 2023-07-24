@@ -86,6 +86,7 @@ public class OverLimitFeeConnector extends ProcessBuilder {
 
                     //wait till all the threads are completed
                     while (!(taskExecutor.getActiveCount() == 0)) {
+                        updateEodEngineDashboardProcessProgress();
                         Thread.sleep(1000);
                     }
                 }
@@ -94,7 +95,6 @@ public class OverLimitFeeConnector extends ProcessBuilder {
             Configurations.IS_PROCESS_COMPLETELY_FAILED = true;
             logError.error("OverLimit fee process failed", e);
         } finally {
-            logInfo.info(logManager.logSummery(summery));
             try {
                 if (accMap != null) {
                     /* PADSS Change -

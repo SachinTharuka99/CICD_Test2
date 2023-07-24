@@ -125,8 +125,6 @@ public class RiskCalculationConnector extends ProcessBuilder {
         } catch (Exception e) {
             Configurations.IS_PROCESS_COMPLETELY_FAILED = true;
             logError.error("RISK_CALCULATION_PROCESS ended with", e);
-        } finally {
-            //logInfo.info(logManager.logSummery(summery));
         }
     }
 

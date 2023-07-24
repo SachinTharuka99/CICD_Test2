@@ -79,6 +79,7 @@ public class KnockOffConnector extends ProcessBuilder {
                 });*/
                 //wait till all the threads are completed
                 while (!(taskExecutor.getActiveCount() == 0)) {
+                    updateEodEngineDashboardProcessProgress();
                     Thread.sleep(1000);
                 }
 
@@ -94,7 +95,6 @@ public class KnockOffConnector extends ProcessBuilder {
             Configurations.IS_PROCESS_COMPLETELY_FAILED = true;
             logError.error("Knock Off process Error", e);
         } finally {
-            //logInfo.info(logManager.logSummery(summery));
             try {
                 if (custAccList != null && custAccList.size() != 0) {
                     for (OtbBean custAccBean : custAccList) {

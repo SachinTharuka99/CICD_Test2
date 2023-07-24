@@ -62,6 +62,7 @@ public class CardPermanentBlockConnector extends ProcessBuilder {
                 }
 
                 while (!(taskExecutor.getActiveCount() == 0)) {
+                    updateEodEngineDashboardProcessProgress();
                     Thread.sleep(1000);
                 }
 
@@ -71,7 +72,6 @@ public class CardPermanentBlockConnector extends ProcessBuilder {
             Configurations.IS_PROCESS_COMPLETELY_FAILED = true;
             logError.error("Card Permanent Block process Error", e);
         } finally {
-            //logInfo.info(logManager.logSummery(summery));
             try {
                 /* PADSS Change -
                 variables handling card data should be nullified by replacing the value of variable with zero and call NULL function */

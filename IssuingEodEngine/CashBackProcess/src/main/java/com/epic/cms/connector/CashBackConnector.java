@@ -69,6 +69,7 @@ public class CashBackConnector extends ProcessBuilder {
                         cashBackService.cashBack(bean,Configurations.successCount,Configurations.failCount);
                     });
                     while (!(taskExecutor.getActiveCount() == 0)) {
+                        updateEodEngineDashboardProcessProgress();
                         Thread.sleep(1000);
                     }
 
@@ -85,7 +86,6 @@ public class CashBackConnector extends ProcessBuilder {
             Configurations.IS_PROCESS_COMPLETELY_FAILED = true;
             logError.error("Exception in cashback process", e);
         } finally {
-            logInfo.info(logManager.logSummery(summery));
             try {
                 if (beanList != null && beanList.size() != 0) {
                     //nullify beanList
