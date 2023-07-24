@@ -140,7 +140,7 @@ class KnockOffServiceTest {
        when(knockOffServiceUnderTest.knockOffRepo.OnlineupdateCustomerOtb(custAccBean)).thenReturn(1);
 
         // Run the test
-       knockOffServiceUnderTest.knockOff(custAccBean, cardList, paymentList, successCount, failCount);
+       knockOffServiceUnderTest.knockOff(custAccBean, cardList, successCount, failCount);
 
         // Verify the results
         verify(knockOffServiceUnderTest.knockOffRepo,times(1)).getKnockOffCardList(any(),any());

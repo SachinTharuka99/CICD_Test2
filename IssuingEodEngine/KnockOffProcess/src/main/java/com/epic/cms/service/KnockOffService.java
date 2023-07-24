@@ -32,11 +32,12 @@ public class KnockOffService {
     @Autowired
     CommonRepo commonRepo;
 
-    @Async("ThreadPool_100")
+//    @Async("ThreadPool_100")
     @Transactional(value = "transactionManager", propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
-    public void knockOff(OtbBean custAccBean, ArrayList<OtbBean> cardList, ArrayList<OtbBean> paymentList, BlockingQueue<Integer> successCount, BlockingQueue<Integer> failCount)  {
+    public void knockOff(OtbBean custAccBean, ArrayList<OtbBean> cardList, BlockingQueue<Integer> successCount, BlockingQueue<Integer> failCount) {
         if (!Configurations.isInterrupted) {
             LinkedHashMap details = new LinkedHashMap();
+            ArrayList<OtbBean> paymentList = new ArrayList<OtbBean>();
             int cardIteration = 1;
 
             cardList = knockOffRepo.getKnockOffCardList(custAccBean.getCustomerid(), custAccBean.getAccountnumber());
@@ -45,7 +46,6 @@ public class KnockOffService {
 
             double maineodclosingbalance = 0.00;
 
-            card:
             for (OtbBean supCardBean : cardList) {
                 try {
                     boolean eom = false;
@@ -280,17 +280,23 @@ public class KnockOffService {
                         knockOffRepo.OnlineupdateCustomerOtb(custAccBean);
                     }
                     cardIteration++;
-                    //Configurations.PROCESS_SUCCESS_COUNT++;
                     successCount.add(1);
 
                 } catch (Exception e) {
                     Configurations.errorCardList.add(new ErrorCardBean(Configurations.ERROR_EOD_ID, Configurations.EOD_DATE, new StringBuffer(custAccBean.getCardnumber()), e.getMessage(), Configurations.RUNNING_PROCESS_ID, Configurations.RUNNING_PROCESS_DESCRIPTION, 0, CardAccount.ACCOUNT));
                     logError.error("Knock off process failed for account " + custAccBean.getAccountnumber(), e);
-                    //Configurations.PROCESS_FAILD_COUNT++;
                     failCount.add(1);
                     break;
                 } finally {
                     logInfo.info(logManager.logDetails(details));
+
+                    if (paymentList != null && paymentList.size() != 0) {
+                        for (OtbBean paymentBean : paymentList) {
+                            CommonMethods.clearStringBuffer(paymentBean.getCardnumber());
+                            CommonMethods.clearStringBuffer(paymentBean.getMaincardno());
+                        }
+                        paymentList = null;
+                    }
                 }
             }
         }

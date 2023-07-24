@@ -33,10 +33,7 @@ import java.util.concurrent.atomic.AtomicInteger;
 
 @Service
 public class KnockOffConnector extends ProcessBuilder {
-    private static final Logger logInfo = LoggerFactory.getLogger("logInfo");
     private static final Logger logError = LoggerFactory.getLogger("logError");
-    @Autowired
-    LogManager logManager;
     @Autowired
     CommonRepo commonRepo;
     @Autowired
@@ -50,8 +47,7 @@ public class KnockOffConnector extends ProcessBuilder {
     StatusVarList statusVarList;
     ArrayList<OtbBean> custAccList = new ArrayList<OtbBean>();
     ArrayList<OtbBean> cardList = new ArrayList<OtbBean>();
-    ArrayList<OtbBean> paymentList = new ArrayList<OtbBean>();
-    int failedCount = 0;
+
 
     @Override
     public void concreteProcess() throws Exception {
@@ -67,22 +63,17 @@ public class KnockOffConnector extends ProcessBuilder {
                 CommonMethods.eodDashboardProgressParametersReset();
                 summery.put("Accounts eligible for knock off process: ", custAccList.size());
 
-//                for (OtbBean custAccBean : custAccList) {
-//                    knockOffService.knockOff(custAccBean, cardList, paymentList);
-//                }
 
                 custAccList.forEach(custAccBean -> {
-                    knockOffService.knockOff(custAccBean, cardList, paymentList,Configurations.successCount,Configurations.failCount);
+                    knockOffService.knockOff(custAccBean, cardList,Configurations.successCount,Configurations.failCount);
                 });
+
                 //wait till all the threads are completed
                 while (!(taskExecutor.getActiveCount() == 0)) {
                     Thread.sleep(1000);
                 }
 
-//                failedCount = Configurations.PROCESS_FAILD_COUNT;
                 Configurations.PROCESS_TOTAL_NOOF_TRABSACTIONS = (custAccList.size());
-//                Configurations.PROCESS_SUCCESS_COUNT = (custAccList.size() - failedCount);
-//                Configurations.PROCESS_FAILD_COUNT = (failedCount);
 
             } else {
                 summery.put("Accounts eligible for fee posting process ", 0 + "");
@@ -91,7 +82,6 @@ public class KnockOffConnector extends ProcessBuilder {
             Configurations.IS_PROCESS_COMPLETELY_FAILED = true;
             logError.error("Knock Off process Error", e);
         } finally {
-            //logInfo.info(logManager.logSummery(summery));
             try {
                 if (custAccList != null && custAccList.size() != 0) {
                     for (OtbBean custAccBean : custAccList) {
@@ -106,13 +96,6 @@ public class KnockOffConnector extends ProcessBuilder {
                         CommonMethods.clearStringBuffer(supCardBean.getMaincardno());
                     }
                     cardList = null;
-                }
-                if (paymentList != null && paymentList.size() != 0) {
-                    for (OtbBean paymentBean : paymentList) {
-                        CommonMethods.clearStringBuffer(paymentBean.getCardnumber());
-                        CommonMethods.clearStringBuffer(paymentBean.getMaincardno());
-                    }
-                    paymentList = null;
                 }
             } catch (Exception e) {
                 logError.error("Knock Off process Error", e);
