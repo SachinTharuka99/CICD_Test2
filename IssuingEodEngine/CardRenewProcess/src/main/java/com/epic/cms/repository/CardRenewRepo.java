@@ -9,8 +9,8 @@ package com.epic.cms.repository;
 
 import com.epic.cms.dao.CardRenewDao;
 import com.epic.cms.model.bean.CardRenewBean;
+import com.epic.cms.model.bean.ErrorCardBean;
 import com.epic.cms.util.*;
-import lombok.extern.slf4j.Slf4j;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -19,9 +19,12 @@ import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.core.RowMapperResultSetExtractor;
 import org.springframework.stereotype.Repository;
+import org.springframework.transaction.annotation.Propagation;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.sql.ResultSet;
 import java.util.ArrayList;
+import java.util.List;
 import java.util.Objects;
 
 
@@ -35,15 +38,12 @@ public class CardRenewRepo implements CardRenewDao {
     @Autowired
     LogManager logManager;
     @Autowired
+    QueryParametersList queryParametersList;
+    @Autowired
     private JdbcTemplate backendJdbcTemplate;
     @Autowired
     @Qualifier("onlineJdbcTemplate")
     private JdbcTemplate onlineJdbcTemplate;
-
-
-
-    @Autowired
-    QueryParametersList queryParametersList;
 
     @Override
     public int getCardValidityPeriod(StringBuffer cardNumber) throws Exception {
@@ -168,5 +168,65 @@ public class CardRenewRepo implements CardRenewDao {
             throw e;
         }
         return isProcessCompletlyFail;
+    }
+
+    @Override
+    @Transactional(value = "transactionManager", propagation = Propagation.REQUIRES_NEW)
+    public List<ErrorCardBean> getEligibleCardList(String curDate, int hasErrorEODandProcess) throws Exception {
+        List<ErrorCardBean> cardErrorList1 = new ArrayList<ErrorCardBean>();
+
+        String query_SelectCardTypes;
+        String cardType;
+        String query_SelectCardsInThrshldPrd = null;
+        String query_InsertToRenwalTble = null;
+        int eligibleCardCount = 0;
+
+        try {
+            if (hasErrorEODandProcess == 1) {
+
+                String query1 = "SELECT T.CARDNO FROM (SELECT EPF.STEPID,EPF.PROCESSID,EEC.CARDNO,EEC.STATUS FROM EODPROCESSFLOW EPF FULL OUTER JOIN EODERRORCARDS EEC ON EPF.PROCESSID = EEC.ERRORPROCESSID ORDER BY STEPID)T WHERE T.STEPID <= (SELECT STEPID FROM EODPROCESSFLOW WHERE PROCESSID = ?) AND T.STATUS = '?' AND T.CARDNO NOT IN (SELECT CARDNO FROM EODERRORCARDS WHERE EOD =? AND STATUS = '?')";
+
+                query_SelectCardsInThrshldPrd = backendJdbcTemplate.queryForObject(query1, String.class, Configurations.PROCESS_CARD_RENEW, statusList.getEOD_PENDING_STATUS(), Configurations.ERROR_EOD_ID, statusList.getEOD_PENDING_STATUS());
+
+            } // select all cards which are in the threshhold period, of perticular card type
+            else if (hasErrorEODandProcess == 0) {
+                String query2 = "SELECT C.CARDNUMBER AS CARDNUMBER,C.EXPIERYDATE AS  EXPIERYDATE FROM card C WHERE expierydate <= TO_CHAR(ADD_MONTHS(TO_DATE(SYSDATE),RENEWTHRESHHOLSPERIOD) , 'yymm') AND nvl(newexpirydate,'0000') <= TO_CHAR(ADD_MONTHS(TO_DATE(SYSDATE),RENEWTHRESHHOLSPERIOD) , 'yymm')  AND cardnumber NOT IN   (SELECT cardnumber FROM cardrenew  WHERE status IN('RNIN','RNAC','RNRJ')) ";
+
+                backendJdbcTemplate.query(query2,
+                        (ResultSet rs) -> {
+                            int count = 0;
+                            try {
+                                StringBuffer cardNumber = new StringBuffer(rs.getString("CARDNUMBER"));
+                                String exp = rs.getString("EXPIERYDATE");
+
+                                String query3 = "INSERT INTO CARDRENEW(CARDNUMBER,EXPIRYDATE,STATUS,LASTUPDATEDUSER,CREATEDDATE,LASTUPDATEDTIME,RENEWALCONFIRMATIONDATE,PINGENERATIONSTATUS,LETTERGENERATIONSTATUS,EARLYRENEW,REQUESTEDUSER) VALUES (?,?,?,?,SYSDATE,SYSDATE,?,?,?,?,?)";
+
+                                count = backendJdbcTemplate.update(query3,
+                                        cardNumber.toString(),
+                                        exp,
+                                        statusList.getCARD_RENEWAL_INITIATE(),
+                                        Configurations.EOD_USER,
+                                        "",
+                                        "",
+                                        Configurations.NO_STATUS,
+                                        Configurations.NO_STATUS,
+                                        Configurations.EOD_USER
+                                );
+
+                                logInfo.info("     " + CommonMethods.cardNumberMask(cardNumber) + "- inserted into card Renewal Table to get Admin Approval");
+
+                            } catch (Exception ex) {
+
+                            }
+                        }
+                );
+                query_SelectCardsInThrshldPrd += CommonMethods.checkForErrorCards("C.CARDNUMBER");
+            }
+
+        } catch (Exception ex) {
+            logError.error("Error Ocured when Selecting Card in threshold Period " + ex);
+            throw ex;
+        }
+        return cardErrorList1;
     }
 }

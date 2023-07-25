@@ -48,7 +48,7 @@ public class TransactionPostService {
             LinkedHashMap details = new LinkedHashMap();
             try {
                 txnList = transactionPostDao.getTxnAmount(bean.getAccountnumber());
-                Configurations.PROCESS_TOTAL_NOOF_TRABSACTIONS += txnList.size();
+                //Configurations.PROCESS_TOTAL_NOOF_TRABSACTIONS += txnList.size();
                 int iterator = 1;
 
                 cards:

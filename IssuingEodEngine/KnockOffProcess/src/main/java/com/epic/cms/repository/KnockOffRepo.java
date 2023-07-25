@@ -146,14 +146,18 @@ public class KnockOffRepo implements KnockOffDao {
         try {
             //String query = "SELECT id, forwardamount, isprimary FROM eodpayment WHERE forwardamount > 0 AND status IN ( ?, ? ) AND cardnumber = ? AND eodid = ? ORDER BY lastupdateddate";
 
-            paymentList = (ArrayList<OtbBean>) backendJdbcTemplate.query(queryParametersList.getKnockOff_getPaymentList(),
-                    new RowMapperResultSetExtractor<OtbBean>((result, rowNum) -> {
-                        OtbBean paymentBean = new OtbBean();
-                        paymentBean.setId(result.getInt("ID"));
-                        paymentBean.setPayment(result.getDouble("FORWARDAMOUNT"));
-                        paymentBean.setIsPrimary(result.getString("ISPRIMARY"));
-                        return paymentBean;
-                    }),
+            paymentList = backendJdbcTemplate.query(queryParametersList.getKnockOff_getPaymentList(),
+                    (ResultSet result) -> {
+                        ArrayList<OtbBean> tempPaymentList = new ArrayList<OtbBean>();
+                        while (result.next()) {
+                            OtbBean paymentBean = new OtbBean();
+                            paymentBean.setId(result.getInt("ID"));
+                            paymentBean.setPayment(result.getDouble("FORWARDAMOUNT"));
+                            paymentBean.setIsPrimary(result.getString("ISPRIMARY"));
+                            tempPaymentList.add(paymentBean);
+                        }
+                        return tempPaymentList;
+                    },
                     statusList.getINITIAL_STATUS(), //INIT
                     statusList.getEOD_PENDING_STATUS(), //EPEN
                     cardnumber.toString(),

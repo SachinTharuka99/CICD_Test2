@@ -273,24 +273,13 @@ public class CollectionAndRecoveryConnector extends ProcessBuilder {
                 noOfCards = Configurations.noOfCardsForCollectionAndRecoveryNotification;
                 failedCards = Configurations.failedCardsForCollectionAndRecoveryNotification;
 
-                Configurations.PROCESS_TOTAL_NOOF_TRABSACTIONS = noOfCards;
-                Configurations.PROCESS_SUCCESS_COUNT = (noOfCards - failedCards);
-                Configurations.PROCESS_FAILD_COUNT = failedCards;
+                //Configurations.PROCESS_TOTAL_NOOF_TRABSACTIONS = noOfCards;
+                //Configurations.PROCESS_SUCCESS_COUNT = (noOfCards - failedCards);
+                //Configurations.PROCESS_FAILD_COUNT = failedCards;
             }
         } catch (Exception e) {
             Configurations.IS_PROCESS_COMPLETELY_FAILED = true;
             logError.error("Collection and recovery process failed", e);
-            try {
-                assert processBean != null;
-                if (processBean.getCriticalStatus() == 1) {
-                    Configurations.COMMIT_STATUS = false;
-                    Configurations.FLOW_STEP_COMPLETE_STATUS = false;
-                    Configurations.PROCESS_FLOW_STEP_COMPLETE_STATUS = false;
-                    Configurations.MAIN_EOD_STATUS = false;
-                }
-            } catch (Exception e2) {
-                logError.error("Collection and recovery process ended with", e2);
-            }
         } finally {
             try {
                 if (cardList != null && cardList.size() != 0) {

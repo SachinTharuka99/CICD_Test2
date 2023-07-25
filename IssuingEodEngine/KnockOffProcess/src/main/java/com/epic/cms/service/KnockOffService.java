@@ -35,13 +35,13 @@ public class KnockOffService {
 
     @Async("ThreadPool_100")
     @Transactional(value = "transactionManager", propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
-    public void knockOff(OtbBean custAccBean, ArrayList<OtbBean> cardList, ArrayList<OtbBean> paymentList, BlockingQueue<Integer> successCount, BlockingQueue<Integer> failCount)  {
+    public void knockOff(OtbBean custAccBean, ArrayList<OtbBean> cardList, BlockingQueue<Integer> successCount, BlockingQueue<Integer> failCount) {
         if (!Configurations.isInterrupted) {
             LinkedHashMap details = new LinkedHashMap();
+            ArrayList<OtbBean> paymentList = new ArrayList<OtbBean>();
             int cardIteration = 1;
 
             cardList = knockOffRepo.getKnockOffCardList(custAccBean.getCustomerid(), custAccBean.getAccountnumber());
-            System.out.println(" KnockOff Process Service: Card List Count -"+cardList.size());
             Configurations.PROCESS_TOTAL_NOOF_TRABSACTIONS += cardList.size();
             OtbBean mainCardBean = knockOffRepo.getMainCard(custAccBean.getAccountnumber());
 
@@ -57,7 +57,6 @@ public class KnockOffService {
                     double supeodclosingbalance = 0.00;
 
                     paymentList = knockOffRepo.getPaymentList(supCardBean.getCardnumber());
-                    System.out.println(" KnockOff Process Service: paymentList Count -"+paymentList.size());
 
                     OtbBean eomBean = knockOffRepo.getEomKnockOffAmount(supCardBean.getCardnumber());
 
@@ -283,7 +282,6 @@ public class KnockOffService {
                         knockOffRepo.OnlineupdateCustomerOtb(custAccBean);
                     }
                     cardIteration++;
-                    //Configurations.PROCESS_SUCCESS_COUNT++;
                     successCount.add(1);
                     logInfo.info(logManager.logDetails(details));
                     //Thread.sleep(1000);
@@ -292,9 +290,18 @@ public class KnockOffService {
                 } catch (Exception e) {
                     Configurations.errorCardList.add(new ErrorCardBean(Configurations.ERROR_EOD_ID, Configurations.EOD_DATE, new StringBuffer(custAccBean.getCardnumber()), e.getMessage(), Configurations.RUNNING_PROCESS_ID, Configurations.RUNNING_PROCESS_DESCRIPTION, 0, CardAccount.ACCOUNT));
                     logError.error("Knock off process failed for account " + custAccBean.getAccountnumber(), e);
-                    //Configurations.PROCESS_FAILD_COUNT++;
                     failCount.add(1);
                     break;
+                } finally {
+                    logInfo.info(logManager.logDetails(details));
+
+                    if (paymentList != null && paymentList.size() != 0) {
+                        for (OtbBean paymentBean : paymentList) {
+                            CommonMethods.clearStringBuffer(paymentBean.getCardnumber());
+                            CommonMethods.clearStringBuffer(paymentBean.getMaincardno());
+                        }
+                        paymentList = null;
+                    }
                 }
             }
         }

@@ -67,7 +67,7 @@ public class CommonRepo implements CommonDao {
     public void updateEodProcessSummery(int eodId, String status, int processId, int successCount, int failedCount, String progress) throws Exception {
         try {
             System.out.println("------------------updateEodProcessSummery---------------Status- "+status +",----- eodid- "+eodId+",----- processId- "+processId);
-            backendJdbcTemplate.update(queryParametersList.getCommonUpdateEodProcessSummery(), status, "admin", successCount, failedCount, progress, eodId, processId);
+            backendJdbcTemplate.update(queryParametersList.getCommonUpdateEodProcessSummery(), status, Configurations.EOD_USER, successCount, failedCount, progress, eodId, processId);
         } catch (Exception e) {
             //logManager.logError(e,errorLoggerCOM);
         }

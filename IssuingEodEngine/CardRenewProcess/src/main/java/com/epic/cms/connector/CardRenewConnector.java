@@ -95,8 +95,6 @@ public class CardRenewConnector extends ProcessBuilder {
 
     @Override
     public void concreteProcess() throws Exception {
-
-        List<String> eligibleCardList = new ArrayList<String>();
         List<ErrorCardBean> cardErrorList = new ArrayList<ErrorCardBean>();
 
         try {
@@ -125,14 +123,14 @@ public class CardRenewConnector extends ProcessBuilder {
                  * exist in renewal table)that should insert to cardrenewal
                  * table
                  */
-//                int hasErrorEODandProcess = 0;// this is for test
-//                try {
-//                    cardErrorList = dbCon.getEligibleCardList(eod_date_str, hasErrorEODandProcess);
-//                } catch (Exception e) {
-//                    infoLogger.info(logManager.processStartEndStyle("Card Renewal Process Failed when selecting eligible cards"));
-//
-//                    errorLogger.error("Card Renewal Process Failed when selecting eligible cards" + e);
-//                }
+                int hasErrorEODandProcess = 0;// this is for test
+                try {
+                    cardErrorList = cardRenewRepo.getEligibleCardList(eod_date_str, hasErrorEODandProcess);
+                } catch (Exception e) {
+                    logInfo.info(logManager.logStartEnd("Card Renewal Process Failed when selecting eligible cards"));
+
+                    logError.error("Card Renewal Process Failed when selecting eligible cards" + e);
+                }
 
                 /**selecting card list from cardrenew Table which have approval*/
                 approvedCardBeanList = cardRenewDao.getApprovedCardList(eod_date_str);

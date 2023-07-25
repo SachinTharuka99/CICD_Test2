@@ -49,7 +49,6 @@ public class TransactionPostConnector extends ProcessBuilder {
     @Qualifier("ThreadPool_100")
     ThreadPoolTaskExecutor taskExecutor;
 
-    LinkedHashMap summery = new LinkedHashMap();
     private ArrayList<OtbBean> custAccList = new ArrayList<OtbBean>();
     private ArrayList<OtbBean> txnList;
     private int failedCount = 0;
