@@ -72,6 +72,10 @@ public class ChequePaymentConnector extends ProcessBuilder {
                     });
 
                 }
+                while (!(taskExecutor.getActiveCount() == 0)) {
+                    updateEodEngineDashboardProcessProgress();
+                    Thread.sleep(1000);
+                }
             } catch (Exception e) {
                 logError.error("Failed Cheque Payment Process ", e);
                 throw e;
@@ -80,7 +84,6 @@ public class ChequePaymentConnector extends ProcessBuilder {
             Configurations.IS_PROCESS_COMPLETELY_FAILED = true;
             logError.error("Failed Cheque Payment Process Exception ", e);
         } finally {
-            //logInfo.info(logManager.logSummery(summery));
             try {
                 if (chqList != null && chqList.size() != 0) {
                     /** PADSS Change -

@@ -60,6 +60,7 @@ public class ClearMinAmountAndTempBlockConnector extends ProcessBuilder {
                 clearMinAmountAndTempBlockService.processClearMinAmountAndTempBlock(lastStatement,Configurations.successCount,Configurations.failCount);
             });
             while (!(taskExecutor.getActiveCount() == 0)) {
+                updateEodEngineDashboardProcessProgress();
                 Thread.sleep(1000);
             }
 

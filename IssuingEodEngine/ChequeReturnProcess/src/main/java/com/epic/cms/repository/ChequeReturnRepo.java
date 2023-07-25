@@ -484,7 +484,7 @@ public class ChequeReturnRepo implements ChequeReturnDao {
             if (recordCount > 0) {
                 forward = true;
             }
-        } catch (Exception ex) {
+        } catch (EmptyResultDataAccessException ex) {
             throw ex;
         }
         return forward;
@@ -562,7 +562,7 @@ public class ChequeReturnRepo implements ChequeReturnDao {
         try {
             //String query = "SELECT ACCOUNTNO FROM CARDACCOUNTCUSTOMER WHERE CARDNUMBER=?";
             accNo = backendJdbcTemplate.queryForObject(queryParametersList.getChequeReturn_getAccountNoOnCard(), String.class, cardNo.toString());
-        } catch (Exception ex) {
+        } catch (EmptyResultDataAccessException ex) {
             throw ex;
         }
         return accNo;

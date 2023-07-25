@@ -8,6 +8,7 @@ import com.epic.cms.util.Configurations;
 import com.epic.cms.util.QueryParametersList;
 import com.epic.cms.util.StatusVarList;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Repository;
 
@@ -58,7 +59,7 @@ public class AdjustmentRepo implements AdjustmentDao {
         String cardAssociation = null;
         try {
             cardAssociation = backendJdbcTemplate.queryForObject(queryParametersList.getAdjustment_getCardAssociationFromCardBin(), String.class, new Object[]{cardBin});
-        } catch (Exception e) {
+        } catch (EmptyResultDataAccessException e) {
             throw e;
         }
         return cardAssociation;

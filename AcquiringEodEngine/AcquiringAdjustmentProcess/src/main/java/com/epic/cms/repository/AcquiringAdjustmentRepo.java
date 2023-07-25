@@ -211,7 +211,7 @@ public class AcquiringAdjustmentRepo implements AcquiringAdjustmentDao {
             } else {
                 return false;
             }
-        } catch (Exception e) {
+        } catch (EmptyResultDataAccessException e) {
             throw e;
         }
 //        return false;
@@ -295,7 +295,7 @@ public class AcquiringAdjustmentRepo implements AcquiringAdjustmentDao {
         try {
             String query = "SELECT ACCOUNTNO FROM CARDACCOUNTCUSTOMER WHERE CARDNUMBER=?";
             accNo = backendJdbcTemplate.queryForObject(query, String.class, cardNo.toString());
-        } catch (Exception e) {
+        } catch (EmptyResultDataAccessException e) {
             throw e;
         }
         return accNo;
@@ -311,7 +311,7 @@ public class AcquiringAdjustmentRepo implements AcquiringAdjustmentDao {
             cardAssociation = backendJdbcTemplate.queryForObject(query, String.class
                     , ISOUtil.zeropadRight(cardNumber, 19)
                     , ISOUtil.zeropadRight(cardNumber, 19));
-        } catch (Exception e) {
+        } catch (EmptyResultDataAccessException e) {
             throw e;
         }
         return cardAssociation;

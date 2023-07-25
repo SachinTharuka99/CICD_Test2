@@ -62,7 +62,7 @@ public class LoyaltyPointsCalculationConnector extends ProcessBuilder {
 
             cardList = loyaltyPointsCalculationRepo.getTodayBillingCardSet(Configurations.EOD_DATE);
             Configurations.PROCESS_TOTAL_NOOF_TRABSACTIONS = cardList.size();
-            CommonMethods.eodDashboardProgressParametersReset();
+
 
             loyaltyPointsCalculationRepo.getLoyaltyConfigurations();
 

@@ -15,6 +15,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.LinkedHashMap;
+import java.util.List;
 
 
 public abstract class ProcessBuilder {
@@ -110,7 +111,7 @@ public abstract class ProcessBuilder {
             System.out.println(" --------------------- Failed card exception 1------------------");
             logInfo.info(logManager.logStartEnd(failedHeader));
             logInfo.error(failedHeader);
-            commonRepo.updateEodProcessSummery(Configurations.ERROR_EOD_ID, "EROR", processId, Configurations.successCount.size(), Configurations.failCount.size(), eodDashboardProcessProgress(Configurations.PROCESS_SUCCESS_COUNT, Configurations.PROCESS_TOTAL_NOOF_TRABSACTIONS));
+            commonRepo.updateEodProcessSummery(Configurations.ERROR_EOD_ID, "EROR", processId, Configurations.successCount.size(), Configurations.failCount.size(), eodDashboardProcessProgress(Configurations.successCount.size(), Configurations.PROCESS_TOTAL_NOOF_TRABSACTIONS));
         } catch (Exception ex) {
             System.out.println(" --------------------- Failed card exception 2------------------");
             logInfo.info(logManager.logStartEnd(failedHeader));
@@ -131,7 +132,7 @@ public abstract class ProcessBuilder {
     void insertFailedEODCards(int processId) throws Exception {
         int failedCardListSize = Configurations.errorCardList.size();
         if (failedCardListSize == 0) {//process success
-            commonRepo.updateEodProcessSummery(Configurations.ERROR_EOD_ID, statusVarList.getSUCCES_STATUS(), processId, Configurations.successCount.size(), Configurations.failCount.size(), eodDashboardProcessProgress(Configurations.PROCESS_SUCCESS_COUNT, Configurations.PROCESS_TOTAL_NOOF_TRABSACTIONS));
+            commonRepo.updateEodProcessSummery(Configurations.ERROR_EOD_ID, statusVarList.getSUCCES_STATUS(), processId, Configurations.successCount.size(), Configurations.failCount.size(), eodDashboardProcessProgress(Configurations.successCount.size(), Configurations.PROCESS_TOTAL_NOOF_TRABSACTIONS));
         } else {//process goes to error
             for (int i = 0; i < failedCardListSize; i++) {
                 commonRepo.insertErrorEODCard(Configurations.errorCardList.get(i));
@@ -182,6 +183,40 @@ public abstract class ProcessBuilder {
             throw e;
         } finally {
             return parsedDate;
+        }
+    }
+
+
+    public void updateEodEngineDashboardProcessProgress() throws Exception {
+        int progress = 0;
+        List<String> errorProcessList;
+
+        try {
+            if (Configurations.successCount.size() != 0 && Configurations.PROCESS_TOTAL_NOOF_TRABSACTIONS != 0) {
+                progress = ((Configurations.successCount.size() * 100 / Configurations.PROCESS_TOTAL_NOOF_TRABSACTIONS));
+
+                Configurations.PROCESS_PROGRESS = progress + "%";
+
+            } else if (Configurations.successCount.size() == 0 && Configurations.PROCESS_TOTAL_NOOF_TRABSACTIONS != 0) {
+                Configurations.PROCESS_PROGRESS = "0%";
+            } else {
+                Configurations.PROCESS_PROGRESS = "100%";
+            }
+
+            commonRepo.updateEodProcessProgress();
+            errorProcessList = commonRepo.getErrorProcessIdList();
+            if (errorProcessList != null) {
+                for (String processId : errorProcessList) {
+                    commonRepo.updateProcessProgressForErrorProcess(processId);
+                }
+            }
+            // update success process count | error process count in eod table
+            commonRepo.updateEodProcessStateCount();
+
+            //Thread.sleep(5000); // After every 5 seconds update particular process pogress.
+
+        } catch (Exception e) {
+            logError.error("Update Eod Engine Dashboard Process Progress Error", e);
         }
     }
 }

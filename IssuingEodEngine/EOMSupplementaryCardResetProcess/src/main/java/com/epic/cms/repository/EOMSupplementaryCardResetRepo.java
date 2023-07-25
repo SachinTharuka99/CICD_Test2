@@ -213,7 +213,7 @@ public class EOMSupplementaryCardResetRepo implements EOMSupplementaryCardResetD
                         , (cardNo.equals(mainCardNo)) ? Configurations.YES_STATUS : Configurations.NO_STATUS
                         , Configurations.EOD_ID);
             }
-        } catch (Exception e) {
+        } catch (EmptyResultDataAccessException e) {
             throw e;
         }
     }
@@ -442,7 +442,7 @@ public class EOMSupplementaryCardResetRepo implements EOMSupplementaryCardResetD
                     , statusVarList.getINITIAL_STATUS() //10
                     , Configurations.EOD_USER //11
             );
-        } catch (Exception e) {
+        } catch (EmptyResultDataAccessException e) {
             throw e;
         }
         return count;
@@ -512,7 +512,7 @@ public class EOMSupplementaryCardResetRepo implements EOMSupplementaryCardResetD
                 value[1] = value[1] + dto.getTempCashIncORDecAmt();
                 OTBsAfterResetting.put(cardList.get(i), value);
             }
-        } catch (Exception e) {
+        } catch (EmptyResultDataAccessException e) {
             throw e;
         }
         return OTBsAfterResetting;

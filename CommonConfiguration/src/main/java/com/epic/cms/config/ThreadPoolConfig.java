@@ -11,7 +11,7 @@ import java.util.concurrent.ThreadPoolExecutor;
 @Configuration
 @EnableAsync
 public class ThreadPoolConfig {
-
+    /**
     @Primary
     @Bean(name = "ThreadPool_01")
     public ThreadPoolTaskExecutor taskExecutor01() {
@@ -40,29 +40,29 @@ public class ThreadPoolConfig {
     @Bean(name = "taskExecutor2")
     public ThreadPoolTaskExecutor taskExecutor2() {
         ThreadPoolTaskExecutor executor = new ThreadPoolTaskExecutor();
-        executor.setCorePoolSize(75);
-        executor.setMaxPoolSize(75);
-        executor.setQueueCapacity(0);
-        executor.setRejectedExecutionHandler(new ThreadPoolExecutor.CallerRunsPolicy());
+        executor.setCorePoolSize(10);
+        executor.setMaxPoolSize(10);
+        executor.setQueueCapacity(100000);
+        //executor.setRejectedExecutionHandler(new ThreadPoolExecutor.CallerRunsPolicy());
         executor.setWaitForTasksToCompleteOnShutdown(true);
         executor.setThreadNamePrefix("ThreadPool_75");
         executor.initialize();
         return executor;
-    }
+    }*/
 
     @Bean(name = "ThreadPool_100")
     public ThreadPoolTaskExecutor taskExecutor3() {
         ThreadPoolTaskExecutor executor = new ThreadPoolTaskExecutor();
         executor.setCorePoolSize(10);
         executor.setMaxPoolSize(10);
-        executor.setQueueCapacity(0);
-        executor.setRejectedExecutionHandler(new ThreadPoolExecutor.CallerRunsPolicy());
+        executor.setQueueCapacity(100000);
+        //executor.setRejectedExecutionHandler(new ThreadPoolExecutor.CallerRunsPolicy());
         executor.setThreadNamePrefix("ThreadPool_100");
         executor.setWaitForTasksToCompleteOnShutdown(true);
         executor.initialize();
         return executor;
     }
-
+    /**
     @Bean(name = "ThreadPool_05")
     public ThreadPoolTaskExecutor taskExecutor05() {
         ThreadPoolTaskExecutor executor = new ThreadPoolTaskExecutor();
@@ -73,7 +73,7 @@ public class ThreadPoolConfig {
         executor.setThreadNamePrefix("ThreadPool_05");
         executor.initialize();
         return executor;
-    }
+    }*/
 
     @Bean(name = "ThreadPool_FileHandler")
     public ThreadPoolTaskExecutor fileHandler() {

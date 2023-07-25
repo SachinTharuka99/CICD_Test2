@@ -33,7 +33,7 @@ public class ManualNpService {
     int successCounts = 0;
     int FailedCounts = 0;
 
-    @Async("taskExecutor2")
+    @Async("ThreadPool_100")
     @Transactional(value = "transactionManager", propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
     public void manualNpClassification(ArrayList<StringBuffer> accDetails, BlockingQueue<Integer> successCount, BlockingQueue<Integer> failCount) {
 
@@ -126,7 +126,7 @@ public class ManualNpService {
         }
     }
 
-    @Async("taskExecutor2")
+    @Async("ThreadPool_100")
     @Transactional(value = "transactionManager", propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
     public void manualNpDeClassification(ArrayList<StringBuffer> accDetails, BlockingQueue<Integer> successCountDe, BlockingQueue<Integer> failCountDe) {
 

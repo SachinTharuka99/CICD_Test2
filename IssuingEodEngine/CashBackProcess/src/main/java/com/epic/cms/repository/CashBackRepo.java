@@ -545,7 +545,7 @@ public class CashBackRepo implements CashBackDao {
                     ActualAmountCanRedeem = new BigDecimal(0);
                 }
             }
-        } catch (Exception e) {
+        } catch (EmptyResultDataAccessException e) {
             throw e;
         }
         return ActualAmountCanRedeem;

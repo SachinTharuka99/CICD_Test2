@@ -24,7 +24,7 @@ public class CardReplaceConnector extends ProcessBuilder {
     private static final Logger logInfo = LoggerFactory.getLogger("logInfo");
     private static final Logger logError = LoggerFactory.getLogger("logError");
     @Autowired
-    @Qualifier("taskExecutor2")
+    @Qualifier("ThreadPool_100")
     ThreadPoolTaskExecutor taskExecutor;
     @Autowired
     CardReplaceService cardReplaceService;
@@ -40,7 +40,7 @@ public class CardReplaceConnector extends ProcessBuilder {
         List<CardReplaceBean> cardListToReplace = new ArrayList<>();
         try {
             cardListToReplace = cardReplaceRepo.getCardListToReplace();
-
+            Statusts.SUMMARY_FOR_CARDREPLACE =0;
             Statusts.SUMMARY_FOR_CARDREPLACE = cardListToReplace.size();
             summery.put("No of cards to be replaced", cardListToReplace.size() + "");
 
@@ -60,6 +60,7 @@ public class CardReplaceConnector extends ProcessBuilder {
             }
             //wait till all the threads are completed
             while (!(taskExecutor.getActiveCount() == 0)) {
+                updateEodEngineDashboardProcessProgress();
                 Thread.sleep(1000);
             }
 
@@ -86,7 +87,7 @@ public class CardReplaceConnector extends ProcessBuilder {
     @Override
     public void addSummaries() {
         summery.put("Total no of cards to be replaced", Statusts.SUMMARY_FOR_CARDREPLACE);
-        summery.put("Cards replaced", Statusts.SUMMARY_FOR_CARDREPLACE_PROCESSED);
+        summery.put("Cards replaced", Configurations.successCount.size());
         summery.put("No of Success Card",Configurations.successCount.size());
         summery.put("Total Fails", Configurations.failCount.size());
     }

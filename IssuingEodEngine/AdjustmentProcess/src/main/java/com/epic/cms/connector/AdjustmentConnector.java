@@ -69,6 +69,7 @@ public class AdjustmentConnector extends ProcessBuilder {
 
             //wait till all the threads are completed
             while (!(taskExecutor.getActiveCount() == 0)) {
+                updateEodEngineDashboardProcessProgress();
                 Thread.sleep(1000);
             }
 

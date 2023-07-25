@@ -30,7 +30,7 @@ public class CardLimitEnhancementConnector extends ProcessBuilder {
     private static final Logger logInfo = LoggerFactory.getLogger("logInfo");
     private static final Logger logError = LoggerFactory.getLogger("logError");
     @Autowired
-    @Qualifier("taskExecutor2")
+    @Qualifier("ThreadPool_100")
     ThreadPoolTaskExecutor taskExecutor;
     @Autowired
     StatusVarList statusList;
@@ -70,6 +70,7 @@ public class CardLimitEnhancementConnector extends ProcessBuilder {
 
                 //wait till all the threads are completed
                 while (!(taskExecutor.getActiveCount() == 0)) {
+                    updateEodEngineDashboardProcessProgress();
                     Thread.sleep(1000);
                 }
 

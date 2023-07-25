@@ -76,7 +76,7 @@ public class MonthlyStatementConnector extends ProcessBuilder {
     @Autowired
     MonthlyStatementService monthlyStatementService;
     @Autowired
-    @Qualifier("taskExecutor2")
+    @Qualifier("ThreadPool_100")
     ThreadPoolTaskExecutor taskExecutor;
 
     @Override
@@ -100,14 +100,8 @@ public class MonthlyStatementConnector extends ProcessBuilder {
                     ArrayList<CardBean> CardBeanList = entry.getValue();
                     monthlyStatementService.monthlyStatement(accNo, CardBeanList,Configurations.successCount,Configurations.failCount);
                 }
-
-//                cardAccountMap.forEach((entryKey, entryValue) -> {
-//                     accNo.set(entryKey);
-//                    ArrayList<CardBean> cardBeanList = entryValue;
-//                    monthlyStatementService.monthlyStatement(accNo.get(), cardBeanList,faileCardCount);
-//                });
-
                 while (!(taskExecutor.getActiveCount() == 0)) {
+                    updateEodEngineDashboardProcessProgress();
                     Thread.sleep(1000);
                 }
 
@@ -118,8 +112,6 @@ public class MonthlyStatementConnector extends ProcessBuilder {
             Configurations.IS_PROCESS_COMPLETELY_FAILED = true;
             logError.error("Error!!! Monthly Statement Process Complete with Errors ", e);
             throw e;
-        } finally {
-            //logInfo.info(logManager.logSummery(summery));
         }
     }
 

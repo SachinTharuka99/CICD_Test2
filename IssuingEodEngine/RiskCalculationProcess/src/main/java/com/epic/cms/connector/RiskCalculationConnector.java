@@ -28,6 +28,7 @@ import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
 import java.util.LinkedHashMap;
+import java.util.List;
 import java.util.Optional;
 import java.util.concurrent.ArrayBlockingQueue;
 import java.util.concurrent.BlockingQueue;
@@ -68,7 +69,6 @@ public class RiskCalculationConnector extends ProcessBuilder {
         ArrayList<RiskCalculationBean> cardList = new ArrayList<RiskCalculationBean>();
 
         Configurations.RUNNING_PROCESS_ID = Configurations.PROCESS_ID_RISK_CALCULATION_PROCESS;
-        CommonMethods.eodDashboardProgressParametersReset();
         processBean = new ProcessBean();
         processBean = commonRepo.getProcessDetails(Configurations.PROCESS_ID_RISK_CALCULATION_PROCESS);
 
@@ -90,6 +90,7 @@ public class RiskCalculationConnector extends ProcessBuilder {
 
                 //wait till all the threads are completed
                 while (!(taskExecutor.getActiveCount() == 0)) {
+                    updateEodEngineDashboardProcessProgress();
                     Thread.sleep(1000);
                 }
 
@@ -112,6 +113,7 @@ public class RiskCalculationConnector extends ProcessBuilder {
 
                     //wait till all the threads are completed
                     while (!(taskExecutor.getActiveCount() == 0)) {
+//                        updateEodEngineDashboardProcessProgress();
                         Thread.sleep(1000);
                     }
                 } else {
@@ -123,8 +125,6 @@ public class RiskCalculationConnector extends ProcessBuilder {
         } catch (Exception e) {
             Configurations.IS_PROCESS_COMPLETELY_FAILED = true;
             logError.error("RISK_CALCULATION_PROCESS ended with", e);
-        } finally {
-            //logInfo.info(logManager.logSummery(summery));
         }
     }
 

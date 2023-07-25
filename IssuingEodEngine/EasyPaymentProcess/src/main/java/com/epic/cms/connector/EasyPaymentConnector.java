@@ -79,6 +79,7 @@ public class EasyPaymentConnector extends ProcessBuilder {
 
                 //wait till all the threads are completed
                 while (!(taskExecutor.getActiveCount() == 0)) {
+                    updateEodEngineDashboardProcessProgress();
                     Thread.sleep(1000);
                 }
 
@@ -90,7 +91,6 @@ public class EasyPaymentConnector extends ProcessBuilder {
             Configurations.IS_PROCESS_COMPLETELY_FAILED = true;
             logError.error("Easy Payment process failed", e);
         } finally {
-            //logInfo.info(logManager.logSummery(summery));
             /** PADSS Change -
              variables handling card data should be nullified by replacing the value of variable with zero and call NULL function */
             if (txnList != null && txnList.size() != 0) {

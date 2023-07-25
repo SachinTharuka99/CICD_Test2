@@ -50,7 +50,7 @@ public class AcquiringAdjustmentService {
     private static final Logger logInfo = LoggerFactory.getLogger("logInfo");
     private static final Logger logError = LoggerFactory.getLogger("logError");
 
-    @Async("taskExecutor2")
+    @Async("ThreadPool_100")
     @Transactional(value = "transactionManager", propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
     public void acquringAdjustment(AcqAdjustmentBean acqAdjustmentBean) {
         if (!Configurations.isInterrupted) {

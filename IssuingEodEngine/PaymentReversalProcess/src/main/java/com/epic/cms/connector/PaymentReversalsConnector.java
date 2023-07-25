@@ -29,7 +29,7 @@ public class PaymentReversalsConnector extends ProcessBuilder {
     LogManager logManager;
 
     @Autowired
-    @Qualifier("taskExecutor2")
+    @Qualifier("ThreadPool_100")
     ThreadPoolTaskExecutor taskExecutor;
 
     @Autowired
@@ -76,13 +76,13 @@ public class PaymentReversalsConnector extends ProcessBuilder {
                 });
             }
             while (!(taskExecutor.getActiveCount() == 0)) {
+                updateEodEngineDashboardProcessProgress();
                 Thread.sleep(1000);
             }
         }catch (Exception e){
             Configurations.IS_PROCESS_COMPLETELY_FAILED = true;
             logError.error("--Error occurred--", e);
         }finally {
-            logInfo.info(logManager.logSummery(summery));
             /** PADSS Change -
              variables handling card data should be nullified
              by replacing the value of variable with zero and call NULL function */
@@ -104,7 +104,7 @@ public class PaymentReversalsConnector extends ProcessBuilder {
     public void addSummaries() {
         summery.put("Process Name ", "Payment Reversal");
         summery.put("No Of Payment Reversals awaiting ", Configurations.PROCESS_TOTAL_NOOF_TRABSACTIONS);
-        summery.put("No of Payments successfully reversed ", Configurations.failCount.size());
+        summery.put("No of Payments successfully reversed ", Configurations.successCount.size());
         summery.put("No of Payments not reversed ", Configurations.failCount.size());
     }
 }

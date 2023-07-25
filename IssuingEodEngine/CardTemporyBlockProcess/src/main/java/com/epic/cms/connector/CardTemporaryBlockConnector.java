@@ -32,7 +32,7 @@ public class CardTemporaryBlockConnector extends ProcessBuilder {
     private static final Logger logInfo = LoggerFactory.getLogger("logInfo");
     private static final Logger logError = LoggerFactory.getLogger("logError");
     @Autowired
-    @Qualifier("taskExecutor2")
+    @Qualifier("ThreadPool_100")
     ThreadPoolTaskExecutor taskExecutor;
     @Autowired
     CommonRepo commonRepo;
@@ -64,6 +64,7 @@ public class CardTemporaryBlockConnector extends ProcessBuilder {
                     });
                 }
                 while (!(taskExecutor.getActiveCount() == 0)) {
+                    updateEodEngineDashboardProcessProgress();
                     Thread.sleep(1000);
                 }
             }

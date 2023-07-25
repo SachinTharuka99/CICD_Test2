@@ -609,7 +609,7 @@ public class MerchantStatementRepository implements MerchantStatementDao {
                     mId,
                     startEodId);
 
-        } catch (Exception ex) {
+        } catch (EmptyResultDataAccessException ex) {
             throw ex;
         }
         return count;

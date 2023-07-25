@@ -16,6 +16,7 @@ import org.springframework.transaction.annotation.Transactional;
 import java.util.ArrayList;
 import java.util.LinkedHashMap;
 import java.util.concurrent.BlockingQueue;
+import java.util.concurrent.CompletableFuture;
 
 @Service
 public class KnockOffService {
@@ -32,7 +33,7 @@ public class KnockOffService {
     @Autowired
     CommonRepo commonRepo;
 
-//    @Async("ThreadPool_100")
+    @Async("ThreadPool_100")
     @Transactional(value = "transactionManager", propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
     public void knockOff(OtbBean custAccBean, ArrayList<OtbBean> cardList, BlockingQueue<Integer> successCount, BlockingQueue<Integer> failCount) {
         if (!Configurations.isInterrupted) {
@@ -46,6 +47,7 @@ public class KnockOffService {
 
             double maineodclosingbalance = 0.00;
 
+            card:
             for (OtbBean supCardBean : cardList) {
                 try {
                     boolean eom = false;
@@ -281,7 +283,10 @@ public class KnockOffService {
                     }
                     cardIteration++;
                     successCount.add(1);
-
+                    logInfo.info(logManager.logDetails(details));
+                    //Thread.sleep(1000);
+                }catch (InterruptedException e) {
+                    e.printStackTrace();
                 } catch (Exception e) {
                     Configurations.errorCardList.add(new ErrorCardBean(Configurations.ERROR_EOD_ID, Configurations.EOD_DATE, new StringBuffer(custAccBean.getCardnumber()), e.getMessage(), Configurations.RUNNING_PROCESS_ID, Configurations.RUNNING_PROCESS_DESCRIPTION, 0, CardAccount.ACCOUNT));
                     logError.error("Knock off process failed for account " + custAccBean.getAccountnumber(), e);

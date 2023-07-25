@@ -165,7 +165,7 @@ public class ATMFileClearingRepo implements ATMFileClearingDao {
 
         try {
             validationDesc = backendJdbcTemplate.queryForObject(query, String.class, validaionId.trim());
-        } catch (Exception e) {
+        } catch (EmptyResultDataAccessException e) {
             throw e;
         }
         return validationDesc;
@@ -178,7 +178,7 @@ public class ATMFileClearingRepo implements ATMFileClearingDao {
 
         try {
             fieldDesc = backendJdbcTemplate.queryForObject(query, String.class, fieldId);
-        } catch (Exception e) {
+        } catch (EmptyResultDataAccessException e) {
             throw e;
         }
         return fieldDesc;
@@ -197,7 +197,7 @@ public class ATMFileClearingRepo implements ATMFileClearingDao {
                 status = true;
             }
 
-        } catch (Exception e) {
+        } catch (EmptyResultDataAccessException e) {
             throw e;
         }
         return status;

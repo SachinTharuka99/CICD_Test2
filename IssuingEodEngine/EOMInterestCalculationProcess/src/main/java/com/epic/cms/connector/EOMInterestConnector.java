@@ -6,6 +6,7 @@ import com.epic.cms.model.bean.ProcessBean;
 import com.epic.cms.repository.CommonRepo;
 import com.epic.cms.repository.EOMInterestRepo;
 import com.epic.cms.service.EOMInterestService;
+import com.epic.cms.util.CommonMethods;
 import com.epic.cms.util.Configurations;
 import com.epic.cms.util.LogManager;
 import com.epic.cms.util.StatusVarList;
@@ -20,6 +21,7 @@ import org.springframework.stereotype.Service;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.List;
 import java.util.concurrent.ArrayBlockingQueue;
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.atomic.AtomicInteger;
@@ -39,7 +41,7 @@ public class EOMInterestConnector extends ProcessBuilder {
     @Autowired
     EOMInterestService eomInterestService;
     @Autowired
-    @Qualifier("taskExecutor2")
+    @Qualifier("ThreadPool_100")
     ThreadPoolTaskExecutor taskExecutor;
 
     @Override
@@ -47,6 +49,7 @@ public class EOMInterestConnector extends ProcessBuilder {
 
         try {
             Configurations.RUNNING_PROCESS_ID = Configurations.PROCESS_ID_EOM_INTEREST_CALCULATION;
+            CommonMethods.eodDashboardProgressParametersReset();
             ArrayList<EomCardBean> accountList;
             DateFormat dateFormatforRenew = new SimpleDateFormat("dd");
             String curDateforRenew = dateFormatforRenew.format(Configurations.EOD_DATE);
@@ -56,15 +59,16 @@ public class EOMInterestConnector extends ProcessBuilder {
             processBean = new ProcessBean();
             processBean = commonRepo.getProcessDetails(Configurations.PROCESS_ID_EOM_INTEREST_CALCULATION);
 
-//            for (int i = 0; i < accountList.size(); i++) {
-//                eomInterestService.EOMInterestCalculation(processBean, accountList.get(i));
-//            }
-            accountList.forEach(account -> {
+            for (int i = 0; i < accountList.size(); i++) {
+                eomInterestService.EOMInterestCalculation(processBean, accountList.get(i),Configurations.successCount,Configurations.failCount);
+            }
+            /*accountList.forEach(account -> {
                 eomInterestService.EOMInterestCalculation(processBean, account,Configurations.successCount,Configurations.failCount);
-            });
+            });*/
 
 
             while (!(taskExecutor.getActiveCount() == 0)) {
+                updateEodEngineDashboardProcessProgress();
                 Thread.sleep(1000);
             }
         } catch (Exception e) {

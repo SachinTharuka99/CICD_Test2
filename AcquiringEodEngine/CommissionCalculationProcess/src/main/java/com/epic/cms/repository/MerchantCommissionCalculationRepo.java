@@ -14,6 +14,7 @@ import com.epic.cms.model.bean.MerchantLocationBean;
 import com.epic.cms.util.Configurations;
 import com.epic.cms.util.StatusVarList;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.core.RowMapperResultSetExtractor;
 import org.springframework.stereotype.Repository;
@@ -73,7 +74,7 @@ public class MerchantCommissionCalculationRepo implements MerchantCommissionCalc
             commissionCalStatus = backendJdbcTemplate.queryForObject(query, String.class, merchantCustomerNo);
 
             return commissionCalStatus != null && commissionCalStatus.equalsIgnoreCase(Configurations.YES_STATUS);
-        } catch (Exception e) {
+        } catch (EmptyResultDataAccessException e) {
             throw e;
         }
     }
@@ -84,7 +85,7 @@ public class MerchantCommissionCalculationRepo implements MerchantCommissionCalc
         try {
             String query = "SELECT COMMISSIONPROFILE FROM MERCHANTCUSTOMER WHERE MERCHANTCUSTOMERNO=?";
             commissionProfile = backendJdbcTemplate.queryForObject(query, String.class, merchantCustomerNo);
-        } catch (Exception e) {
+        } catch (EmptyResultDataAccessException e) {
             throw e;
         }
         return commissionProfile;
@@ -96,7 +97,7 @@ public class MerchantCommissionCalculationRepo implements MerchantCommissionCalc
         try {
             String query = "SELECT CALMETHOD FROM COMMISSIONPROFILE WHERE COMMISSIONPROFILECODE=?";
             calMethod = backendJdbcTemplate.queryForObject(query, String.class, profileCode);
-        } catch (Exception e) {
+        } catch (EmptyResultDataAccessException e) {
             throw e;
         }
         return calMethod;
@@ -422,7 +423,7 @@ public class MerchantCommissionCalculationRepo implements MerchantCommissionCalc
         try {
             String query = " SELECT VOLUMEID FROM TRANSACTIONVOLUME WHERE MINLIMIT<=? AND MAXLIMIT >?";
             volumeId = backendJdbcTemplate.queryForObject(query, String.class, totalTxnAmount, totalTxnAmount);
-        } catch (Exception e) {
+        } catch (EmptyResultDataAccessException e) {
             throw e;
         }
         return volumeId;

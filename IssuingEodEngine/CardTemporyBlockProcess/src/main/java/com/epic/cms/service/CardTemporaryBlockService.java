@@ -28,7 +28,7 @@ public class CardTemporaryBlockService {
     @Autowired
     CardBlockRepo cardTemporaryBlockRepo;
 
-    @Async("taskExecutor2")
+    @Async("ThreadPool_100")
     @Transactional(value = "transactionManager", propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
     public void processCardTemporaryBlock(BlockCardBean blockCardBean, ProcessBean processBean, BlockingQueue<Integer> successCount, BlockingQueue<Integer> failCount){
         if (!Configurations.isInterrupted) {

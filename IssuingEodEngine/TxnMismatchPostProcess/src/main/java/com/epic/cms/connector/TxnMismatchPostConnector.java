@@ -28,7 +28,7 @@ public class TxnMismatchPostConnector extends ProcessBuilder {
     private static final Logger logError = LoggerFactory.getLogger("logError");
 
     @Autowired
-    @Qualifier("taskExecutor2")
+    @Qualifier("ThreadPool_100")
     ThreadPoolTaskExecutor taskExecutor;
     @Autowired
     LogManager logManager;
@@ -74,6 +74,7 @@ public class TxnMismatchPostConnector extends ProcessBuilder {
                 });
             //wait till all the threads are completed
             while (!(taskExecutor.getActiveCount() == 0)) {
+                updateEodEngineDashboardProcessProgress();
                 Thread.sleep(1000);
             }
 
@@ -83,7 +84,6 @@ public class TxnMismatchPostConnector extends ProcessBuilder {
             Configurations.IS_PROCESS_COMPLETELY_FAILED = true;
             logError.error(String.valueOf(e));
         } finally {
-           logInfo.info(logManager.logSummery(summery));
             try {
                 /* PADSS Change -
                 variables handling card data should be nullified by replacing the value of variable with zero and call NULL function */

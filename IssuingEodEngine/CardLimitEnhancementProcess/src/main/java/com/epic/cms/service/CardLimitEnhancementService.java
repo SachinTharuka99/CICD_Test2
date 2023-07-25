@@ -29,7 +29,7 @@ public class CardLimitEnhancementService {
     @Autowired
     LogManager logManager;
 
-    @Async("taskExecutor2")
+    @Async("ThreadPool_100")
     @Transactional(value = "transactionManager", propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
     public void processCardLimitEnhancement(ArrayList<BalanceComponentBean> enhancementList, OtbBean bean, BlockingQueue<Integer> successCount, BlockingQueue<Integer> failCount) {
         if (!Configurations.isInterrupted) {

@@ -2,6 +2,7 @@ package com.epic.cms.connector;
 
 import com.epic.cms.common.ProcessBuilder;
 import com.epic.cms.service.OnlineToBackendTxnService;
+import com.epic.cms.util.CommonMethods;
 import com.epic.cms.util.LogManager;
 import lombok.extern.slf4j.Slf4j;
 import org.slf4j.Logger;
@@ -27,6 +28,7 @@ public class OnlineToBackendTxnConnector extends ProcessBuilder {
     public void concreteProcess() throws Exception {
 
         try {
+            CommonMethods.eodDashboardProgressParametersReset();
             onlineToBackendTxnService.OnlineToBackend();
 
         } catch (Exception e) {

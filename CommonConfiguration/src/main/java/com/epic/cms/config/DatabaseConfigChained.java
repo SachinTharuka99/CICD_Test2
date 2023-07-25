@@ -50,7 +50,7 @@ public class DatabaseConfigChained {
         //hikariConfig.setIdleTimeout(200000);
         hikariConfig.setConnectionTimeout(10000);
         hikariConfig.setMaxLifetime(1800000);*/
-        hikariConfig.setMaximumPoolSize(20);
+        hikariConfig.setMaximumPoolSize(100);
         hikariConfig.setConnectionTimeout(300000);
         //hikariConfig.setIdleTimeout(120000);
         hikariConfig.setLeakDetectionThreshold(300000);

@@ -44,7 +44,7 @@ public class ClearMinAmountAndTempBlockService {
     private static final Logger logError = LoggerFactory.getLogger("logError");
 
 
-    @Async("taskExecutor2")
+    @Async("ThreadPool_100")
     @Transactional(value = "transactionManager", propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
     public void processClearMinAmountAndTempBlock(LastStatementSummeryBean lastStatement, BlockingQueue<Integer> successCount, BlockingQueue<Integer> failCount) {
         if (!Configurations.isInterrupted) {
@@ -55,6 +55,8 @@ public class ClearMinAmountAndTempBlockService {
             String activeStatus = null;
             int activeOnlineStatus = 0;
             StringBuffer cardNo = null;
+            Statusts.SUMMARY_FOR_MINPAYMENT_RISK_REMOVED =0;
+            Statusts.SUMMARY_FOR_CARDS_MINAMOUNT_PAID =0;
 
 
             try {

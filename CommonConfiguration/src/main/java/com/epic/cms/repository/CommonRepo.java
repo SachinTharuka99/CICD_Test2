@@ -22,8 +22,6 @@ import java.util.Date;
 import java.util.HashMap;
 import java.util.*;
 
-import static com.epic.cms.util.LogManager.*;
-
 @Repository
 public class CommonRepo implements CommonDao {
 
@@ -48,7 +46,7 @@ public class CommonRepo implements CommonDao {
         ProcessBean processDetails = new ProcessBean();
         try {
             processDetails = backendJdbcTemplate.queryForObject(queryParametersList.getCommonSelectGetProcessDetails(), new ProcessBeanRowMapper(), processId);
-        } catch (Exception e) {
+        } catch (EmptyResultDataAccessException e) {
             throw e;
         }
         return processDetails;
@@ -69,7 +67,7 @@ public class CommonRepo implements CommonDao {
     public void updateEodProcessSummery(int eodId, String status, int processId, int successCount, int failedCount, String progress) throws Exception {
         try {
             System.out.println("------------------updateEodProcessSummery---------------Status- "+status +",----- eodid- "+eodId+",----- processId- "+processId);
-            backendJdbcTemplate.update(queryParametersList.getCommonUpdateEodProcessSummery(), status, "admin", successCount, failedCount, progress, eodId, processId);
+            backendJdbcTemplate.update(queryParametersList.getCommonUpdateEodProcessSummery(), status, Configurations.EOD_USER, successCount, failedCount, progress, eodId, processId);
         } catch (Exception e) {
             //logManager.logError(e,errorLoggerCOM);
         }
@@ -100,7 +98,7 @@ public class CommonRepo implements CommonDao {
         StringBuffer mainCardNo = null;
         try {
             mainCardNo = backendJdbcTemplate.queryForObject(queryParametersList.getCommon_getMainCardNumber(), StringBuffer.class, new Object[]{cardNo});
-        } catch (Exception e) {
+        } catch (EmptyResultDataAccessException e) {
             //logManager.logError(e,errorLoggerCOM);
         }
         return mainCardNo;
@@ -182,7 +180,7 @@ public class CommonRepo implements CommonDao {
         String query = "SELECT ACCOUNTNO FROM CARDACCOUNTCUSTOMER WHERE CARDNUMBER=?";
         try {
             accNo = backendJdbcTemplate.queryForObject(query, String.class, cardNo.toString());
-        } catch (Exception e) {
+        } catch (EmptyResultDataAccessException e) {
             throw e;
         }
         return accNo;
@@ -517,7 +515,7 @@ public class CommonRepo implements CommonDao {
                         }, delinquentAccountBean.getCif());
             }
 
-        } catch (Exception e) {
+        } catch (EmptyResultDataAccessException e) {
             throw e;
         }
         return delinquentAccountBean;
@@ -662,7 +660,7 @@ public class CommonRepo implements CommonDao {
                 isErrorProcess = true;
             }
 
-        } catch (Exception e) {
+        } catch (EmptyResultDataAccessException e) {
             throw e;
         }
 
@@ -713,7 +711,7 @@ public class CommonRepo implements CommonDao {
                             return bean;
                         }
                     },  cardNo.toString());
-        } catch (Exception e) {
+        } catch (EmptyResultDataAccessException e) {
             throw e;
         }
         return cardBean;
@@ -1178,7 +1176,7 @@ public class CommonRepo implements CommonDao {
             if (recordCount > 0) {
                 status = true;
             }
-        } catch (Exception e) {
+        } catch (EmptyResultDataAccessException e) {
             throw e;
         }
         return status;
@@ -1194,7 +1192,7 @@ public class CommonRepo implements CommonDao {
 
             filePath = backendJdbcTemplate.queryForObject(query, String.class, fileCode);
 
-        } catch (Exception e) {
+        } catch (EmptyResultDataAccessException e) {
             throw e;
         }
         return filePath;
@@ -1210,7 +1208,7 @@ public class CommonRepo implements CommonDao {
 
             filePath = backendJdbcTemplate.queryForObject(query, String.class, fileCode);
 
-        } catch (Exception e) {
+        } catch (EmptyResultDataAccessException e) {
             //logManager.logError(e,errorLoggerCOM);
             throw e;
         }
@@ -1286,6 +1284,67 @@ public class CommonRepo implements CommonDao {
             throw e;
         }
         return eodId;
+    }
+
+    @Override
+    @Transactional(value = "transactionManager", propagation = Propagation.REQUIRES_NEW)
+    public int updateEodProcessProgress() {
+        int count = 0;
+        //String Query = "UPDATE EODPROCESSSUMMERY SET SUCCESSCOUNT = ? , FAILEDCOUNT = ? ,PROCESSPROGRESS = ? ,LASTUPDATEDUSER = ?,LASTUPDATEDTIME=SYSDATE WHERE EODID = ? AND PROCESSID = ?";
+
+        try {
+            count = backendJdbcTemplate.update(queryParametersList.getEODEngineProducer_updateEodProcessProgress(),
+                    Configurations.PROCESS_SUCCESS_COUNT,
+                    Configurations.PROCESS_FAILD_COUNT,
+                    Configurations.PROCESS_PROGRESS,
+                    Configurations.EOD_USER,
+                    Configurations.ERROR_EOD_ID,
+                    Configurations.RUNNING_PROCESS_ID);
+        } catch (Exception e) {
+            throw e;
+        }
+        return count;
+    }
+
+    @Override
+    public List<String> getErrorProcessIdList() {
+        List<String> processIdList = new ArrayList<String>();
+        try {
+            //String query = "SELECT PROCESSID FROM EODPROCESSSUMMERY WHERE STATUS='EROR' AND SUCCESSCOUNT=0 AND FAILEDCOUNT=0 AND EODID=?";
+
+            processIdList = backendJdbcTemplate.queryForList(queryParametersList.getEODEngineProducer_getErrorProcessIdList(), String.class, Configurations.ERROR_EOD_ID);
+        } catch (Exception e) {
+            throw e;
+        }
+        return processIdList;
+    }
+
+    @Override
+    @Transactional(value = "transactionManager", propagation = Propagation.REQUIRES_NEW)
+    public void updateProcessProgressForErrorProcess(String processId) {
+        try {
+            //String query = "UPDATE EODPROCESSSUMMERY SET PROCESSPROGRESS='0%' WHERE EODID=? AND PROCESSID=?";
+            backendJdbcTemplate.update(queryParametersList.getEODEngineProducer_updateProcessProgressForErrorProcess(), Configurations.ERROR_EOD_ID, processId);
+        } catch (Exception e) {
+            throw e;
+        }
+    }
+    @Override
+    @Transactional(value = "transactionManager", propagation = Propagation.REQUIRES_NEW)
+    public int updateEodProcessStateCount() {
+        int count = 0;
+        //String query = "UPDATE EOD SET NOOFSUCCESSPROCESS=(SELECT COUNT(*) FROM EODPROCESSSUMMERY WHERE EODID=? AND STATUS=?), NOOFERRORPAROCESS=(SELECT COUNT(*) FROM EODPROCESSSUMMERY WHERE EODID=? AND STATUS=?), LASTUPDATEDUSER=?,LASTUPDATEDTIME=SYSDATE WHERE EODID=?";
+        try {
+            count = backendJdbcTemplate.update(queryParametersList.getEODEngineProducer_updateEodProcessStateCount(), Configurations.ERROR_EOD_ID,
+                    Configurations.COMPLETE_STATUS,
+                    Configurations.ERROR_EOD_ID,
+                    "EROR",
+                    Configurations.EOD_USER,
+                    Configurations.ERROR_EOD_ID);
+        } catch (Exception e) {
+            throw e;
+        }
+        return count;
     }
 
 

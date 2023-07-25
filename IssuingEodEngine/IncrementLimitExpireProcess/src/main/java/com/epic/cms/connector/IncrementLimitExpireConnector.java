@@ -35,7 +35,7 @@ public class IncrementLimitExpireConnector extends ProcessBuilder {
     @Autowired
     LogManager logManager;
     @Autowired
-    @Qualifier("taskExecutor2")
+    @Qualifier("ThreadPool_100")
     ThreadPoolTaskExecutor taskExecutor;
     @Autowired
     StatusVarList status;
@@ -70,6 +70,7 @@ public class IncrementLimitExpireConnector extends ProcessBuilder {
 
                 /**wait till all the threads are completed*/
                 while (!(taskExecutor.getActiveCount() == 0)) {
+                    updateEodEngineDashboardProcessProgress();
                     Thread.sleep(1000);
                 }
             }
@@ -78,18 +79,10 @@ public class IncrementLimitExpireConnector extends ProcessBuilder {
             try {
                 Configurations.IS_PROCESS_COMPLETELY_FAILED = true;
                 logError.error("Increment Limit Expire Process Completely failed", e);
-
-                if (processBean.getCriticalStatus() == 1) {
-                    Configurations.COMMIT_STATUS = false;
-                    Configurations.FLOW_STEP_COMPLETE_STATUS = false;
-                    Configurations.PROCESS_FLOW_STEP_COMPLETE_STATUS = false;
-                    Configurations.MAIN_EOD_STATUS = false;
-                }
             } catch (Exception e2) {
                 logError.error("Increment Limit Expire process ended with", e2);
             }
         } finally {
-            logInfo.info(logManager.logSummery(summery));
             try {
                 if (cardList != null && cardList.size() != 0) {
                     /* PADSS Change -

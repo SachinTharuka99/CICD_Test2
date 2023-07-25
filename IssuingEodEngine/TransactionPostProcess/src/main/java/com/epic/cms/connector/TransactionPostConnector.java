@@ -49,7 +49,6 @@ public class TransactionPostConnector extends ProcessBuilder {
     @Qualifier("ThreadPool_100")
     ThreadPoolTaskExecutor taskExecutor;
 
-    LinkedHashMap summery = new LinkedHashMap();
     private ArrayList<OtbBean> custAccList = new ArrayList<OtbBean>();
     private ArrayList<OtbBean> txnList;
     private int failedCount = 0;
@@ -77,6 +76,7 @@ public class TransactionPostConnector extends ProcessBuilder {
 
             //wait till all the threads are completed
             while (!(taskExecutor.getActiveCount() == 0)) {
+                updateEodEngineDashboardProcessProgress();
                 Thread.sleep(1000);
             }
 
@@ -84,7 +84,6 @@ public class TransactionPostConnector extends ProcessBuilder {
             Configurations.IS_PROCESS_COMPLETELY_FAILED = true;
             logError.error("Failed Transaction Post Process Completely ", e);
         } finally {
-            //logInfo.info(logManager.logSummery(summery));
             try {
                /* PADSS Change -
             variables handling card data should be nullified by replacing the value of variable with zero and call NULL function */

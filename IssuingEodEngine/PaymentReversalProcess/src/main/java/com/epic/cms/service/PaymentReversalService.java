@@ -33,7 +33,7 @@ public class PaymentReversalService {
     LinkedHashMap details = new LinkedHashMap();
     private final List<PaymentBean> paymentReversals = null;
 
-    @Async("taskExecutor2")
+    @Async("ThreadPool_100")
     @Transactional(value = "transactionManager", propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
     public void setPaymentReversals(PaymentBean bean, BlockingQueue<Integer> successCount, BlockingQueue<Integer> failCount)  {
 

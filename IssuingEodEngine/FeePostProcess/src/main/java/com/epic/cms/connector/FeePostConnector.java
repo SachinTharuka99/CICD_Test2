@@ -81,6 +81,7 @@ public class FeePostConnector extends ProcessBuilder {
 
             //wait till all the threads are completed
             while (!(taskExecutor.getActiveCount() == 0)) {
+                updateEodEngineDashboardProcessProgress();
                 Thread.sleep(1000);
             }
             Configurations.PROCESS_TOTAL_NOOF_TRABSACTIONS = (custAccList.size());
@@ -99,7 +100,6 @@ public class FeePostConnector extends ProcessBuilder {
             logError.error("--Error occurred--", ex);
         } finally {
             logInfo.info(logManager.logDetails(details));
-            //logInfo.info(logManager.logSummery(summery));
              /* PADSS Change -
             variables handling card data should be nullified by replacing the value of variable with zero and call NULL function */
             for (OtbBean bean : custAccList) {

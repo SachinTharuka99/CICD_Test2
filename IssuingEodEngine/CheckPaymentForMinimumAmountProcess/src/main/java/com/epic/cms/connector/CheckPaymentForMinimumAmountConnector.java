@@ -60,13 +60,13 @@ public class CheckPaymentForMinimumAmountConnector extends ProcessBuilder {
 
             //wait till all the threads are completed
             while (!(taskExecutor.getActiveCount() == 0)) {
+                updateEodEngineDashboardProcessProgress();
                 Thread.sleep(1000);
             }
         } catch (Exception e) {
             Configurations.IS_PROCESS_COMPLETELY_FAILED = true;
             logError.error("Check Payment For Minimum Amount process ended with", e);
         } finally {
-           // logInfo.info(logManager.logSummery(summery));
             try {
                 if (cardList != null && cardList.size() != 0) {
                     for (LastStatementSummeryBean lastStatementSummeryBean : cardList) {

@@ -148,7 +148,7 @@ public class InstallmentPaymentRepo implements InstallmentPaymentDao {
         try {
             //String query = "SELECT NVL(NONPERFORMINGRISKCLASS,'4') AS NONPERFORMINGRISKCLASS FROM COMMONCARDPARAMETER";
             npRiskClass = backendJdbcTemplate.queryForObject(queryParametersList.getInstallmentPayment_getNPRiskClass(), String.class);
-        } catch (Exception e) {
+        } catch (EmptyResultDataAccessException e) {
             throw e;
         }
         return npRiskClass;
@@ -293,7 +293,7 @@ public class InstallmentPaymentRepo implements InstallmentPaymentDao {
         try {
             txtDescription = backendJdbcTemplate.queryForObject(queryParametersList.getInstallmentPayment_getEodtxnDescription(), String.class, txnID, Configurations.TXN_TYPE_INSTALLMENT, Configurations.TXN_TYPE_REVERSAL_INSTALLMENT);
 
-        } catch (Exception e) {
+        } catch (EmptyResultDataAccessException e) {
             throw e;
         }
         return txtDescription;

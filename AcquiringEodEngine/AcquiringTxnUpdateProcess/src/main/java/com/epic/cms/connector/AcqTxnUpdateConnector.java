@@ -31,7 +31,7 @@ public class AcqTxnUpdateConnector extends ProcessBuilder {
     LogManager logManager;
 
     @Autowired
-    @Qualifier("taskExecutor2")
+    @Qualifier("ThreadPool_100")
     ThreadPoolTaskExecutor taskExecutor;
 
     @Autowired

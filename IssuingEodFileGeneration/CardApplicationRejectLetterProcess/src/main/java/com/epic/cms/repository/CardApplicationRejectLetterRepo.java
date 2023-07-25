@@ -13,6 +13,7 @@ import com.epic.cms.util.LogManager;
 import com.epic.cms.util.QueryParametersList;
 import com.epic.cms.util.StatusVarList;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Repository;
 
@@ -102,7 +103,7 @@ public class CardApplicationRejectLetterRepo implements CardApplicationRejectLet
             cardNo = backendJdbcTemplate.queryForObject(queryParametersList.getCardApplicationRejectLetter_getCardNo(),
                     StringBuffer.class, applicationI
                     );
-        }catch (Exception e){
+        }catch (EmptyResultDataAccessException e){
             throw e;
         }
         return cardNo;

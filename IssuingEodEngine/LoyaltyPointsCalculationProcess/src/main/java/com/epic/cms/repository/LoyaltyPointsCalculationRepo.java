@@ -4,6 +4,7 @@ import com.epic.cms.dao.LoyaltyPointsCalculationDao;
 import com.epic.cms.model.bean.LoyaltyBean;
 import com.epic.cms.util.*;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.core.RowMapperResultSetExtractor;
 import org.springframework.stereotype.Repository;
@@ -87,7 +88,7 @@ public class LoyaltyPointsCalculationRepo implements LoyaltyPointsCalculationDao
 
             loyaltyPoints = backendJdbcTemplate.queryForObject(queryParametersList.getLoyaltyPointsCalculation_getLastStmtClosingLoyalty(), Double.class, cardNo.toString(), statementId);
 
-        } catch (Exception e) {
+        } catch (EmptyResultDataAccessException e) {
             throw e;
         }
         return loyaltyPoints;
@@ -102,7 +103,7 @@ public class LoyaltyPointsCalculationRepo implements LoyaltyPointsCalculationDao
 
         try {
             purchases = backendJdbcTemplate.queryForObject(query, Double.class, Configurations.TXN_TYPE_SALE, Configurations.TXN_TYPE_MVISA_ORIGINATOR, stmtStartEodID, stmtEndEodID, accNo);
-        } catch (Exception e) {
+        } catch (EmptyResultDataAccessException e) {
             throw e;
         }
 
@@ -120,7 +121,7 @@ public class LoyaltyPointsCalculationRepo implements LoyaltyPointsCalculationDao
             //query = "SELECT NVL(REQUESTEDPOINT,0) AS REQUESTEDPOINT , NVL(REQID,0) AS REQID FROM LOYALTYREDEEMREQUEST WHERE CARDNO = ? AND APPROVEDDATE > TO_DATE(?, 'DD-MM-YY') AND APPROVEDDATE <= TO_DATE(?, 'DD-MM-YY')";
             loyaltyPoints = backendJdbcTemplate.queryForObject(queryParametersList.getLoyaltyPointsCalculation_getThisMonthRedeem(), double.class, cardNo.toString(), sdf.format(stmtStartDate), sdf.format(stmtEndDate)
             );
-        } catch (Exception e) {
+        } catch (EmptyResultDataAccessException e) {
             throw e;
         }
         return loyaltyPoints;
@@ -134,7 +135,7 @@ public class LoyaltyPointsCalculationRepo implements LoyaltyPointsCalculationDao
         //String sql = "SELECT DISTINCT  NVL(((SELECT NVL(SUM(AMOUNT),0) CR FROM ADJUSTMENT WHERE CRDR  = ? AND ADJUSTMENTTYPE = ? AND UNIQUEID  IN (SELECT CA.CARDNUMBER FROM CARDACCOUNTCUSTOMER CA, CARD CD WHERE CA.CARDNUMBER = CD.CARDNUMBER AND CA.ACCOUNTNO= ? ) AND ADJUSTDATE > TO_DATE(?, 'DD-MM-YY') AND ADJUSTDATE <= TO_DATE(?, 'DD-MM-YY') AND STATUS = ? ) - (SELECT NVL(SUM(AMOUNT),0) DR FROM ADJUSTMENT WHERE CRDR  = ? AND ADJUSTMENTTYPE = ? AND UNIQUEID IN (SELECT CA.CARDNUMBER FROM CARDACCOUNTCUSTOMER CA, CARD CD WHERE CA.CARDNUMBER = CD.CARDNUMBER AND CA.ACCOUNTNO    = ? ) AND ADJUSTDATE > TO_DATE(?, 'DD-MM-YY') AND ADJUSTDATE <= TO_DATE(?, 'DD-MM-YY') AND STATUS = ?) ),0)AS TOTALADJUSTLOYALTYAMOUNT FROM ADJUSTMENT";
         try {
             adjustLoyalty = backendJdbcTemplate.queryForObject(queryParametersList.getLoyaltyPointsCalculation_getAdjustLoyalty(), Double.class, Configurations.CREDIT, Configurations.LOYALTY_ADJUSTMENT_TYPE, accNo, sdf.format(stmtStartDate), sdf.format(stmtEndDate), statusList.getMANUAL_ADJUSTMENT_ACCEPT(), Configurations.DEBIT, Configurations.LOYALTY_ADJUSTMENT_TYPE, accNo, sdf.format(stmtStartDate), sdf.format(stmtEndDate), statusList.getMANUAL_ADJUSTMENT_ACCEPT());
-        } catch (Exception e) {
+        } catch (EmptyResultDataAccessException e) {
             throw e;
         }
         return adjustLoyalty;

@@ -7,6 +7,7 @@ import com.epic.cms.model.bean.ProcessBean;
 import com.epic.cms.repository.CommonRepo;
 import com.epic.cms.repository.ManualNpRepo;
 import com.epic.cms.service.ManualNpService;
+import com.epic.cms.util.CommonMethods;
 import com.epic.cms.util.Configurations;
 import com.epic.cms.util.LogManager;
 import com.epic.cms.util.StatusVarList;
@@ -47,7 +48,7 @@ public class ManualNpConnector extends ProcessBuilder {
     @Autowired
     LogManager logManager;
     @Autowired
-    @Qualifier("taskExecutor2")
+    @Qualifier("ThreadPool_100")
     ThreadPoolTaskExecutor taskExecutor;
     int selectedaccounts = 0;
     int successCounts = 0;
@@ -58,6 +59,7 @@ public class ManualNpConnector extends ProcessBuilder {
 
         ProcessBean processBean = new ProcessBean();
         try {
+            CommonMethods.eodDashboardProgressParametersReset();
 
             processBean = commonRepo.getProcessDetails(Configurations.PROCESS_ID_MANUAL_NP_PROCESS);
             if (processBean != null) {
@@ -80,6 +82,7 @@ public class ManualNpConnector extends ProcessBuilder {
                 }
 
                 while (!(taskExecutor.getActiveCount() == 0)) {
+                    updateEodEngineDashboardProcessProgress();
                     Thread.sleep(1000);
                 }
 
@@ -121,6 +124,7 @@ public class ManualNpConnector extends ProcessBuilder {
                 });
 
                 while (!(taskExecutor.getActiveCount() == 0)) {
+                    updateEodEngineDashboardProcessProgress();
                     Thread.sleep(1000);
                 }
 
@@ -144,8 +148,6 @@ public class ManualNpConnector extends ProcessBuilder {
             } catch (Exception e2) {
                 logError.error("Exception", e2);
             }
-        } finally {
-            //logInfo.info(logManager.logSummery(summery));
         }
     }
 

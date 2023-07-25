@@ -41,7 +41,7 @@ public class MerchantGLSummaryFileService {
     private static final Logger logError = LoggerFactory.getLogger("logError");
 
 
-    @Async("taskExecutor2")
+    @Async("ThreadPool_100")
     @Transactional(value = "transactionManager", propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
     public void commissionGlFile(GlAccountBean glaccountBean) {
         LinkedHashMap accDetails = new LinkedHashMap();
@@ -67,7 +67,7 @@ public class MerchantGLSummaryFileService {
         }
     }
 
-    @Async("taskExecutor2")
+    @Async("ThreadPool_100")
     @Transactional(value = "transactionManager", propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
     public void createFeeGLFile(GlAccountBean glaccountBean) {
         LinkedHashMap accDetails = new LinkedHashMap();
@@ -93,7 +93,7 @@ public class MerchantGLSummaryFileService {
         }
     }
 
-    @Async("taskExecutor2")
+    @Async("ThreadPool_100")
     @Transactional(value = "transactionManager", propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
     public void createEODMerchantTxnTableGLFile(GlAccountBean glaccountBean) {
         LinkedHashMap accDetails = new LinkedHashMap();
@@ -119,7 +119,7 @@ public class MerchantGLSummaryFileService {
         }
     }
 
-    @Async("taskExecutor2")
+    @Async("ThreadPool_100")
     @Transactional(value = "transactionManager", propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
     public void createMerchantPaymentTableGLFile(GlAccountBean glaccountBean) {
         LinkedHashMap accDetails = new LinkedHashMap();

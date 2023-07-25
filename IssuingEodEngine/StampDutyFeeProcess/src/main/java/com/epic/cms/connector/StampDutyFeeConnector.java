@@ -54,9 +54,6 @@ public class StampDutyFeeConnector extends ProcessBuilder {
             } else if (Configurations.STARTING_EOD_STATUS.equals(statusVarList.getERROR_STATUS())) {
                 statementAccountList = stampDutyFeeRepo.getErrorStatementAccountList();
             }
-            Configurations.PROCESS_TOTAL_NOOF_TRABSACTIONS = statementAccountList.size();
-            noOfCards = statementAccountList.size();
-
 //            for (StampDutyBean stampDutyAcoountBean : statementAccountList) {
 //                stampDutyFeeService.StampDutyFee(stampDutyAcoountBean,faileCardCount);
 //            }
@@ -70,6 +67,7 @@ public class StampDutyFeeConnector extends ProcessBuilder {
 
             //wait till all the threads are completed
             while (!(taskExecutor.getActiveCount() == 0)) {
+                updateEodEngineDashboardProcessProgress();
                 Thread.sleep(1000);
             }
         } catch (Exception e) {
