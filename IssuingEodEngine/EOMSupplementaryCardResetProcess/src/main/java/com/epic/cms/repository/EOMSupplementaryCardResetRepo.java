@@ -19,6 +19,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import com.epic.cms.util.*;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.core.RowMapper;
@@ -42,7 +43,9 @@ public class EOMSupplementaryCardResetRepo implements EOMSupplementaryCardResetD
     LogManager logManager;
     @Autowired
     private JdbcTemplate backendJdbcTemplate;
+
     @Autowired
+    @Qualifier("onlineJdbcTemplate")
     private JdbcTemplate onlineJdbcTemplate;
 
     @Autowired
@@ -281,6 +284,7 @@ public class EOMSupplementaryCardResetRepo implements EOMSupplementaryCardResetD
                             supCardBalance.put("cashAdvanced", rs.getDouble("CUMCASHADVANCE"));
                             supCardBalance.put("txns", rs.getDouble("CUMTRANSACTION"));
                         }
+                        return supCardBalance;
                     }
                     , cardNo);
 
@@ -296,8 +300,8 @@ public class EOMSupplementaryCardResetRepo implements EOMSupplementaryCardResetD
         SimpleDateFormat sdf = new SimpleDateFormat("dd-MMM-yy");
 
         try {
-            //String query = "UPDATE EOMCARDBALANCE SET LASTUPDATEDTIME = TO_DATE(?, 'DD-MM-YY'), LASTUPDATEDUSER=?,CUMFINANCIALCHARGE=?,CUMCASHADVANCE=?, CUMTRANSACTION=?,STATUS=?,EODID=? WHERE CARDNUMBER =?";
-            backendJdbcTemplate.update(queryParametersList.getEOMSupplementaryCardReset_resetEOMCardBalance()
+            String query = "UPDATE EOMCARDBALANCE SET LASTUPDATEDTIME = TO_DATE(?, 'DD-MM-YY'), LASTUPDATEDUSER=?,CUMFINANCIALCHARGE=?,CUMCASHADVANCE=?, CUMTRANSACTION=?,STATUS=?,EODID=? WHERE CARDNUMBER =?";
+            backendJdbcTemplate.update(query
                     , sdf.format(Configurations.EOD_DATE) //1
                     , Configurations.EOD_USER //2
                     , 0 //3
@@ -367,9 +371,9 @@ public class EOMSupplementaryCardResetRepo implements EOMSupplementaryCardResetD
     @Override
     public void updateMainCardBalOnline(StringBuffer mainCardNumber, Double totalSupTempCredit, Double totalSupTempCash, Double supFowardPayments) throws Exception {
         try {
-            //String query = "update ECMS_ONLINE_CARD set OTBCREDIT = OTBCREDIT - ? ,OTBCASH = OTBCASH - ?, TEMPCREDITAMOUNT = TEMPCREDITAMOUNT + ?, TEMPCASHAMOUNT = TEMPCASHAMOUNT + ? where CARDNUMBER = ?";
+            String query = "update ECMS_ONLINE_CARD set OTBCREDIT = OTBCREDIT - ? ,OTBCASH = OTBCASH - ?, TEMPCREDITAMOUNT = TEMPCREDITAMOUNT + ?, TEMPCASHAMOUNT = TEMPCASHAMOUNT + ? where CARDNUMBER = ?";
 
-            onlineJdbcTemplate.update(queryParametersList.getEOMSupplementaryCardReset_updateMainCardBalOnline()
+            onlineJdbcTemplate.update(query
                     , totalSupTempCredit
                     , totalSupTempCash
                     , totalSupTempCredit
@@ -414,7 +418,7 @@ public class EOMSupplementaryCardResetRepo implements EOMSupplementaryCardResetD
     }
 
     @Override
-    public int insertNewEntryToEodPayment(StringBuffer mainCardNo, double allSupCardFP) throws Exception {
+    public int insertNewEntryToEodPayment(StringBuffer mainCardNo, double allSupCardFP) {
         int sequenceNo = 100000;
         int count = 0;
 
@@ -442,7 +446,7 @@ public class EOMSupplementaryCardResetRepo implements EOMSupplementaryCardResetD
                     , statusVarList.getINITIAL_STATUS() //10
                     , Configurations.EOD_USER //11
             );
-        } catch (EmptyResultDataAccessException e) {
+        } catch (Exception e) {
             throw e;
         }
         return count;
@@ -513,7 +517,7 @@ public class EOMSupplementaryCardResetRepo implements EOMSupplementaryCardResetD
                 OTBsAfterResetting.put(cardList.get(i), value);
             }
         } catch (EmptyResultDataAccessException e) {
-            throw e;
+           return OTBsAfterResetting;
         }
         return OTBsAfterResetting;
     }

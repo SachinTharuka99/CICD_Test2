@@ -4,6 +4,7 @@ import com.epic.cms.dao.CardPermanentBlockDao;
 import com.epic.cms.util.QueryParametersList;
 import com.epic.cms.util.StatusVarList;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Repository;
 
@@ -14,6 +15,7 @@ public class CardPermanentBlockRepo implements CardPermanentBlockDao {
     private JdbcTemplate backendJdbcTemplate;
 
     @Autowired
+    @Qualifier("onlineJdbcTemplate")
     private JdbcTemplate onlineJdbcTemplate;
 
     @Autowired

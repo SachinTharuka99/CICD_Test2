@@ -8,6 +8,7 @@ import com.epic.cms.model.bean.StatementBean;
 import com.epic.cms.util.*;
 import org.jsoup.Jsoup;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.core.RowCountCallbackHandler;
 import org.springframework.stereotype.Repository;
@@ -35,6 +36,7 @@ public class AlertRepo implements AlertDao {
     private JdbcTemplate backendJdbcTemplate;
 
     @Autowired
+    @Qualifier("onlineJdbcTemplate")
     private JdbcTemplate onlineJdbcTemplate;
 
     @Autowired

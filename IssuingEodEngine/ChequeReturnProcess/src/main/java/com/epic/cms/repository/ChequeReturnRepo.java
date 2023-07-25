@@ -118,11 +118,9 @@ public class ChequeReturnRepo implements ChequeReturnDao {
         String query = null;
         try {
 
-            //query = "SELECT CP.*,P.CARDNUMBER AS OLDCARDNUMBER,P.SEQUENCENUMBER AS CQRTSEQ,P.CHEQUE_RET_CODE FROM CHEQUEPAYMENT CP LEFT JOIN PAYMENT P ON CP.SEQUENCENUMBER=P.TRACEID WHERE CP.CHEQUESTATUS=? AND CP.STATUS=? AND P.TRANSACTIONTYPE=? AND p.cardnumber = '4380439574186260'"; //Add cardnumber
-            query = queryParametersList.getChequeReturn_returnChequePaymentDetails();
+            query = "SELECT CP.*,P.CARDNUMBER AS OLDCARDNUMBER,P.SEQUENCENUMBER AS CQRTSEQ,P.CHEQUE_RET_CODE FROM CHEQUEPAYMENT CP LEFT JOIN PAYMENT P ON CP.SEQUENCENUMBER=P.TRACEID WHERE CP.CHEQUESTATUS=? AND CP.STATUS=? AND P.TRANSACTIONTYPE=? ";
             query += CommonMethods.checkForErrorCards("CP.CARDNUMBER");
-            //query += " ORDER BY CP.CARDNUMBER";
-            query += queryParametersList.getChequeReturn_returnChequePaymentDetails_OrderBy();
+            query += " ORDER BY CP.CARDNUMBER";
 
             backendJdbcTemplate.query(query,
                     (ResultSet result) -> {
@@ -413,7 +411,7 @@ public class ChequeReturnRepo implements ChequeReturnDao {
             //String query = "SELECT TRANSACTIONID FROM EODTRANSACTION WHERE CARDNUMBER=? AND SEQUENCENUMBER=? AND TRANSACTIONTYPE=?";
             txnID = backendJdbcTemplate.queryForObject(queryParametersList.getChequeReturn_getTxnIdForLastCheque(), String.class, bean.getCardnumber().toString(), bean.getSequencenumber(), Configurations.TXN_TYPE_PAYMENT);
         } catch (EmptyResultDataAccessException ex) {
-
+            return null;
         } catch (Exception ex) {
             throw ex;
         }
@@ -563,7 +561,7 @@ public class ChequeReturnRepo implements ChequeReturnDao {
             //String query = "SELECT ACCOUNTNO FROM CARDACCOUNTCUSTOMER WHERE CARDNUMBER=?";
             accNo = backendJdbcTemplate.queryForObject(queryParametersList.getChequeReturn_getAccountNoOnCard(), String.class, cardNo.toString());
         } catch (EmptyResultDataAccessException ex) {
-            throw ex;
+            return null;
         }
         return accNo;
     }
@@ -631,7 +629,7 @@ public class ChequeReturnRepo implements ChequeReturnDao {
                 forward = true;
             }
         } catch (EmptyResultDataAccessException ex) {
-            return forward;
+            return false;
         } catch (Exception ex) {
             throw ex;
         }
@@ -671,7 +669,7 @@ public class ChequeReturnRepo implements ChequeReturnDao {
                     status.getACTIVE_STATUS());
 
         } catch (EmptyResultDataAccessException ex) {
-            return blockBean;
+            return null;
         } catch (Exception ex) {
             throw ex;
         }
@@ -682,7 +680,7 @@ public class ChequeReturnRepo implements ChequeReturnDao {
     public int updateCardStatus(StringBuffer cardNumber, String status) throws Exception {
         int count = 0;
         try {
-          //  String query = "UPDATE CARD SET CARDSTATUS=? , LASTUPDATEDTIME = SYSDATE , LASTUPDATEDUSER = ? WHERE CARDNUMBER = ?";
+            //  String query = "UPDATE CARD SET CARDSTATUS=? , LASTUPDATEDTIME = SYSDATE , LASTUPDATEDUSER = ? WHERE CARDNUMBER = ?";
             count = backendJdbcTemplate.update(queryParametersList.getChequeReturn_updateCardStatus(), status, Configurations.EOD_USER, cardNumber.toString());
         } catch (Exception ex) {
             throw ex;
@@ -744,104 +742,113 @@ public class ChequeReturnRepo implements ChequeReturnDao {
         MinimumPaymentBean minimumPaymentBean = null;
         Boolean flag = false;
         int month = 0;
-        //String allPayments = "SELECT * FROM MINIMUMPAYMENT WHERE CARDNO=?";
-        //String allPaymentsSameDay = "SELECT COUNT(*) AS RECORDCOUNT FROM MINIMUMPAYMENT WHERE CARDNO=? AND LASTEODID=?";
-        //String insertQuery = "INSERT INTO MINIMUMPAYMENT (CARDNO,M1,M1DATE,STATUS,COUNT,LASTEODID) values (?,?,?,?,1,?)";
+        String allPayments = "SELECT * FROM MINIMUMPAYMENT WHERE CARDNO=?";
+        String allPaymentsSameDay = "SELECT COUNT(*) AS RECORDCOUNT FROM MINIMUMPAYMENT WHERE CARDNO=? AND LASTEODID=?";
+        String insertQuery = "INSERT INTO MINIMUMPAYMENT (CARDNO,M1,M1DATE,STATUS,COUNT,LASTEODID) values (?,?,?,?,1,?)";
         try {
-            minimumPaymentBean = backendJdbcTemplate.queryForObject(queryParametersList.getChequeReturn_insertToMinPayTableOld_allPayments_Select(), new MinimumPaymentRowMapper(), cardNo);
+            minimumPaymentBean = backendJdbcTemplate.queryForObject(allPayments, new MinimumPaymentRowMapper(), cardNo);
 
             int count = 0;
             boolean sameDay = false;
-            int recordCount = backendJdbcTemplate.queryForObject(queryParametersList.getChequeReturn_insertToMinPayTableOld_allPaymentsSameDay_Select(), Integer.class, cardNo.toString(), Configurations.EOD_ID);
-            if (recordCount > 0) {
-                //EOD is executing in the same day.
-                sameDay = true;
-            }
-            String mFee = null;//0f;
+            if (minimumPaymentBean != null) {
+                int recordCount = 0;
+                try {
+                    recordCount = backendJdbcTemplate.queryForObject(allPaymentsSameDay, Integer.class, cardNo.toString(), Configurations.EOD_ID);
 
-            for (int i = 1; i <= 12; i++) {
-                String nextMonth = null;
-                switch (i) {
-                    case 1:
-                        nextMonth = minimumPaymentBean.getM1();
-                        break;
-                    case 2:
-                        nextMonth = minimumPaymentBean.getM2();
-                        break;
-                    case 3:
-                        nextMonth = minimumPaymentBean.getM3();
-                        break;
-                    case 4:
-                        nextMonth = minimumPaymentBean.getM4();
-                        break;
-                    case 5:
-                        nextMonth = minimumPaymentBean.getM5();
-                        break;
-                    case 6:
-                        nextMonth = minimumPaymentBean.getM6();
-                        break;
-                    case 7:
-                        nextMonth = minimumPaymentBean.getM7();
-                        break;
-                    case 8:
-                        nextMonth = minimumPaymentBean.getM8();
-                        break;
-                    case 9:
-                        nextMonth = minimumPaymentBean.getM9();
-                        break;
-                    case 10:
-                        nextMonth = minimumPaymentBean.getM10();
-                        break;
-                    case 11:
-                        nextMonth = minimumPaymentBean.getM11();
-                        break;
-                    case 12:
-                        nextMonth = minimumPaymentBean.getM12();
-                        break;
+                } catch (EmptyResultDataAccessException ex) {
+                    recordCount = 0;
                 }
-                if ((nextMonth == null) || (0 == Double.parseDouble(nextMonth))) {
-                    month = i;
-                    count++;
-                    break;
+                if (recordCount > 0) {
+                    //EOD is executing in the same day.
+                    sameDay = true;
                 }
-                count++;
-            }
+                String mFee = null;//0f;
 
-            if (month == 0) {
-                month = 12;
-                count = 12;
-            }
-
-            if (sameDay) {
-                if (month != 1) {
-                    if (month == 0) {
-                        month = 12;
-                        count = 12;
-                    } else {
-                        month -= 1;
+                for (int i = 1; i <= 12; i++) {
+                    String nextMonth = null;
+                    switch (i) {
+                        case 1:
+                            nextMonth = minimumPaymentBean.getM1();
+                            break;
+                        case 2:
+                            nextMonth = minimumPaymentBean.getM2();
+                            break;
+                        case 3:
+                            nextMonth = minimumPaymentBean.getM3();
+                            break;
+                        case 4:
+                            nextMonth = minimumPaymentBean.getM4();
+                            break;
+                        case 5:
+                            nextMonth = minimumPaymentBean.getM5();
+                            break;
+                        case 6:
+                            nextMonth = minimumPaymentBean.getM6();
+                            break;
+                        case 7:
+                            nextMonth = minimumPaymentBean.getM7();
+                            break;
+                        case 8:
+                            nextMonth = minimumPaymentBean.getM8();
+                            break;
+                        case 9:
+                            nextMonth = minimumPaymentBean.getM9();
+                            break;
+                        case 10:
+                            nextMonth = minimumPaymentBean.getM10();
+                            break;
+                        case 11:
+                            nextMonth = minimumPaymentBean.getM11();
+                            break;
+                        case 12:
+                            nextMonth = minimumPaymentBean.getM12();
+                            break;
                     }
-
+                    if ((nextMonth == null) || (0 == Double.parseDouble(nextMonth))) {
+                        month = i;
+                        count++;
+                        break;
+                    }
+                    count++;
                 }
+
+                if (month == 0) {
+                    month = 12;
+                    count = 12;
+                }
+
+                if (sameDay) {
+                    if (month != 1) {
+                        if (month == 0) {
+                            month = 12;
+                            count = 12;
+                        } else {
+                            month -= 1;
+                        }
+
+                    }
+                }
+                String updateQuery = "UPDATE MINIMUMPAYMENT SET M" + month + "=?,M" + month + "DATE=?, STATUS=?, COUNT =?, LASTEODID=?,LASTUPDATEDTIME=sysdate WHERE CARDNO=?";
+                String status1 = status.getEOD_PENDING_STATUS();
+                if (month >= Configurations.NO_OF_MONTHS_FOR_PERMENANT_BLOCK) {//TODO 3 should be a variable.
+                    /**
+                     * if the pending months are greater than 3, then the min
+                     * amount becomes the actual total transaction amount
+                     */
+                    status1 = status.getCARD_TEMPORARY_BLOCK_Status();
+                    //Changed by the NP
+                    //fee = totalTransactions;
+                }
+                backendJdbcTemplate.update(updateQuery, fee - paymentAmount, dueDate, status1, count, Configurations.EOD_ID, cardNo.toString());
+                flag = true;
+            } else {
+                backendJdbcTemplate.update(queryParametersList.getChequeReturn_insertToMinPayTableOld_Insert(), cardNo.toString(), fee - paymentAmount, dueDate, status.getEOD_PENDING_STATUS(), Configurations.EOD_ID);
+                flag = true;
             }
-            String updateQuery = "UPDATE MINIMUMPAYMENT SET M" + month + "=?,M" + month + "DATE=?, STATUS=?, COUNT =?, LASTEODID=?,LASTUPDATEDTIME=sysdate WHERE CARDNO=?";
-            String status1 = status.getEOD_PENDING_STATUS();
-            if (month >= Configurations.NO_OF_MONTHS_FOR_PERMENANT_BLOCK) {//TODO 3 should be a variable.
-                /**
-                 * if the pending months are greater than 3, then the min
-                 * amount becomes the actual total transaction amount
-                 */
-                status1 = status.getCARD_TEMPORARY_BLOCK_Status();
-                //Changed by the NP
-                //fee = totalTransactions;
-            }
-            backendJdbcTemplate.update(updateQuery, fee - paymentAmount, dueDate, status1, count, Configurations.EOD_ID, cardNo.toString());
-            flag = true;
+
 
         } catch (EmptyResultDataAccessException ex) {
-            backendJdbcTemplate.update(queryParametersList.getChequeReturn_insertToMinPayTableOld_Insert(), cardNo.toString(), fee - paymentAmount, dueDate, status.getEOD_PENDING_STATUS(), Configurations.EOD_ID);
-            //logManager.logError("--no result found--",errorLogger);
-            backendJdbcTemplate.update(queryParametersList.getChequeReturn_insertToMinPayTableOld_Insert(), cardNo.toString(), fee - paymentAmount, dueDate, status.getEOD_PENDING_STATUS(), Configurations.EOD_ID);
-            flag = true;
+            return false;
         } catch (Exception ex) {
             throw ex;
         }
