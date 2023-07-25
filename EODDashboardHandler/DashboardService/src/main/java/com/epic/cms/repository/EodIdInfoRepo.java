@@ -26,4 +26,7 @@ public interface EodIdInfoRepo extends JpaRepository<EOD, Long>, JpaSpecificatio
 
     List<EOD> findAllByOrderByEODIDDesc();
 
+    @Query("SELECT COUNT(ps.PROCESSID) AS count FROM EODPROCESS ps INNER JOIN EODPROCESSFLOW ep ON ps.PROCESSID = ep.PROCESSID WHERE ps.EODMODULE = ?1 AND ps.STATUS = ?2")
+    int countAllByProcessCount(String eodEngine, String status);
+
 }

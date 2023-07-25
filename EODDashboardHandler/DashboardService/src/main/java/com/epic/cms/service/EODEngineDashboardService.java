@@ -23,12 +23,16 @@ import org.springframework.stereotype.Service;
 
 import java.math.BigDecimal;
 import java.text.SimpleDateFormat;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.List;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 @Service
 public class EODEngineDashboardService {
 
+    private static final Logger logError = LoggerFactory.getLogger("logError");
     public Long dashboardCurrentEodId = 0L;
     @Autowired
     EodIdInfoRepo eodIdInfoRepo;
@@ -64,8 +68,6 @@ public class EODEngineDashboardService {
     CommonRepo commonRepo;
     @Autowired
     private KafkaTemplate<String, String> kafkaTemplate;
-    private static final Logger logError = LoggerFactory.getLogger("logError");
-
 
     public EodBean getEodInfoList(Long eodId) {
         EodBean eodBean = new EodBean();
@@ -76,45 +78,106 @@ public class EODEngineDashboardService {
             Optional<EOD> eodInfo = eodIdInfoRepo.findById(eodId);
 
             //int count1 = eodProcessFlowRepo.countByPROCESSCATEGORYIDNotIn(Collections.singletonList(90));
-            int engineCount = eodProcessFlowRepo.countBySTATUSIn(List.of("ACT"));
+            //int engineCount = eodProcessFlowRepo.countBySTATUSIn(List.of("ACT"));
             SimpleDateFormat outputFormatter = new SimpleDateFormat("dd-MMM-yy hh.mm a");
 
-            List<FileGenFailSuccessCountBean> fileGenSummary = processFailSuccessCountRepo.findFileGenSummary(eodId, Configurations.EOD_FILE_GENERATION);
-            List<FileProcessFailSuccessCountBean> fileProcessSummary = processFailSuccessCountRepo.findFileProcessSummary(eodId, Configurations.EOD_FILE_PROCESSING);
+            int fileGenSuccessCount = processFailSuccessCountRepo.countAllBySummary(eodId, Configurations.EOD_FILE_GENERATION, "COMP");
+            int fileGenErrorCount = processFailSuccessCountRepo.countAllBySummary(eodId, Configurations.EOD_FILE_GENERATION, "EROR");
+            int fileProSuccessCount = processFailSuccessCountRepo.countAllBySummary(eodId, Configurations.EOD_FILE_PROCESSING, "COMP");
+            int fileProErrorCount = processFailSuccessCountRepo.countAllBySummary(eodId, Configurations.EOD_FILE_PROCESSING, "EROR");
+            int engineCount = eodIdInfoRepo.countAllByProcessCount(Configurations.EOD_ENGINE, "ACT");
 
             eodInfo.ifPresentOrElse(eod -> {
-                eodBean.setEodId(eod.getEODID());
+                        eodBean.setEodId(eod.getEODID());
 
-                // Format startTime
-                Date startTime = eod.getSTARTTIME();
-                String formattedStartTime = outputFormatter.format(startTime);
-                eodBean.setStartTime(formattedStartTime);
+//                        if (eod.getEODID() == 0L) {
+//                            eodBean.setEodId(Long.valueOf(0));
+//                        } else {
+//                            eodBean.setEodId(eod.getEODID());
+//                        }
 
-                // Format endTime
-                Date endTime = eod.getENDTIME();
-                String formattedEndTime = outputFormatter.format(endTime);
-                eodBean.setEndTime(formattedEndTime);
+                        // Format startTime
+                        Date startTime = eod.getSTARTTIME();
+                        String formattedStartTime = outputFormatter.format(startTime);
+                        //eodBean.setStartTime(formattedStartTime);
 
-                eodBean.setStatus(eod.getSTATUS());
-                eodBean.setFileGenStatus(eod.getFILEGENERATIONSTATUS());
-                eodBean.setSubEodStatus(eod.getSUBEODSTATUS());
-                eodBean.setEngineNoOfSuccessProcess(eod.getNOOFSUCCESSPROCESS());
-                eodBean.setEngineNoOfErrorProcess(eod.getNOOFERRORPAROCESS());
-                eodBean.setEnginTotalProcessCount(engineCount);
-            }
-            , () -> {
-                logError.error("EOD not found for ID: " + eodBean.getEodId());
-            });
+                        if (startTime == null) {
+                            eodBean.setStartTime("N/A");
+                        } else {
+                            eodBean.setStartTime(formattedStartTime);
+                        }
 
-            fileGenSummary.forEach(eod -> {
-               eodBean.setFileProcessNoOfSuccessProcess(eod.getFileGenNoOfSuccessProcess());
-                eodBean.setFileProcessNoOfErrorProcess(eod.getFileGenNoOfErrorProcess());
-            });
 
-            fileProcessSummary.forEach(eod -> {
-                eodBean.setFileProcessNoOfSuccessProcess(eod.getFileProcessNoOfSuccessProcess());
-                eodBean.setFileProcessNoOfErrorProcess(eod.getFileProcessNoOfErrorProcess());
-            });
+                        // Format endTime
+                        Date endTime = eod.getENDTIME();
+                        String formattedEndTime = outputFormatter.format(endTime);
+                        //eodBean.setEndTime(formattedEndTime);
+
+                        if (endTime == null) {
+                            eodBean.setEndTime("N/A");
+                        } else {
+                            eodBean.setEndTime(formattedEndTime);
+                        }
+
+                        //eodBean.setStatus(eod.getSTATUS());
+
+                        if (eod.getSTATUS() == null) {
+                            eodBean.setStatus("N/A");
+                        } else {
+                            eodBean.setStatus(eod.getSTATUS());
+                        }
+
+                        //eodBean.setEngineNoOfSuccessProcess(eod.getNOOFSUCCESSPROCESS());
+
+                        if (eod.getNOOFSUCCESSPROCESS() == 0) {
+                            eodBean.setEngineNoOfSuccessProcess(0);
+                        } else {
+                            eodBean.setEngineNoOfSuccessProcess(eod.getNOOFSUCCESSPROCESS());
+                        }
+
+                        //eodBean.setEngineNoOfErrorProcess(eod.getNOOFERRORPAROCESS());
+
+                        if (eod.getNOOFSUCCESSPROCESS() == 0) {
+                            eodBean.setEngineNoOfErrorProcess(0);
+                        } else {
+                            eodBean.setEngineNoOfErrorProcess(eod.getNOOFERRORPAROCESS());
+                        }
+
+                        //eodBean.setEnginTotalProcessCount(engineCount);
+
+                        if (fileProSuccessCount == 0) {
+                            eodBean.setEnginTotalProcessCount(0);
+                        } else {
+                            eodBean.setEnginTotalProcessCount(engineCount);
+                        }
+
+                        if (fileProSuccessCount == 0) {
+                            eodBean.setFileProcessNoOfSuccessProcess(0);
+                        } else {
+                            eodBean.setFileProcessNoOfSuccessProcess(fileProSuccessCount);
+                        }
+
+                        if (fileProErrorCount == 0) {
+                            eodBean.setFileProcessNoOfErrorProcess(0);
+                        } else {
+                            eodBean.setFileProcessNoOfErrorProcess(fileProErrorCount);
+                        }
+
+                        if (fileGenSuccessCount == 0) {
+                            eodBean.setFileGenNoOfSuccessProcess(0);
+                        }  else {
+                            eodBean.setFileGenNoOfSuccessProcess(fileGenSuccessCount);
+                        }
+
+                        if (fileGenErrorCount == 0) {
+                            eodBean.setFileGenNoOfErrorProcess(0);
+                        } else {
+                            eodBean.setFileGenNoOfErrorProcess(fileGenErrorCount);
+                        }
+                    }
+                    , () -> {
+                        logError.error("EOD not found for ID: " + eodBean.getEodId());
+                    });
 
         } catch (Exception e) {
             throw e;

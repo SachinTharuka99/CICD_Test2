@@ -19,7 +19,6 @@ public class EodBean {
     private String startTime;
     private String endTime;
     private String status;
-    private String subEodStatus;
     private Integer engineNoOfSuccessProcess;
     private Integer engineNoOfErrorProcess;
     private Integer enginTotalProcessCount;
@@ -27,5 +26,4 @@ public class EodBean {
     private Integer fileGenNoOfErrorProcess;
     private Integer fileProcessNoOfSuccessProcess;
     private Integer fileProcessNoOfErrorProcess;
-    private String fileGenStatus;
 }
