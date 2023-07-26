@@ -1011,7 +1011,7 @@ public class CommonRepo implements CommonDao {
     public String getCardAssociationFromCardBin(String cardBin) throws Exception {
         String cardAssociation = null;
         try {
-            String query = "SELECT CAC.CARDASSOCIATION AS CARDASSOCIATION FROM CARDASSOCIATIONCHANNEL CAC INNER JOIN BIN CB ON CAC.CHANNELID=CB.CHANNELID WHERE CB.BIN=?";
+            String query = "SELECT CAC.CARDASSOCIATION AS CARDASSOCIATION FROM CARDASSOCIATIONCHANNEL CAC INNER JOIN CARDBIN CB ON CAC.CHANNELID=CB.CHANNELID WHERE CB.BIN=?";
             cardAssociation = backendJdbcTemplate.queryForObject(query, String.class, cardBin);
         } catch (EmptyResultDataAccessException e) {
             //logManager.logError("--no result found--",errorLoggerCOM);
