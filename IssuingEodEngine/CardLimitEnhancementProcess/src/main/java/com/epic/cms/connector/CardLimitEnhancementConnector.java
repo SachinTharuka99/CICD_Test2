@@ -54,17 +54,19 @@ public class CardLimitEnhancementConnector extends ProcessBuilder {
             } else if (Configurations.STARTING_EOD_STATUS.equals(statusList.getERROR_STATUS())) {
                 custAccList = cardLimitEnhancementRepo.getErrorLimitEnhanceCustAcc();
             }
-            Configurations.PROCESS_TOTAL_NOOF_TRABSACTIONS = custAccList.size();
+            CommonMethods.eodDashboardProgressParametersReset();
+
 
             if (custAccList != null && custAccList.size() > 0) {
                 Configurations.RUNNING_PROCESS_ID = Configurations.PROCESS_LIMIT_ENHANCEMENT;
-                CommonMethods.eodDashboardProgressParametersReset();
+
 
                 summery.put("Accounts eligible for limit enhance process: ", custAccList.size() + "");
                 enhancementList = new ArrayList<>();
 
                 custAccList.forEach(bean -> {
                     enhancementList = cardLimitEnhancementRepo.getLimitEnhanceReqConCardList(bean.getCustomerid(), bean.getAccountnumber());
+                    Configurations.PROCESS_TOTAL_NOOF_TRABSACTIONS = enhancementList.size();
                     cardLimitEnhancementService.processCardLimitEnhancement(enhancementList, bean,Configurations.successCount,Configurations.failCount);
                 });
 

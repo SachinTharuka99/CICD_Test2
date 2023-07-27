@@ -318,11 +318,6 @@ public class RiskCalculationService {
                 logInfo.info(logManager.logDetails(details));
                 details.clear();
             }
-            if (Configurations.PROCESS_FAILD_COUNT > 0) {
-                logInfo.info(logManager.logStartEnd("RISK_CALCULATION_PROCESS Process completed for existing cards with errors"));
-            } else {
-                logInfo.info(logManager.logStartEnd("RISK_CALCULATION_PROCESS Process completed for existing cards without errors"));
-            }
         }
     }
 

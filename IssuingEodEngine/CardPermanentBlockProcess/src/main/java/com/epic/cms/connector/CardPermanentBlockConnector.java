@@ -41,7 +41,6 @@ public class CardPermanentBlockConnector extends ProcessBuilder {
     @Autowired
     CardBlockRepo cardPermanentBlockRepo;
     ArrayList<BlockCardBean> cardList = null;
-    ProcessBean processBean = new ProcessBean();
 
     @Override
     public void concreteProcess() throws Exception {
@@ -71,10 +70,11 @@ public class CardPermanentBlockConnector extends ProcessBuilder {
         } catch (Exception e) {
             Configurations.IS_PROCESS_COMPLETELY_FAILED = true;
             logError.error("Card Permanent Block process Error", e);
-        } finally {
+        }
+        /*finally {
             try {
-                /* PADSS Change -
-                variables handling card data should be nullified by replacing the value of variable with zero and call NULL function */
+                *//* PADSS Change -
+                variables handling card data should be nullified by replacing the value of variable with zero and call NULL function *//*
                 if (cardList != null && cardList.size() != 0) {
                     for (BlockCardBean blockCardBean : cardList) {
                         CommonMethods.clearStringBuffer(blockCardBean.getCardNo());
@@ -84,7 +84,7 @@ public class CardPermanentBlockConnector extends ProcessBuilder {
             } catch (Exception e2) {
                 logError.error("Card Permanent Block process Error ", e2);
             }
-        }
+        }*/
     }
 
     @Override

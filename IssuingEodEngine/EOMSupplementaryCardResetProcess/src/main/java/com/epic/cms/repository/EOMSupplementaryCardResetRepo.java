@@ -32,6 +32,7 @@ import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Objects;
 
 @Repository
 public class EOMSupplementaryCardResetRepo implements EOMSupplementaryCardResetDao {
@@ -217,7 +218,7 @@ public class EOMSupplementaryCardResetRepo implements EOMSupplementaryCardResetD
                         , Configurations.EOD_ID);
             }
         } catch (EmptyResultDataAccessException e) {
-            throw e;
+            //throw e;
         }
     }
 
@@ -301,15 +302,7 @@ public class EOMSupplementaryCardResetRepo implements EOMSupplementaryCardResetD
 
         try {
             String query = "UPDATE EOMCARDBALANCE SET LASTUPDATEDTIME = TO_DATE(?, 'DD-MM-YY'), LASTUPDATEDUSER=?,CUMFINANCIALCHARGE=?,CUMCASHADVANCE=?, CUMTRANSACTION=?,STATUS=?,EODID=? WHERE CARDNUMBER =?";
-            backendJdbcTemplate.update(query
-                    , sdf.format(Configurations.EOD_DATE) //1
-                    , Configurations.EOD_USER //2
-                    , 0 //3
-                    , 0 //4
-                    , 0 //5
-                    , Configurations.EOD_PENDING_STATUS //6
-                    , Configurations.EOD_USER //7
-                    , cardNo); //8
+            count = backendJdbcTemplate.update(query, sdf.format(Configurations.EOD_DATE), Configurations.EOD_USER, 0, 0, 0, Configurations.EOD_PENDING_STATUS, Configurations.EOD_ID, cardNo);
         } catch (Exception e) {
             throw e;
         }
@@ -338,12 +331,20 @@ public class EOMSupplementaryCardResetRepo implements EOMSupplementaryCardResetD
         try {
             //String query = "select FORWARDAMOUNT from EODPAYMENT where CARDNUMBER IN (Select CARDNUMBER from EODPAYMENT where CARDNUMBER <> MAINCARDNO and STATUS IN( ?,?) and MAINCARDNO = ?) and STATUS IN( ?,?)";
 
-
-            amount = backendJdbcTemplate.queryForObject(queryParametersList.getEOMSupplementaryCardReset_calculateSupCardForwardPayments(), Double.class, Configurations.EOD_PENDING_STATUS
+            amount = Objects.requireNonNull(backendJdbcTemplate.query(queryParametersList.getEOMSupplementaryCardReset_calculateSupCardForwardPayments()
+                    , (ResultSet rs) -> {
+                        double tempAmount = 0.00;
+                        while (rs.next()) {
+                            tempAmount = tempAmount + rs.getDouble("FORWARDAMOUNT");
+                        }
+                        return tempAmount;
+                    }
+                    , Configurations.EOD_PENDING_STATUS
                     , Configurations.INITIAL_STATUS
                     , mainCard.toString()
                     , Configurations.EOD_PENDING_STATUS
-                    , Configurations.INITIAL_STATUS);
+                    , Configurations.INITIAL_STATUS));
+
         } catch (EmptyResultDataAccessException ex) {
             return 0;
         } catch (Exception e) {
@@ -426,7 +427,7 @@ public class EOMSupplementaryCardResetRepo implements EOMSupplementaryCardResetD
             //String query = "SELECT NVL(MAX(SEQUENCENUMBER),0) AS  SEQUENCENUMBER FROM EODPAYMENT WHERE CARDNUMBER=? AND EODID=?";
             //String query2 = "INSERT INTO EODPAYMENT(SEQUENCENUMBER,EODID,CARDNUMBER,MAINCARDNO,ISPRIMARY,AMOUNT,PAYMENTTYPE,TRACEID,FORWARDAMOUNT,STATUS,CREATEDTIME,LASTUPDATEDUSER,LASTUPDATEDDATE) VALUES(?,?,?,?,?,?,?,?,?,?,sysdate,?,sysdate)";
 
-            sequenceNo = backendJdbcTemplate.queryForObject(queryParametersList.getEOMSupplementaryCardReset_insertNewEntryToEodPayment_Select(), Integer.class, mainCardNo.toString(), Configurations.EOD_ID);
+            sequenceNo = Objects.requireNonNull(backendJdbcTemplate.queryForObject(queryParametersList.getEOMSupplementaryCardReset_insertNewEntryToEodPayment_Select(), Integer.class, mainCardNo.toString(), Configurations.EOD_ID));
             if (sequenceNo == 0) {
                 sequenceNo = 100000;
             } else {
@@ -604,7 +605,7 @@ public class EOMSupplementaryCardResetRepo implements EOMSupplementaryCardResetD
         int count = 0;
         //String Query = "UPDATE EODPROCESSSUMMERY SET ENDTIME = SYSDATE , STATUS = ?,LASTUPDATEDTIME = SYSDATE,LASTUPDATEDUSER = ? WHERE EODID = ? AND PROCESSID = ?";
         try {
-            count = onlineJdbcTemplate.update(queryParametersList.getEOMSupplementaryCardReset_updateEodProcessSummery(), status, Configurations.EOD_USER, eodId, processId);
+            count = backendJdbcTemplate.update(queryParametersList.getEOMSupplementaryCardReset_updateEodProcessSummery(), status, Configurations.EOD_USER, eodId, processId);
         } catch (Exception e) {
             throw e;
         }
