@@ -46,8 +46,10 @@ public class RunnableFeeService {
                 addCashAdvanceFee(cardBean, details);
                 addLatePaymentFee(cardBean, format, details);
                 Configurations.PROCESS_SUCCESS_COUNT++;
+                Configurations.successCount.add(1);
             } catch (Exception ex) {
                 Configurations.PROCESS_FAILD_COUNT++;
+                Configurations.failCount.add(1);
             } finally {
                 logInfo.info(logManager.logDetails(details));
             }
@@ -104,6 +106,7 @@ public class RunnableFeeService {
                         details.put("updated the next anniversary fee for card", "SUCCESS");
                         details.put("updated the next anniversary date for card number:", CommonMethods.cardNumberMask(cardBean.getCardnumber()));
                         Configurations.SUMMARY_FOR_FEE_ANNIVERSARY_PROCESSED++;
+                        Configurations.successCount.add(1);
                     }
                 }
             }
@@ -115,6 +118,7 @@ public class RunnableFeeService {
             Configurations.errorCardList.add(new ErrorCardBean(Configurations.ERROR_EOD_ID, Configurations.EOD_DATE, cardBean.getCardnumber(), ex.getMessage(), Configurations.RUNNING_PROCESS_ID, Configurations.RUNNING_PROCESS_DESCRIPTION, 0, CardAccount.CARD));
 
             Configurations.FAILED_CARDS++;
+            Configurations.failCount.add(1);
             throw ex;
         }
     }
@@ -147,11 +151,13 @@ public class RunnableFeeService {
 
                         details.put("Added Cash Advance Fee", "SUCCESS");
                         Configurations.SUMMARY_FOR_FEE_CASHADVANCES++;
+                        Configurations.successCount.add(1);
                     } catch (Exception e) {
                         logError.error("--error--" + e);
                         Configurations.errorCardList.add(new ErrorCardBean(Configurations.ERROR_EOD_ID, Configurations.EOD_DATE, cardBean.getCardnumber(), e.getMessage(), Configurations.RUNNING_PROCESS_ID, Configurations.RUNNING_PROCESS_DESCRIPTION, 0, CardAccount.CARD));
                         //faileCardCount.addAndGet(1);
                         Configurations.FAILED_CARDS++;
+                        Configurations.failCount.add(1);
                     }
                 }
             }
@@ -294,6 +300,7 @@ public class RunnableFeeService {
                 runnableFeeDao.addCardFeeCount(cardNo, Configurations.LATE_PAYMENT_FEE, 0);
                 details.put("Added min payment fee for card", "SUCCESS");
                 Configurations.SUMMARY_FOR_FEE_LATEPAYMENTS++;
+                Configurations.successCount.add(1);
             }
 
         } catch (Exception ex) {
@@ -302,6 +309,7 @@ public class RunnableFeeService {
 
             //faileCardCount.addAndGet(1);
             Configurations.FAILED_CARDS++;
+            Configurations.failCount.add(1);
         }
     }
 }

@@ -89,16 +89,16 @@ public class TransactionPostConnector extends ProcessBuilder {
             variables handling card data should be nullified by replacing the value of variable with zero and call NULL function */
                 if (custAccList != null && custAccList.size() != 0) {
                     for (OtbBean bean : custAccList) {
-                        CommonMethods.clearStringBuffer(bean.getCardnumber());
-                        CommonMethods.clearStringBuffer(bean.getMaincardno());
+                        CommonMethods.clearStringBuffer(new StringBuffer(bean.getCardnumber()));
+                        CommonMethods.clearStringBuffer(new StringBuffer(bean.getMaincardno()));
                     }
                     custAccList = null;
                 }
 
                 if (txnList != null && txnList.size() != 0) {
                     for (OtbBean card : txnList) {
-                        CommonMethods.clearStringBuffer(card.getCardnumber());
-                        CommonMethods.clearStringBuffer(card.getMaincardno());
+                        CommonMethods.clearStringBuffer(new StringBuffer(card.getCardnumber()));
+                        CommonMethods.clearStringBuffer(new StringBuffer(card.getMaincardno()));
                     }
                     txnList = null;
                 }

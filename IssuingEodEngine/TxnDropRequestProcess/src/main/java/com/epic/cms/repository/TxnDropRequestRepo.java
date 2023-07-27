@@ -22,6 +22,7 @@ public class TxnDropRequestRepo implements TxnDropRequestDao {
     private JdbcTemplate backendJdbcTemplate;
 
     @Autowired
+    @Qualifier("onlineJdbcTemplate")
     private JdbcTemplate onlineJdbcTemplate;
 
     @Autowired

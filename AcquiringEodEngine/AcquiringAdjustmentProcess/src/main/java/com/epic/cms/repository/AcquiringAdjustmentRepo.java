@@ -500,7 +500,7 @@ public class AcquiringAdjustmentRepo implements AcquiringAdjustmentDao {
         int isOnus = 0;
 
         //String query = "SELECT BINTYPE FROM BINTABLE WHERE BIN=?";
-        String query = "SELECT COUNT(BIN) AS CNT FROM BIN WHERE (BIN=? OR BIN=?) AND ONUSSTATUS='YES'";
+        String query = "SELECT COUNT(BIN) AS CNT FROM CARDBIN WHERE (BIN=? OR BIN=?) AND ONUSSTATUS='YES'";
         try {
             isOnus = backendJdbcTemplate.queryForObject(query, Integer.class, sixDigitBin, eightDigitBin);
         }catch (EmptyResultDataAccessException ex){

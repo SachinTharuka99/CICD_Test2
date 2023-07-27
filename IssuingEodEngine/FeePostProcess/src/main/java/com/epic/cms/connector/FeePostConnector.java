@@ -75,16 +75,17 @@ public class FeePostConnector extends ProcessBuilder {
                     feePostService.proceedFeePost(bean,Configurations.successCount,Configurations.failCount);
                 });
 
+                //wait till all the threads are completed
+                while (!(taskExecutor.getActiveCount() == 0)) {
+                    updateEodEngineDashboardProcessProgress();
+                    Thread.sleep(1000);
+                }
             } else {
                 summery.put("Accounts eligible for fee posting process ", 0 + "");
             }
 
-            //wait till all the threads are completed
-            while (!(taskExecutor.getActiveCount() == 0)) {
-                updateEodEngineDashboardProcessProgress();
-                Thread.sleep(1000);
-            }
-            Configurations.PROCESS_TOTAL_NOOF_TRABSACTIONS = (custAccList.size());
+
+            //Configurations.PROCESS_TOTAL_NOOF_TRABSACTIONS = (custAccList.size());
 
             //expire the fee promotion profile based on the end date mentioned in the profile.
             try {
@@ -103,8 +104,8 @@ public class FeePostConnector extends ProcessBuilder {
              /* PADSS Change -
             variables handling card data should be nullified by replacing the value of variable with zero and call NULL function */
             for (OtbBean bean : custAccList) {
-                CommonMethods.clearStringBuffer(bean.getCardnumber());
-                CommonMethods.clearStringBuffer(bean.getMaincardno());
+                CommonMethods.clearStringBuffer(new StringBuffer(bean.getCardnumber()));
+                CommonMethods.clearStringBuffer(new StringBuffer(bean.getMaincardno()));
             }
         }
     }

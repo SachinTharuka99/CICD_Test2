@@ -294,7 +294,7 @@ public class CardLimitEnhancementRepo implements CardLimitEnhancementDao {
         try {
             //String query = "UPDATE ECMS_ONLINE_CUSTOMER SET OTBCASH=OTBCASH + ? WHERE CUSTOMERID=?  ";
 
-            onlineJdbcTemplate.update(queryParametersList.CardLimitEnhancement_updateOnlineCustomerCashLimit, otbCash, customerId);
+            onlineJdbcTemplate.update(queryParametersList.getCardLimitEnhancement_updateOnlineCustomerCashLimit(), otbCash, customerId);
 
             if (Configurations.ONLINE_LOG_LEVEL == 1) {
                 //Only for troubleshoot

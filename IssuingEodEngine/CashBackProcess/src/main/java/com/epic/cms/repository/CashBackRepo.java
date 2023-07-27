@@ -56,9 +56,9 @@ public class CashBackRepo implements CashBackDao {
 
             //String query = "SELECT PROCESSID,DESCRIPTION,CRITICALSTATUS,ROLLBACKSTATUS,SHEDULEDATE,SHEDULETIME,FREQUENCYTYPE,CONTINUESFREQUENCYTYPE,CONTINUESFREQUENCY,MULTIPLECYCLESTATUS,PROCESSCATEGORYID,DEPENDANCYSTATUS,RUNNINGONMAIN,RUNNINGONSUB,PROCESSTYPE,STATUS,SHEDULEDATETIME,HOLIDAYACTION FROM EODPROCESS WHERE PROCESSID = ? ";//AND SHEDULEDATETIME <= to_date(?,'MM/dd/YYYY HH:mi:ss AM') ";
             processBean = backendJdbcTemplate.queryForObject(queryParametersList.getCashBack_getProcessDetails(), new RowMapper<>() {
-                        @Override
-                        public ProcessBean mapRow(ResultSet result, int rowNum) throws SQLException {
-                            ProcessBean processDetails = new ProcessBean();
+                @Override
+                public ProcessBean mapRow(ResultSet result, int rowNum) throws SQLException {
+                    ProcessBean processDetails = new ProcessBean();
 
                     processDetails.setProcessId(result.getInt("PROCESSID"));
                     processDetails.setProcessDes(result.getString("DESCRIPTION"));
@@ -431,13 +431,13 @@ public class CashBackRepo implements CashBackDao {
                             Integer id = rs.getInt("ID");
                             Double amount = rs.getDouble("CASHBACKAMOUNT2"); //cashback value
 
-                    if ((totalAmount + amount) > roundedCashbackAmount) { // if when add full cashback value then exceed the request limit
-                        amount = roundedCashbackAmount - totalAmount; //partially reduce the cashback amount
-                    }
-                    totalAmount += amount;
-                    hm.put(id, amount);
-                }
-            }, cashbackBean.getAccountNumber());
+                            if ((totalAmount + amount) > roundedCashbackAmount) { // if when add full cashback value then exceed the request limit
+                                amount = roundedCashbackAmount - totalAmount; //partially reduce the cashback amount
+                            }
+                            totalAmount += amount;
+                            hm.put(id, amount);
+                        }
+                    }, cashbackBean.getAccountNumber());
             //deduct redeem amount
             //query = "UPDATE CASHBACK SET REDEEMAMOUNT=REDEEMAMOUNT+?,REDEEMDATE=?,LASTUPDATEDTIME=SYSDATE,REMARK=? WHERE ID=?";
 
@@ -499,21 +499,24 @@ public class CashBackRepo implements CashBackDao {
         BigDecimal availableCashbackAmount = null;
         BigDecimal redeemRatio = BigDecimal.valueOf(cashbackBean.getRedeemRatio());
         BigDecimal fullRedeemableAmount = null;
-        BigDecimal ActualAmountCanRedeem = null;
+        BigDecimal ActualAmountCanRedeem = new BigDecimal(0);
 
         try {
             //check customer has a due amount to pay
-            //String query = "SELECT M1 FROM MINIMUMPAYMENT WHERE CARDNO=?";
+            String query = "SELECT M1 FROM MINIMUMPAYMENT WHERE CARDNO=?";
 
-            m1 = backendJdbcTemplate.queryForObject(queryParametersList.getCashBack_getRedeemableAmount_Select_1(), Double.class,
-                    cashbackBean.getMainCardNumber().toString()
-            );
-
+            try {
+                m1 = backendJdbcTemplate.queryForObject(query, Double.class,
+                        cashbackBean.getMainCardNumber().toString()
+                );
+            } catch (EmptyResultDataAccessException ex) {
+                m1 = 0.0;
+            }
             if (m1 > 0) {
                 //customer has a due amount and cannot redeem cashback
                 ActualAmountCanRedeem = new BigDecimal(0);
             } else { //customer not has any due amount
-               // query = "SELECT (?-NVL(SUM(AMOUNT),0)) AS REMAININGCASHBACKFORYEAR FROM CASHBACKEXPREDEEM WHERE TRUNC(EODDATE)>=TRUNC(?) AND ACCOUNTNUMBER=?";
+                // query = "SELECT (?-NVL(SUM(AMOUNT),0)) AS REMAININGCASHBACKFORYEAR FROM CASHBACKEXPREDEEM WHERE TRUNC(EODDATE)>=TRUNC(?) AND ACCOUNTNUMBER=?";
 
                 double remainingCashBack = backendJdbcTemplate.queryForObject(queryParametersList.getCashBack_getRedeemableAmount_Select_2(), Double.class,
                         cashbackBean.getMaxCashbackPerYear(),
@@ -523,12 +526,18 @@ public class CashBackRepo implements CashBackDao {
                 remainingCashBackForYear = new BigDecimal(remainingCashBack);
             }
 
-            //query = "SELECT AVLCASHBACKAMOUNT FROM CARDACCOUNT WHERE ACCOUNTNO=? ";
+            query = "SELECT AVLCASHBACKAMOUNT FROM CARDACCOUNT WHERE ACCOUNTNO=? ";
 
-            double availableCashBackAmt = backendJdbcTemplate.queryForObject(queryParametersList.getCashBack_getRedeemableAmount_Select_3(), Double.class,
+            double availableCashBackAmt = backendJdbcTemplate.queryForObject(query, Double.class,
                     cashbackBean.getAccountNumber()
             );
             availableCashbackAmount = new BigDecimal(availableCashBackAmt);
+            if (remainingCashBackForYear == null) {
+                remainingCashBackForYear = new BigDecimal("0.0");
+            }
+            if (availableCashbackAmount == null) {
+                availableCashbackAmount = new BigDecimal("0.0");
+            }
 
             if (availableCashBackAmt > 0) {
                 availableCashbackAmount = new BigDecimal(availableCashBackAmt);
@@ -546,7 +555,7 @@ public class CashBackRepo implements CashBackDao {
                 }
             }
         } catch (EmptyResultDataAccessException e) {
-            throw e;
+            return new BigDecimal("0.0");
         }
         return ActualAmountCanRedeem;
     }
@@ -560,18 +569,18 @@ public class CashBackRepo implements CashBackDao {
             switch (creditOption) {
                 case "0":
                     // monthly
-                    //query = "UPDATE CARDACCOUNT SET NEXTCBREDEEMDATE=NEXTBILLINGDATE+? WHERE ACCOUNTNO=?";
-                    queryParametersList.getCashBack_updateNextCBRedeemDate_Update_1();
+                    query = "UPDATE CARDACCOUNT SET NEXTCBREDEEMDATE=NEXTBILLINGDATE+? WHERE ACCOUNTNO=?";
+                    //queryParametersList.getCashBack_updateNextCBRedeemDate_Update_1();
                     break;
                 case "1":
                     //quartally
-                    //query = "UPDATE CARDACCOUNT SET NEXTCBREDEEMDATE=ADD_MONTHS(NEXTBILLINGDATE,3)+? WHERE ACCOUNTNO=?";
-                    queryParametersList.getCashBack_updateNextCBRedeemDate_Update_2();
+                    query = "UPDATE CARDACCOUNT SET NEXTCBREDEEMDATE=ADD_MONTHS(NEXTBILLINGDATE,3)+? WHERE ACCOUNTNO=?";
+                    //queryParametersList.getCashBack_updateNextCBRedeemDate_Update_2();
                     break;
                 case "2":
                     //anually
-                    //query = "UPDATE CARDACCOUNT SET NEXTCBREDEEMDATE=ADD_MONTHS(NEXTBILLINGDATE,12)+? WHERE ACCOUNTNO=?";
-                    queryParametersList.getCashBack_updateNextCBRedeemDate_Update_3();
+                    query = "UPDATE CARDACCOUNT SET NEXTCBREDEEMDATE=ADD_MONTHS(NEXTBILLINGDATE,12)+? WHERE ACCOUNTNO=?";
+                    //queryParametersList.getCashBack_updateNextCBRedeemDate_Update_3();
                     break;
                 default:
                     break;
@@ -670,7 +679,7 @@ public class CashBackRepo implements CashBackDao {
             );
 
             // set available cashback amount to zero in CARDACCOUNT table
-           // query = "UPDATE CARDACCOUNT SET AVLCASHBACKAMOUNT=0 WHERE ACCOUNTNO=?";
+            // query = "UPDATE CARDACCOUNT SET AVLCASHBACKAMOUNT=0 WHERE ACCOUNTNO=?";
 
             count = backendJdbcTemplate.update(queryParametersList.getCashBack_expireCardCloseCashbacks_Update_2(),
                     cashbackBean.getAccountNumber()

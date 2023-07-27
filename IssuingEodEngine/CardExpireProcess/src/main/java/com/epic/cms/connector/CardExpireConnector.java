@@ -68,14 +68,14 @@ public class CardExpireConnector extends ProcessBuilder {
         } catch (Exception ex) {
             Configurations.IS_PROCESS_COMPLETELY_FAILED = true;
             throw ex;
-        } finally {
+        }finally {
             try {
                 if (expiredCardList != null && expiredCardList.size() != 0) {
                     /** PADSS Change -
-                     variables handling card data should be nullified by replacing the value of variable with zero and call NULL function */
+                     variables handling card data should be nullified by replacing the value of variable with zero and call NULL function **/
                     for (CardBean cardBean : expiredCardList) {
-                        CommonMethods.clearStringBuffer(cardBean.getCardnumber());
-                        CommonMethods.clearStringBuffer(cardBean.getMainCardNo());
+                        CommonMethods.clearStringBuffer(new StringBuffer(cardBean.getCardnumber()));
+                        CommonMethods.clearStringBuffer(new StringBuffer(cardBean.getMainCardNo()));
                     }
                 }
             } catch (Exception e) {

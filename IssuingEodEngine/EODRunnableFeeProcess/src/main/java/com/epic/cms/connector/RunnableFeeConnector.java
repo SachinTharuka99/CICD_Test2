@@ -86,8 +86,8 @@ public class RunnableFeeConnector extends ProcessBuilder {
                variables handling card data should be nullified
                by replacing the value of variable with zero and call NULL function */
             for (CardBean cardBean : cardList) {
-                CommonMethods.clearStringBuffer(cardBean.getCardnumber());
-                CommonMethods.clearStringBuffer(cardBean.getMainCardNo());
+                CommonMethods.clearStringBuffer(new StringBuffer(cardBean.getCardnumber()));
+                CommonMethods.clearStringBuffer(new StringBuffer(cardBean.getMainCardNo()));
             }
             cardList = null;
         }

@@ -12,6 +12,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.core.RowCountCallbackHandler;
 import org.springframework.stereotype.Repository;
@@ -32,8 +33,11 @@ public class ManualNpRepo implements ManualNpDao {
     StatusVarList statusList;
     @Autowired
     JdbcTemplate backendJdbcTemplate;
+
     @Autowired
+    @Qualifier("onlineJdbcTemplate")
     JdbcTemplate onlineJdbcTemplate;
+
     @Autowired
     LogManager logManager;
 
@@ -131,14 +135,14 @@ public class ManualNpRepo implements ManualNpDao {
         int count = 0;
         String sql = null;
         if (manualNp) {
-            //sql = "SELECT NVL(B.INTEREST,0) AS INTEREST, ";
-            sql = queryParametersList.getManualNpRepo_insertIntoDelinquentHistory_Appender1();
+            sql = "SELECT NVL(B.INTEREST,0) AS INTEREST, ";
+            //sql = queryParametersList.getManualNpRepo_insertIntoDelinquentHistory_Appender1();
         } else {
-            //sql = "SELECT (SELECT NVL(SUM(INTEREST),0) FROM (SELECT ROWNUM RN, A.INTEREST FROM (SELECT BS.CARDNO, BS.INTEREST FROM BILLINGSTATEMENT BS WHERE BS.CARDNO = ? ORDER BY BS.DUEDATE DESC ) A ) B WHERE B.RN < 4 ) AS INTEREST,";
-            sql = queryParametersList.getManualNpRepo_insertIntoDelinquentHistory_Appender2();
+            sql = "SELECT (SELECT NVL(SUM(INTEREST),0) FROM (SELECT ROWNUM RN, A.INTEREST FROM (SELECT BS.CARDNO, BS.INTEREST FROM BILLINGSTATEMENT BS WHERE BS.CARDNO = ? ORDER BY BS.DUEDATE DESC ) A ) B WHERE B.RN < 4 ) AS INTEREST, ";
+            //sql = queryParametersList.getManualNpRepo_insertIntoDelinquentHistory_Appender2();
         }
-        //sql += "(NVL(B.THISBILLCLOSINGBALANCE,0) + NVL(Y.TOTALOUTSTANING,0)) AS THISBILLCLOSINGBALANCE FROM BILLINGLASTSTATEMENTSUMMARY BS INNER JOIN BILLINGSTATEMENT B ON B.STATEMENTID=BS.STATEMENTID LEFT JOIN   (SELECT X.CARDNO, SUM(X.TOTALAMOUNT) AS TOTALOUTSTANING FROM (SELECT BLS.CARDNO, SUM(CASE WHEN ECF.CRDR = 'CR' THEN -1 * ECF.FEEAMOUNT ELSE ECF.FEEAMOUNT END) AS TOTALAMOUNT FROM BILLINGLASTSTATEMENTSUMMARY BLS INNER JOIN BILLINGSTATEMENT BS ON BLS.STATEMENTID = BS.STATEMENTID LEFT JOIN EODCARDFEE ECF ON BS.ACCOUNTNO = ECF.ACCOUNTNO WHERE ECF.EFFECTDATE > BLS.STATEMENTENDDATE AND ECF.EFFECTDATE  <= TO_DATE(?,'DD-MM-YY') AND ECF.STATUS = ? AND BLS.CARDNO = ? GROUP BY BLS.CARDNO  UNION ALL SELECT BLS.CARDNO, SUM(CASE WHEN E.CRDR = 'CR' THEN -1 * E.TRANSACTIONAMOUNT ELSE E.TRANSACTIONAMOUNT END) AS TOTALAMOUNT FROM BILLINGLASTSTATEMENTSUMMARY BLS INNER JOIN BILLINGSTATEMENT BS ON BLS.STATEMENTID = BS.STATEMENTID LEFT JOIN EODTRANSACTION E ON BS.ACCOUNTNO= E.ACCOUNTNO WHERE E.SETTLEMENTDATE > BLS.STATEMENTENDDATE AND E.SETTLEMENTDATE  <= TO_DATE(?,'DD-MM-YY') AND E.STATUS= ? AND BLS.CARDNO = ? GROUP BY BLS.CARDNO) X GROUP BY X.CARDNO) Y ON B.CARDNO = Y.CARDNO WHERE 1=1 AND B.CARDNO=?";
-        sql += queryParametersList.getManualNpRepo_insertIntoDelinquentHistory_Appender3();
+        sql += "(NVL(B.THISBILLCLOSINGBALANCE,0) + NVL(Y.TOTALOUTSTANING,0)) AS THISBILLCLOSINGBALANCE FROM BILLINGLASTSTATEMENTSUMMARY BS INNER JOIN BILLINGSTATEMENT B ON B.STATEMENTID=BS.STATEMENTID LEFT JOIN   (SELECT X.CARDNO, SUM(X.TOTALAMOUNT) AS TOTALOUTSTANING FROM (SELECT BLS.CARDNO, SUM(CASE WHEN ECF.CRDR = 'CR' THEN -1 * ECF.FEEAMOUNT ELSE ECF.FEEAMOUNT END) AS TOTALAMOUNT FROM BILLINGLASTSTATEMENTSUMMARY BLS INNER JOIN BILLINGSTATEMENT BS ON BLS.STATEMENTID = BS.STATEMENTID LEFT JOIN EODCARDFEE ECF ON BS.ACCOUNTNO = ECF.ACCOUNTNO WHERE ECF.EFFECTDATE > BLS.STATEMENTENDDATE AND ECF.EFFECTDATE  <= TO_DATE(?,'DD-MM-YY') AND ECF.STATUS = ? AND BLS.CARDNO = ? GROUP BY BLS.CARDNO  UNION ALL SELECT BLS.CARDNO, SUM(CASE WHEN E.CRDR = 'CR' THEN -1 * E.TRANSACTIONAMOUNT ELSE E.TRANSACTIONAMOUNT END) AS TOTALAMOUNT FROM BILLINGLASTSTATEMENTSUMMARY BLS INNER JOIN BILLINGSTATEMENT BS ON BLS.STATEMENTID = BS.STATEMENTID LEFT JOIN EODTRANSACTION E ON BS.ACCOUNTNO= E.ACCOUNTNO WHERE E.SETTLEMENTDATE > BLS.STATEMENTENDDATE AND E.SETTLEMENTDATE  <= TO_DATE(?,'DD-MM-YY') AND E.STATUS= ? AND BLS.CARDNO = ? GROUP BY BLS.CARDNO) X GROUP BY X.CARDNO) Y ON B.CARDNO = Y.CARDNO WHERE 1=1 AND B.CARDNO=?";
+        //sql += queryParametersList.getManualNpRepo_insertIntoDelinquentHistory_Appender3();
 
         try {
             SimpleDateFormat sdf = new SimpleDateFormat("dd-MMM-yy");
@@ -196,8 +200,8 @@ public class ManualNpRepo implements ManualNpDao {
     public DelinquentAccountBean setDelinquentAccountDetails(StringBuffer cardNo) throws Exception {
         DelinquentAccountBean delinquentAccountBean = new DelinquentAccountBean();
         try {
-            //String sql = "SELECT C.CARDCATEGORYCODE, C.NAMEONCARD, C.IDTYPE, C.IDNUMBER, CAC.ACCOUNTNO, CA.STATUS, CAC.CUSTOMERID, B.STATEMENTENDDATE, B.DUEDATE,  B.MINAMOUNT, NVL(DA.NDIA,0) AS NDIA  FROM CARD C, CARDACCOUNTCUSTOMER CAC, BILLINGLASTSTATEMENTSUMMARY B, CARDACCOUNT CA LEFT JOIN DELINQUENTACCOUNT DA ON DA.ACCOUNTNO = CA.ACCOUNTNO  WHERE CAC.CARDNUMBER = C.CARDNUMBER AND CA.CARDNUMBER = C.MAINCARDNO AND C.CARDNUMBER = C.MAINCARDNO AND B.CARDNO = C.MAINCARDNO  AND C.MAINCARDNO = ?";
-            String sql = queryParametersList.getManualNpRepo_setDelinquentAccountDetails();
+            String sql = "SELECT C.CARDCATEGORYCODE, C.NAMEONCARD, C.IDTYPE, C.IDNUMBER, CAC.ACCOUNTNO, CA.STATUS, CAC.CUSTOMERID, B.STATEMENTENDDATE, B.DUEDATE,  B.MINAMOUNT, NVL(DA.NDIA,0) AS NDIA  FROM CARD C, CARDACCOUNTCUSTOMER CAC, BILLINGLASTSTATEMENTSUMMARY B, CARDACCOUNT CA LEFT JOIN DELINQUENTACCOUNT DA ON DA.ACCOUNTNO = CA.ACCOUNTNO  WHERE CAC.CARDNUMBER = C.CARDNUMBER AND CA.CARDNUMBER = C.MAINCARDNO AND C.CARDNUMBER = C.MAINCARDNO AND B.CARDNO = C.MAINCARDNO  AND C.MAINCARDNO = ?";
+            //String sql = queryParametersList.getManualNpRepo_setDelinquentAccountDetails();
             DelinquentAccountBean tempDelinquentAccountBean = new DelinquentAccountBean();
             delinquentAccountBean = Objects.requireNonNull(backendJdbcTemplate.query(sql,
                     (ResultSet rs) -> {
@@ -223,8 +227,8 @@ public class ManualNpRepo implements ManualNpDao {
             if (delinquentAccountBean.getCardCategory().equals(Configurations.CARD_CATEGORY_MAIN)
                     || delinquentAccountBean.getCardCategory().equals(Configurations.CARD_CATEGORY_AFFINITY)
                     || delinquentAccountBean.getCardCategory().equals(Configurations.CARD_CATEGORY_CO_BRANDED)) {
-                //sql = "SELECT NAMEWITHINITIAL ,CONTACTNO ,EMAIL FROM CARDMAINCUSTOMERDETAIL WHERE CUSTOMERID = ?";
-                sql = queryParametersList.getManualNpRepo_setDelinquentAccountDetails_Appender1();
+                sql = "SELECT NAMEWITHINITIAL ,CONTACTNO ,EMAIL FROM CARDMAINCUSTOMERDETAIL WHERE CUSTOMERID = ?";
+                //sql = queryParametersList.getManualNpRepo_setDelinquentAccountDetails_Appender1();
 
                 delinquentAccountBean = Objects.requireNonNull(backendJdbcTemplate.query(sql,
                         (ResultSet rs) -> {
@@ -239,8 +243,8 @@ public class ManualNpRepo implements ManualNpDao {
                 ));
 
             } else if (delinquentAccountBean.getCardCategory().equals(Configurations.CARD_CATEGORY_FD)) {
-                //sql = "SELECT CUSTOMERNAME ,CONTACTNO ,EMAIL FROM CARDFDCUSTOMERDETAIL WHERE CUSTOMERID = ?";
-                sql = queryParametersList.getManualNpRepo_setDelinquentAccountDetails_Appender2();
+                sql = "SELECT CUSTOMERNAME ,CONTACTNO ,EMAIL FROM CARDFDCUSTOMERDETAIL WHERE CUSTOMERID = ?";
+                //sql = queryParametersList.getManualNpRepo_setDelinquentAccountDetails_Appender2();
 
                 delinquentAccountBean = Objects.requireNonNull(backendJdbcTemplate.query(sql,
                         (ResultSet rs) -> {
@@ -255,8 +259,8 @@ public class ManualNpRepo implements ManualNpDao {
                 ));
 
             } else if (delinquentAccountBean.getCardCategory().equals(Configurations.CARD_CATEGORY_ESTABLISHMENT)) {
-                //sql = "SELECT NAMEOFTHECOMPANY ,CONTACTNUMBERSLAND ,CONTACTEMAIL FROM CARDESTCUSTOMERDETAILS WHERE CUSTOMERID = ?";
-                sql = queryParametersList.getManualNpRepo_setDelinquentAccountDetails_Appender3();
+                sql = "SELECT NAMEOFTHECOMPANY ,CONTACTNUMBERSLAND ,CONTACTEMAIL FROM CARDESTCUSTOMERDETAILS WHERE CUSTOMERID = ?";
+                //sql = queryParametersList.getManualNpRepo_setDelinquentAccountDetails_Appender3();
                 delinquentAccountBean = Objects.requireNonNull(backendJdbcTemplate.query(sql,
                         (ResultSet rs) -> {
                             while (rs.next()) {

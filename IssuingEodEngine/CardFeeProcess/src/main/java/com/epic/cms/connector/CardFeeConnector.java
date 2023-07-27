@@ -77,7 +77,7 @@ public class CardFeeConnector extends ProcessBuilder {
             /** PADSS Change -
              variables handling card data should be nullified by replacing the value of variable with zero and call NULL function */
             for (CardFeeBean cardFeeBean : cardRecordList) {
-                CommonMethods.clearStringBuffer(cardFeeBean.getCardNumber());
+                CommonMethods.clearStringBuffer(new StringBuffer(cardFeeBean.getCardNumber()));
             }
             cardRecordList = null;
         }
